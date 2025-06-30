@@ -1,43 +1,31 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Header from "./components/Header";
-import { AppShell } from "@mantine/core";
-import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
+import Draws from "./pages/Draws";
+import MainLayout from "./pages/Main";
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Dashboard />,
-    // errorElement: <ErrorPage />,
+    element: <MainLayout />,
     children: [
       {
         index: true,
-        // path: '',
         element: <Dashboard />
       },
       {
         path: 'dashboard',
         element: <Dashboard />
       },
+      {
+        path: 'draws',
+        element: <Draws />
+      },
     ],
   },
 ]);
 
 function App() {
-  return (
-    <AppShell
-      padding="md"
-    >
-      <AppShell.Header>
-        <Header />
-      </AppShell.Header>
-
-      <AppShell.Main bg={'#fafafb'} p={0} pt={197}>
-          <RouterProvider router={router} />
-        <Footer />
-      </AppShell.Main>
-    </AppShell>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
