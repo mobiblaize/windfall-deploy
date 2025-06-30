@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+:root {
+  --primary-red: #ff2f31;
+}
+
+body {
+  font-family: 'League Spartan', sans-serif;
+  background-color: #010101;
+  color: #ffffff;
+}
+
