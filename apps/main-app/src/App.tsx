@@ -1,26 +1,42 @@
-import { Button, Drawer } from "@mantine/core";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Header from "./components/Header";
+import { AppShell } from "@mantine/core";
+import Footer from "./components/Footer";
+import Dashboard from "./pages/Dashboard";
 
-import { useState } from "react";
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Dashboard />,
+    // errorElement: <ErrorPage />,
+    children: [
+      {
+        index: true,
+        // path: '',
+        element: <Dashboard />
+      },
+      {
+        path: 'dashboard',
+        element: <Dashboard />
+      },
+    ],
+  },
+]);
 
 function App() {
-  const [opened, setOpened] = useState(false);
-
   return (
-    <div className={"text-red-500 p-5"}>
-      <h1>Hello World React is great</h1>
-      <Button
-        variant="outline"
-        onClick={() => {
-          setOpened(true);
-        }}
-      >
-        Click me
-      </Button>
+    <AppShell
+      padding="md"
+    >
+      <AppShell.Header>
+        <Header />
+      </AppShell.Header>
 
-      <Drawer opened={opened} onClose={() => setOpened(false)}>
-        <h2>This is a Drawer</h2>
-      </Drawer>
-    </div>
+      <AppShell.Main bg={'#fafafb'} p={0} pt={197}>
+          <RouterProvider router={router} />
+        <Footer />
+      </AppShell.Main>
+    </AppShell>
   );
 }
 
