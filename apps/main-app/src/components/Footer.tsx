@@ -28,9 +28,16 @@ export default function Footer() {
       <div className="grid md:grid-cols-2 gap-10">
         {/* Left Section */}
         <div>
-          <div className="text-white text-2xl font-bold">
-            Windfall<span className="text-red-500">Raffle</span>
+          <div className="inline-block text-3xl leading-4 font-bold">
+            <span className="text-white">Windfall</span>
+            <span className="text-red-500">Raffle</span>
+            <p className="text-xs text-white text-right">
+              Live in - Rent out - Sell up
+            </p>
           </div>
+          {/* <div className="text-white text-2xl font-bold">
+            Windfall<span className="text-red-500">Raffle</span>
+          </div> */}
           <p className="text-xs mt-2 mb-6">
             The purpose of this Business Requirement Document (BRD) is to outline the functional and nonfunctional
             requirements for the development of the "Online Raffle Web Application" for Windfall Raffle.
@@ -112,23 +119,26 @@ export default function Footer() {
 
       {/* Bottom Section */}
       <hr className="my-6 border-[#444]" />
-      <div className="text-xs text-center md:text-left space-y-2">
-        <p>
-          For compliance and responsible gaming, ensure your raffle adheres to all regulatory guidelines.
-        </p>
-        <p>
-          Lagos State Lotteries & Gaming Authority (LSLGA) –{' '}
-          <a href="https://www.lslb.lg.gov.ng" target="_blank" rel="noopener noreferrer" className="text-red-500">
-            www.lslb.lg.gov.ng
-          </a>
-        </p>
-        <p>
-          Federal Competition & Consumer Protection Commission (FCCPC) –{' '}
-          <a href="https://www.fccpc.gov.ng" target="_blank" rel="noopener noreferrer" className="text-red-500">
-            www.fccpc.gov.ng
-          </a>
-        </p>
-        <p className="text-gray-500 pt-4">
+      
+      <div className="grid md:grid-cols-2 gap-10">
+        <div className="text-xs text-center md:text-left space-y-2">
+          <p>
+            For compliance and responsible gaming, ensure your raffle adheres to all regulatory guidelines.
+          </p>
+          <p>
+            Lagos State Lotteries & Gaming Authority (LSLGA) –{' '}
+            <a href="https://www.lslb.lg.gov.ng" target="_blank" rel="noopener noreferrer" className="text-red-500">
+              www.lslb.lg.gov.ng
+            </a>
+          </p>
+          <p>
+            Federal Competition & Consumer Protection Commission (FCCPC) –{' '}
+            <a href="https://www.fccpc.gov.ng" target="_blank" rel="noopener noreferrer" className="text-red-500">
+              www.fccpc.gov.ng
+            </a>
+          </p>
+        </div>
+        <p className="text-gray-500 pt-4 text-center md:text-right">
           © 2025 Windfall Raffle™ by Home Windfall Limited | All Rights Reserved
         </p>
       </div>

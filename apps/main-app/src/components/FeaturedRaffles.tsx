@@ -35,11 +35,11 @@ const raffles = [
 
 export default function FeaturedRaffles() {
   return (
-    <section className="px-6 md:px-16 py-12 bg-[#f9f9f9]">
+    <section className="px-6 md:px-16 py-20 bg-[#f9f9f9]">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Featured Raffles</h2>
+          <h2 className="text-3xl font-bold text-gray-800">Featured Raffles</h2>
           <p className="text-gray-500 text-sm">One ticket. One shot. Your keys could be next.</p>
         </div>
         <a href="#" className="text-red-500 text-sm font-medium hover:underline">
