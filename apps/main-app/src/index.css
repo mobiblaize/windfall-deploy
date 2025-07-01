@@ -10,3 +10,9 @@ body {
   color: #ffffff;
 }
 
+@theme {
+  --color-primary-red: #ff2f31;
+  --color-secondary-red: #FFF7F7;
+  --color-primary-text: #2D2D2D;
+  --color-secondary-text: #818181;
+}
