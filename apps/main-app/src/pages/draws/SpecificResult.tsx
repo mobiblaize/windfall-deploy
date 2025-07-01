@@ -215,10 +215,16 @@ function SpecificResult() {
 					</Button>
 				</Container>
 				<Container
-					className="!bg-[#030303] !py-7 rounded-xl !mb-14 relative h-fit"
+					className="!bg-[#030303] !py-3 rounded-xl !mb-7 md:!mb-14 relative h-fit"
 					size="xl"
 				>
-					
+					<div>
+						<Image
+							src="/src/assets/Contact Us Card.png"
+							alt="Draw Result 2"
+							className="w-full h-full"
+						/>
+					</div>
 				</Container>
 			</section>
 		</div>
