@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Draws from "./pages/draws/Draws";
 import MainLayout from "./pages/Main";
 import SpecificResult from "./pages/draws/SpecificResult";
+import RaffleGames from "./pages/RaffleGames";
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
 					<Route index element={<Navigate to="/dashboard" replace />} />
 
 					<Route path="dashboard" element={<Dashboard />} />
+					<Route path="raffles" element={<RaffleGames />} />
 					<Route path="draws" element={<Draws />} />
 					<Route path="draws/:id" element={<SpecificResult />} />
 				</Route>
