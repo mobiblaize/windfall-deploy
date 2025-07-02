@@ -11,7 +11,7 @@ export default function MainLayout() {
       </AppShell.Header>
 
       <AppShell.Main bg="#fafafb" p={0} pt={197}>
-        <Outlet /> {/* This is crucial for rendering child routes */}
+        <Outlet /> 
         <Footer />
       </AppShell.Main>
     </AppShell>
