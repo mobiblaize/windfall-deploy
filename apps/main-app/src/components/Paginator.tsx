@@ -2,7 +2,7 @@
 interface PaginatorProps {
   currentPage: number;
   totalPages: number;
-  onPageChange: (newPage: number) => void;
+  onPageChange?: (newPage: number) => void;
 }
 
 export default function Paginator({ currentPage, totalPages, onPageChange }: PaginatorProps) {
@@ -12,7 +12,7 @@ export default function Paginator({ currentPage, totalPages, onPageChange }: Pag
         className={`text-base px-4 py-2 rounded-full shadow-md ${
           currentPage === 1 ? 'text-gray-400 bg-white' : 'text-black bg-gray-100'
         }`}
-        onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+        onClick={() => currentPage > 1 && onPageChange?.(currentPage - 1)}
         disabled={currentPage === 1}
       >
         &lt; Previous
@@ -26,7 +26,7 @@ export default function Paginator({ currentPage, totalPages, onPageChange }: Pag
         className={`text-base px-4 py-2 rounded-full shadow-md ${
           currentPage === totalPages ? 'text-gray-400 bg-white' : 'text-black bg-gray-100'
         }`}
-        onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+        onClick={() => currentPage < totalPages && onPageChange?.(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
         Next &gt;

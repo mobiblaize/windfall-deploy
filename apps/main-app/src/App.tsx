@@ -24,8 +24,13 @@ function App() {
 
 					<Route path="login" element={<LoginPage/>} />
 					<Route path="dashboard" element={<Dashboard />} />
+					<Route path="raffles" element={<RaffleGames />} />
+					<Route path="raffles/:id" element={<SpecificResult />} />
 					<Route path="draws" element={<Draws />} />
 					<Route path="draws/:id" element={<SpecificResult />} />
+					<Route path="draws" element={<RecentDraws/>} />
+					<Route path="winners/all-time" element={<AllWinnersPage />} />
+					<Route path="prize" element={<AllPricesPage />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>

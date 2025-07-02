@@ -3,9 +3,13 @@ import { IconZoomFilled } from "@tabler/icons-react";
 import { FaAngleDown } from "react-icons/fa";
 import header from "../../assets/winner-banner.png";
 import WinnersCard from "./WinnersCard";
-import CustomPagination from "../../components/CustomPagination";
+import Paginator from "../../components/Paginator";
+import { useState } from "react";
 
 function AllWinnersPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+  console.log(currentPage);
+  
 	return (
 		<div className="mb-10 flex flex-col h-full">
 			<div
@@ -50,7 +54,8 @@ function AllWinnersPage() {
 						))}
 					</SimpleGrid>
 				</section>
-				<CustomPagination/>
+		
+				<Paginator currentPage={1} totalPages={1} onPageChange={setCurrentPage} />
 			</main>
 		</div>
 	);
