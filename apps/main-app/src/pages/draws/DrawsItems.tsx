@@ -11,7 +11,7 @@ function DrawsItems({ item }: { item: any }) {
 					alt="Norway"
 				/>
 			</Card.Section>
-			<Card.Section className="!mx-3 !my-4 !text-center">
+			<Card.Section className="mx-1 md:!mx-3 !my-4 !text-center">
 				<Text size="xl">Discover a dream vacation in maldives</Text>
 				<Text size="sm" className="!text-gray-300">
 					Discover a dream vacation in maldives
@@ -26,7 +26,7 @@ function DrawsItems({ item }: { item: any }) {
 							samuel john
 						</Text>
 					</Grid.Col>
-					<Divider orientation="vertical" />
+					<Divider orientation="vertical" my="md" />
 
 					<Grid.Col span="auto">
 						<Text size="md" className="!text-gray-500 !capitalize">
@@ -36,7 +36,7 @@ function DrawsItems({ item }: { item: any }) {
 							12/12/2023
 						</Text>
 					</Grid.Col>
-					<Divider orientation="vertical" />
+					<Divider orientation="vertical" my="md" />
 
 					<Grid.Col span="auto">
 						<Text size="md" className="!text-gray-500 !capitalize">
