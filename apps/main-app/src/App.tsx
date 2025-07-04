@@ -12,6 +12,9 @@ import AllWinnersPage from "./pages/winners/AllWinnersPage";
 import AllPricesPage from "./pages/prizes/AllPricesPage";
 import RecentDraws from "./pages/draws/RecentDraws";
 import LoginPage from "./pages/login/LoginPage";
+import ResetPassword from "./pages/login/ResetPassword";
+import Signup from "./pages/checkout/Signup";
+import Cart from "./pages/checkout/Cart";
 
 
 function App() {
@@ -24,10 +27,13 @@ function App() {
 					<Route path="login" element={<LoginPage/>} />
 					<Route path="dashboard" element={<Dashboard />} />
 					<Route path="raffles" element={<Draws />} />
-					<Route path="raffles/:id" element={<SpecificResult />} />
 					<Route path="draws" element={<RecentDraws/>} />
+					<Route path="winners/:id" element={<SpecificResult />} />
 					<Route path="winners/all-time" element={<AllWinnersPage />} />
 					<Route path="prize" element={<AllPricesPage />} />
+					<Route path="reset-password" element={<ResetPassword />} />
+					<Route path="checkout" element={<Cart/>} />
+					<Route path="checkout/signup" element={<Signup />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>
