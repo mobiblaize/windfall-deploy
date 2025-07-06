@@ -15,6 +15,10 @@ import LoginPage from "./pages/login/LoginPage";
 import ResetPassword from "./pages/login/ResetPassword";
 import Signup from "./pages/checkout/Signup";
 import Cart from "./pages/checkout/Cart";
+import CheckoutPage from "./pages/checkout/CheckoutPage";
+
+import RaffleGroups from "./pages/raffles/RaffleGroups";
+import RafflesPaymentReceipt from "./pages/raffles/RafflesPaymentReceipt";
 
 
 function App() {
@@ -32,8 +36,11 @@ function App() {
 					<Route path="winners/all-time" element={<AllWinnersPage />} />
 					<Route path="prize" element={<AllPricesPage />} />
 					<Route path="reset-password" element={<ResetPassword />} />
-					<Route path="checkout" element={<Cart/>} />
+					<Route path="cart" element={<Cart/>} />
+					<Route path="checkout" element={<CheckoutPage />} />
 					<Route path="checkout/signup" element={<Signup />} />
+					<Route path="raffles/receipts" element={<RafflesPaymentReceipt />} />
+					<Route path="raffles/receipts/:id" element={<RaffleGroups />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>
