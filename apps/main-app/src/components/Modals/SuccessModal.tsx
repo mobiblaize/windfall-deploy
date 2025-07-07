@@ -16,6 +16,7 @@ function ResetModal({title,desc,btnLabel}:Props) {
 				centered
 				size="md"
 				className="!rounded-2xl !text-primary-text"
+				classNames={{ content: "!rounded-3xl" }}
 			>
 				<Center className="!grid !text-center">
 					<Image
@@ -45,8 +46,8 @@ function ResetModal({title,desc,btnLabel}:Props) {
 				</Center>
 			</Modal>
 
-            <Button
-                // disabled
+			<Button
+				// disabled
 				onClick={open}
 				className=" !tracking-wide !border !border-dashed !border-secondary-red disabled:!bg-primary-red/40  !text-white"
 			>

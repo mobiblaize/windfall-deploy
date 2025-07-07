@@ -20,6 +20,7 @@ function ForgetPassword() {
 				centered
 				size="md"
 				className="!rounded-2xl !text-primary-text"
+				classNames={{ content: "!rounded-3xl" }}
 			>
 				<Center className="!grid !text-center">
 					<Image

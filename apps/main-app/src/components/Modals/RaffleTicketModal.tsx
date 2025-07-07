@@ -10,16 +10,17 @@ function RaffleTicketModal({ item }: { item: any }) {
 			<Modal
 				opened={opened}
 				onClose={close}
-				withCloseButton={false}
+				// withCloseButton={false}
 				centered
 				size="lg"
-				className="!rounded-2xl !text-primary-text"
+                className="!rounded-2xl !text-primary-text"
+                classNames={{content:"!rounded-3xl"}}
 			>
-				<div className="my-7 mx-7">
+				<div className="my-4 mx-7">
 					<RaffleGroupItem item={item} />
 				</div>
 
-				<Flex gap={20} my="xl" mx="xl">
+				<Flex gap={20} my="lg" mx="xl">
 					<Button
 						rightSection={
 							<HiDocumentArrowDown className="text-secondary-red/90" />

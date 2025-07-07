@@ -19,6 +19,7 @@ import CheckoutPage from "./pages/checkout/CheckoutPage";
 
 import RaffleGroups from "./pages/raffles/RaffleGroups";
 import RafflesPaymentReceipt from "./pages/raffles/RafflesPaymentReceipt";
+import ProfileLayout from "./pages/Profile/ProfileLayout";
 
 
 function App() {
@@ -41,6 +42,10 @@ function App() {
 					<Route path="checkout/signup" element={<Signup />} />
 					<Route path="raffles/receipts" element={<RafflesPaymentReceipt />} />
 					<Route path="raffles/receipts/:id" element={<RaffleGroups />} />
+
+					<Route path="profile" element={<ProfileLayout />} />
+
+
 				</Route>
 			</Routes>
 		</BrowserRouter>

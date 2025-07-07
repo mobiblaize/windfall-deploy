@@ -1,5 +1,4 @@
 import { Badge, Container, Flex, SimpleGrid, Text } from "@mantine/core";
-import RaffleGroupItem from "./RaffleGroupItem";
 import RaffleTicketModal from "../../components/Modals/RaffleTicketModal";
 
 function RaffleGroups() {
@@ -37,7 +36,7 @@ function RaffleGroups() {
 				<SimpleGrid
 					type="container"
 					cols={{ base: 1, "680px": 2,  }}
-					spacing={{ base: 5, "720px": "xl" }}
+					spacing={{ base: 20, "720px": "xl" }}
 					my="xl"
 				>
 					{[1, 2, 3].map((item) => (
