@@ -1,8 +1,10 @@
 import { Button, Card, Divider, Grid, Image, Text } from "@mantine/core";
 import { GoArrowUpRight } from "react-icons/go";
+import { useNavigate } from "react-router-dom";
 
 function WinnersCard({ item }: { item: any }) {
-	console.log(item);
+	const navigate=useNavigate()
+
 	return (
 		<Card withBorder className="!rounded-lg">
 			<Card.Section className="!m-3">
@@ -58,6 +60,7 @@ function WinnersCard({ item }: { item: any }) {
 			</Card.Section>
 			<Button
 				my="lg"
+				onClick={()=>navigate(`${item}`)}
 				rightSection={
 					<GoArrowUpRight size={20} className="rounded-full p-1 bg-red-300" />
 				}
