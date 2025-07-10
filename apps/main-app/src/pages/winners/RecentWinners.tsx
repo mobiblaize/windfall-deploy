@@ -5,7 +5,7 @@ import header from "../../assets/winner-banner.png";
 import WinnersCard from "./WinnersCard";
 import CustomPagination from "../../components/CustomPagination";
 
-function AllWinnersPage() {
+function RecentWinners() {
 	return (
 		<div className="mb-10 flex flex-col h-full">
 			<div
@@ -45,15 +45,15 @@ function AllWinnersPage() {
 				</header>
 				<section className=" md:mx-5 my-14 ">
 					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xl">
-						{[1, 2, 3, 4].map((item, index) => (
+						{[1, 2, 3, 4, ].map((item, index) => (
 							<WinnersCard key={index} item={item} />
 						))}
 					</SimpleGrid>
 				</section>
-				<CustomPagination/>
+				<CustomPagination />
 			</main>
 		</div>
 	);
 }
 
-export default AllWinnersPage;
+export default RecentWinners;
