@@ -53,8 +53,7 @@ function Cart() {
 							</button>
 						</div>
 					</div>
-				</div>}
-				
+				</div>}				
 			</Container>
 		</div>
 	);
