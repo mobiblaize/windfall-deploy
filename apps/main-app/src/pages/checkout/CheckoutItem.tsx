@@ -1,6 +1,8 @@
 import { Flex, Text } from "@mantine/core";
 
-function CheckoutItem({item}:{item:any}) {
+function CheckoutItem({item}:{item:unknown}) {
+	console.log(item);
+	
 	return (
 		<div className=" border-2 border-dashed border-secondary-text rounded-xl py-5 px-5">
 			<Text fz="lg" fw={600}>

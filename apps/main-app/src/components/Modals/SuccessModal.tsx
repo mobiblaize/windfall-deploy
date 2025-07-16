@@ -1,11 +1,11 @@
 import { Modal, Button, Center, Image, Text, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 type Props = {
-	title:string
-	desc:string
-	btnLabel:string
+	title?:string
+	desc?:string
+	btnLabel?:string
 }
-function ResetModal({title,desc,btnLabel}:Props) {
+function ResetModal({title, desc, btnLabel }:Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	return (
 		<>

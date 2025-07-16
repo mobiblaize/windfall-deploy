@@ -1,7 +1,8 @@
 import { Button, Card, Divider, Grid, Image, Text } from "@mantine/core";
 import { GoArrowUpRight } from "react-icons/go";
 
-function LiveDrawCards({ item }: { item: any }) {
+function LiveDrawCards({ item }: { item: unknown }) {
+	console.log(item);
 	return (
 		<Card withBorder>
 			<Card.Section className="!m-3">
