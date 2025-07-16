@@ -24,44 +24,52 @@ import TransactionsLayout from "./pages/Profile/TransactionsLayout";
 import TransactionReceipt from "./pages/Profile/TransactionReceipt";
 
 function App() {
-	return (
-		<BrowserRouter>
-			<Routes>
-				<Route path="/" element={<MainLayout />}>
-					<Route index element={<Navigate to="/dashboard" replace />} />
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const isAuthenticated = user.id;
 
-					<Route path="login" element={<LoginPage />} />
-					<Route path="dashboard" element={<Dashboard />} />
-					<Route path="raffles" element={<RaffleGames />} />
-					<Route path="raffles/:id" element={<SpecificResult />} />
-					<Route path="draws" element={<Draws />} />
-					<Route path="draws/:id" element={<SpecificResult />} />
-					<Route path="draws" element={<RecentDraws/>} />
-					<Route path="winners/all-time" element={<AllWinnersPage />} />
-					<Route path="winners/recent" element={<RecentWinners/>} />
-					<Route path="winners/all-time/:id" element={<SpecificResult />} />
-					<Route path="prize" element={<AllPricesPage />} />
-					<Route path="reset-password" element={<ResetPassword />} />
-					<Route path="cart" element={<Cart />} />
-					<Route path="checkout" element={<CheckoutPage />} />
-					<Route path="checkout/signup" element={<Signup />} />
-					<Route path="raffles/receipts" element={<RafflesPaymentReceipt />} />
-					<Route path="raffles/receipts/:id" element={<RaffleGroups />} />
+  console.log(isAuthenticated);
 
-					<Route
-						path="profile"
-						element={<Navigate to="/profile/all-games" replace />}
-					/>
-					<Route path="profile/all-games" element={<ProfileLayout />} />
-					<Route path="profile/all-games/:id" element={<GamesTickets />} />
-					<Route path="profile/result" element={<ResultsLayout />} />
-					<Route path="profile/result/:id" element={<GameResultsTickets/>} />
-					<Route path="profile/transaction" element={<TransactionsLayout/>} />
-					<Route path="profile/transaction/receipt" element={<TransactionReceipt/>} />
-				</Route>
-			</Routes>
-		</BrowserRouter>
-	);
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+
+          <Route path="login" element={<LoginPage />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="raffles" element={<RaffleGames />} />
+          <Route path="raffles/:id" element={<SpecificResult />} />
+          <Route path="draws" element={<Draws />} />
+          <Route path="draws/:id" element={<SpecificResult />} />
+          <Route path="draws" element={<RecentDraws />} />
+          <Route path="winners/all-time" element={<AllWinnersPage />} />
+          <Route path="winners/recent" element={<RecentWinners />} />
+          <Route path="winners/all-time/:id" element={<SpecificResult />} />
+          <Route path="prize" element={<AllPricesPage />} />
+          <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="checkout/signup" element={<Signup />} />
+          <Route path="raffles/receipts" element={<RafflesPaymentReceipt />} />
+          <Route path="raffles/receipts/:id" element={<RaffleGroups />} />
+
+          <Route
+            path="profile"
+            element={<Navigate to="/profile/all-games" replace />}
+          />
+          <Route path="profile/all-games" element={<ProfileLayout />} />
+          <Route path="profile/all-games/:id" element={<GamesTickets />} />
+          <Route path="profile/result" element={<ResultsLayout />} />
+          <Route path="profile/result/:id" element={<GameResultsTickets />} />
+          <Route path="profile/transaction" element={<TransactionsLayout />} />
+          <Route
+            path="profile/transaction/receipt"
+            element={<TransactionReceipt />}
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
