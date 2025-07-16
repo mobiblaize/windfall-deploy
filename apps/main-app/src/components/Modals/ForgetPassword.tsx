@@ -10,7 +10,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 
 function ForgetPassword() {
-	const [opened, { open, close }] = useDisclosure(false);
+	const [opened, { close }] = useDisclosure(false);
 	return (
 		<>
 			<Modal

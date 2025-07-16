@@ -1,6 +1,7 @@
 import { Card, Image, Text } from "@mantine/core";
 
-function PrizesCard({item}:{item:any}) {
+function PrizesCard({item}:{item:unknown}) {
+	console.log(item);
 	return (
 		<Card className="!rounded-xl">
 			<Card.Section className="!m-1">

@@ -3,7 +3,8 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { BsFillTicketPerforatedFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
 
-function PaymentItem({ item }: { item: any }) {
+function PaymentItem({ item }: { item: unknown }) {
+	console.log(item);
 	return (
 		<div className="col-span-1">
 			<Card className="!bg-transparent !w-full">

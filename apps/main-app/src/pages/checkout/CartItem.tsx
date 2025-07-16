@@ -2,7 +2,9 @@ import { Card, Image, Text } from "@mantine/core";
 import { HiMiniTrash } from "react-icons/hi2";
 import { PiPlusFill, PiMinusFill } from "react-icons/pi";
 
-function CartItem({ item }: { item: any }) {
+function CartItem({ item }: { item: unknown }) {
+	console.log(item);
+	
 	return (
 		<Card className="!border !border-dashed !border-primary-red !rounded-lg !my-10 !bg-white/80">
 			<div className="grid grid-flow-row md:grid-cols-2 gap-x-10 items-center ">
