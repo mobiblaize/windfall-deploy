@@ -20,7 +20,7 @@ function EmptyCart() {
 					add ticket (s) to your Cart.
 				</Text>
 				<Button
-					onClick={() => navigate("/")}
+					onClick={() => navigate("/raffles")}
 					className="!border !border-dashed !border-secondary-red !px-7 !h-12 !tracking-wide"
 				>
 					Explore All Games

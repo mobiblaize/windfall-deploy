@@ -1,19 +1,16 @@
 import { ActionIcon, Select, SimpleGrid } from "@mantine/core";
 import { FaAngleDown } from "react-icons/fa";
 import { IconZoomFilled } from "@tabler/icons-react";
-import header from "../../assets/drawHeaderImg.png";
 import DrawsItems from "./DrawsItems";
 import CustomPagination from "../../components/CustomPagination";
+import SectionHeader from "../../components/SectionHeader";
+import houseLeft from '../../assets/draws-img-l.png';
+import houseRight from '../../assets/draws-img-r.png';
 
 export default function Draws() {
 	return (
 		<div className="mb-10 flex flex-col h-full">
-			<div
-				className="relative w-full h-[150px] md:h-[200px] lg:h-[300px] bg-contain bg-no-repeat"
-				style={{
-					backgroundImage: ` url(${header})`,
-				}}
-			/>
+			<SectionHeader heading="Raffle Draw" subHeading="Check your draw results here" imageLeft={houseLeft} imageRight={houseRight}/>
 			<main className="flex-grow p-4 mt-5 md:mt-10 mx-3 md:mx-10  text-[#2D2D2D]">
 				<header className="flex flex-col md:flex-row items-center justify-between mb-4">
 					<div>

@@ -16,7 +16,7 @@ function WinnersCard({ item }: { item: any }) {
 			</Card.Section>
 			<Card.Section className="!mx-3 !my-4 !text-center ">
 				<Text className=" !text-secondary-text !capitalize">price won</Text>
-				<Text className=" !text-primary-red !text-xl !capitalize !font-semibold">
+				<Text className=" !text-primary-red !text-2xl !capitalize !font-semibold">
 					Luxury suv
 				</Text>
 				<Text my="md" className="!text-[#575757]">
@@ -60,11 +60,11 @@ function WinnersCard({ item }: { item: any }) {
 			</Card.Section>
 			<Button
 				my="lg"
-				onClick={()=>navigate(`${item}`)}
+				onClick={() => navigate('/winners/all-time/'+item)}
 				rightSection={
 					<GoArrowUpRight size={20} className="rounded-full p-1 bg-red-300" />
 				}
-				className="!bg-[#FFD5D6] !text-primary-red !h-12 !border !border-primary-red !border-dashed !tracking-wide"
+				className="!bg-[#FFD5D6] !text-primary-red !h-12 !border !border-primary-red !border-dashed !tracking-wide !text-lg"
 			>
 				Read Exclusive Winner Story
 			</Button>

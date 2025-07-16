@@ -2,15 +2,15 @@ import { Card, Image, Text } from "@mantine/core";
 
 function PrizesCard({item}:{item:any}) {
 	return (
-		<Card>
-			<Card.Section className="!m-3">
+		<Card className="!rounded-xl">
+			<Card.Section className="!m-1">
 				<Image
 					className="!rounded-xl h-[200px]"
 					src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
 					alt="Norway"
 				/>
 			</Card.Section>
-			<Card.Section className="!mx-3 !my-4">
+			<Card.Section className="!mx-1 !my-4">
 				<Text className="!capitalize">a luxury house in lekki</Text>
 				<Text fz="lg" className="!text-primary-red">
 					Price category:{" "}

@@ -1,17 +1,15 @@
 import { Card, Container, Stack, Text, TextInput, Flex } from "@mantine/core";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { FiEye } from "react-icons/fi";
-import header from "../../assets/Secured Login.png";
 import LoggedinModal from "../../components/Modals/LoggedinModal";
+import SectionHeader from "../../components/SectionHeader";
+import loginLeft from '../../assets/login-img-l.png';
+import loginRight from '../../assets/login-img-r.png';
+
 function LoginPage() {
 	return (
 		<div className="mb-10 flex flex-col h-full">
-			<div
-				className="relative w-full h-[150px] md:h-[200px] lg:h-[300px] bg-contain bg-no-repeat"
-				style={{
-					backgroundImage: ` url(${header})`,
-				}}
-			/>
+			<SectionHeader heading="Secured Login" subHeading="Login to your Account today. Start Winning" imageLeft={loginLeft} imageRight={loginRight}/>
 
 			<Container className="!w-2/5 !mb-32 !mt-20">
 				<Card withBorder className="!rounded-lg">

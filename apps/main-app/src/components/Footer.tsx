@@ -1,23 +1,29 @@
 // components/Footer.tsx
-import { Input, Button, createTheme, MantineProvider } from '@mantine/core';
-import { IconBrandFacebookFilled, IconBrandInstagramFilled, IconBrandYoutubeFilled } from '@tabler/icons-react';
-import google from '../assets/google-play.png';
-import apple from '../assets/apple-store.png';
-import over18 from '../assets/over-18.png';
+import { Input, Button, createTheme, MantineProvider } from "@mantine/core";
+import {
+  IconBrandFacebookFilled,
+  IconBrandInstagramFilled,
+  IconBrandYoutubeFilled,
+} from "@tabler/icons-react";
+import google from "../assets/google-play.png";
+import apple from "../assets/apple-store.png";
+import over18 from "../assets/over-18.png";
+import { NavLink } from "react-router-dom";
 
 export default function Footer() {
-  
   const theme = createTheme({
     components: {
       Input: Input.extend({
         classNames: {
-          input: '!bg-[#1f1f1f] !text-[#cdcdcd] text-[14px] !h-[48px] placeholder:text-[14px] placeholder:text-[#cdcdcd] focus:ring-0 !border-none focus:border-green-500 !pr-[7rem]',
-          section: '!rounded-s-lg !h-[48px] !w-fit hover:bg-[#2c2c2c] !top-0 mr-[-1px]',
+          input:
+            "!bg-[#1f1f1f] !text-[#cdcdcd] text-[14px] !h-[48px] placeholder:text-[14px] placeholder:text-[#cdcdcd] focus:ring-0 !border-none focus:border-green-500 !rounded-r-none",
+          // section:
+          //   "!rounded-s-lg !h-[48px] !w-fit hover:bg-[#2c2c2c] !top-0 mr-[-1px]",
         },
-      }),      
+      }),
       Button: Button.extend({
         classNames: {
-          root: '!h-[48px] w-fit !rounded-none !rounded-r cursor-pointer'
+          root: "!h-[48px] !rounded-none !rounded-r cursor-pointer",
         },
       }),
     },
@@ -39,8 +45,10 @@ export default function Footer() {
             Windfall<span className="text-red-500">Raffle</span>
           </div> */}
           <p className="text-xs mt-2 mb-6">
-            The purpose of this Business Requirement Document (BRD) is to outline the functional and nonfunctional
-            requirements for the development of the "Online Raffle Web Application" for Windfall Raffle.
+            The purpose of this Business Requirement Document (BRD) is to
+            outline the functional and nonfunctional requirements for the
+            development of the "Online Raffle Web Application" for Windfall
+            Raffle.
           </p>
 
           <div className="flex gap-4 mb-6">
@@ -52,12 +60,15 @@ export default function Footer() {
           <div className="flex items-center gap-3 mb-3">
             <img src={over18} alt="18+" className="w-9 h-9" />
             <span>
-              Players must be 18 or over and physically<br />
+              Players must be 18 or over and physically
+              <br />
               located in Lagos, Nigeria
             </span>
           </div>
 
-          <p className="mb-3">Download to get automatic notification when you win.</p>
+          <p className="mb-3">
+            Download to get automatic notification when you win.
+          </p>
           <div className="flex gap-3">
             <img src={google} alt="Google Play" className="h-10" />
             <img src={apple} alt="App Store" className="h-10" />
@@ -67,21 +78,28 @@ export default function Footer() {
         {/* Right Section */}
         <div className="grid md:grid-cols-3 gap-6">
           <div className="col-span-3">
-            <p className="font-semibold text-white">Subscribe to Our Newsletter</p>
-            <p className="text-sm mb-3">Get update about our raffle draws on your email.</p>
+            <p className="font-semibold text-white">
+              Subscribe to Our Newsletter
+            </p>
+            <p className="text-sm mb-3">
+              Get update about our raffle draws on your email.
+            </p>
             <div className="flex items-center w-full max-w-md">
               <MantineProvider theme={theme}>
+                <div className="flex w-full max-w-md">
                   <Input
-                      className="w-100 text-[14px]"
-                      radius="md"
-                      size='md'
-                      placeholder="sample@email.com"
-                      rightSection={
-                        <Button type='button' className="ml-2 bg-red-500 hover:bg-red-600 text-white h-[48px] px-5">
-                          Subscribe
-                        </Button>
-                      }
+                    className="!rounded-r-none flex-grow-1"
+                    radius="md"
+                    size="md"
+                    placeholder="sample@email.com"
                   />
+                  <Button
+                    type="button"
+                    className="!rounded-l-none bg-red-500 hover:bg-red-600 text-white h-[48px] px-5"
+                  >
+                    Subscribe
+                  </Button>
+                </div>
               </MantineProvider>
             </div>
           </div>
@@ -89,7 +107,9 @@ export default function Footer() {
           <div>
             <p className="font-semibold text-white mb-2">Quick Links</p>
             <ul className="space-y-2">
-              <li>About Us</li>
+              <li>
+                <NavLink to={'/about'}>About Us</NavLink>
+              </li>
               <li>FAQs</li>
               <li>Login</li>
               <li>Register</li>
@@ -119,27 +139,39 @@ export default function Footer() {
 
       {/* Bottom Section */}
       <hr className="my-6 border-[#444]" />
-      
+
       <div className="grid md:grid-cols-2 gap-10">
         <div className="text-xs text-center md:text-left space-y-2">
           <p>
-            For compliance and responsible gaming, ensure your raffle adheres to all regulatory guidelines.
+            For compliance and responsible gaming, ensure your raffle adheres to
+            all regulatory guidelines.
           </p>
           <p>
-            Lagos State Lotteries & Gaming Authority (LSLGA) –{' '}
-            <a href="https://www.lslb.lg.gov.ng" target="_blank" rel="noopener noreferrer" className="text-red-500">
+            Lagos State Lotteries & Gaming Authority (LSLGA) -{" "}
+            <a
+              href="https://www.lslb.lg.gov.ng"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-500"
+            >
               www.lslb.lg.gov.ng
             </a>
           </p>
           <p>
-            Federal Competition & Consumer Protection Commission (FCCPC) –{' '}
-            <a href="https://www.fccpc.gov.ng" target="_blank" rel="noopener noreferrer" className="text-red-500">
+            Federal Competition & Consumer Protection Commission (FCCPC) –{" "}
+            <a
+              href="https://www.fccpc.gov.ng"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-500"
+            >
               www.fccpc.gov.ng
             </a>
           </p>
         </div>
         <p className="text-gray-500 pt-4 text-center md:text-right">
-          © 2025 Windfall Raffle™ by Home Windfall Limited | All Rights Reserved
+          © 2025 Windfall Raffle™ by Home Windfall Limited | All Rights
+          Reserved
         </p>
       </div>
     </footer>
