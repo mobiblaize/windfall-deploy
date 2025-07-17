@@ -38,17 +38,17 @@ function RelatedRaffles() {
 	];
 
 	return (
-		<Container size="xl" my="xl">
+		<Container fluid my="xl">
 			<Flex className=" flex !flex-col md:!flex-row md:!justify-between"  mb="xl">
 				<div>
-					<Text fz="h2" fw={700}>
+					<Text fz="h2" fw={700} className="!text-gray-800">
 						Related Raffles
 					</Text>
 					<Text fz="md" className="!text-secondary-text">
 						Checkout related raffle games and play now
 					</Text>
 				</div>
-				<Link to="#">
+				<Link to="/raffles">
 					<Text className="!text-primary-red !flex !gap-x-3 !items-center hover:!underline hover:!text-primary-red/60 transition-all ease-linear duration-300">
 						Explore All (60)
 						<span>

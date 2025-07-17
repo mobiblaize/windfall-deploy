@@ -14,7 +14,7 @@ const menuItems = [
   { name: "Home", path: "/" },
   { name: "How it Works", path: "/how-it-works" },
   { name: "Raffles", path: "/raffles" },
-  { name: "Game Result", path: "/game-result" },
+  { name: "Game Result", path: "/profile/result" },
   { name: "Live Draw", path: "/draws" },
   {
     name: "Winners",

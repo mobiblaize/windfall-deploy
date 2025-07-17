@@ -3,7 +3,7 @@ import Dashboard from "./pages/Dashboard";
 import Draws from "./pages/draws/Draws";
 import MainLayout from "./pages/Main";
 import SpecificResult from "./pages/draws/SpecificResult";
-import RaffleGames from "./pages/RaffleGames";
+import RaffleGames from "./pages/raffles/RaffleGames";
 import AllWinnersPage from "./pages/winners/AllWinnersPage";
 import AllPricesPage from "./pages/prizes/AllPricesPage";
 import RecentDraws from "./pages/draws/RecentDraws";
@@ -22,6 +22,7 @@ import GameResultsTickets from "./pages/Profile/GameResultsTickets";
 import RecentWinners from "./pages/winners/RecentWinners";
 import TransactionsLayout from "./pages/Profile/TransactionsLayout";
 import TransactionReceipt from "./pages/Profile/TransactionReceipt";
+import RaffleDetails from "./pages/raffles/RaffleDetails";
 
 function App() {
 	return (
@@ -33,9 +34,9 @@ function App() {
 					<Route path="login" element={<LoginPage />} />
 					<Route path="dashboard" element={<Dashboard />} />
 					<Route path="raffles" element={<RaffleGames />} />
-					<Route path="raffles/:id" element={<SpecificResult />} />
+					<Route path="raffles/:id" element={<RaffleDetails />} />
 					<Route path="draws" element={<Draws />} />
-					<Route path="draws/:id" element={<SpecificResult />} />
+					{/* <Route path="draws/:id" element={<SpecificResult />} /> */}
 					<Route path="draws" element={<RecentDraws/>} />
 					<Route path="winners/all-time" element={<AllWinnersPage />} />
 					<Route path="winners/recent" element={<RecentWinners/>} />

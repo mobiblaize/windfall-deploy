@@ -2,6 +2,10 @@
 
 :root {
   --primary-red: #ff2f31;
+  
+  /* Font sizes */
+  --font-size-heading: 2.25rem; /* 36px */
+  --font-size-body: 1rem;        /* 16px */
 }
 
 body {

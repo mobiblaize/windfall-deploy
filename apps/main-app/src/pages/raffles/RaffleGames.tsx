@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import raffleImg from '../assets/default-raffle.png';
-import FilterPill from '../components/FilterPill';
-import RaffleCard from '../components/RaffleCard';
+import raffleImg from '../../assets/default-raffle.png';
+import FilterPill from '../../components/FilterPill';
+import RaffleCard from '../../components/RaffleCard';
 import { ActionIcon } from '@mantine/core';
 import { IconZoomFilled } from '@tabler/icons-react';
-import Paginator from '../components/Paginator';
+import Paginator from '../../components/Paginator';
 
 const raffles = [
   {
