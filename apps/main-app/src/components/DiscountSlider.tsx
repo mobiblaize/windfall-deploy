@@ -14,7 +14,9 @@ export default function DiscountSlider({
   onChange,
   getDiscount,
 }: DiscountSliderProps) {
-  const discount = getDiscount ? getDiscount(value, max) : Math.floor((value / max) * 30);
+  const discount = getDiscount
+    ? getDiscount(value, max)
+    : Math.floor((value / max) * 30);
 
   return (
     <div className="flex items-center gap-6 pt-10">
@@ -34,6 +36,7 @@ export default function DiscountSlider({
         {/* Slider */}
         <Slider
           value={value}
+          label={null}
           onChange={onChange}
           min={1}
           max={max}
