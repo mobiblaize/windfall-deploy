@@ -121,8 +121,13 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>How to play</li>
               <li>Claim prizes</li>
-              <li>Contact Us</li>
+              <li>
+                <NavLink to={'/contact-us'}>Contact Us</NavLink>
+              </li>
               <li>Blog</li>
+              <li>
+                <NavLink to={'/responsible-playing'}>Responsible Playing</NavLink>
+              </li>
             </ul>
           </div>
           <div>

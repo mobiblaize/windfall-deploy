@@ -160,7 +160,7 @@ export default function RaffleInfo() {
           </p>
           <div className="flex justify-center items-baseline gap-3">
             {hasDiscount && (
-              <span className="text-lg text-gray-400 line-through">
+              <span className="text-2xl md:text-3xl font-light text-[#FF9798] line-through">
                 ₦ {totalOriginalPrice.toLocaleString()}
               </span>
             )}

@@ -23,6 +23,8 @@ import RecentWinners from "./pages/winners/RecentWinners";
 import TransactionsLayout from "./pages/Profile/TransactionsLayout";
 import TransactionReceipt from "./pages/Profile/TransactionReceipt";
 import RaffleDetails from "./pages/raffles/RaffleDetails";
+import ResponsiblePlaying from "./pages/ResponsiblePlaying";
+import ContactUs from "./pages/ContactUs";
 
 function App() {
 	return (
@@ -33,19 +35,27 @@ function App() {
 
 					<Route path="login" element={<LoginPage />} />
 					<Route path="dashboard" element={<Dashboard />} />
-					<Route path="raffles" element={<RaffleGames />} />
-					<Route path="raffles/:id" element={<RaffleDetails />} />
+					<Route path="reset-password" element={<ResetPassword />} />
+					
 					<Route path="draws" element={<Draws />} />
-					{/* <Route path="draws/:id" element={<SpecificResult />} /> */}
 					<Route path="draws" element={<RecentDraws/>} />
+
 					<Route path="winners/all-time" element={<AllWinnersPage />} />
 					<Route path="winners/recent" element={<RecentWinners/>} />
 					<Route path="winners/all-time/:id" element={<SpecificResult />} />
+					
 					<Route path="prize" element={<AllPricesPage />} />
-					<Route path="reset-password" element={<ResetPassword />} />
 					<Route path="cart" element={<Cart />} />
+
+					<Route path="responsible-playing" element={<ResponsiblePlaying />} />
+					
+					<Route path="contact-us" element={<ContactUs />} />
+
 					<Route path="checkout" element={<CheckoutPage />} />
 					<Route path="checkout/signup" element={<Signup />} />
+
+					<Route path="raffles" element={<RaffleGames />} />
+					<Route path="raffles/:id" element={<RaffleDetails />} />
 					<Route path="raffles/receipts" element={<RafflesPaymentReceipt />} />
 					<Route path="raffles/receipts/:id" element={<RaffleGroups />} />
 

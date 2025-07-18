@@ -55,11 +55,13 @@ export default function RafflesFaq() {
               onClick={() => toggleItem(index)}
             >
               <span className={`font-bold ${isOpen ? 'text-[#818181]': 'text-[#2d2d2d]'}`}>{faq.question}</span>
-              {isOpen ? (
-                <IconChevronUp size={20} className="text-gray-500" />
-              ) : (
-                <IconChevronDown size={20} className="text-gray-500" />
-              )}
+              <span className="border border-gray-300 rounded-full p-3 bg-white">
+                {isOpen ? (
+                    <IconChevronUp size={16} className="text-gray-500" />
+                ) : (
+                    <IconChevronDown size={16} className="text-gray-500" />
+                )}
+                </span>
             </button>
             {isOpen && (
               <div className="px-6 pb-4 text-gray-800">

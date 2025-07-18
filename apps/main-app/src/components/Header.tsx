@@ -25,7 +25,7 @@ const menuItems = [
   },
   { name: "About Us", path: "/about" },
   { name: "Prize", path: "/prize" },
-  { name: "Contact Us", path: "/contact" },
+  { name: "Contact Us", path: "/contact-us" },
 ];
 
 const theme = createTheme({
