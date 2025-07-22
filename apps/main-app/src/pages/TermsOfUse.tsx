@@ -26,7 +26,7 @@ const terms = [
                       <NavLink to={"/privacy-policy"}>
                         www.windfallraffle.com/privacy-policy
                       </NavLink>
-                    </span>
+                    </span>{" "}
                     which sets out the terms on which we process any personal
                     data we collect from you, or that you provide to us. By
                     using our site, you consent to such processing and you
