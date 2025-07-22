@@ -133,9 +133,16 @@ export default function Footer() {
           <div>
             <p className="font-semibold text-white mb-2">Legal</p>
             <ul className="space-y-2">
-              <li>Games Rules</li>
-              <li>Terms & Conditions</li>
+              <li>
+                <NavLink to={'/game-rules'}>Games Rules</NavLink>
+              </li>
+              <li>
+                <NavLink to={'/terms-and-conditions'}>Terms & Conditions</NavLink>
+              </li>
               <li>Privacy Policy</li>
+              <li>
+                <NavLink to={'/terms-of-use'}>Terms of Use</NavLink>
+              </li>
               <li>Cookies Policy</li>
             </ul>
           </div>

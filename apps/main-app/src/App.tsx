@@ -25,6 +25,10 @@ import TransactionReceipt from "./pages/Profile/TransactionReceipt";
 import RaffleDetails from "./pages/raffles/RaffleDetails";
 import ResponsiblePlaying from "./pages/ResponsiblePlaying";
 import ContactUs from "./pages/ContactUs";
+import GameRules from "./pages/GameRules";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import AboutUs from "./pages/AboutUs";
+import TermsOfUse from "./pages/TermsOfUse";
 
 function App() {
 	return (
@@ -48,6 +52,14 @@ function App() {
 					<Route path="cart" element={<Cart />} />
 
 					<Route path="responsible-playing" element={<ResponsiblePlaying />} />
+
+					<Route path="game-rules" element={<GameRules />} />
+
+					<Route path="terms-and-conditions" element={<TermsAndConditions />} />
+
+					<Route path="about" element={<AboutUs />} />
+
+					<Route path="terms-of-use" element={<TermsOfUse />} />
 					
 					<Route path="contact-us" element={<ContactUs />} />
 

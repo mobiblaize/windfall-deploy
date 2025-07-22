@@ -17,7 +17,9 @@ export default function Dashboard() {
       <SampleWinners />
       <WinnerStatsBar />
       <SponsorBrands />
-      <RaffleHelpSection />
+      <div className="px-6 md:px-16 py-20 bg-[#f9f9f9]">
+        <RaffleHelpSection />
+      </div>
     </>
   );
 }

@@ -71,7 +71,7 @@ export default function ContactUs() {
                 <div>
                   <Text className="!font-medium">Email support</Text>
                   <a
-                    href="mailto:Support@windfal.ng"
+                    href="mailto:Support@windfall.ng"
                     className="!text-primary-red !font-medium hover:underline"
                   >
                     Support@windfall.ng

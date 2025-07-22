@@ -2,6 +2,7 @@ import { useState } from 'react';
 import RaffleCard from './RaffleCard';
 import FilterPill from './FilterPill'; // ✅ import here
 import raffleImg from '../assets/default-raffle.png';
+import { NavLink } from "react-router-dom";
 
 const raffles = [
   {
@@ -84,9 +85,11 @@ export default function SampleRafflesGames() {
             <option value="MacBook">MacBook</option>
           </select>
 
-          <a href="#" className="text-red-500 text-sm font-medium hover:underline">
-            Explore All ({raffles.length})
-          </a>
+          <NavLink to={"/raffles"}>
+            <p className="text-red-500 text-sm font-medium hover:underline">
+              Explore All (60)
+            </p>
+          </NavLink>
         </div>
       </div>
 

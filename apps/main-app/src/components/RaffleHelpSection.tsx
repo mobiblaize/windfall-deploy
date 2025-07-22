@@ -1,9 +1,12 @@
 import { Button } from "@mantine/core";
-import hero from '../assets/hero-img.jpg';
+// import hero from '../assets/hero-img.jpg';
+import talk1 from '../assets/talk-1.png';
+import talk2 from '../assets/talk-2.png';
+import { useNavigate } from "react-router-dom";
 
 const RaffleHelpSection = () => {
+  const navigate = useNavigate();
   return (
-    <section className="px-6 md:px-16 py-20 bg-[#f9f9f9]">
       <div className="relative bg-black text-white gap-4 rounded-xl p-6 md:p-10 overflow-hidden flex flex-wrap items-center justify-between">
         {/* Text Content */}
         <div className="max-w-xl space-y-4">
@@ -20,21 +23,27 @@ const RaffleHelpSection = () => {
 
         {/* CTA Button */}
         <div className=" z-10">
-          <Button color="var(--primary-red)" radius="md" size="md" className="font-semibold">
+          <Button onClick={() => navigate("/contact-us")} color="var(--primary-red)" radius="md" size="md" className="font-semibold">
             Let’s Talk
           </Button>
         </div>
 
         {/* Background Decorative Shapes */}
-        <div className="absolute bottom-0 right-0 w-1/2 opacity-10 z-0">
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 opacity-10 z-0">
           <img
-            src={hero}
+            src={talk1}
             alt="Background Shapes"
-            className="object-contain w-full h-auto"
+            className="object-contain w-[10vw] h-auto"
+          />
+        </div>
+        <div className="absolute bottom-0 right-0 opacity-10 z-0">
+          <img
+            src={talk2}
+            alt="Background Shapes"
+            className="object-contain w-[10vw] h-auto"
           />
         </div>
       </div>
-    </section>
   );
 };
 
