@@ -12,7 +12,7 @@ import { IoCartSharp } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 const menuItems = [
   { name: "Home", path: "/" },
-  { name: "How it Works", path: "/how-it-works" },
+  { name: "How it Works", path: "/game-rules" },
   { name: "Raffles", path: "/raffles" },
   { name: "Game Result", path: "/profile/result" },
   { name: "Live Draw", path: "/draws" },

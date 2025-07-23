@@ -4,7 +4,6 @@ import { FaAngleDown } from "react-icons/fa";
 import winnersLeft from '../../assets/winners-img-l.png';
 import winnersRight from '../../assets/winners-img-r.png';
 import WinnersCard from "./WinnersCard";
-// import CustomPagination from "../../components/CustomPagination";
 import SectionHeader from "../../components/SectionHeader";
 
 function RecentWinners() {
@@ -47,7 +46,6 @@ function RecentWinners() {
 						))}
 					</SimpleGrid>
 				</section>
-				{/* <CustomPagination /> */}
 			</main>
 		</div>
 	);

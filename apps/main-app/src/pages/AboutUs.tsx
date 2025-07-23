@@ -92,7 +92,7 @@ export default function AboutUs() {
         {/* Top red background */}
         <div className="absolute top-0 left-0 w-full h-1/2 bg-light-red z-0" />
 
-        <div className="relative z-10 pt-16 pb-20">
+        <div className="relative z-10 pt-5 pb-20">
           <Container size="lg" className="text-center">
             <Title
               order={2}

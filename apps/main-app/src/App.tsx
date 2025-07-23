@@ -29,6 +29,7 @@ import GameRules from "./pages/GameRules";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import AboutUs from "./pages/AboutUs";
 import TermsOfUse from "./pages/TermsOfUse";
+import Faq from "./pages/Faq";
 
 function App() {
 	return (
@@ -56,6 +57,8 @@ function App() {
 					<Route path="game-rules" element={<GameRules />} />
 
 					<Route path="terms-and-conditions" element={<TermsAndConditions />} />
+
+					<Route path="faq" element={<Faq />} />
 
 					<Route path="about" element={<AboutUs />} />
 
