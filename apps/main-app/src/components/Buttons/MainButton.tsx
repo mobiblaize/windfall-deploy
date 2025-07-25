@@ -20,7 +20,7 @@ export default function MainButton({
   className = "",
 }: MainButtonProps) {
   const baseStyles = {
-    backgroundColor: variant === "primary" ? "var(--primary-red)" : "black",
+    backgroundColor: variant === "primary" ? "text-primary-red" : "black",
     color: "#fff",
   };
 

@@ -30,6 +30,8 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import AboutUs from "./pages/AboutUs";
 import TermsOfUse from "./pages/TermsOfUse";
 import Faq from "./pages/Faq";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import DownloadApp from "./pages/DownloadApp";
 
 function App() {
 	return (
@@ -39,6 +41,9 @@ function App() {
 					<Route index element={<Navigate to="/dashboard" replace />} />
 
 					<Route path="login" element={<LoginPage />} />
+					
+					<Route path="signup" element={<Signup />} />
+
 					<Route path="dashboard" element={<Dashboard />} />
 					<Route path="reset-password" element={<ResetPassword />} />
 					
@@ -60,6 +65,8 @@ function App() {
 
 					<Route path="faq" element={<Faq />} />
 
+					<Route path="privacy-policy" element={<PrivacyPolicy />} />
+
 					<Route path="about" element={<AboutUs />} />
 
 					<Route path="terms-of-use" element={<TermsOfUse />} />
@@ -67,6 +74,9 @@ function App() {
 					<Route path="contact-us" element={<ContactUs />} />
 
 					<Route path="checkout" element={<CheckoutPage />} />
+
+					<Route path="download-app" element={<DownloadApp />} />
+
 					<Route path="checkout/signup" element={<Signup />} />
 
 					<Route path="raffles" element={<RaffleGames />} />

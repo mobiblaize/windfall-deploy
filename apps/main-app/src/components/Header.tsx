@@ -65,7 +65,7 @@ export default function Header() {
 
         <div className="hidden md:flex items-center gap-[29px]">
           <span className="font-normal text-[#cdcdcd]">
-            Play On the Go 🚀. Download App
+            <NavLink to={'/download-app'}>Play On the Go 🚀. Download App</NavLink>
           </span>
 
           <div className="flex items-center gap-[36px]">

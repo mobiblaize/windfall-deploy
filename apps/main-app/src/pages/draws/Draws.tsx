@@ -21,7 +21,7 @@ export default function Draws() {
 							all draw result <span className="text-primary-red">(192)</span>
 						</h1>
 					</div>
-					<div className="flex items-center gap-x-3">
+					<div className="flex flex-wrap items-center gap-3">
 						<Select
 							placeholder="Category"
 							classNames={{
