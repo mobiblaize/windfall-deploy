@@ -32,6 +32,7 @@ import TermsOfUse from "./pages/TermsOfUse";
 import Faq from "./pages/Faq";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DownloadApp from "./pages/DownloadApp";
+import CookiePolicy from "./pages/CookiePolicy";
 
 function App() {
 	return (
@@ -66,6 +67,8 @@ function App() {
 					<Route path="faq" element={<Faq />} />
 
 					<Route path="privacy-policy" element={<PrivacyPolicy />} />
+
+					<Route path="cookie-policy" element={<CookiePolicy />} />
 
 					<Route path="about" element={<AboutUs />} />
 

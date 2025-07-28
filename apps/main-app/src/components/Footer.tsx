@@ -153,7 +153,7 @@ export default function Footer() {
               <li>
                 <NavLink to={'/terms-of-use'}>Terms of Use</NavLink>
               </li>
-              <li>Cookies Policy</li>
+              <li><NavLink to={'/cookie-policy'}>Cookies Policy</NavLink></li>
             </ul>
           </div>
         </div>
