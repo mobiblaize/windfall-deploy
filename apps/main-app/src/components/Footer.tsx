@@ -119,7 +119,9 @@ export default function Footer() {
               <li>
                 <NavLink to={'/signup'}>Register</NavLink>
               </li>
-              <li>Our Winner</li>
+              <li>
+                <NavLink to={'/winners/all-time'}>Our Winner</NavLink>
+              </li>
             </ul>
           </div>
           <div>
