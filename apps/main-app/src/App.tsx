@@ -33,6 +33,7 @@ import Faq from "./pages/Faq";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DownloadApp from "./pages/DownloadApp";
 import CookiePolicy from "./pages/CookiePolicy";
+import ClaimPrices from "./pages/ClaimPrices/ClaimPrices";
 
 function App() {
 	return (
@@ -72,7 +73,9 @@ function App() {
 
 					<Route path="about" element={<AboutUs />} />
 
-					<Route path="terms-of-use" element={<TermsOfUse />} />
+					<Route path="terms-of-use" element={<TermsOfUse />} />					
+
+					<Route path="claim-prices" element={<ClaimPrices />} />
 					
 					<Route path="contact-us" element={<ContactUs />} />
 

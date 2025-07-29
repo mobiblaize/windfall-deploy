@@ -2,13 +2,14 @@
 import { Button, Progress } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import RaffleBadge from "./RaffleBadge";
+import type { RaffleStatus } from "../models/raffles";
 
 interface RaffleCardProps {
   image: string;
   title: string;
   description: string;
   fee: string;
-  status: string;
+  status: RaffleStatus;
   sold: number;
   date: string;
 }

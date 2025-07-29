@@ -130,7 +130,9 @@ export default function Footer() {
               <li>
                 <NavLink to={'/game-rules'}>How to play</NavLink>
               </li>
-              <li>Claim prizes</li>
+              <li>
+                <NavLink to={'/claim-prices'}>Claim prizes</NavLink>
+              </li>
               <li>
                 <NavLink to={'/contact-us'}>Contact Us</NavLink>
               </li>
