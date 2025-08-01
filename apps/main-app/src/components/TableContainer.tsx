@@ -16,7 +16,7 @@ function TableContainer({ headers, children }: Props) {
 			<Table.Thead>
 				<Table.Tr>
 					{headers.map((item) => (
-						<Table.Th key={item} className="capitalize text-lg !tracking-wide">
+						<Table.Th key={item} className="capitalize text-base !tracking-wide">
 							{item}
 						</Table.Th>
 					))}

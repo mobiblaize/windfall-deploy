@@ -3,6 +3,8 @@ import { useDisclosure } from "@mantine/hooks";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { BsTrophyFill } from "react-icons/bs";
 import GameTicketItem from "../../pages/Profile/GameTicketItem";
+import AlertModal from "./AlertModal";
+import { useState } from "react";
 
 type Props = {
   item: unknown;
@@ -12,6 +14,7 @@ type Props = {
 
 export default function GamesTicketModal({ item, isOpened = false, onClose }: Props) {
   const [opened, { open, close }] = useDisclosure(isOpened);
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   const closeModal = () => {
     close();
@@ -34,6 +37,7 @@ export default function GamesTicketModal({ item, isOpened = false, onClose }: Pr
 
         <Flex gap={20} my="lg" mx="xl">
           <Button
+            onClick={() => setSuccessModalOpen(true)}
             rightSection={<HiDocumentArrowDown className="text-secondary-red/90" />}
             className="!w-full !border-2 !border-dashed !border-secondary-red !h-12 !text-lg !tracking-wide"
           >
@@ -50,6 +54,14 @@ export default function GamesTicketModal({ item, isOpened = false, onClose }: Pr
 
       {/* Trigger Button or Item */}
       <GameTicketItem item={item} handleClick={open} />
+
+      <AlertModal
+        opened={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        status="success"
+        title="Raffle Ticket Downloaded"
+        description="Congratulations you have successfully downloaded your Raffle Ticket."
+      />
     </>
   );
 }

@@ -1,8 +1,10 @@
 // components/HeroSlider.tsx
 import { Button } from '@mantine/core';
 import hero from '../assets/hero-img.jpg';
+import { useNavigate } from 'react-router-dom';
 
 export default function HeroSlider() {
+  const navigate = useNavigate();
   return (
     <section className="relative w-full h-[380px] md:h-[420px] overflow-hidden">
       {/* Background Image */}
@@ -23,7 +25,7 @@ export default function HeroSlider() {
             <span className="text-white">Home!</span>
           </h1>
           <p className="text-sm mb-4">Live in , Rent out , Sell up</p>
-          <Button
+          <Button onClick={() => navigate("/raffles")}
               size='lg'
               className="bg-red-500 hover:bg-red-600 text-white font-semibold text-sm px-6 py-2 rounded-md shadow">
             Enter Game

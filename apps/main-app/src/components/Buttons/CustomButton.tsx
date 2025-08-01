@@ -3,6 +3,7 @@ import { Button } from "@mantine/core";
 import type { ButtonProps } from "@mantine/core";
 
 type CustomButtonProps = ButtonProps & {
+  type?: 'primary' | 'dark';
   fullWidth?: boolean;
   onClick?: () => void;
 };
@@ -10,10 +11,21 @@ type CustomButtonProps = ButtonProps & {
 export default function CustomButton({
   disabled,
   children,
+  type = 'primary',
   fullWidth = false,
   onClick,
   ...props
 }: CustomButtonProps) {
+  const getBgColor = () => {
+    switch (type) {
+      case "primary":
+        return "!bg-primary-red";
+      case "dark":
+        return "!bg-black";
+      default:
+        return "!bg-black";
+    }
+  };
   return (
     <Button
       {...props}
@@ -29,7 +41,7 @@ export default function CustomButton({
         cursor: disabled ? "not-allowed" : "pointer",
         ...props.style,
       }}
-      className={`text-sm font-semibold py-2 !rounded-md transition !border-2 !border-dashed !border-secondary-red ${
+      className={`text-sm font-semibold py-2 ${getBgColor()} !rounded-md transition !border-2 !border-dashed !border-secondary-red ${
         !disabled ? "hover:bg-red-600" : ""
       } ${props.className || ""}`}
     >

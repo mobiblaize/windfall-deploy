@@ -12,8 +12,8 @@ import CheckoutItem from "./CheckoutItem";
 
 function CheckoutLists() {
 	return (
-		<div className="grid grid-flow-row lg:grid-cols-5 gap-x-7">
-			<Card withBorder className="!space-y-10 !rounded-xl h-fit col-span-3">
+		<div className="grid grid-flow-row lg:grid-cols-5 gap-7">
+			<Card withBorder className="!space-y-10 !rounded-xl h-fit !col-span-5 sm:col-span-3">
 				<header>
 					<Text className=" !font-semibold !text-lg !tracking-wide">
 						<span className="text-primary-red">Review:</span> Raffle Ticket
@@ -31,7 +31,7 @@ function CheckoutLists() {
 			</Card>
 			<Card
 				withBorder
-				className="!rounded-xl h-fit col-span-2 !space-y-10 !px-5"
+				className="!rounded-xl h-fit !col-span-5 md:!col-span-2 !space-y-10 !px-5"
 			>
 				<header>
 					<Text className=" !font-semibold !text-lg !tracking-wide">
@@ -98,7 +98,7 @@ function CheckoutLists() {
 					</Button>
 				</div>
 			</Card>
-			<Card withBorder className="!col-span-3" py="xl">
+			<Card withBorder className="!col-span-5 md:!col-span-3" py="xl">
 				<div className="!bg-secondary-red !border-primary-red py-3 border px-3 rounded-md">
 					<Text className="!text-primary-red !text-xl !font-medium">
 						Checkout Summary

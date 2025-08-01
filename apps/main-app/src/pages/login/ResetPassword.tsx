@@ -10,7 +10,7 @@ import {
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import header from "../../assets/Create New Password.png";
 import { FiEye } from "react-icons/fi";
-import ResetModal from "../../components/Modals/SuccessModal";
+import ResetModal from "../../components/Modals/ResetModal";
 
 function ResetPassword() {
 	return (

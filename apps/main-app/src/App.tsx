@@ -34,6 +34,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DownloadApp from "./pages/DownloadApp";
 import CookiePolicy from "./pages/CookiePolicy";
 import ClaimPrices from "./pages/ClaimPrices/ClaimPrices";
+import RewardLayout from "./pages/Profile/Reward/RewardLayout";
 
 function App() {
 	return (
@@ -97,6 +98,7 @@ function App() {
 					<Route path="profile/all-games" element={<ProfileLayout />} />
 					<Route path="profile/all-games/:id" element={<GamesTickets />} />
 					<Route path="profile/result" element={<ResultsLayout />} />
+					<Route path="profile/reward" element={<RewardLayout />} />
 					<Route path="profile/result/:id" element={<GameResultsTickets/>} />
 					<Route path="profile/transaction" element={<TransactionsLayout/>} />
 					<Route path="profile/transaction/receipt" element={<TransactionReceipt/>} />
