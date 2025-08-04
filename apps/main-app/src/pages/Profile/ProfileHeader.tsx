@@ -35,7 +35,7 @@ function ProfileHeader() {
 				{tabs.map(({ label, value }) => {
 					const isActive = location.pathname.includes(`/profile/${value}`);
 					return (
-						<Link to={`/profile/${value}`}>
+						<Link key={value} to={`/profile/${value}`}>
 							<Text
 								className={`
                                     !py-2 !px-5

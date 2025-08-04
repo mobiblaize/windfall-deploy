@@ -20,8 +20,10 @@ import { IoFilterOutline } from "react-icons/io5";
 import { LuDownload } from "react-icons/lu";
 import TableContainer from "../../components/TableContainer";
 import visaIcon from "../../assets/visa-icon.png";
+import { useNavigate } from "react-router-dom";
 
 function TransactionsLayout() {
+  const navigate = useNavigate();
   return (
     <div className="text-primary-text mb-32 pt-5">
       {/* <Breadcrumbs>{items}</Breadcrumbs> */}
@@ -95,7 +97,7 @@ function TransactionsLayout() {
             {[1, 2, 3, 4, 5, 6].map((x) => {
               const active = x % 2;
               return (
-                <Table.Tr>
+                <Table.Tr key={x}>
                   <Table.Td className="text-secondary-text !text-base">
                     4HYE74793FS
                   </Table.Td>
@@ -128,6 +130,7 @@ function TransactionsLayout() {
                   </Table.Td>
                   <Table.Td>
                     <ActionIcon
+                    onClick={()=>navigate('1')}
                       size={35}
                       className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                     >
