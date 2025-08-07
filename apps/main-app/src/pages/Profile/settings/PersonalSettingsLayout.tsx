@@ -4,7 +4,7 @@ import PersonalSettingsTab from "./PersonalSettingsTab";
 
 function PersonalSettingsLayout() {
   return (
-        <div className="text-primary-text mb-32 pt-5">
+        <div className="text-primary-text mb-32">
           <ProfileHeader />
           <PersonalSettingsTab/>
         </div>

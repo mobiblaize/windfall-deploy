@@ -1,5 +1,6 @@
 import { Modal, Button, Center, Image, Text, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import CustomButton from "../Buttons/CustomButton";
 type Props = {
 	title?:string
 	desc?:string
@@ -45,14 +46,11 @@ function ResetModal({title, desc, btnLabel }:Props) {
 					</Stack>
 				</Center>
 			</Modal>
+			
+			<CustomButton onClick={open}>
+				Create Password
+			</CustomButton>
 
-			<Button
-				// disabled
-				onClick={open}
-				className=" !tracking-wide !border !border-dashed !border-secondary-red disabled:!bg-primary-red/40  !text-white"
-			>
-				Create password
-			</Button>
 		</>
 	);
 }

@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 function TransactionsLayout() {
   const navigate = useNavigate();
   return (
-    <div className="text-primary-text mb-32 pt-5">
+    <div className="text-primary-text mb-32">
       {/* <Breadcrumbs>{items}</Breadcrumbs> */}
 
       <ProfileHeader />

@@ -66,7 +66,7 @@ function PersonalSettingsTab() {
       <Divider />
 
       <Container fluid>
-        <Card className="!bg-white !rounded-xl !border !border-gray-200 !px-6 !py-9 !max-w-4xl !mx-auto !my-10 space-y-6">
+        <Card className="!bg-white !rounded-xl !border !border-gray-200 !px-6 !py-9 sm:!mx-5 md:!mx-30 lg:!mx-40 !my-10 space-y-6">
           {/* Full Name */}
           <Grid gutter="md" className="border-b border-[#C0C0C5] !pb-6 !mb-6">
             <Grid.Col span={{ base: 12, md: 7 }}>

@@ -5,13 +5,14 @@ import LoggedinModal from "../../components/Modals/LoggedinModal";
 import SectionHeader from "../../components/SectionHeader";
 import loginLeft from '../../assets/login-img-l.png';
 import loginRight from '../../assets/login-img-r.png';
+import { NavLink } from "react-router-dom";
 
 function LoginPage() {
 	return (
 		<div className="mb-10 flex flex-col h-full">
 			<SectionHeader heading="Secured Login" subHeading="Login to your Account today. Start Winning" imageLeft={loginLeft} imageRight={loginRight}/>
 
-			<Container className="!w-2/5 !mb-32 !mt-20">
+			<Container className="w-full sm:w-4/5 md:!w-5/9 lg:!w-5/10 !mb-32 !mt-20">
 				<Card withBorder className="!rounded-lg">
 					<header className="flex gap-3 items-center mb-7">
 						<HiDocumentArrowDown className="p-2 rounded-md bg-secondary-red text-primary-red text-5xl" />
@@ -44,7 +45,7 @@ function LoginPage() {
 										component="span"
 										className="!text-primary-red !underline"
 									>
-										Reset Today
+										<NavLink to={'/reset-password'}>Reset Today</NavLink>
 									</Text>{" "}
 								</Text>
 							</Flex>

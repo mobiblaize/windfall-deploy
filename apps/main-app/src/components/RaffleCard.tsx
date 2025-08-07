@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import RaffleBadge from "./RaffleBadge";
 import type { RaffleStatus } from "../models/raffles";
 
-interface RaffleCardProps {
+export interface RaffleCardProps {
   image: string;
   title: string;
   description: string;

@@ -37,6 +37,11 @@ import ClaimPrices from "./pages/ClaimPrices/ClaimPrices";
 import RewardLayout from "./pages/Profile/Reward/RewardLayout";
 import SettingsLayout from "./pages/Profile/settings/SettingsLayout";
 import PersonalSettingsLayout from "./pages/Profile/settings/PersonalSettingsLayout";
+import AccountSecurity from "./pages/Profile/settings/AccountSecurity/AccountSecurity.";
+import ChangePassword from "./pages/Profile/settings/AccountSecurity/ChangePassword";
+import NotificationSettingsLayout from "./pages/Profile/settings/NotificationSettingsLayout";
+import AllNotifications from "./pages/Profile/AllNotifications";
+import PaymentReceipt from "./pages/Profile/PaymentReceipt";
 
 function App() {
 	return (
@@ -51,6 +56,7 @@ function App() {
 
 					<Route path="dashboard" element={<Dashboard />} />
 					<Route path="reset-password" element={<ResetPassword />} />
+					<Route path="profile/receipt/:id" element={<PaymentReceipt />} />
 					
 					<Route path="draws" element={<Draws />} />
 					<Route path="draws" element={<RecentDraws/>} />
@@ -103,7 +109,11 @@ function App() {
 					<Route path="profile/reward" element={<RewardLayout />} />
 					<Route path="profile/settings" element={<SettingsLayout />} />
 					<Route path="profile/settings/personal" element={<PersonalSettingsLayout />} />
+					<Route path="profile/settings/notification" element={<NotificationSettingsLayout />} />
+					<Route path="profile/settings/account" element={<AccountSecurity />} />
+					<Route path="profile/settings/change-password" element={<ChangePassword />} />
 					<Route path="profile/result/:id" element={<GameResultsTickets/>} />
+					<Route path="profile/notifications" element={<AllNotifications/>} />
 					<Route path="profile/transaction" element={<TransactionsLayout/>} />
 					<Route path="profile/transaction/:id" element={<TransactionReceipt/>} />
 				</Route>

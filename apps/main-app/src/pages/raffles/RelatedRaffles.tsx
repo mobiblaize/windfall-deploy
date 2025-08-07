@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import raffleImg from "../../assets/default-raffle.png";
-import RaffleCard from "../../components/RaffleCard";
+import RaffleCard, { type RaffleCardProps } from "../../components/RaffleCard";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import { Container, Flex, SimpleGrid, Text } from "@mantine/core";
 
 function RelatedRaffles() {
-	const raffles = [
+	const raffles: RaffleCardProps[] = [
 		{
 			title: "Win One Bed Room Flat in Akoka-Yaba, Lagos State, Nigeria",
 			description: "Play for a chance to own the latest iPhone.",

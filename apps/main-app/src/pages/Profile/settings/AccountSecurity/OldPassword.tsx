@@ -1,18 +1,19 @@
-import { Flex, Text, TextInput } from "@mantine/core";
-import resetLeft from "../../assets/reset-1.png";
-import resetRight from "../../assets/reset-2.png";
-import NewPassword from "../Profile/settings/AccountSecurity/NewPassword";
-import { useNavigate } from "react-router-dom";
-import SectionHeader from "../../components/SectionHeader";
-import AlertModal from "../../components/Modals/AlertModal";
-import { useEffect, useState } from "react";
+import { Card, Flex, Stack, Text, TextInput } from "@mantine/core";
+import { HiDocumentArrowDown } from "react-icons/hi2";
 import { FiEye } from "react-icons/fi";
+import CustomButton from "../../../../components/Buttons/CustomButton";
+import AlertModal from "../../../../components/Modals/AlertModal";
+import { useEffect, useState } from "react";
 import OTPInput from "react-otp-input";
 
-function ResetPassword() {
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
+type OldPasswordProps = {
+  onComplete: () => void;
+};
+
+function OldPassword({ onComplete }: OldPasswordProps) {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(900); // 15 minutes = 900 seconds
@@ -45,30 +46,53 @@ function ResetPassword() {
     setSuccessModalOpen(true);
   }
 
-  function closeSuccessModal() {
-    setSuccessModalOpen(false);
-    navigate("/login");
+  function validateOtp() {
+    setOtpModalOpen(false);
+    onComplete();
   }
 
-  const navigate = useNavigate();
-
   return (
-    <div className="mb-10 flex flex-col h-full">
-      <SectionHeader
-        heading="Create New Password"
-        subHeading="Create a new password today for a secured login"
-        imageLeft={resetLeft}
-        imageRight={resetRight}
-        imageRightWidth="22vw"
-        imageLeftWidth="18vw"
-      />
-
-      <Flex className="py-10" align="center" justify="center">
-        <div className="m:w-4/5 md:!w-5/9 lg:!w-5/10 mt-10 !mb-20">
-          <NewPassword onComplete={validatePassword} />
+    <Card withBorder className="!rounded-lg">
+      <header className="flex gap-3 items-center mb-7">
+        <HiDocumentArrowDown className="p-2 rounded-md bg-secondary-red text-primary-red text-5xl" />
+        <div className="capitalize">
+          <Text className="!font-semibold !text-xl">
+            Enter your Old Password
+          </Text>
+          <Text className="!text-secondary-text">
+            Enter your Old password below
+          </Text>
         </div>
-      </Flex>
-
+      </header>
+      <form>
+        <Stack className="!capitalize" gap="xl">
+          <TextInput
+            label="Enter your Old Password"
+            placeholder="Enter your Old Password"
+            withAsterisk
+            rightSection={<FiEye />}
+            classNames={{
+              label: "!text-sm !text-[#030303] font-normal",
+              input: "!text-[#030303]",
+            }}
+          />
+          <TextInput
+            label="Confirm your Old Password"
+            placeholder="Confirm your Old Password"
+            withAsterisk
+            rightSection={<FiEye />}
+            classNames={{
+              label: "!text-sm !text-[#030303] font-normal",
+              input: "!text-[#030303]",
+            }}
+          />
+        </Stack>
+        <Flex justify="flex-end" className="!mt-7">
+          <CustomButton onClick={validatePassword}>
+            Validate Password
+          </CustomButton>
+        </Flex>
+      </form>
       <AlertModal
         opened={emailModalOpen}
         status="error"
@@ -173,17 +197,16 @@ function ResetPassword() {
       />
       <AlertModal
         opened={successModalOpen}
-        onClose={closeSuccessModal}
         status="success"
-        title="New Password Created"
-        description="Congratulation, you have successfully created a new password for your WindFall raffle Account. Now start playing"
+        title="OTP Validated"
+        description="Congratulation, OTP has been successfully validated. You can know proceed to creating a new password"
         primaryButton={{
-          label: "Login to your Account",
-          onClick: closeSuccessModal,
+          label: "Continue",
+          onClick: validateOtp,
         }}
       />
-    </div>
+    </Card>
   );
 }
 
-export default ResetPassword;
+export default OldPassword;

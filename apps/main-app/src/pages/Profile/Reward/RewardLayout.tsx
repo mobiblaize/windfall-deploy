@@ -4,7 +4,7 @@ import RewardTab from "./RewardTab";
 
 function RewardLayout() {
   return (
-        <div className="text-primary-text mb-32 pt-5">
+        <div className="text-primary-text mb-32">
           <ProfileHeader />
           <RewardTab/>
         </div>

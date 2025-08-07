@@ -1,9 +1,9 @@
 // components/FeaturedRaffles.tsx
 import { NavLink } from "react-router-dom";
 import raffleImg from "../assets/default-raffle.png";
-import RaffleCard from "./RaffleCard";
+import RaffleCard, { type RaffleCardProps } from "./RaffleCard";
 
-const raffles = [
+const raffles: RaffleCardProps[] = [
   {
     title: "Win One Bed Room Flat in Akoka-Yaba, Lagos State, Nigeria",
     description: "Play for a chance to own the latest iPhone.",

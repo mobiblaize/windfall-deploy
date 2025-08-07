@@ -25,5 +25,8 @@ button {
   --color-secondary-text: #818181;
   
   --color-light-red: #FFF7F7;
+
+
+  --breakpoint-avg: 68.5rem;
 }
 

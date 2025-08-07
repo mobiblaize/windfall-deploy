@@ -1,20 +1,22 @@
-import { Modal, Box, Text, Image, Loader } from "@mantine/core";
+import { Modal, Box, Image, Loader } from "@mantine/core";
 import successImg from "../../assets/success.gif";
-// import errorImg from "../../assets/error.gif";
+import errorImg from "../../assets/error.gif";
+import msgImg from "../../assets/message.gif";
 import loadingImg from "../../assets/loading.gif";
 import CustomButton from "../../components/Buttons/CustomButton";
 
 type ButtonProps = {
   label: string;
+  disabled?: boolean;
   onClick: () => void;
 };
 
 type Props = {
   opened: boolean;
-  onClose: () => void;
-  status: "success" | "failed" | "loading";
-  title: string;
-  description: string;
+  onClose?: () => void;
+  status?: "success" | "error" | "loading" | "message";
+  title: React.ReactNode;
+  description: React.ReactNode;
   color?: "dark" | "primary";
   primaryButton?: ButtonProps;
   secondaryButton?: ButtonProps;
@@ -34,10 +36,12 @@ export default function AlertModal({
     switch (status) {
       case "success":
         return successImg;
-      //   case "failed":
-      //     return errorImg;
+      case "error":
+        return errorImg;
       case "loading":
         return loadingImg;
+      case "message":
+        return msgImg;
       default:
         return "";
     }
@@ -57,7 +61,7 @@ export default function AlertModal({
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={onClose ? onClose: ()=>{}}
       centered
       withCloseButton={false}
       radius="lg"
@@ -75,23 +79,23 @@ export default function AlertModal({
           <Image
             src={getStatusImage()}
             alt={status}
-            className="w-[100px] h-[100px] mx-auto"
+            className="w-[100px] h-[100px] mx-auto mb-5"
             fit="contain"
             radius="md"
           />
         )}
 
-        <Text className={`!text-3xl !font-semibold !mb-4 ${getTitleColor()}`}>
+        <div className={`!text-3xl !font-semibold !mb-4 ${getTitleColor()}`}>
           {title}
-        </Text>
+        </div>
 
-        <Text className="!text-base !text-[#818181]">{description}</Text>
+        <div className="!text-base !text-[#818181]">{description}</div>
 
         {/* Buttons */}
         {(primaryButton || secondaryButton) && (
           <Box className="flex justify-center gap-4 mt-6">
             {primaryButton && (
-              <CustomButton onClick={primaryButton.onClick} className="flex-1">
+              <CustomButton disabled={primaryButton.disabled} onClick={primaryButton.onClick} className="flex-1">
                 {primaryButton.label}
               </CustomButton>
             )}
@@ -99,6 +103,7 @@ export default function AlertModal({
             {secondaryButton && (
               <CustomButton
                 type="dark"
+                disabled={secondaryButton.disabled}
                 onClick={secondaryButton.onClick}
                 variant="outline"
                 className="flex-1"
