@@ -5,7 +5,7 @@ import raffleImg2 from "../../assets/raffle-img-2.jpg";
 import raffleImg3 from "../../assets/raffle-img-3.jpg";
 import raffleImg4 from "../../assets/raffle-img-4.jpg";
 import { PiMinusFill, PiPlusFill } from "react-icons/pi";
-import { Button, Progress, Text } from "@mantine/core";
+import { Button, Card, Progress, Text } from "@mantine/core";
 import DiscountSlider from "../../components/DiscountSlider";
 import RaffleBadge from "../../components/RaffleBadge";
 import { IconCash } from "@tabler/icons-react";
@@ -14,12 +14,29 @@ import { FaReceipt, FaUser } from "react-icons/fa";
 
 const mockImages = [raffleImg1, raffleImg2, raffleImg3, raffleImg4];
 
+type DiscountOption = {
+  units: number;
+  discount: string;
+  selected?: boolean;
+};
+
 export default function RaffleInfo() {
   const [selectedImage, setSelectedImage] = useState(mockImages[0]);
   const [quantity, setQuantity] = useState(1);
 
+  const discounts: DiscountOption[] = [
+    { units: 2, discount: "5% Off" },
+    { units: 20, discount: "7% Off" },
+    { units: 100, discount: "17% Off" },
+    { units: 250, discount: "50% Off" },
+  ];
+
+  function setDiscountQuantity(quantity: number) {
+    setQuantity(quantity <= maxTickets ? quantity : maxTickets);
+  }
+
   const pricePerTicket = 3000;
-  const maxTickets = 200;
+  const maxTickets = 300;
 
   const discount = Math.floor((quantity / maxTickets) * 30); // Up to 30%
   const hasDiscount = discount > 0;
@@ -27,6 +44,19 @@ export default function RaffleInfo() {
   const discountedPrice = Math.round(totalOriginalPrice * (1 - discount / 100));
 
   const progressColor = "var(--primary-red)";
+
+  const activeDiscount = discounts
+    .slice()
+    .reverse()
+    .find((d) => quantity >= d.units);
+
+  const discountPercent = activeDiscount?.discount
+    ? parseFloat(activeDiscount.discount) / 100
+    : 0;
+
+  const discountedPricePerTicket = Math.round(
+    pricePerTicket * (1 - discountPercent)
+  );
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
@@ -109,9 +139,20 @@ export default function RaffleInfo() {
 
         <div className="flex justify-center items-center gap-5">
           <span className="text-gray-500 text-lg">One Ticket Price:</span>{" "}
-          <span className="text-red-600 text-2xl md:text-3xl font-semibold">
-            ₦ {pricePerTicket.toLocaleString()}
-          </span>
+          <div className="flex flex-col items-center justify-center">
+            <span className="text-red-600 text-2xl md:text-3xl font-semibold">
+              ₦{" "}
+              {(hasDiscount
+                ? discountedPricePerTicket
+                : pricePerTicket
+              ).toLocaleString()}
+            </span>
+            {hasDiscount && (
+              <span className="text-lg md:text-lg font-light text-gray-500 line-through">
+                ₦ {pricePerTicket.toLocaleString()}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col gap-5 items-center mb-4">
@@ -140,8 +181,38 @@ export default function RaffleInfo() {
           value={quantity}
           max={maxTickets}
           onChange={setQuantity}
-          getDiscount={(val, max) => Math.floor((val / max) * 30)}
+          activeDiscount={activeDiscount}
         />
+
+        <div className="flex flex-wrap justify-center gap-4 w-full">
+          {discounts.map((item, i) => {
+            const isActive = activeDiscount?.units === item.units;
+            return (
+              <Card
+                key={i}
+                withBorder
+                onClick={() => setDiscountQuantity(item.units)}
+                className={`!flex !flex-col !items-center !justify-center !text-center !py-3 !cursor-pointer !rounded-xl !border-2 !border-dashed !transition
+          ${
+            isActive
+              ? "!border-primary-red !bg-secondary-red"
+              : "!border-gray-300 hover:!border-primary-red !bg-primary-grey"
+          }
+          !min-w-[100px] !max-w-full !flex-grow`}
+              >
+                <Text className="!text-[#575757] !text-base">
+                  {item.units} Units
+                </Text>
+                <Text
+                  fw={700}
+                  className={`!text-lg !font-bold ${isActive ? "!text-primary-red" : "!text-black"}`}
+                >
+                  {item.discount}
+                </Text>
+              </Card>
+            );
+          })}
+        </div>
 
         <div className="flex justify-center mb-4 items-center space-x-6 text-gray-500 text-sm">
           <div className="flex items-center gap-1">
@@ -165,7 +236,11 @@ export default function RaffleInfo() {
               </span>
             )}
             <span className="text-2xl md:text-3xl font-bold text-red-600">
-              ₦ {(hasDiscount ? discountedPrice : totalOriginalPrice).toLocaleString()}
+              ₦{" "}
+              {(hasDiscount
+                ? discountedPrice
+                : totalOriginalPrice
+              ).toLocaleString()}
             </span>
           </div>
         </div>

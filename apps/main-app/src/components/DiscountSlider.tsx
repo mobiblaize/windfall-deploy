@@ -1,22 +1,25 @@
 import { Slider } from "@mantine/core";
 import { FaTicketAlt } from "react-icons/fa";
 
+type DiscountOption = {
+  units: number;
+  discount: string;
+  selected?: boolean;
+};
+
 interface DiscountSliderProps {
   value: number;
   max: number;
+  activeDiscount?: DiscountOption;
   onChange: (val: number) => void;
-  getDiscount?: (val: number, max: number) => number;
 }
 
 export default function DiscountSlider({
   value,
   max,
   onChange,
-  getDiscount,
+  activeDiscount
 }: DiscountSliderProps) {
-  const discount = getDiscount
-    ? getDiscount(value, max)
-    : Math.floor((value / max) * 30);
 
   return (
     <div className="flex items-center gap-6 pt-10">
@@ -44,9 +47,9 @@ export default function DiscountSlider({
           className="slider-red"
           styles={{
             track: { height: 8 },
-            bar: { backgroundColor: "#ef4444" },
+            bar: { backgroundColor: "#ff2f31" },
             thumb: {
-              border: "2px solid #ef4444",
+              border: "2px solid #ff2f31",
               width: 24,
               height: 24,
               backgroundColor: "#fff",
@@ -60,7 +63,7 @@ export default function DiscountSlider({
       <div className="text-center -mt-9">
         <p className="text-sm text-gray-600 mb-1">Discount</p>
         <p className="bg-black text-white text-nowrap text-sm px-4 py-2 rounded-md">
-          {discount}% Off
+          {activeDiscount?.discount ?? 'No Discount'}
         </p>
       </div>
     </div>

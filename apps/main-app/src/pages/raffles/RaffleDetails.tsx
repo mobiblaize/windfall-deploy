@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Flex, Text } from "@mantine/core";
 import RaffleInfo from "./RaffleInfo";
 import CompetitionDetails from "./CompetitionDetails";
-import RafflesFaq from "./RafflesFaq";
+// import RafflesFaq from "./RafflesFaq";
 import SponsorshipDetails from "./SponsorshipDetails";
 import RelatedRaffles from "./RelatedRaffles";
 
@@ -14,7 +14,7 @@ type TabItem = {
 const menuTabs: TabItem[] = [
   { label: "Competition Details", value: "competition" },
   { label: "Sponsorship Details", value: "sponsorship" },
-  { label: "FAQs", value: "faqs" },
+  // { label: "FAQs", value: "faqs" },
 ];
 
 export default function RaffleDetails() {
@@ -60,7 +60,7 @@ export default function RaffleDetails() {
       <div className="mt-10 mx-5 md:w-[50vw]">
         {activeTab === "competition" && <CompetitionDetails />}
         {activeTab === "sponsorship" && <SponsorshipDetails />}
-        {activeTab === "faqs" && <RafflesFaq />}
+        {/* {activeTab === "faqs" && <RafflesFaq />} */}
       </div>
 
           <div className="-mx-5 mt-10">

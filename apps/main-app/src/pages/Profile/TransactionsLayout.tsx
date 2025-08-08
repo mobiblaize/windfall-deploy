@@ -7,7 +7,6 @@ import {
   Text,
   Button,
   TextInput,
-  Table,
   ActionIcon,
   Image,
 } from "@mantine/core";
@@ -24,10 +23,10 @@ import { useNavigate } from "react-router-dom";
 
 function TransactionsLayout() {
   const navigate = useNavigate();
+  const transactions = [1, 2, 3, 4, 5, 6];
+
   return (
     <div className="text-primary-text mb-32">
-      {/* <Breadcrumbs>{items}</Breadcrumbs> */}
-
       <ProfileHeader />
       <MyGameHeader
         title="My Transaction"
@@ -41,108 +40,173 @@ function TransactionsLayout() {
         />
       </MyGameHeader>
       <Divider />
-      <section className="mx-10 my-10">
-        <Box className=" border !border-secondary-text/50  rounded-xl bg-white">
-          <>
-            <Flex justify="space-between" px="md" pt="lg">
-              <div>
-                <Text fz={20} fw="bold">
-                  Game Transaction List
-                </Text>
-                <Text className="!text-secondary-text">
-                  Track and manage transaction with ease.{" "}
-                </Text>
-              </div>
-              <Button
-                variant="outline"
-                className=" !border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
-                rightSection={<HiDocumentArrowDown />}
-              >
-                Export
-              </Button>
-            </Flex>
-            <Divider mt="md" mb="lg" />
-            <Flex justify="space-between" px="md" mb="lg">
-              <TextInput
-                leftSection={<HiSearch />}
-                placeholder="Search"
-                className="!w-72 !rounded-xl shadow-md"
-              />
-              <Group>
-                <Select
-                  rightSection={<IoFilterOutline />}
-                  placeholder="sort by: show all"
-                  className=" !shadow-md"
-                />
-                <Select
-                  rightSection={<IoFilterOutline />}
-                  placeholder="filter by: show all"
-                  className=" !shadow-md"
-                />
-              </Group>
-            </Flex>
-          </>
 
-          <TableContainer
-            headers={[
-              "Transaction ID",
-              "Transaction date & time",
-              "paid via",
-              "Transaction value",
-              "payment chanel",
-              "transaction status",
-              "receipt",
-            ]}
+      <section className="mx-4 sm:mx-10 my-10">
+        <Box className="border !border-secondary-text/50 rounded-xl bg-white">
+          <Flex justify="space-between" px="md" pt="lg" wrap="wrap" gap={8}>
+            <div>
+              <Text fz={20} fw="bold">
+                Game Transaction List
+              </Text>
+              <Text className="!text-secondary-text">
+                Track and manage transaction with ease.
+              </Text>
+            </div>
+            <Button
+              variant="outline"
+              className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
+              rightSection={<HiDocumentArrowDown />}
+            >
+              Export
+            </Button>
+          </Flex>
+
+          <Divider mt="md" mb="lg" />
+
+          <Flex
+            justify="space-between"
+            px="md"
+            mb="lg"
+            wrap="wrap"
+            gap={8}
+            align="center"
           >
-            {[1, 2, 3, 4, 5, 6].map((x) => {
+            <TextInput
+              leftSection={<HiSearch />}
+              placeholder="Search"
+              className="!w-72 !rounded-xl shadow-md"
+            />
+            <Group>
+              <Select
+                rightSection={<IoFilterOutline />}
+                placeholder="sort by: show all"
+                className="!shadow-md"
+              />
+              <Select
+                rightSection={<IoFilterOutline />}
+                placeholder="filter by: show all"
+                className="!shadow-md"
+              />
+            </Group>
+          </Flex>
+
+          {/* Table for larger screens */}
+          <div className="!hidden sm:!block">
+            <TableContainer
+              headers={[
+                "Transaction ID",
+                "Transaction date & time",
+                "Paid via",
+                "Transaction value",
+                "Payment channel",
+                "Transaction status",
+                "Receipt",
+              ]}
+            >
+              {transactions.map((x) => {
+                const active = x % 2;
+                return (
+                  <tr key={x}>
+                    <td className="text-secondary-text !text-base">
+                      4HYE74793FS
+                    </td>
+                    <td>
+                      <Text className="!text-base !font-medium">
+                        April 11, 2005
+                      </Text>
+                      <Text className="!text-secondary-text !text-sm">
+                        11:00am
+                      </Text>
+                    </td>
+                    <td>
+                      <Flex align="center" gap={10}>
+                        <Image src={visaIcon} h={32} w={36} />
+                        <Text className="!text-secondary-text !text-base">
+                          ** 3904
+                        </Text>
+                      </Flex>
+                    </td>
+                    <td>₦ 10,000</td>
+                    <td>
+                      <Text className="!text-base">Paystack</Text>
+                    </td>
+                    <td>
+                      <p
+                        className={`py-[2px] px-2 rounded-xl inline-block font-medium ${
+                          active
+                            ? "bg-[#CCFBEF] text-[#06B280]"
+                            : "bg-[#FEF3F2] text-[#B42318]"
+                        }`}
+                      >
+                        {active ? "Successful" : "Failed"}
+                      </p>
+                    </td>
+                    <td>
+                      <ActionIcon
+                        onClick={() => navigate("1")}
+                        size={35}
+                        className="!bg-[#FFD5D6] !text-primary-red !text-xl"
+                      >
+                        <LuDownload />
+                      </ActionIcon>
+                    </td>
+                  </tr>
+                );
+              })}
+            </TableContainer>
+          </div>
+
+          {/* Card view for small screens */}
+          <div className="sm:!hidden space-y-4 p-4">
+            {transactions.map((x) => {
               const active = x % 2;
               return (
-                <Table.Tr key={x}>
-                  <Table.Td className="text-secondary-text !text-base">
-                    4HYE74793FS
-                  </Table.Td>
-                  <Table.Td>
-                    <Text className="!text-base !font-medium">
-                      April 11, 2005
-                    </Text>
-                    <Text className="!text-secondary-text !text-sm">
-                      11:00am
-                    </Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Flex align={"center"} gap={10}>
-                      <Image src={visaIcon} h={32} w={36} />
-                      <Text className="!text-secondary-text !text-base">
-                        ** 3904
-                      </Text>
-                    </Flex>
-                  </Table.Td>
-                  <Table.Td>₦ 10,000</Table.Td>
-                  <Table.Td>
-                    <Text className="!text-base">Paystack</Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <p
-                      className={`py-[2px] px-2 rounded-xl inline-block font-medium ${active ? "bg-[#CCFBEF] text-[#06B280]" : "bg-[#FEF3F2] text-[#B42318]"}`}
+                <div
+                  key={x}
+                  className="border rounded-lg p-4 shadow-sm bg-white space-y-2"
+                >
+                  <p>
+                    <strong>Transaction ID:</strong> 4HYE74793FS
+                  </p>
+                  <p>
+                    <strong>Date:</strong> April 11, 2005 — 11:00am
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <strong>Paid via:</strong>{" "}
+                    <Image src={visaIcon} h={24} w={28} /> ** 3904
+                  </p>
+                  <p>
+                    <strong>Value:</strong> ₦ 10,000
+                  </p>
+                  <p>
+                    <strong>Channel:</strong> Paystack
+                  </p>
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    <span
+                      className={`py-[2px] px-2 rounded-xl inline-block font-medium ${
+                        active
+                          ? "bg-[#CCFBEF] text-[#06B280]"
+                          : "bg-[#FEF3F2] text-[#B42318]"
+                      }`}
                     >
-                      {active ? 'Successful': 'Failed'}
-                    </p>
-                  </Table.Td>
-                  <Table.Td>
-                    <ActionIcon
-                    onClick={()=>navigate('1')}
-                      size={35}
-                      className="!bg-[#FFD5D6] !text-primary-red !text-xl"
-                    >
-                      <LuDownload />
-                    </ActionIcon>
-                  </Table.Td>
-                </Table.Tr>
+                      {active ? "Successful" : "Failed"}
+                    </span>
+                  </p>
+                  <ActionIcon
+                    onClick={() => navigate("1")}
+                    size={35}
+                    className="!bg-[#FFD5D6] !text-primary-red !text-xl"
+                  >
+                    <LuDownload />
+                  </ActionIcon>
+                </div>
               );
             })}
-          </TableContainer>
+          </div>
+
           <Flex my="md" justify="space-between" px="lg" align="center">
-            <Text className="">Page 1 of 10</Text>
+            <Text>Page 1 of 10</Text>
             <Group>
               <Button
                 variant="outline"

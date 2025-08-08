@@ -40,6 +40,7 @@ function ProfileHeader() {
 								className={`
                                     !py-2 !px-5
                               relative 
+							  !text-nowrap
                               !capitalize !text-lg
                               cursor-pointer 
                               after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2
