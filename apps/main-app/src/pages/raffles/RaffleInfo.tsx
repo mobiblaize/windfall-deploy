@@ -38,10 +38,7 @@ export default function RaffleInfo() {
   const pricePerTicket = 3000;
   const maxTickets = 300;
 
-  const discount = Math.floor((quantity / maxTickets) * 30); // Up to 30%
-  const hasDiscount = discount > 0;
   const totalOriginalPrice = pricePerTicket * quantity;
-  const discountedPrice = Math.round(totalOriginalPrice * (1 - discount / 100));
 
   const progressColor = "var(--primary-red)";
 
@@ -57,6 +54,8 @@ export default function RaffleInfo() {
   const discountedPricePerTicket = Math.round(
     pricePerTicket * (1 - discountPercent)
   );
+  
+  const discountedPrice =  discountedPricePerTicket * quantity;
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
@@ -142,12 +141,12 @@ export default function RaffleInfo() {
           <div className="flex flex-col items-center justify-center">
             <span className="text-red-600 text-2xl md:text-3xl font-semibold">
               ₦{" "}
-              {(hasDiscount
+              {(activeDiscount
                 ? discountedPricePerTicket
                 : pricePerTicket
               ).toLocaleString()}
             </span>
-            {hasDiscount && (
+            {activeDiscount && (
               <span className="text-lg md:text-lg font-light text-gray-500 line-through">
                 ₦ {pricePerTicket.toLocaleString()}
               </span>
@@ -227,17 +226,17 @@ export default function RaffleInfo() {
 
         <div className="bg-red-50 border-2 mb-7 border-dashed border-red-500 rounded-xl px-4 py-5">
           <p className="text-gray-700 text-sm">
-            {hasDiscount ? "Discounted Price" : "Price"}
+            {activeDiscount ? "Discounted Price" : "Price"}
           </p>
           <div className="flex justify-center items-baseline gap-3">
-            {hasDiscount && (
+            {activeDiscount && (
               <span className="text-2xl md:text-3xl font-light text-[#FF9798] line-through">
                 ₦ {totalOriginalPrice.toLocaleString()}
               </span>
             )}
             <span className="text-2xl md:text-3xl font-bold text-red-600">
               ₦{" "}
-              {(hasDiscount
+              {(activeDiscount
                 ? discountedPrice
                 : totalOriginalPrice
               ).toLocaleString()}
