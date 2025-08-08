@@ -12,6 +12,7 @@ import CheckoutItem from "./CheckoutItem";
 import AlertModal from "../../components/Modals/AlertModal";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import CustomButton from "../../components/Buttons/CustomButton";
 
 function CheckoutLists() {
   const navigate = useNavigate();
@@ -102,12 +103,7 @@ function CheckoutLists() {
             <Image src="/src/assets/stripe-icon.png" h={32} w={36} />
             <Image src="/src/assets/mastercard-icon.png" h={32} w={36} />
           </Flex>
-          <Button
-            onClick={() => setSuccessModalOpen(true)}
-            className="!border !border-dashed !border-secondary-red !w-full !h-12 !rounded-lg"
-          >
-            Pay Now
-          </Button>
+          <CustomButton fullWidth onClick={() => setSuccessModalOpen(true)}>Pay Now</CustomButton>
         </div>
       </Card>
       <Card withBorder className="!col-span-5 md:!col-span-3" py="xl">
