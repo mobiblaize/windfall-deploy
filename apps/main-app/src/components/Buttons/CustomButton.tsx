@@ -1,19 +1,23 @@
 // components/CustomButton.tsx
 import { Button } from "@mantine/core";
-import type { ButtonProps } from "@mantine/core";
+import type { ButtonProps, MantineSize } from "@mantine/core";
 
 type CustomButtonProps = ButtonProps & {
-  type?: 'primary' | 'dark';
+  type?: "primary" | "dark";
   fullWidth?: boolean;
   onClick?: () => void;
+  size?: MantineSize | "compact-xs" | "compact-sm" | "compact-md" | "compact-lg" | "compact-xl" | (string & {});
+  border?: boolean; // New prop
 };
 
 export default function CustomButton({
   disabled,
   children,
-  type = 'primary',
+  type = "primary",
   fullWidth = false,
   onClick,
+  border = true, // default true
+  size="lg",
   ...props
 }: CustomButtonProps) {
   const getBgColor = () => {
@@ -26,11 +30,12 @@ export default function CustomButton({
         return "!bg-black";
     }
   };
+
   return (
     <Button
       {...props}
       type="button"
-      size="lg"
+      size={size}
       fullWidth={fullWidth}
       disabled={disabled}
       onClick={onClick}
@@ -41,9 +46,10 @@ export default function CustomButton({
         cursor: disabled ? "not-allowed" : "pointer",
         ...props.style,
       }}
-      className={`text-sm font-semibold py-2 ${getBgColor()} !rounded-md transition !border-2 !border-dashed !border-secondary-red ${
-        !disabled ? "hover:bg-red-600" : ""
-      } ${props.className || ""}`}
+      className={`text-sm font-semibold py-2 ${getBgColor()} !rounded-md transition 
+        ${border ? "!border-2 !border-dashed !border-secondary-red" : "!border-none"} 
+        ${!disabled ? "hover:bg-red-600" : ""} 
+        ${props.className || ""}`}
     >
       {children}
     </Button>

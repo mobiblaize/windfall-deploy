@@ -42,6 +42,7 @@ import ChangePassword from "./pages/Profile/settings/AccountSecurity/ChangePassw
 import NotificationSettingsLayout from "./pages/Profile/settings/NotificationSettingsLayout";
 import AllNotifications from "./pages/Profile/AllNotifications";
 import PaymentReceipt from "./pages/Profile/PaymentReceipt";
+import AdminLoginPage from "./pages/Admin/AdminLogin";
 
 function App() {
 	return (
@@ -116,6 +117,11 @@ function App() {
 					<Route path="profile/notifications" element={<AllNotifications/>} />
 					<Route path="profile/transaction" element={<TransactionsLayout/>} />
 					<Route path="profile/transaction/:id" element={<TransactionReceipt/>} />
+
+
+					{/* ADMIN */}
+					<Route path="admin/login" element={<AdminLoginPage/>} />
+					
 				</Route>
 			</Routes>
 		</BrowserRouter>
