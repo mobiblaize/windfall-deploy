@@ -9,6 +9,7 @@ import {
   TextInput,
   ActionIcon,
   Image,
+  Table,
 } from "@mantine/core";
 import { FaAngleDown } from "react-icons/fa";
 import MyGameHeader from "./MyGameHeader";
@@ -106,31 +107,31 @@ function TransactionsLayout() {
               {transactions.map((x) => {
                 const active = x % 2;
                 return (
-                  <tr key={x}>
-                    <td className="text-secondary-text !text-base">
+                  <Table.Tr key={x}>
+                    <Table.Td className="text-secondary-text !pr-0 !text-base">
                       4HYE74793FS
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <Text className="!text-base !font-medium">
                         April 11, 2005
                       </Text>
-                      <Text className="!text-secondary-text !text-sm">
+                      <Text className="!text-secondary-text !pr-0 !text-sm">
                         11:00am
                       </Text>
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td className="!pr-0">
                       <Flex align="center" gap={10}>
                         <Image src={visaIcon} h={32} w={36} />
-                        <Text className="!text-secondary-text !text-base">
+                        <Text className="!text-secondary-text !pr-0 !text-base">
                           ** 3904
                         </Text>
                       </Flex>
-                    </td>
-                    <td>₦ 10,000</td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td className="!pr-0">₦ 10,000</Table.Td>
+                    <Table.Td className="!pr-0">
                       <Text className="!text-base">Paystack</Text>
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td className="!pr-0">
                       <p
                         className={`py-[2px] px-2 rounded-xl inline-block font-medium ${
                           active
@@ -140,8 +141,8 @@ function TransactionsLayout() {
                       >
                         {active ? "Successful" : "Failed"}
                       </p>
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <ActionIcon
                         onClick={() => navigate("1")}
                         size={35}
@@ -149,8 +150,8 @@ function TransactionsLayout() {
                       >
                         <LuDownload />
                       </ActionIcon>
-                    </td>
-                  </tr>
+                    </Table.Td>
+                  </Table.Tr>
                 );
               })}
             </TableContainer>

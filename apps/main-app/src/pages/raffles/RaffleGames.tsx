@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import raffleImg from '../../assets/default-raffle.png';
+import instantRaffleImg from '../../assets/instant-raffle.png';
 import FilterPill from '../../components/FilterPill';
 import RaffleCard from '../../components/RaffleCard';
 import { ActionIcon } from '@mantine/core';
@@ -20,12 +21,13 @@ const raffles: Raffle[] = [
     prizeType: 'iPhone',
     ticketType: 'MacBook',
     drawTime: '8am',
+    gameType: 'raffle',
   },
   {
     title: 'Secure a Luxury Studio Apartment in Lekki, Lagos State, Nigeria',
     description: 'Enter now to grab the opportunity of a brand new Samsung Galaxy.',
     fee: '₦3K',
-    image: raffleImg,
+    image: instantRaffleImg,
     sold: 60,
     date: 'June 2, 2025 | 10:00am',
     status: 'active',
@@ -33,6 +35,7 @@ const raffles: Raffle[] = [
     prizeType: 'Samsung',
     ticketType: 'MacBook',
     drawTime: '9am',
+    gameType: 'instant',
   },
   {
     title: 'Win a 2-Bedroom Apartment in Victoria Island, Lagos State, Nigeria',
@@ -46,12 +49,13 @@ const raffles: Raffle[] = [
     prizeType: 'MacBook',
     ticketType: 'MacBook',
     drawTime: '10am',
+    gameType: 'raffle',
   },
   {
     title: 'Win a 2-Bedroom Apartment in Victoria Island, Lagos State, Nigeria',
     description: 'Take part for a chance to win a MacBook Pro.',
     fee: '₦5K',
-    image: raffleImg,
+    image: instantRaffleImg,
     sold: 0,
     date: 'June 2, 2025 | 10:00am',
     status: 'upcoming',
@@ -59,6 +63,7 @@ const raffles: Raffle[] = [
     prizeType: 'MacBook',
     ticketType: 'MacBook',
     drawTime: '10am',
+    gameType: 'instant',
   },
 ];
 

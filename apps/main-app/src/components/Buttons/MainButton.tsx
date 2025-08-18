@@ -29,7 +29,7 @@ export default function MainButton({
 
   const hoverClass =
     variant === "primary"
-      ? "hover:bg-red-600"
+      ? "hover:bg-primary-red"
       : "hover:bg-gray-900 !shadow-md";
 
   return (

@@ -30,7 +30,7 @@ export default function DiscountSlider({
           className="absolute -top-10 left-0 transform -translate-x-1/2"
           style={{ left: `${(value / max) * 100}%` }}
         >
-          <div className="bg-red-500 text-white text-sm rounded-md px-3 py-1 flex items-center gap-1 shadow">
+          <div className="bg-primary-red text-white text-sm rounded-md px-3 py-1 flex items-center gap-1 shadow">
             {value}
             <FaTicketAlt size={12} />
           </div>

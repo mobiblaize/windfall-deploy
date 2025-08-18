@@ -114,7 +114,7 @@ export default function ClaimPricesStep3({ onSubmit, formData }: Props) {
               cursor: agreed ? "pointer" : "not-allowed",
             }}
             className={`text-sm font-semibold py-2 !rounded-md transition !border-2 !border-dashed !border-secondary-red ${
-              agreed ? "hover:bg-red-600" : ""
+              agreed ? "hover:bg-primary-red" : ""
             }`}
           >
             Claim Prize

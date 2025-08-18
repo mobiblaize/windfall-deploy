@@ -95,7 +95,7 @@ export default function Footer() {
                   />
                   <Button
                     type="button"
-                    className="!rounded-l-none bg-red-500 hover:bg-red-600 text-white h-[48px] px-5"
+                    className="!rounded-l-none bg-primary-red hover:bg-primary-red text-white h-[48px] px-5"
                   >
                     Subscribe
                   </Button>

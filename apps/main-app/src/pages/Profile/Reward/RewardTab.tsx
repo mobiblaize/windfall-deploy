@@ -102,7 +102,7 @@ function RewardTab() {
               {allTabs.map(({ label, value }) => {
                 const isActive = activeTab === value;
                 return (
-                  <Text
+                  <Text key={value}
                     onClick={() => setActiveTab(value)}
                     className={`
                             !py-2 !px-5

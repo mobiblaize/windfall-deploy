@@ -32,7 +32,7 @@ export default function GamesTicketModal({ item, isOpened = false, onClose }: Pr
         classNames={{ content: "!rounded-3xl" }}
       >
         <div className="mx-7">
-          <GameTicketItem item={item} />
+          <GameTicketItem item={item} containerBgColor='bg-white' />
         </div>
 
         <Flex gap={20} my="lg" mx="xl">

@@ -48,7 +48,7 @@ export default function CustomButton({
       }}
       className={`text-sm font-semibold py-2 ${getBgColor()} !rounded-md transition 
         ${border ? "!border-2 !border-dashed !border-secondary-red" : "!border-none"} 
-        ${!disabled ? "hover:bg-red-600" : ""} 
+        ${!disabled ? "hover:bg-primary-red" : ""} 
         ${props.className || ""}`}
     >
       {children}

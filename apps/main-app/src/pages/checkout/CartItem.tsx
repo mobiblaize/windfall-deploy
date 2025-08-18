@@ -1,6 +1,7 @@
 import { Card, Image, Text } from "@mantine/core";
 import { HiMiniTrash } from "react-icons/hi2";
 import { PiPlusFill, PiMinusFill } from "react-icons/pi";
+import InstantBadge from "../raffles/InstantBadge";
 
 function CartItem({ item }: { item: unknown }) {
 	console.log(item);
@@ -19,6 +20,9 @@ function CartItem({ item }: { item: unknown }) {
 						<Text className="!text-secondary-text">
 							Enter now to grab the opportunity of a brand new Ho...
 						</Text>
+						<div className="mt-1">
+							<InstantBadge size="sm" />
+						</div>
 					</div>
 				</div>
 				<div className="flex justify-around items-center">

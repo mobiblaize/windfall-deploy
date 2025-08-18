@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
               <CustomButton
                 border={false}
                 size="md"
-                className="!bg-red-500 hover:!bg-red-600 !text-white"
+                className="!bg-primary-red hover:!bg-primary-red !text-white"
               >
                 Login
               </CustomButton>

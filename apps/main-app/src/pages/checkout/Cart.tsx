@@ -47,7 +47,7 @@ function Cart() {
 						<div className="flex justify-end items-center gap-6">
 							<button
 								onClick={() => navigate("/checkout")}
-								className="bg-primary-red text-white font-semibold text-sm px-6 py-3 rounded-md border-[2px] border-dashed border-[#fff] hover:bg-red-600 transition"
+								className="bg-primary-red text-white font-semibold text-sm px-6 py-3 rounded-md border-[2px] border-dashed border-[#fff] hover:bg-primary-red transition"
 							>
 								Checkout ~ ₦500
 							</button>

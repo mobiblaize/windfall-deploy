@@ -27,7 +27,7 @@ export default function HeroSlider() {
           <p className="text-sm mb-4">Live in , Rent out , Sell up</p>
           <Button onClick={() => navigate("/raffles")}
               size='lg'
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold text-sm px-6 py-2 rounded-md shadow">
+              className="!bg-primary-red hover:bg-primary-red text-white font-semibold text-sm px-6 py-2 rounded-md shadow">
             Enter Game
           </Button>
         </div>

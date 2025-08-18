@@ -183,7 +183,7 @@ export default function ClaimPrices() {
                 >
                   <div
                     className={`w-8 h-8 flex items-center justify-center rounded-full border text-sm font-medium z-10
-                    ${isActive ? "bg-red-500 text-white" : "bg-white text-gray-500 border-gray-300"}`}
+                    ${isActive ? "bg-primary-red text-white" : "bg-white text-gray-500 border-gray-300"}`}
                   >
                     {step.number}
                   </div>
@@ -222,7 +222,7 @@ export default function ClaimPrices() {
                 }}
                 className={`w-3 h-3 rounded-full cursor-pointer transition-all duration-200 ${
                   i === activeStep
-                    ? "bg-red-500 scale-110"
+                    ? "bg-primary-red scale-110"
                     : "bg-gray-300 hover:bg-gray-400"
                 }`}
               />

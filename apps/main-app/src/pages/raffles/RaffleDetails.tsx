@@ -5,13 +5,31 @@ import CompetitionDetails from "./CompetitionDetails";
 // import RafflesFaq from "./RafflesFaq";
 import SponsorshipDetails from "./SponsorshipDetails";
 import RelatedRaffles from "./RelatedRaffles";
+import type { Raffle } from "../../models/raffles";
+import raffleImg from "../../assets/default-raffle.png";
+import InstantPrizes from "./InstantPrizes";
 
 type TabItem = {
   label: string;
   value: string;
 };
 
-const menuTabs: TabItem[] = [
+const raffle: Raffle = {
+  title: "Win One Bed Room Flat in Akoka-Yaba, Lagos State, Nigeria",
+  description: "Play for a chance to own the latest iPhone.",
+  fee: "₦2K",
+  image: raffleImg,
+  sold: 70,
+  date: "June 2, 2025 | 10:00am",
+  status: "active",
+  category: "apartment",
+  prizeType: "iPhone",
+  ticketType: "MacBook",
+  drawTime: "8am",
+  gameType: "instant",
+};
+
+const baseTabs: TabItem[] = [
   { label: "Competition Details", value: "competition" },
   { label: "Sponsorship Details", value: "sponsorship" },
   // { label: "FAQs", value: "faqs" },
@@ -20,15 +38,18 @@ const menuTabs: TabItem[] = [
 export default function RaffleDetails() {
   const [activeTab, setActiveTab] = useState<string>("competition");
 
+  const isInstant = raffle?.gameType === "instant";
+
+  const menuTabs: TabItem[] = isInstant
+    ? [...baseTabs, { label: "Instant Prizes to be Won", value: "prizes" }]
+    : baseTabs;
+
   return (
     <section className="px-6 md:px-16 py-10">
-      <RaffleInfo />
+      <RaffleInfo raffle={raffle} />
 
       <header className="bg-white mt-20 px-10 pt-7 rounded-xl shadow-sm">
-        <Flex
-          fz="lg"
-          className="!flex !flex-wrap !justify-start gap-5"
-        >
+        <Flex fz="lg" className="!flex !flex-wrap !justify-start gap-5">
           {menuTabs.map((tab) => {
             const isActive = activeTab === tab.value;
 
@@ -57,16 +78,18 @@ export default function RaffleDetails() {
         </Flex>
       </header>
 
-      <div className="mt-10 mx-5 md:w-[50vw]">
+      <div
+        className={`mt-10 mx-5${activeTab !== "prizes" ? " md:w-[50vw]" : ""}`}
+      >
         {activeTab === "competition" && <CompetitionDetails />}
         {activeTab === "sponsorship" && <SponsorshipDetails />}
+        {activeTab === "prizes" && <InstantPrizes />}
         {/* {activeTab === "faqs" && <RafflesFaq />} */}
       </div>
 
-          <div className="-mx-5 mt-10">
-            
-            <RelatedRaffles />
-          </div>
+      <div className="-mx-5 mt-10">
+        <RelatedRaffles />
+      </div>
     </section>
   );
 }

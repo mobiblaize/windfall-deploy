@@ -3,8 +3,9 @@ import RaffleCard from './RaffleCard';
 import FilterPill from './FilterPill'; // ✅ import here
 import raffleImg from '../assets/default-raffle.png';
 import { NavLink } from "react-router-dom";
+import type { Raffle } from '../models/raffles';
 
-const raffles = [
+const raffles: Raffle[] = [
   {
     title: 'Win One Bed Room Flat in Akoka-Yaba, Lagos State, Nigeria',
     description: 'Play for a chance to own the latest iPhone.',
@@ -15,6 +16,9 @@ const raffles = [
     status: 'active',
     category: 'apartment',
     prizeType: 'iPhone',
+    ticketType: 'MacBook',
+    drawTime: '8am',
+    gameType: 'raffle',
   },
   {
     title: 'Secure a Luxury Studio Apartment in Lekki, Lagos State, Nigeria',
@@ -23,9 +27,12 @@ const raffles = [
     image: raffleImg,
     sold: 60,
     date: 'June 2, 2025 | 10:00am',
-    status: 'active',
+    status: 'completed',
     category: 'apartment',
     prizeType: 'Samsung',
+    ticketType: 'MacBook',
+    drawTime: '9am',
+    gameType: 'instant',
   },
   {
     title: 'Win a 2-Bedroom Apartment in Victoria Island, Lagos State, Nigeria',
@@ -37,6 +44,9 @@ const raffles = [
     status: 'upcoming',
     category: 'apartment',
     prizeType: 'MacBook',
+    ticketType: 'MacBook',
+    drawTime: '10am',
+    gameType: 'raffle',
   },
 ];
 

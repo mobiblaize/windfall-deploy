@@ -1,18 +1,9 @@
 // components/RaffleCard.tsx
 import { Button, Progress } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import RaffleBadge from "./RaffleBadge";
-import type { RaffleStatus } from "../models/raffles";
+import type { Raffle } from "../models/raffles";
+import GameBadge from "./GameBadge";
 
-export interface RaffleCardProps {
-  image: string;
-  title: string;
-  description: string;
-  fee: string;
-  status: RaffleStatus;
-  sold: number;
-  date: string;
-}
 
 export default function RaffleCard({
   image,
@@ -21,10 +12,12 @@ export default function RaffleCard({
   fee,
   status,
   sold,
+  gameType,
   date,
-}: RaffleCardProps) {
+}: Raffle) {
   const isActive = status === "active";
-  const progressColor = isActive ? "var(--primary-red)" : "#f79009";
+  const isInstant = gameType === "instant";
+  const progressColor = !isActive ? "#f79009": isInstant ? "#4086EF": "var(--primary-red)";
   const navigate = useNavigate();
 
   return (
@@ -36,7 +29,7 @@ export default function RaffleCard({
           alt="raffle"
           className="w-full rounded-xl h-70 object-cover mb-[-1.25rem]"
         />
-        <RaffleBadge date={date} status={status} />
+        <GameBadge date={date} status={status} gameType={gameType} />
       </div>
 
       {/* Info */}
@@ -45,7 +38,7 @@ export default function RaffleCard({
       </h3>
       <p className="text-gray-500 text-sm mt-1">{description}</p>
 
-      <p className="text-xs mt-3 text-gray-500">Min Entry Fee:</p>
+      <p className="text-xs mt-3 mb-2 text-gray-500">Min Entry Fee:</p>
       {/* <div className="border-2 border-dashed border-red-500 rounded-md my-2"> */}
         <Button
             fullWidth
@@ -59,10 +52,10 @@ export default function RaffleCard({
             }}
             onClick={() => navigate("/raffles/2")}
             className={`text-sm font-semibold py-2 !rounded-md transition !border-2 !border-dashed !border-secondary-red ${
-            isActive ? "hover:bg-red-600" : ""
+            !isActive ? "": isInstant ? "!bg-instant-blue": "!bg-primary-red"
             }`}
         >
-            {isActive ? `Buy Ticket For ${fee}` : `Coming Soon`}
+            {isInstant ? `Purchase Ticket For ${fee}`: `Buy Ticket For ${fee}`}
         </Button>
     {/* </div> */}
 

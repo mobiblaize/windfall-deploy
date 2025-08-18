@@ -26,6 +26,10 @@ button {
   --color-primary-grey: #F5F5F5;
   
   --color-light-red: #FFF7F7;
+  --color-instant-blue: #4086EF;
+
+  --color-secondary-green: #ECFDF3;
+  --color-primary-green: #039855;
 
 
   --breakpoint-avg: 68.5rem;

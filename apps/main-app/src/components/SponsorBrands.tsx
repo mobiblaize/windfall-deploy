@@ -32,7 +32,7 @@ export default function SponsorBrands() {
       </p>
 
       {/* Call to Action Button */}
-      <button onClick={() => navigate("/raffles")} className="bg-[var(--primary-red)] hover:bg-red-600 text-white font-medium px-6 py-2.5 rounded-md text-sm transition mb-10">
+      <button onClick={() => navigate("/raffles")} className="bg-[var(--primary-red)] hover:bg-primary-red text-white font-medium px-6 py-2.5 rounded-md text-sm transition mb-10">
         Explore Games
       </button>
 

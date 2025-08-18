@@ -11,6 +11,9 @@ import RaffleBadge from "../../components/RaffleBadge";
 import { IconCash } from "@tabler/icons-react";
 import { IoCartSharp } from "react-icons/io5";
 import { FaReceipt, FaUser } from "react-icons/fa";
+import type { Raffle } from "../../models/raffles";
+import LiveBadge from "./LiveBadge";
+import InstantBadge from "./InstantBadge";
 
 const mockImages = [raffleImg1, raffleImg2, raffleImg3, raffleImg4];
 
@@ -19,8 +22,11 @@ type DiscountOption = {
   discount: string;
   selected?: boolean;
 };
+interface RaffleProps {
+  raffle: Raffle;
+}
 
-export default function RaffleInfo() {
+export default function RaffleInfo({ raffle }: RaffleProps) {
   const [selectedImage, setSelectedImage] = useState(mockImages[0]);
   const [quantity, setQuantity] = useState(1);
 
@@ -54,8 +60,13 @@ export default function RaffleInfo() {
   const discountedPricePerTicket = Math.round(
     pricePerTicket * (1 - discountPercent)
   );
-  
-  const discountedPrice =  discountedPricePerTicket * quantity;
+
+  const discountedPrice = discountedPricePerTicket * quantity;
+
+  const isInstant = raffle?.gameType === "instant";
+  const isActive = raffle?.status === "active";
+  const isClosed = raffle?.status === "completed";
+  const isUpcoming = raffle?.status === "upcoming";
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
@@ -70,21 +81,23 @@ export default function RaffleInfo() {
     <div className="grid md:grid-cols-2 gap-10">
       <div>
         <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex md:flex-col gap-3">
-            {mockImages.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={`thumb-${idx}`}
-                onClick={() => setSelectedImage(img)}
-                className={`w-16 h-16 object-cover rounded-md border-2 cursor-pointer ${
-                  selectedImage === img
-                    ? "border-red-500"
-                    : "border-transparent"
-                }`}
-              />
-            ))}
-          </div>
+          {!isInstant && (
+            <div className="flex md:flex-col gap-3">
+              {mockImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`thumb-${idx}`}
+                  onClick={() => setSelectedImage(img)}
+                  className={`w-16 h-16 object-cover rounded-md border-2 cursor-pointer ${
+                    selectedImage === img
+                      ? "border-red-500"
+                      : "border-transparent"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
 
           <div className="flex-1 aspect-[1/1]">
             <img
@@ -96,7 +109,17 @@ export default function RaffleInfo() {
         </div>
 
         <div className="mt-8">
-          <RaffleBadge date={new Date().toDateString()} status="active" />
+          {(!isInstant && isActive) && (
+            <RaffleBadge date={new Date().toDateString()} status="active" />
+          )}
+          {isInstant && (
+            <div className="flex gap-5">
+              <InstantBadge />
+              {(isActive || isClosed) && (
+                <LiveBadge status={isActive ? "live" : "closed"} />
+              )}
+            </div>
+          )}
         </div>
 
         <div className="mt-5">
@@ -111,16 +134,38 @@ export default function RaffleInfo() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-lg mt-1 text-gray-500 text-right">
-                  60% Entries Sold
-                </p>
-              </div>
-              <div>
-                <p className="text-lg mt-1 text-gray-500 text-right">
-                  1000 Tickets Left
-                </p>
-              </div>
+              {isActive && (
+                <>
+                  <div>
+                    <p className="text-lg mt-1 text-gray-500 text-right">
+                      60% Entries Sold
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-lg mt-1 text-gray-500 text-right">
+                      1000 Tickets Left
+                    </p>
+                  </div>
+                </>
+              )}
+              {isClosed && (
+                <>
+                  <div>
+                    <p className="text-lg mt-1 text-gray-500 text-right">
+                      Draw Closed
+                    </p>
+                  </div>
+                </>
+              )}
+              {isUpcoming && (
+                <>
+                  <div>
+                    <p className="text-lg mt-1 text-gray-500 text-right">
+                      No Ticket Sold Yet
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -139,7 +184,7 @@ export default function RaffleInfo() {
         <div className="flex justify-center items-center gap-5">
           <span className="text-gray-500 text-lg">One Ticket Price:</span>{" "}
           <div className="flex flex-col items-center justify-center">
-            <span className="text-red-600 text-2xl md:text-3xl font-semibold">
+            <span className="text-primary-red text-2xl md:text-3xl font-semibold">
               ₦{" "}
               {(activeDiscount
                 ? discountedPricePerTicket
@@ -157,61 +202,77 @@ export default function RaffleInfo() {
         <div className="flex flex-col gap-5 items-center mb-4">
           <p className="text-gray-500 text-base text-center">Ticket Quantity</p>
 
-          <div className="flex gap-x-2 md:gap-x-5 items-center">
-            <PiPlusFill
-              onClick={() => handleQuantityChange(1)}
-              size={32}
-              className="p-2 text-[#ABABAB] rounded-full bg-white cursor-pointer shadow-md"
-            />
+          {isActive && (
+            <div className="flex gap-x-2 md:gap-x-5 items-center">
+              <PiPlusFill
+                onClick={() => handleQuantityChange(1)}
+                size={32}
+                className="p-2 text-[#ABABAB] rounded-full bg-white cursor-pointer shadow-md"
+              />
 
-            <Text className="!px-5 !pt-1.5 !rounded-t-lg !font-semibold !text-primary-red !text-2xl md:!text-3xl !bg-secondary-red !border-dashed !border-b-1 !border-primary-red ">
-              {quantity}
-            </Text>
+              <Text className="!px-5 !pt-1.5 !rounded-t-lg !font-semibold !text-primary-red !text-2xl md:!text-3xl !bg-secondary-red !border-dashed !border-b-1 !border-primary-red ">
+                {quantity}
+              </Text>
 
-            <PiMinusFill
-              onClick={() => handleQuantityChange(-1)}
-              size={32}
-              className="p-2 text-[#ABABAB] rounded-full bg-white cursor-pointer shadow-md"
-            />
-          </div>
+              <PiMinusFill
+                onClick={() => handleQuantityChange(-1)}
+                size={32}
+                className="p-2 text-[#ABABAB] rounded-full bg-white cursor-pointer shadow-md"
+              />
+            </div>
+          )}
         </div>
 
-        <DiscountSlider
-          value={quantity}
-          max={maxTickets}
-          onChange={setQuantity}
-          activeDiscount={activeDiscount}
-        />
+        {isActive && (
+          <>
+            <DiscountSlider
+              value={quantity}
+              max={maxTickets}
+              onChange={setQuantity}
+              activeDiscount={activeDiscount}
+            />
 
-        <div className="flex flex-wrap justify-center gap-4 w-full">
-          {discounts.map((item, i) => {
-            const isActive = activeDiscount?.units === item.units;
-            return (
-              <Card
-                key={i}
-                withBorder
-                onClick={() => setDiscountQuantity(item.units)}
-                className={`!flex !flex-col !items-center !justify-center !text-center !py-3 !cursor-pointer !rounded-xl !border-2 !border-dashed !transition
+            <div className="flex flex-wrap justify-center gap-4 w-full">
+              {discounts.map((item, i) => {
+                const isActive = activeDiscount?.units === item.units;
+                return (
+                  <Card
+                    key={i}
+                    withBorder
+                    onClick={() => setDiscountQuantity(item.units)}
+                    className={`!flex !flex-col !items-center !justify-center !text-center !py-3 !cursor-pointer !rounded-xl !border-2 !border-dashed !transition
           ${
             isActive
               ? "!border-primary-red !bg-secondary-red"
-              : "!border-gray-300 hover:!border-primary-red !bg-primary-grey"
+              : "!border-gray-300 hover:!border-primary-red !bg-primary-grey hover:!bg-secondary-red"
           }
           !min-w-[100px] !max-w-full !flex-grow`}
-              >
-                <Text className="!text-[#575757] !text-base">
-                  {item.units} Units
-                </Text>
-                <Text
-                  fw={700}
-                  className={`!text-lg !font-bold ${isActive ? "!text-primary-red" : "!text-black"}`}
-                >
-                  {item.discount}
-                </Text>
-              </Card>
-            );
-          })}
-        </div>
+                  >
+                    <Text className="!text-[#575757] !text-base">
+                      {item.units} Units
+                    </Text>
+                    <Text
+                      fw={700}
+                      className={`!text-lg !font-bold ${isActive ? "!text-primary-red" : "!text-black"}`}
+                    >
+                      {item.discount}
+                    </Text>
+                  </Card>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {!isActive && (
+          <div>
+            <RaffleBadge
+              date={new Date().toDateString()}
+              status={raffle.status}
+              description={raffle.date}
+            />
+          </div>
+        )}
 
         <div className="flex justify-center mb-4 items-center space-x-6 text-gray-500 text-sm">
           <div className="flex items-center gap-1">
@@ -234,7 +295,7 @@ export default function RaffleInfo() {
                 ₦ {totalOriginalPrice.toLocaleString()}
               </span>
             )}
-            <span className="text-2xl md:text-3xl font-bold text-red-600">
+            <span className="text-2xl md:text-3xl font-bold text-primary-red">
               ₦{" "}
               {(activeDiscount
                 ? discountedPrice
@@ -246,28 +307,35 @@ export default function RaffleInfo() {
 
         <div className="flex flex-wrap justify-center gap-4">
           <Button
+            disabled={!isActive}
             size="xl"
+            fullWidth={!isActive}
             style={{
-              backgroundColor: "var(--primary-red)",
+              backgroundColor: isActive ? "var(--primary-red)" : "#ef4444",
               color: "#fff",
+              opacity: isActive ? 1 : 0.5,
+              cursor: isActive ? "pointer" : "not-allowed",
             }}
-            className={`text-sm !text-wrap font-semibold py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-red-600`}
+            className={`text-sm !text-wrap font-semibold py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-primary-red`}
             rightSection={<IoCartSharp />}
           >
             Add To Cart
           </Button>
-          <Button
-            size="xl"
-            style={{
-              backgroundColor: "black",
-              color: "#fff",
-            }}
-            className={`text-sm font-semibold !py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-gray-900 !shadow-md`}
-            rightSection={<IconCash />}
-          >
-            Buy Now
-          </Button>
+          {isActive && (
+            <Button
+              size="xl"
+              style={{
+                backgroundColor: "black",
+                color: "#fff",
+              }}
+              className={`text-sm font-semibold !py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-gray-900 !shadow-md`}
+              rightSection={<IconCash />}
+            >
+              Buy Now
+            </Button>
+          )}
         </div>
+        {!isActive && <Text className="!text-sm !text-secondary-text">Price change based on number of tickets</Text>}
       </div>
     </div>
   );

@@ -44,7 +44,7 @@ const theme = createTheme({
     }),
     ActionIcon: ActionIcon.extend({
       classNames: {
-        root: "bg-primary-red hover:bg-red-600 text-white !h-[48px] !border-none !w-[56px] !rounded-none !rounded-r cursor-pointer",
+        root: "bg-primary-red hover:bg-primary-red text-white !h-[48px] !border-none !w-[56px] !rounded-none !rounded-r cursor-pointer",
       },
     }),
   },
