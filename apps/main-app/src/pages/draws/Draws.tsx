@@ -2,12 +2,15 @@ import { ActionIcon, Select, SimpleGrid } from "@mantine/core";
 import { FaAngleDown } from "react-icons/fa";
 import { IconZoomFilled } from "@tabler/icons-react";
 import DrawsItems from "./DrawsItems";
-import CustomPagination from "../../components/CustomPagination";
 import SectionHeader from "../../components/SectionHeader";
 import houseLeft from '../../assets/draws-img-l.png';
 import houseRight from '../../assets/draws-img-r.png';
+import Paginator from "../../components/Paginator";
 
 export default function Draws() {
+	function setCurrentPage() {
+
+	}
 	return (
 		<div className="mb-10 flex flex-col h-full">
 			<SectionHeader heading="Raffle Draw" subHeading="Check your draw results here" imageLeft={houseLeft} imageRight={houseRight}/>
@@ -18,7 +21,7 @@ export default function Draws() {
 							all draw result <span className="text-primary-red">(192)</span>
 						</h1>
 					</div>
-					<div className="flex items-center gap-x-3">
+					<div className="flex flex-wrap items-center gap-3">
 						<Select
 							placeholder="Category"
 							classNames={{
@@ -47,7 +50,9 @@ export default function Draws() {
 						))}
 					</SimpleGrid>
 				</section>
-				<CustomPagination />
+				<section className="md:mx-2">
+					<Paginator currentPage={1} totalPages={2} onPageChange={setCurrentPage} />
+				</section>
 			</main>
 		</div>
 	);

@@ -12,7 +12,7 @@ function PrizesCard({item}:{item:unknown}) {
 				/>
 			</Card.Section>
 			<Card.Section className="!mx-1 !my-4">
-				<Text className="!capitalize">a luxury house in lekki</Text>
+				<Text className="!capitalize !text-2xl !font-extrabold">A luxury house in lekki</Text>
 				<Text fz="lg" className="!text-primary-red">
 					Price category:{" "}
 					<span className="text-secondary-text font-medium text-sm">

@@ -9,8 +9,12 @@ import {
 	List,
 	Text,
 } from "@mantine/core";
+import HelpSection from "../../components/HelpSection";
+import { useNavigate } from "react-router-dom";
 
 function SpecificResult() {
+  const navigate = useNavigate();
+
 	return (
 		<div className="mb-10 flex flex-col h-full  md:mx-10 lg:mx-14 mt-10">
 			<section className="text-primary-text p-4">
@@ -218,13 +222,16 @@ function SpecificResult() {
 					className="!bg-[#030303] !py-3 rounded-xl !mb-7 md:!mb-14 relative h-fit"
 					size="xl"
 				>
-					<div>
-						<Image
-							src="/src/assets/Contact Us Card.png"
-							alt="Draw Result 2"
-							className="w-full h-full"
-						/>
-					</div>
+					<HelpSection
+					  heading={
+						<>
+						  How to Claim Your Prize
+						</>
+					  }
+					  description="Follow these simple steps to verify and receive your winnings."
+					  buttonText="Let’s Talk"
+					  onClick={() => navigate("/contact-us")}
+					/>
 				</Container>
 			</section>
 		</div>

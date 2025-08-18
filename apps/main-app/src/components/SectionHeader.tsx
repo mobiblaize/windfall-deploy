@@ -1,8 +1,9 @@
 import React from "react";
+import type { ReactNode } from "react";
 
 const SectionHeader: React.FC<{
-  heading: string;
-  subHeading?: string;
+  heading: ReactNode;
+  subHeading?: ReactNode;
   imageLeft?: string;
   imageRight?: string;
   imageLeftWidth?: string;

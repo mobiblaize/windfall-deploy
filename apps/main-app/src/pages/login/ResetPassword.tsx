@@ -1,71 +1,189 @@
-import {
-	Container,
-	Card,
-	Text,
-	Flex,
-	Stack,
-	TextInput,
-	List,
-} from "@mantine/core";
-import { HiDocumentArrowDown } from "react-icons/hi2";
-import header from "../../assets/Create New Password.png";
+import { Flex, Text, TextInput } from "@mantine/core";
+import resetLeft from "../../assets/reset-1.png";
+import resetRight from "../../assets/reset-2.png";
+import NewPassword from "../Profile/settings/AccountSecurity/NewPassword";
+import { useNavigate } from "react-router-dom";
+import SectionHeader from "../../components/SectionHeader";
+import AlertModal from "../../components/Modals/AlertModal";
+import { useEffect, useState } from "react";
 import { FiEye } from "react-icons/fi";
-import ResetModal from "../../components/Modals/SuccessModal";
+import OTPInput from "react-otp-input";
 
 function ResetPassword() {
-	return (
-		<div className="mb-10 flex flex-col h-full">
-			<div
-				className="relative w-full h-[150px] md:h-[200px] lg:h-[300px] bg-contain bg-no-repeat"
-				style={{
-					backgroundImage: ` url(${header})`,
-				}}
-			/>
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
 
-			<Container className="!w-2/5 !mb-32 !mt-20">
-				<Card withBorder className="!rounded-lg">
-					<header className="flex gap-3 items-center mb-7">
-						<HiDocumentArrowDown className="p-2 rounded-md bg-secondary-red text-primary-red text-5xl" />
-						<div className="capitalize">
-							<Text className="!font-semibold !text-2xl">Password</Text>
-							<Text fz="lg" className="!text-secondary-text">
-								Enter new pass word below
-							</Text>
-						</div>
-					</header>
-					<form>
-						<Stack className="!capitalize" gap="xl">
-							<TextInput
-								label="create new password"
-								placeholder="Enter your password"
-								withAsterisk
-								rightSection={<FiEye />}
-								classNames={{ label: "!text-lg" }}
-							/>
-							<List className="!text-secondary-text !list-disc">
-								<List.Item>8–12 characters</List.Item>
-								<List.Item>
-									Use both Uppercase letters (A-Z) and Lowercase letter (a-z).
-								</List.Item>
-								<List.Item>Include Numbers (0–9)</List.Item>
-								<List.Item>Special characters (e.g. !@ # $ % ^ & *)</List.Item>
-							</List>
-							<TextInput
-								label="confirm your new password"
-								placeholder="Confirm new password"
-								withAsterisk
-								rightSection={<FiEye />}
-								classNames={{ label: "!text-lg" }}
-							/>
-						</Stack>
-						<Flex justify="flex-end" className="!mt-7 !mb-3">
-							<ResetModal />
-						</Flex>
-					</form>
-				</Card>
-			</Container>
-		</div>
-	);
+  const [otp, setOtp] = useState("");
+  const [timeLeft, setTimeLeft] = useState(900); // 15 minutes = 900 seconds
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const secs = (seconds % 60).toString().padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
+
+  function validatePassword() {
+    setEmailModalOpen(true);
+  }
+
+  function emailEntered() {
+    setEmailModalOpen(false);
+    setOtpModalOpen(true);
+  }
+
+  function otpEntered() {
+    setOtpModalOpen(false);
+    setSuccessModalOpen(true);
+  }
+
+  function closeSuccessModal() {
+    setSuccessModalOpen(false);
+    navigate("/login");
+  }
+
+  const navigate = useNavigate();
+
+  return (
+    <div className="mb-10 flex flex-col h-full">
+      <SectionHeader
+        heading="Create New Password"
+        subHeading="Create a new password today for a secured login"
+        imageLeft={resetLeft}
+        imageRight={resetRight}
+        imageRightWidth="22vw"
+        imageLeftWidth="18vw"
+      />
+
+      <Flex className="py-10" align="center" justify="center">
+        <div className="m:w-4/5 md:!w-5/9 lg:!w-5/10 mt-10 !mb-20">
+          <NewPassword onComplete={validatePassword} />
+        </div>
+      </Flex>
+
+      <AlertModal
+        opened={emailModalOpen}
+        status="error"
+        title={
+          <>
+            <div className="!mt-5">Forget Password ?</div>
+          </>
+        }
+        description={
+          <>
+            <Text className="!text-base !text-center !text-[#818181] !mb-5">
+              To start the forget password process, kindly enter your email
+              below.
+              <br />
+              <br />
+              Don't not close this window after you press “Yes Forget Password”
+              Button
+            </Text>
+
+            <div className="text-start mb-2">
+              <TextInput
+                label="Your Email Address"
+                placeholder="Enter Your Email Address"
+                withAsterisk
+                rightSection={<FiEye />}
+                classNames={{
+                  label: "!text-sm !text-[#030303] font-normal",
+                  input: "!text-[#030303]",
+                }}
+              />
+            </div>
+          </>
+        }
+        primaryButton={{
+          label: "Yes, Forget Password",
+          onClick: emailEntered,
+        }}
+      />
+      <AlertModal
+        opened={otpModalOpen}
+        status="message"
+        title={
+          <>
+            <div className="!mt-5">OTP Sent to reset Password</div>
+          </>
+        }
+        description={
+          <>
+            <Text className="!text-base !text-center !text-[#818181] !mb-5">
+              We send an six (6) digit OTP to your email address ola************
+              gmail.com
+              <br />
+              <br />
+              Enter OTP to Authorize your reset password process.
+            </Text>
+
+            <div className="text-center mb-5">
+              <OTPInput
+                value={otp}
+                onChange={setOtp}
+                numInputs={6}
+                inputStyle={{
+                  width: "3rem",
+                  height: "3rem",
+                  margin: "0 0.25rem",
+                  fontSize: "1.5rem",
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  backgroundColor: "#f9f9fb",
+                  color: "#000",
+                }}
+                containerStyle={{
+                  justifyContent: "center",
+                }}
+                renderInput={(props, index) => (
+                  <input
+                    key={index}
+                    {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+                  />
+                )}
+                shouldAutoFocus
+              />
+            </div>
+
+            <Text className="!text-red-600 !text-lg !mb-6 !font-semibold">
+              {formatTime(timeLeft)}
+            </Text>
+
+            {/* Resend */}
+            <Text className="text-sm text-gray-500">
+              Didn’t Receive Code?{" "}
+              <span className="text-red-600 underline cursor-pointer pb-2">
+                Resend OTP
+              </span>
+            </Text>
+          </>
+        }
+        primaryButton={{
+          label: "Validate OTP",
+          onClick: otpEntered,
+        }}
+      />
+      <AlertModal
+        opened={successModalOpen}
+        onClose={closeSuccessModal}
+        status="success"
+        title="New Password Created"
+        description="Congratulation, you have successfully created a new password for your WindFall raffle Account. Now start playing"
+        primaryButton={{
+          label: "Login to your Account",
+          onClick: closeSuccessModal,
+        }}
+      />
+    </div>
+  );
 }
 
 export default ResetPassword;

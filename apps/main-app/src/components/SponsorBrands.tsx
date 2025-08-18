@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import hero from '../assets/hero-img.jpg';
 
 const sponsorLogos = [
@@ -18,6 +19,8 @@ const sponsorLogos = [
 ];
 
 export default function SponsorBrands() {
+  const navigate = useNavigate();
+
   return (
     <section className="text-center px-6 md:px-16 pt-10 pb-20 bg-white">
       {/* Headings */}
@@ -29,7 +32,7 @@ export default function SponsorBrands() {
       </p>
 
       {/* Call to Action Button */}
-      <button className="bg-[var(--primary-red)] hover:bg-red-600 text-white font-medium px-6 py-2.5 rounded-md text-sm transition mb-10">
+      <button onClick={() => navigate("/raffles")} className="bg-[var(--primary-red)] hover:bg-red-600 text-white font-medium px-6 py-2.5 rounded-md text-sm transition mb-10">
         Explore Games
       </button>
 

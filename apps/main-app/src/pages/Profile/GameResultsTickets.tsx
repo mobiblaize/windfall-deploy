@@ -15,9 +15,8 @@ import { useParams } from "react-router-dom";
 import ProfileHeader from "./ProfileHeader";
 import { FaAngleDown } from "react-icons/fa";
 import MyGameHeader from "./MyGameHeader";
-import { HiMiniTicket } from "react-icons/hi2";
-import CustomTickets from "../../components/CustomTickets";
 import { PiWarningOctagonFill } from "react-icons/pi";
+import GamesTicketModal from "../../components/Modals/GamesTicketModal";
 
 function GameResultsTickets() {
 	const { id } = useParams();
@@ -78,39 +77,7 @@ function GameResultsTickets() {
 					verticalSpacing={{ base: "md", sm: "xl" }}
 				>
 					{[1, 2, 3, 4, 5, 6].map((item) => {
-						return (
-							<CustomTickets
-								key={item}
-								className="!border-primary-red"
-								borderColor="!border-primary-red"
-								// cardClick={handleClick}
-							>
-								<Text fw={700} fz="lg">
-									{item} Bed Room Flat at Banana Island, Lagos State, Nigeria
-								</Text>
-
-								<Text c="dimmed" fz="sm" mb="xl">
-									Win 3 bed room flat at the high prestige location
-								</Text>
-
-								<Box className="bg-secondary-red py-2 rounded-lg border-dashed border border-primary-red text-center">
-									<Text fz="sm" mb={5}>
-										Ticket Number
-									</Text>
-									<Text fw={700} fz="xl" className="!text-primary-red">
-										#WF100423X8)
-									</Text>
-								</Box>
-								<Box mt={24} className="flex items-center !justify-center">
-									<Button
-										rightSection={<HiMiniTicket />}
-										className="!tracking-wide !capitalize !rounded-2xl !border !border-dashed !border-primary-red !h-8 !text-primary-red !bg-secondary-red"
-									>
-										lost
-									</Button>
-								</Box>
-							</CustomTickets>
-						);
+						return <GamesTicketModal item={item} key={item} />;
 					})}
 				</SimpleGrid>
 			</Container>

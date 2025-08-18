@@ -110,28 +110,54 @@ export default function Footer() {
               <li>
                 <NavLink to={'/about'}>About Us</NavLink>
               </li>
-              <li>FAQs</li>
-              <li>Login</li>
-              <li>Register</li>
-              <li>Our Winner</li>
+              <li>
+                <NavLink to={'/faq'}>FAQs</NavLink>
+              </li>
+              <li>
+                <NavLink to={'/login'}>Login</NavLink>
+                </li>
+              <li>
+                <NavLink to={'/signup'}>Register</NavLink>
+              </li>
+              <li>
+                <NavLink to={'/winners/all-time'}>Our Winner</NavLink>
+              </li>
             </ul>
           </div>
           <div>
             <p className="font-semibold text-white mb-2">Resources</p>
             <ul className="space-y-2">
-              <li>How to play</li>
-              <li>Claim prizes</li>
-              <li>Contact Us</li>
+              <li>
+                <NavLink to={'/game-rules'}>How to play</NavLink>
+              </li>
+              <li>
+                <NavLink to={'/claim-prices'}>Claim prizes</NavLink>
+              </li>
+              <li>
+                <NavLink to={'/contact-us'}>Contact Us</NavLink>
+              </li>
               <li>Blog</li>
+              <li>
+                <NavLink to={'/responsible-playing'}>Responsible Playing</NavLink>
+              </li>
             </ul>
           </div>
           <div>
             <p className="font-semibold text-white mb-2">Legal</p>
             <ul className="space-y-2">
-              <li>Games Rules</li>
-              <li>Terms & Conditions</li>
-              <li>Privacy Policy</li>
-              <li>Cookies Policy</li>
+              <li>
+                <NavLink to={'/game-rules'}>Games Rules</NavLink>
+              </li>
+              <li>
+                <NavLink to={'/terms-and-conditions'}>Terms & Conditions</NavLink>
+              </li>
+              <li>
+                <NavLink to={'/privacy-policy'}>Privacy Policy</NavLink>
+              </li>
+              <li>
+                <NavLink to={'/terms-of-use'}>Terms of Use</NavLink>
+              </li>
+              <li><NavLink to={'/cookie-policy'}>Cookies Policy</NavLink></li>
             </ul>
           </div>
         </div>

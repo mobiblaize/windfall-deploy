@@ -3,47 +3,65 @@ import { useDisclosure } from "@mantine/hooks";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { BsTrophyFill } from "react-icons/bs";
 import GameTicketItem from "../../pages/Profile/GameTicketItem";
+import AlertModal from "./AlertModal";
+import { useState } from "react";
+
 type Props = {
-    item: any
+  item: unknown;
+  isOpened?: boolean;
+  onClose?: () => void;
+};
+
+export default function GamesTicketModal({ item, isOpened = false, onClose }: Props) {
+  const [opened, { open, close }] = useDisclosure(isOpened);
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
+
+  const closeModal = () => {
+    close();
+    if (onClose) onClose(); // safely call onClose if defined
+  };
+
+  return (
+    <>
+      <Modal
+        opened={opened}
+        onClose={closeModal}
+        centered
+        size="lg"
+        className="!rounded-2xl !text-primary-text"
+        classNames={{ content: "!rounded-3xl" }}
+      >
+        <div className="mx-7">
+          <GameTicketItem item={item} />
+        </div>
+
+        <Flex gap={20} my="lg" mx="xl">
+          <Button
+            onClick={() => setSuccessModalOpen(true)}
+            rightSection={<HiDocumentArrowDown className="text-secondary-red/90" />}
+            className="!w-full !border-2 !border-dashed !border-secondary-red !h-12 !text-lg !tracking-wide"
+          >
+            Download Ticket
+          </Button>
+          <Button
+            className="!bg-primary-text !w-full !h-12 !text-lg !tracking-wide"
+            rightSection={<BsTrophyFill />}
+          >
+            Claim Prize
+          </Button>
+        </Flex>
+      </Modal>
+
+      {/* Trigger Button or Item */}
+      <GameTicketItem item={item} handleClick={open} />
+
+      <AlertModal
+        opened={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        status="success"
+        title="Raffle Ticket Downloaded"
+        description="Congratulations you have successfully downloaded your Raffle Ticket."
+      />
+    </>
+  );
 }
-function GamesTicketModal({item}:Props) {
-	const [opened, { open, close }] = useDisclosure(false);
-	return (
-		<>
-			<Modal
-				opened={opened}
-				onClose={close}
-				// withCloseButton={false}
-				centered
-				size="lg"
-				className="!rounded-2xl !text-primary-text"
-				classNames={{ content: "!rounded-3xl" }}
-			>
-				<div className=" mx-7">
-					<GameTicketItem item={item} />
-				</div>
-
-				<Flex gap={20} my="lg" mx="xl">
-					<Button
-						rightSection={
-							<HiDocumentArrowDown className="text-secondary-red/90" />
-						}
-						className="!w-full !border-2 !border-dashed !border-secondary-red !h-12 !text-lg !tracking-wide"
-					>
-						Downlod Ticket
-					</Button>
-					<Button
-						className="!bg-primary-text !w-full !h-12 !text-lg !tracking-wide"
-						rightSection={<BsTrophyFill />}
-					>
-						Claim prize
-					</Button>
-				</Flex>
-			</Modal>
-
-			<GameTicketItem item={item} handleClick={open} />
-		</>
-	);
-}
-
-export default GamesTicketModal;

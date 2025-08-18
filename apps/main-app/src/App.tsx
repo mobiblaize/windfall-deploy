@@ -3,7 +3,7 @@ import Dashboard from "./pages/Dashboard";
 import Draws from "./pages/draws/Draws";
 import MainLayout from "./pages/Main";
 import SpecificResult from "./pages/draws/SpecificResult";
-import RaffleGames from "./pages/RaffleGames";
+import RaffleGames from "./pages/raffles/RaffleGames";
 import AllWinnersPage from "./pages/winners/AllWinnersPage";
 import AllPricesPage from "./pages/prizes/AllPricesPage";
 import RecentDraws from "./pages/draws/RecentDraws";
@@ -22,6 +22,27 @@ import GameResultsTickets from "./pages/Profile/GameResultsTickets";
 import RecentWinners from "./pages/winners/RecentWinners";
 import TransactionsLayout from "./pages/Profile/TransactionsLayout";
 import TransactionReceipt from "./pages/Profile/TransactionReceipt";
+import RaffleDetails from "./pages/raffles/RaffleDetails";
+import ResponsiblePlaying from "./pages/ResponsiblePlaying";
+import ContactUs from "./pages/ContactUs";
+import GameRules from "./pages/GameRules";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import AboutUs from "./pages/AboutUs";
+import TermsOfUse from "./pages/TermsOfUse";
+import Faq from "./pages/Faq";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import DownloadApp from "./pages/DownloadApp";
+import CookiePolicy from "./pages/CookiePolicy";
+import ClaimPrices from "./pages/ClaimPrices/ClaimPrices";
+import RewardLayout from "./pages/Profile/Reward/RewardLayout";
+import SettingsLayout from "./pages/Profile/settings/SettingsLayout";
+import PersonalSettingsLayout from "./pages/Profile/settings/PersonalSettingsLayout";
+import AccountSecurity from "./pages/Profile/settings/AccountSecurity/AccountSecurity.";
+import ChangePassword from "./pages/Profile/settings/AccountSecurity/ChangePassword";
+import NotificationSettingsLayout from "./pages/Profile/settings/NotificationSettingsLayout";
+import AllNotifications from "./pages/Profile/AllNotifications";
+import PaymentReceipt from "./pages/Profile/PaymentReceipt";
+import AdminLoginPage from "./pages/Admin/AdminLogin";
 
 function App() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -35,41 +56,81 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
 
-          <Route path="login" element={<LoginPage />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="raffles" element={<RaffleGames />} />
-          <Route path="raffles/:id" element={<SpecificResult />} />
-          <Route path="draws" element={<Draws />} />
-          <Route path="draws/:id" element={<SpecificResult />} />
-          <Route path="draws" element={<RecentDraws />} />
-          <Route path="winners/all-time" element={<AllWinnersPage />} />
-          <Route path="winners/recent" element={<RecentWinners />} />
-          <Route path="winners/all-time/:id" element={<SpecificResult />} />
-          <Route path="prize" element={<AllPricesPage />} />
-          <Route path="reset-password" element={<ResetPassword />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="checkout" element={<CheckoutPage />} />
-          <Route path="checkout/signup" element={<Signup />} />
-          <Route path="raffles/receipts" element={<RafflesPaymentReceipt />} />
-          <Route path="raffles/receipts/:id" element={<RaffleGroups />} />
+					<Route path="login" element={<LoginPage />} />
+					
+					<Route path="signup" element={<Signup />} />
 
-          <Route
-            path="profile"
-            element={<Navigate to="/profile/all-games" replace />}
-          />
-          <Route path="profile/all-games" element={<ProfileLayout />} />
-          <Route path="profile/all-games/:id" element={<GamesTickets />} />
-          <Route path="profile/result" element={<ResultsLayout />} />
-          <Route path="profile/result/:id" element={<GameResultsTickets />} />
-          <Route path="profile/transaction" element={<TransactionsLayout />} />
-          <Route
-            path="profile/transaction/receipt"
-            element={<TransactionReceipt />}
-          />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
+					<Route path="dashboard" element={<Dashboard />} />
+					<Route path="reset-password" element={<ResetPassword />} />
+					<Route path="profile/receipt/:id" element={<PaymentReceipt />} />
+					
+					<Route path="draws" element={<Draws />} />
+					<Route path="draws" element={<RecentDraws/>} />
+
+					<Route path="winners/all-time" element={<AllWinnersPage />} />
+					<Route path="winners/recent" element={<RecentWinners/>} />
+					<Route path="winners/all-time/:id" element={<SpecificResult />} />
+					
+					<Route path="prize" element={<AllPricesPage />} />
+					<Route path="cart" element={<Cart />} />
+
+					<Route path="responsible-playing" element={<ResponsiblePlaying />} />
+
+					<Route path="game-rules" element={<GameRules />} />
+
+					<Route path="terms-and-conditions" element={<TermsAndConditions />} />
+
+					<Route path="faq" element={<Faq />} />
+
+					<Route path="privacy-policy" element={<PrivacyPolicy />} />
+
+					<Route path="cookie-policy" element={<CookiePolicy />} />
+
+					<Route path="about" element={<AboutUs />} />
+
+					<Route path="terms-of-use" element={<TermsOfUse />} />					
+
+					<Route path="claim-prices" element={<ClaimPrices />} />
+					
+					<Route path="contact-us" element={<ContactUs />} />
+
+					<Route path="checkout" element={<CheckoutPage />} />
+
+					<Route path="download-app" element={<DownloadApp />} />
+
+					<Route path="checkout/signup" element={<Signup />} />
+
+					<Route path="raffles" element={<RaffleGames />} />
+					<Route path="raffles/:id" element={<RaffleDetails />} />
+					<Route path="raffles/receipts" element={<RafflesPaymentReceipt />} />
+					<Route path="raffles/receipts/:id" element={<RaffleGroups />} />
+
+					<Route
+						path="profile"
+						element={<Navigate to="/profile/all-games" replace />}
+					/>
+					<Route path="profile/all-games" element={<ProfileLayout />} />
+					<Route path="profile/all-games/:id" element={<GamesTickets />} />
+					<Route path="profile/result" element={<ResultsLayout />} />
+					<Route path="profile/reward" element={<RewardLayout />} />
+					<Route path="profile/settings" element={<SettingsLayout />} />
+					<Route path="profile/settings/personal" element={<PersonalSettingsLayout />} />
+					<Route path="profile/settings/notification" element={<NotificationSettingsLayout />} />
+					<Route path="profile/settings/account" element={<AccountSecurity />} />
+					<Route path="profile/settings/change-password" element={<ChangePassword />} />
+					<Route path="profile/result/:id" element={<GameResultsTickets/>} />
+					<Route path="profile/notifications" element={<AllNotifications/>} />
+					<Route path="profile/transaction" element={<TransactionsLayout/>} />
+					<Route path="profile/transaction/:id" element={<TransactionReceipt/>} />
+
+
+					{/* ADMIN */}
+					<Route path="admin/login" element={<AdminLoginPage/>} />
+					
+				</Route>
+			</Routes>
+		</BrowserRouter>
+	);
 }
 
 export default App;

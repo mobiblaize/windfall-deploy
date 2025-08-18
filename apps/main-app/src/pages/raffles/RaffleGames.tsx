@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import raffleImg from '../assets/default-raffle.png';
-import FilterPill from '../components/FilterPill';
-import RaffleCard from '../components/RaffleCard';
+import raffleImg from '../../assets/default-raffle.png';
+import FilterPill from '../../components/FilterPill';
+import RaffleCard from '../../components/RaffleCard';
 import { ActionIcon } from '@mantine/core';
 import { IconZoomFilled } from '@tabler/icons-react';
-import Paginator from '../components/Paginator';
+import Paginator from '../../components/Paginator';
+import type { Raffle } from '../../models/raffles';
 
-const raffles = [
+const raffles: Raffle[] = [
   {
     title: 'Win One Bed Room Flat in Akoka-Yaba, Lagos State, Nigeria',
     description: 'Play for a chance to own the latest iPhone.',

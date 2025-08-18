@@ -2,6 +2,10 @@
 
 :root {
   --primary-red: #ff2f31;
+  
+  /* Font sizes */
+  --font-size-heading: 2.25rem; /* 36px */
+  --font-size-body: 1rem;        /* 16px */
 }
 
 body {
@@ -19,5 +23,11 @@ button {
   --color-secondary-red: #FFF7F7;
   --color-primary-text: #2D2D2D;
   --color-secondary-text: #818181;
+  --color-primary-grey: #F5F5F5;
+  
+  --color-light-red: #FFF7F7;
+
+
+  --breakpoint-avg: 68.5rem;
 }
 

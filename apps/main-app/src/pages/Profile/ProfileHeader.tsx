@@ -5,15 +5,15 @@ const tabs = [
 	{ label: "result", value: "result" },
 	{ label: "reward", value: "reward" },
 	{ label: "transaction", value: "transaction" },
-	{ label: "notification", value: "notification" },
+	{ label: "notifications", value: "notifications" },
 	{ label: "settings", value: "settings" },
 ];
 function ProfileHeader() {
 	const location = useLocation();
 
 	return (
-		<header className=" bg-white px-10 pb-5 pt-5">
-			<Flex className="flex flex-col md:flex-row gap-3 justify-between !mb-5">
+		<header className=" bg-white px-10 pb-0 pt-6">
+			<Flex className="flex flex-col md:flex-row gap-3 justify-between !mb-8">
 				<div>
 					<Text className="!text-3xl !font-semibold">My Profile</Text>
 					<Text className="!text-secondary-text">
@@ -35,20 +35,21 @@ function ProfileHeader() {
 				{tabs.map(({ label, value }) => {
 					const isActive = location.pathname.includes(`/profile/${value}`);
 					return (
-						<Link to={`/profile/${value}`}>
+						<Link key={value} to={`/profile/${value}`}>
 							<Text
 								className={`
                                     !py-2 !px-5
                               relative 
+							  !text-nowrap
                               !capitalize !text-lg
                               cursor-pointer 
                               after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2
-                              after:w-full after:h-[2px]
+                              after:w-full after:h-[1px]
                               after:bg-primary-red
                               after:origin-center after:scale-x-0
                               after:transition-transform after:duration-300 after:ease-in-out
                               hover:after:scale-x-100
-                              ${isActive ? "after:scale-x-100 !text-primary-red" : ""}
+                              ${isActive ? "after:scale-x-100 !text-primary-red" : "!text-[#ABABAB]"}
                             `}
 							>
 								{label}

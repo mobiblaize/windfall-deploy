@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import WinnerCard from './WinnerCard';
 
 const winners = [
@@ -35,6 +36,7 @@ const winners = [
 
 export default function SampleWinners() {
   const isEmpty = winners.length === 0;
+    const navigate=useNavigate();
 
   return (
     <section className="px-6 md:px-16 py-10 bg-[#f9f9f9] text-center">
@@ -42,7 +44,7 @@ export default function SampleWinners() {
       <p className="text-gray-500 mb-5 max-w-xl mx-auto">
         Meet the lucky participants who turned tickets into life-changing prizes. Your story could be next.
       </p>
-      <button className="bg-[var(--primary-red)] text-white font-medium px-6 py-2 rounded-md mb-10">
+      <button onClick={() => navigate("/raffles")} className="bg-[var(--primary-red)] text-white font-medium px-6 py-2 rounded-md mb-10">
         Explore Games
       </button>
 

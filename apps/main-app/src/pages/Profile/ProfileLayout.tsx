@@ -11,7 +11,7 @@ import GamesTab from "./GamesTab";
 // ));
 function ProfileLayout() {
 	return (
-		<div className="text-primary-text mb-32 pt-5">
+		<div className="text-primary-text mb-32">
 			{/* <Breadcrumbs>{items}</Breadcrumbs> */}
 
 			<ProfileHeader />
