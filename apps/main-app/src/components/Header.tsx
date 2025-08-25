@@ -10,7 +10,14 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { IconZoomFilled, IconChevronDown } from "@tabler/icons-react";
+import { IconZoomFilled, IconChevronDown, IconHome,
+  IconInfoCircle,
+  IconGift,
+  IconTrophy,
+  IconCalendarStats,
+  IconPhoneCall,
+  IconAward,
+  IconStar } from "@tabler/icons-react";
 import { IoCartSharp } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
@@ -32,6 +39,30 @@ const menuItems = [
   { name: "About Us", path: "/about" },
   { name: "Prize", path: "/prize" },
   { name: "Contact Us", path: "/contact-us" },
+];
+
+const sideMenuItems = [
+  {
+    title: "Main Menu",
+    items: [
+      { name: "Home", path: "/dashboard", icon: IconHome },
+      { name: "How it Works", path: "/game-rules", icon: IconInfoCircle },
+      { name: "Raffles", path: "/raffles", icon: IconGift },
+      { name: "Game Result", path: "/profile/result", icon: IconTrophy },
+      { name: "Live Draw", path: "/draws", icon: IconCalendarStats },
+      {
+        name: "Winners",
+        icon: IconAward,
+        dropdown: [
+          { name: "Recent Winners", path: "/winners/recent" },
+          { name: "All Time Winners", path: "/winners/all-time" },
+        ],
+      },
+      { name: "About Us", path: "/about", icon: IconInfoCircle },
+      { name: "Prize", path: "/prize", icon: IconStar },
+      { name: "Contact Us", path: "/contact-us", icon: IconPhoneCall },
+    ],
+  },
 ];
 
 const theme = createTheme({
@@ -184,7 +215,7 @@ export default function Header() {
           withCloseButton={false}
         >
           <ScrollArea>
-            <SideMenu onClose={close} />
+            <SideMenu menus={sideMenuItems} onClose={close} />
           </ScrollArea>
         </Drawer>
       )}

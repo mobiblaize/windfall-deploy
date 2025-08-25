@@ -71,7 +71,7 @@ function PersonalSettingsTab() {
           <Grid gutter="md" className="border-b border-[#C0C0C5] !pb-6 !mb-6">
             <Grid.Col span={{ base: 12, md: 7 }}>
               <h3 className="font-semibold text-lg text-gray-800">Full Name</h3>
-              <p className="text-base text-gray-500">
+              <p className="text-base text-secondary-text">
                 For identity verification and prize claim legitimacy.
               </p>
             </Grid.Col>
@@ -90,7 +90,7 @@ function PersonalSettingsTab() {
               <h3 className="font-semibold text-lg text-gray-800">
                 Email Address
               </h3>
-              <p className="text-base text-gray-500">
+              <p className="text-base text-secondary-text">
                 For login credentials, confirmation, notifications, and draw
                 results.
               </p>
@@ -101,7 +101,7 @@ function PersonalSettingsTab() {
                 disabled
                 styles={inputStyles}
               />
-              <p className="text-sm mt-1 text-gray-500">
+              <p className="text-sm mt-1 text-secondary-text">
                 So sorry, you can’t change or update your email address
               </p>
             </Grid.Col>
@@ -113,7 +113,7 @@ function PersonalSettingsTab() {
               <h3 className="font-semibold text-lg text-gray-800">
                 Phone Number
               </h3>
-              <p className="text-base text-gray-500">
+              <p className="text-base text-secondary-text">
                 For SMS alerts, verification, and follow-up (especially in
                 Nigeria).
               </p>
@@ -124,7 +124,7 @@ function PersonalSettingsTab() {
                 disabled
                 styles={inputStyles}
               />
-              <p className="text-sm mt-1 text-gray-500">
+              <p className="text-sm mt-1 text-secondary-text">
                 So sorry, you can’t change or update your phone number
               </p>
             </Grid.Col>
@@ -136,7 +136,7 @@ function PersonalSettingsTab() {
               <h3 className="font-semibold text-lg text-gray-800">
                 Date of Birth / Age Confirmation
               </h3>
-              <p className="text-base text-gray-500">
+              <p className="text-base text-secondary-text">
                 To ensure the participant is above 18 (legally required in most
                 jurisdictions).
               </p>
@@ -147,7 +147,7 @@ function PersonalSettingsTab() {
                 disabled
                 styles={inputStyles}
               />
-              <p className="text-sm mt-1 text-gray-500">
+              <p className="text-sm mt-1 text-secondary-text">
                 You are eligible to play game as you are more than 18 years of
                 Age
               </p>
@@ -158,7 +158,7 @@ function PersonalSettingsTab() {
           <Grid gutter="md" className="border-b border-[#C0C0C5] !pb-6 !mb-6">
             <Grid.Col span={{ base: 12, md: 7 }}>
               <h3 className="font-semibold text-lg text-gray-800">Location</h3>
-              <p className="text-base text-gray-500">
+              <p className="text-base text-secondary-text">
                 Select your state and local government area
               </p>
             </Grid.Col>
@@ -197,7 +197,7 @@ function PersonalSettingsTab() {
               <h3 className="font-semibold text-lg text-gray-800">
                 Profile Picture
               </h3>
-              <p className="text-base text-gray-500">
+              <p className="text-base text-secondary-text">
                 Helps for KYC (Know Your Customer) processes and for displaying
                 verified winners.
               </p>

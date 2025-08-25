@@ -13,7 +13,6 @@ import {
 } from "@mantine/core";
 import { FaAngleDown } from "react-icons/fa";
 import MyGameHeader from "./MyGameHeader";
-import ProfileHeader from "./ProfileHeader";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { HiSearch } from "react-icons/hi";
 import { IoFilterOutline } from "react-icons/io5";
@@ -22,13 +21,12 @@ import TableContainer from "../../components/TableContainer";
 import visaIcon from "../../assets/visa-icon.png";
 import { useNavigate } from "react-router-dom";
 
-function TransactionsLayout() {
+function TransactionsTab() {
   const navigate = useNavigate();
   const transactions = [1, 2, 3, 4, 5, 6];
 
   return (
-    <div className="text-primary-text mb-32">
-      <ProfileHeader />
+    <div>
       <MyGameHeader
         title="My Transaction"
         description="Manage your transaction with ease today."
@@ -164,7 +162,7 @@ function TransactionsLayout() {
               return (
                 <div
                   key={x}
-                  className="border rounded-lg p-4 shadow-sm bg-white space-y-2"
+                  className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
                 >
                   <p>
                     <strong>Transaction ID:</strong> 4HYE74793FS
@@ -229,4 +227,4 @@ function TransactionsLayout() {
   );
 }
 
-export default TransactionsLayout;
+export default TransactionsTab;

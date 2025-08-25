@@ -8,7 +8,6 @@ import {
   Text,
 } from "@mantine/core";
 import MyGameHeader from "../../MyGameHeader";
-import ProfileHeader from "../../ProfileHeader";
 import { useNavigate } from "react-router-dom";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { IconLockFilled } from "@tabler/icons-react";
@@ -17,8 +16,6 @@ function AccountSecurity() {
   const navigate = useNavigate();
 
   return (
-    <div className="text-primary-text mb-32">
-      <ProfileHeader />
       <div>
         <MyGameHeader
           title="Account Security"
@@ -77,7 +74,6 @@ function AccountSecurity() {
           </SimpleGrid>
         </Container>
       </div>
-    </div>
   );
 }
 

@@ -1,6 +1,5 @@
 import { Divider, Flex } from "@mantine/core";
 import MyGameHeader from "../../MyGameHeader";
-import ProfileHeader from "../../ProfileHeader";
 import NewPassword from "./NewPassword";
 import OldPassword from "./OldPassword";
 import { useState } from "react";
@@ -13,39 +12,36 @@ function ChangePassword() {
 
   function closeModal() {
     setSuccessModalOpen(false);
-    navigate('/profile/settings')
+    navigate("/profile/settings");
   }
 
   const navigate = useNavigate();
 
   return (
-    <div className="text-primary-text mb-20">
-      <ProfileHeader />
-      <div>
-        <MyGameHeader
-          title={
-            <>
-              Account Security:{" "}
-              <span className="!text-primary-red">Change your Password</span>
-            </>
-          }
-          description="Manage your account security with ease."
-        />
-        <Divider />
+    <div>
+      <MyGameHeader
+        title={
+          <>
+            Account Security:{" "}
+            <span className="!text-primary-red">Change your Password</span>
+          </>
+        }
+        description="Manage your account security with ease."
+      />
+      <Divider />
 
-        <Flex
-          className="sm:!mx-5 !px-6 !md:px-16 py-10"
-          align="center"
-          justify="center"
-        >
-          <div className="sm:w-4/5 md:!w-5/9 lg:!w-5/10 mt-10">
-            {step === 1 && <OldPassword onComplete={() => setStep(2)} />}
-            {step === 2 && (
-              <NewPassword onComplete={() => setSuccessModalOpen(true)} />
-            )}
-          </div>
-        </Flex>
-      </div>
+      <Flex
+        className="sm:!mx-5 !px-6 !md:px-16 py-10"
+        align="center"
+        justify="center"
+      >
+        <div className="sm:w-4/5 md:!w-5/9 lg:!w-5/10 mt-10">
+          {step === 1 && <OldPassword onComplete={() => setStep(2)} />}
+          {step === 2 && (
+            <NewPassword onComplete={() => setSuccessModalOpen(true)} />
+          )}
+        </div>
+      </Flex>
       <AlertModal
         opened={successModalOpen}
         onClose={closeModal}

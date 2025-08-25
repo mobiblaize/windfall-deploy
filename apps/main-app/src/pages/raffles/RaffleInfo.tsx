@@ -289,7 +289,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
           <p className="text-gray-700 text-sm">
             {activeDiscount ? "Discounted Price" : "Price"}
           </p>
-          <div className="flex justify-center items-baseline gap-3">
+          <div className="flex justify-center items-baseline gap-3 flex-wrap">
             {activeDiscount && (
               <span className="text-2xl md:text-3xl font-light text-[#FF9798] line-through">
                 ₦ {totalOriginalPrice.toLocaleString()}

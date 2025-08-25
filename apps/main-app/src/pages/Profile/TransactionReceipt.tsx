@@ -9,15 +9,11 @@ import {
 } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import MyGameHeader from "./MyGameHeader";
-import ProfileHeader from "./ProfileHeader";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 
 function TransactionReceipt() {
   return (
-    <div className="text-primary-text mb-32">
-      {/* <Breadcrumbs>{items}</Breadcrumbs> */}
-
-      <ProfileHeader />
+    <div>
       <MyGameHeader
         title="My Transaction receipt"
         description="View and download transaction receipt."

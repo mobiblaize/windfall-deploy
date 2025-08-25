@@ -63,7 +63,7 @@ export default function ReferralBonusEarned() {
           return (
             <div
               key={x}
-              className="border rounded-lg p-4 shadow-sm bg-white space-y-2"
+              className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
             >
               <p>
                 <strong>Transaction ID:</strong> 4HYE74793FS
