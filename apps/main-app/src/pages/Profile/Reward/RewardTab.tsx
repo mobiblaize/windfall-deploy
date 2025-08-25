@@ -125,7 +125,7 @@ function RewardTab() {
               })}
             </Flex>
 
-            <Flex justify="space-between" px="md" mb="lg">
+            <Flex justify="space-between" align="flex-start" px="md" mb="lg">
               <TextInput
                 leftSection={<HiSearch />}
                 placeholder="Search"

@@ -21,7 +21,7 @@ function TableContainer({ headers, children }: Props) {
             {headers.map((item) => (
               <Table.Th
                 key={item}
-                className="capitalize text-base !tracking-wide whitespace-nowrap"
+                className="capitalize text-base !text-primary-text !tracking-wide whitespace-nowrap"
               >
                 {item}
               </Table.Th>

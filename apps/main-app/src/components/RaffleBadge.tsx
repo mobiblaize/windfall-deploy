@@ -27,7 +27,7 @@ export default function RaffleBadge({
       style={{ backgroundColor: bgColor || colors.bg }}
     >
       <span
-        className="inline-flex h-[24px] items-center rounded-full text-white px-2"
+        className="inline-flex h-[24px] items-center rounded-full text-white px-2 text-nowrap"
         style={{ backgroundColor: labelColor || colors.label }}
       >
         {label || colors.text}
