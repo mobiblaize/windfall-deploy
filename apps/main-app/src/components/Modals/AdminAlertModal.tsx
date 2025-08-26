@@ -3,6 +3,7 @@ import successImg from "../../assets/success.gif";
 import errorImg from "../../assets/error.gif";
 import msgImg from "../../assets/message.gif";
 import loadingImg from "../../assets/loading.gif";
+import delImg from "../../assets/delete.gif";
 import CustomButton from "../../components/Buttons/CustomButton";
 
 type ButtonProps = {
@@ -14,7 +15,7 @@ type ButtonProps = {
 type Props = {
   opened: boolean;
   onClose?: () => void;
-  status?: "success" | "error" | "loading" | "message";
+  status?: "success" | "error" | "loading" | "message" | "delete";
   title: React.ReactNode;
   description: React.ReactNode;
   color?: "dark" | "primary";
@@ -42,6 +43,8 @@ export default function AdminAlertModal({
         return loadingImg;
       case "message":
         return msgImg;
+      case "delete":
+        return delImg;
       default:
         return "";
     }

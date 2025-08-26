@@ -79,6 +79,9 @@ const EditUser = lazy(() => import("./pages/Admin/UserMgt/EditUser"));
 
 
 const RoleManagement = lazy(() => import("./pages/Admin/RoleMgt/RoleMgt"));
+const CreateRole = lazy(() => import("./pages/Admin/RoleMgt/CreateRole"));
+const EditRole = lazy(() => import("./pages/Admin/RoleMgt/EditRole"));
+const RoleDetails = lazy(() => import("./pages/Admin/RoleMgt/RoleDetails"));
 
 function App() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -181,6 +184,9 @@ function App() {
               <Route path="users/:id" element={<UserDetails />} />
               <Route path="users/edit/:id" element={<EditUser />} />
               <Route path="roles" element={<RoleManagement />} />
+              <Route path="roles/create" element={<CreateRole />} />
+              <Route path="roles/:id" element={<RoleDetails />} />
+              <Route path="roles/edit/:id" element={<EditRole />} />
             </Route>
           </Route>
         </Routes>

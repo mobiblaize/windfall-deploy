@@ -5,7 +5,6 @@ import {
   Grid,
   Flex,
   Switch,
-  Avatar,
   Divider,
   ActionIcon,
   Table,
@@ -28,56 +27,55 @@ import { GoArrowUpRight } from "react-icons/go";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { HiSearch } from "react-icons/hi";
 import { IoFilterOutline } from "react-icons/io5";
-import UserAction from "./UserAction";
 
 const breadCrumbs: Crumb[] = [
-  { label: "User Management", to: "/admin/users" },
-  { label: "View User Details" },
+  { label: "Role Management", to: "/admin/roles" },
+  { label: "View Role Details" },
 ];
 
 const activities = [1, 2, 3, 4, 5, 6];
 
-export default function UserDetails() {
-  const [userActive, setUserActive] = useState(true);
-  const [userActionModalOpen, setUserActionModalOpen] = useState(false);
+export default function RoleDetails() {
+  const [role, setRole] = useState({
+    id: 1,
+    name: "Executive Role",
+    department: "Operations",
+    users: 32,
+    created_at: "April 11, 2005",
+    created_by: "John Doe",
+    description:
+      "This is a short Description of this role and it is not more than two line i.e 15 words count",
+    active: true,
+  });
   const [deactivateAlertModalOpen, setDeactivateAlertModalOpen] =
     useState(false);
   const [deactivateSuccessModalOpen, setDeactivateSuccessModalOpen] =
     useState(false);
   const [deleteAlertModalOpen, setDeleteAlertModalOpen] = useState(false);
   const [deleteSuccessModalOpen, setDeleteSuccessModalOpen] = useState(false);
-  const user = {
-    avatar: "https://i.pravatar.cc/100", // replace with actual image
-    username: "Adekunle Ibrahim",
-    role: "Operations",
-    email: "ola@winit.com",
-    departmentHead: "Yes.",
-    dateCreated: "April 4, 2020",
-    createdBy: "Hameedat A.Y",
-    department: "Product & Sale",
-    lastActive: "April 11, 2024",
-  };
 
   const navigate = useNavigate();
 
   function closeDeleteModal() {
     setDeleteSuccessModalOpen(false);
-    navigate("/admin/users");
+    navigate("/admin/roles");
+  }
+
+  const roleActive = role.active;
+
+  function setRoleActive(value: boolean) {
+    setRole((prev) => ({ ...prev, active: value }));
   }
 
   function closeDeactivateAlertModal() {
     setDeactivateAlertModalOpen(false);
-    setUserActive(!userActive);
+    setRoleActive(!roleActive);
     setDeactivateSuccessModalOpen(true);
   }
 
   function closeDeleteAlertModal() {
     setDeleteAlertModalOpen(false);
     setDeleteSuccessModalOpen(true);
-  }
-
-  function showUserAction() {
-    setUserActionModalOpen(true);
   }
 
   return (
@@ -93,10 +91,10 @@ export default function UserDetails() {
           <Flex justify="space-between" align="center">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
-                Sodiq Olalekan (ID:9044)
+                Role Details (ID:9044)
               </Title>
               <Text className="!text-secondary-text">
-                View and manage user details
+                View and manage role details
               </Text>
             </div>
 
@@ -105,7 +103,7 @@ export default function UserDetails() {
 
               <ActionIcon
                 onClick={() => {
-                  navigate("/admin/users/edit/3");
+                  navigate("/admin/roles/edit/3");
                 }}
                 size={35}
                 className="!text-[#4313F7] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#F4F3FF] !h-10 !w-10 !flex !items-center !justify-center"
@@ -119,7 +117,7 @@ export default function UserDetails() {
                   onClick={() => {
                     setDeactivateAlertModalOpen(true);
                   }}
-                  checked={userActive}
+                  checked={roleActive}
                   className="!cursor-pointer"
                   color="#13F7B5"
                   thumbIcon={<></>}
@@ -148,13 +146,15 @@ export default function UserDetails() {
         >
           {/* Header */}
           <div className="flex items-center space-x-3 mb-6">
-            <Avatar
-              src={user.avatar}
-              alt="Profile"
-              radius="md"
-              size={40}
-              className="!border-3 border-primary-red rounded-lg"
-            />
+            <span
+              className={`flex items-center justify-center h-11 w-11 rounded-lg transition !font-semibold !border-3 ${
+                role.active
+                  ? "!bg-light-red !text-primary-red !border-[#FFBABA]"
+                  : "!bg-[#FAFAFB] !border-[#ABABAB] !text-[#ABABAB]"
+              }`}
+            >
+              ER
+            </span>
             <Text className="!font-semibold !text-base !text-primary-text">
               Basic Details
             </Text>
@@ -165,60 +165,45 @@ export default function UserDetails() {
           {/* Details Grid */}
           <Grid gutter="xl">
             <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">Username</Text>
+              <Text className="!text-sm !text-secondary-text">Role Name</Text>
               <Text className="!font-medium !text-[#575757]">
-                {user.username}
+                {role.name}
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">Role</Text>
-              <Text className="!font-medium !text-[#575757]">{user.role}</Text>
+            <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+              <Text className="!text-sm !text-secondary-text">Number of Users</Text>
+              <Text className="!font-medium !text-[#575757]">{role.users}</Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">Email</Text>
-              <Text className="!font-medium !text-[#575757]">{user.email}</Text>
+            <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+              <Text className="!text-sm !text-secondary-text">Department</Text>
+              <Text className="!font-medium !text-[#575757]">{role.department}</Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">
-                Department Head
-              </Text>
-              <Text className="!font-medium !text-[#575757]">
-                {user.departmentHead}
-              </Text>
-            </Grid.Col>
-
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+            <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
               <Text className="!text-sm !text-secondary-text">
                 Date Created
               </Text>
               <Text className="!font-medium !text-[#575757]">
-                {user.dateCreated}
+                {role.created_at}
               </Text>
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
               <Text className="!text-sm !text-secondary-text">Created by</Text>
               <Text className="!font-medium !text-[#575757]">
-                {user.createdBy}
+                {role.created_by}
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">Department</Text>
+            <Grid.Col span={{ base: 12, sm: 12, md: 12 }}>
+              <Text className="!text-sm !text-secondary-text">Description</Text>
               <Text className="!font-medium !text-[#575757]">
-                {user.department}
+                {role.description}
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">Last Active</Text>
-              <Text className="!font-medium !text-[#575757]">
-                {user.lastActive}
-              </Text>
-            </Grid.Col>
           </Grid>
         </Card>
 
@@ -295,7 +280,6 @@ export default function UserDetails() {
                       </Table.Td>
                       <Table.Td>
                         <ActionIcon
-                          onClick={showUserAction}
                           size={35}
                           className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                         >
@@ -345,7 +329,6 @@ export default function UserDetails() {
                       </span>
                     </p>
                     <ActionIcon
-                      onClick={showUserAction}
                       size={35}
                       className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                     >
@@ -377,21 +360,15 @@ export default function UserDetails() {
         </section>
       </div>
 
-      {/* Success Modal */}
-      <UserAction
-        opened={userActionModalOpen}
-        onClose={() => setUserActionModalOpen(false)}
-      />
-
       {/* Deactivate Alert Modal */}
       <AdminAlertModal
         opened={deactivateAlertModalOpen}
         onClose={() => setDeactivateAlertModalOpen(false)}
         status="error"
-        title={`${userActive ? "Deactivate" : "Reactivate"} User ?`}
-        description={`${userActive ? 'Are you sure you want to deactivate this user ? Kindly note that action would translate to this user access being temporarily revoked until their account is manually reactivated again': 'Are you sure you want to reactivate this user ? Kindly note that action would translate to this user revoked access being restored' }`}
+        title={`${roleActive ? "Deactivate" : "Reactivate"} Role ?`}
+        description={`${roleActive ? "Are you sure you want to deactivate this role ? Kindly note that users under this role would be temporarily been revoked of their access and be assigned to system default role." : "Are you sure you want to reactivate this role ? Kindly note that users under this role would be restored of their access and be assigned back to this role."}`}
         primaryButton={{
-          label: `${userActive ? "Deactivate" : "Reactivate"} User`,
+          label: `${roleActive ? "Deactivate" : "Reactivate"} Role`,
           onClick: closeDeactivateAlertModal,
         }}
         secondaryButton={{
@@ -405,8 +382,8 @@ export default function UserDetails() {
         opened={deactivateSuccessModalOpen}
         onClose={() => setDeactivateSuccessModalOpen(false)}
         status="success"
-        title={`User ${userActive ? "Activated" : "Deactivated"}`}
-        description={`User profile has been successfully ${userActive ? "activated" : "deactivated"} and their access to the platform has been ${userActive ? "restored.": "revoked temporarily."}`}
+        title={`Role ${roleActive ? "Reactivated" : "Deactivated"}`}
+        description={`${roleActive ? "Congratulations, Role  has been successfully reactivated" : "Congratulations, Role has been successfully deactivated"}`}
         primaryButton={{
           label: "Close",
           onClick: () => setDeactivateSuccessModalOpen(false),
@@ -418,10 +395,10 @@ export default function UserDetails() {
         opened={deleteAlertModalOpen}
         onClose={() => setDeleteAlertModalOpen(false)}
         status="delete"
-        title={<span className="!text-primary-red">Delete User ?</span>}
-        description="Are you sure you want to delete this user ? Kindly note that action is irreversible and therefore, this user would be removed / permanently deleted and their access revoked"
+        title={<span className="!text-primary-red">Delete Role ?</span>}
+        description="Are you sure you want to delete this role? Kindly note that action is irreversible and therefore, this role would be removed / permanently deleted and it associated user access would be revoked"
         primaryButton={{
-          label: "Delete User",
+          label: "Delete Role",
           onClick: closeDeleteAlertModal,
         }}
         secondaryButton={{
@@ -435,8 +412,8 @@ export default function UserDetails() {
         opened={deleteSuccessModalOpen}
         onClose={closeDeleteModal}
         status="success"
-        title="User Deleted"
-        description="User profile has been successfully Deleted and their access revoked."
+        title="Role Deleted"
+        description="Congratulations, role has been successfully Deleted"
         primaryButton={{
           label: "Close",
           onClick: closeDeleteModal,
