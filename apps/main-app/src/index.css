@@ -27,9 +27,18 @@ button {
   
   --color-light-red: #FFF7F7;
   --color-instant-blue: #4086EF;
+  --color-light-blue: #F5F8FF;
+
 
   --color-secondary-green: #ECFDF3;
   --color-primary-green: #039855;
+
+  --color-primary-warning: #FEC84B;
+  --color-secondary-warning: #fcedcc;
+  
+  
+
+
 
 
   --breakpoint-avg: 68.5rem;

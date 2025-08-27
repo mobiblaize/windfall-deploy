@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Suspense, lazy } from "react";
+import ViewRaffles from "./pages/Admin/GameMgt/ViewRaffles";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
@@ -23,7 +24,7 @@ const RaffleGames = lazy(() => import("./pages/raffles/RaffleGames"));
 const RaffleDetails = lazy(() => import("./pages/raffles/RaffleDetails"));
 const RaffleGroups = lazy(() => import("./pages/raffles/RaffleGroups"));
 const RafflesPaymentReceipt = lazy(
-  () => import("./pages/raffles/RafflesPaymentReceipt")
+	() => import("./pages/raffles/RafflesPaymentReceipt")
 );
 
 // Profile
@@ -32,28 +33,28 @@ const GamesTickets = lazy(() => import("./pages/Profile/GamesTickets"));
 const GamesTab = lazy(() => import("./pages/Profile/GamesTab"));
 const ResultsTab = lazy(() => import("./pages/Profile/ResultsTab"));
 const GameResultsTickets = lazy(
-  () => import("./pages/Profile/GameResultsTickets")
+	() => import("./pages/Profile/GameResultsTickets")
 );
 const RewardTab = lazy(() => import("./pages/Profile/Reward/RewardTab"));
 const TransactionsTab = lazy(() => import("./pages/Profile/TransactionsTab"));
 const TransactionReceipt = lazy(
-  () => import("./pages/Profile/TransactionReceipt")
+	() => import("./pages/Profile/TransactionReceipt")
 );
 const PaymentReceipt = lazy(() => import("./pages/Profile/PaymentReceipt"));
 
 // Settings
 const SettingsTab = lazy(() => import("./pages/Profile/settings/SettingsTab"));
 const PersonalSettingsTab = lazy(
-  () => import("./pages/Profile/settings/PersonalSettingsTab")
+	() => import("./pages/Profile/settings/PersonalSettingsTab")
 );
 const AccountSecurity = lazy(
-  () => import("./pages/Profile/settings/AccountSecurity/AccountSecurity")
+	() => import("./pages/Profile/settings/AccountSecurity/AccountSecurity")
 );
 const ChangePassword = lazy(
-  () => import("./pages/Profile/settings/AccountSecurity/ChangePassword")
+	() => import("./pages/Profile/settings/AccountSecurity/ChangePassword")
 );
 const NotificationSettingsTab = lazy(
-  () => import("./pages/Profile/settings/NotificationSettingsTab")
+	() => import("./pages/Profile/settings/NotificationSettingsTab")
 );
 const AllNotifications = lazy(() => import("./pages/Profile/AllNotifications"));
 
@@ -77,116 +78,124 @@ const UserDetails = lazy(() => import("./pages/Admin/UserMgt/UserDetails"));
 const CreateUser = lazy(() => import("./pages/Admin/UserMgt/CreateUser"));
 const EditUser = lazy(() => import("./pages/Admin/UserMgt/EditUser"));
 
-
 const RoleManagement = lazy(() => import("./pages/Admin/RoleMgt/RoleMgt"));
+const RaffleManagement = lazy(
+	() => import("./pages/Admin/GameMgt/RaffleManagement")
+);
+const RaffleList = lazy(() => import("./pages/Admin/GameMgt/RaffleList"));
 
 function App() {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const isAuthenticated = user.id;
+	const user = JSON.parse(localStorage.getItem("user") || "{}");
+	const isAuthenticated = user.id;
 
-  console.log(isAuthenticated);
+	console.log(isAuthenticated);
 
-  return (
-    <BrowserRouter>
-      <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
+	return (
+		<BrowserRouter>
+			<Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+				<Routes>
+					<Route path="/" element={<MainLayout />}>
+						<Route index element={<Navigate to="/dashboard" replace />} />
 
-            {/* Public routes */}
-            <Route path="login" element={<LoginPage />} />
-            <Route path="signup" element={<Signup />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="reset-password" element={<ResetPassword />} />
+						{/* Public routes */}
+						<Route path="login" element={<LoginPage />} />
+						<Route path="signup" element={<Signup />} />
+						<Route path="dashboard" element={<Dashboard />} />
+						<Route path="reset-password" element={<ResetPassword />} />
 
-            {/* Draws */}
-            <Route path="draws" element={<Draws />} />
-            <Route path="draws/recent" element={<RecentDraws />} />
-            <Route path="winners/all-time" element={<AllWinnersPage />} />
-            <Route path="winners/recent" element={<RecentWinners />} />
-            <Route path="winners/all-time/:id" element={<SpecificResult />} />
+						{/* Draws */}
+						<Route path="draws" element={<Draws />} />
+						<Route path="draws/recent" element={<RecentDraws />} />
+						<Route path="winners/all-time" element={<AllWinnersPage />} />
+						<Route path="winners/recent" element={<RecentWinners />} />
+						<Route path="winners/all-time/:id" element={<SpecificResult />} />
 
-            {/* Profile grouped */}
-            <Route path="profile" element={<ProfileLayout />}>
-              <Route index element={<Navigate to="all-games" replace />} />
-              <Route path="all-games" element={<GamesTab />} />
-              <Route path="all-games/:id" element={<GamesTickets />} />
-              <Route path="result" element={<ResultsTab />} />
-              <Route path="result/:id" element={<GameResultsTickets />} />
-              <Route path="reward" element={<RewardTab />} />
-              <Route path="transaction" element={<TransactionsTab />} />
-              <Route path="transaction/:id" element={<TransactionReceipt />} />
-              <Route path="receipt/:id" element={<PaymentReceipt />} />
-              <Route path="notifications" element={<AllNotifications />} />
+						{/* Profile grouped */}
+						<Route path="profile" element={<ProfileLayout />}>
+							<Route index element={<Navigate to="all-games" replace />} />
+							<Route path="all-games" element={<GamesTab />} />
+							<Route path="all-games/:id" element={<GamesTickets />} />
+							<Route path="result" element={<ResultsTab />} />
+							<Route path="result/:id" element={<GameResultsTickets />} />
+							<Route path="reward" element={<RewardTab />} />
+							<Route path="transaction" element={<TransactionsTab />} />
+							<Route path="transaction/:id" element={<TransactionReceipt />} />
+							<Route path="receipt/:id" element={<PaymentReceipt />} />
+							<Route path="notifications" element={<AllNotifications />} />
 
-              {/* Settings nested inside profile */}
-              <Route path="settings" element={<SettingsTab />} />
-              <Route
-                path="settings/personal"
-                element={<PersonalSettingsTab />}
-              />
-              <Route
-                path="settings/notification"
-                element={<NotificationSettingsTab />}
-              />
-              <Route path="settings/account" element={<AccountSecurity />} />
-              <Route
-                path="settings/change-password"
-                element={<ChangePassword />}
-              />
-            </Route>
+							{/* Settings nested inside profile */}
+							<Route path="settings" element={<SettingsTab />} />
+							<Route
+								path="settings/personal"
+								element={<PersonalSettingsTab />}
+							/>
+							<Route
+								path="settings/notification"
+								element={<NotificationSettingsTab />}
+							/>
+							<Route path="settings/account" element={<AccountSecurity />} />
+							<Route
+								path="settings/change-password"
+								element={<ChangePassword />}
+							/>
+						</Route>
 
-            {/* Raffles */}
-            <Route path="raffles" element={<RaffleGames />} />
-            <Route path="raffles/:id" element={<RaffleDetails />} />
-            <Route
-              path="raffles/receipts"
-              element={<RafflesPaymentReceipt />}
-            />
-            <Route path="raffles/receipts/:id" element={<RaffleGroups />} />
+						{/* Raffles */}
+						<Route path="raffles" element={<RaffleGames />} />
+						<Route path="raffles/:id" element={<RaffleDetails />} />
+						<Route
+							path="raffles/receipts"
+							element={<RafflesPaymentReceipt />}
+						/>
+						<Route path="raffles/receipts/:id" element={<RaffleGroups />} />
 
-            <Route path="prize" element={<AllPricesPage />} />
+						<Route path="prize" element={<AllPricesPage />} />
 
-            {/* Static pages */}
-            <Route path="cart" element={<Cart />} />
-            <Route path="checkout" element={<CheckoutPage />} />
-            <Route path="checkout/signup" element={<Signup />} />
-            <Route
-              path="responsible-playing"
-              element={<ResponsiblePlaying />}
-            />
-            <Route path="game-rules" element={<GameRules />} />
-            <Route
-              path="terms-and-conditions"
-              element={<TermsAndConditions />}
-            />
-            <Route path="faq" element={<Faq />} />
-            <Route path="privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="cookie-policy" element={<CookiePolicy />} />
-            <Route path="about" element={<AboutUs />} />
-            <Route path="terms-of-use" element={<TermsOfUse />} />
-            <Route path="claim-prices" element={<ClaimPrices />} />
-            <Route path="contact-us" element={<ContactUs />} />
-            <Route path="download-app" element={<DownloadApp />} />
+						{/* Static pages */}
+						<Route path="cart" element={<Cart />} />
+						<Route path="checkout" element={<CheckoutPage />} />
+						<Route path="checkout/signup" element={<Signup />} />
+						<Route
+							path="responsible-playing"
+							element={<ResponsiblePlaying />}
+						/>
+						<Route path="game-rules" element={<GameRules />} />
+						<Route
+							path="terms-and-conditions"
+							element={<TermsAndConditions />}
+						/>
+						<Route path="faq" element={<Faq />} />
+						<Route path="privacy-policy" element={<PrivacyPolicy />} />
+						<Route path="cookie-policy" element={<CookiePolicy />} />
+						<Route path="about" element={<AboutUs />} />
+						<Route path="terms-of-use" element={<TermsOfUse />} />
+						<Route path="claim-prices" element={<ClaimPrices />} />
+						<Route path="contact-us" element={<ContactUs />} />
+						<Route path="download-app" element={<DownloadApp />} />
 
-            {/* Admin grouped */}
-            <Route path="admin">
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="login" element={<AdminLoginPage />} />
+						{/* Admin grouped */}
+						<Route path="admin">
+							<Route index element={<Navigate to="dashboard" replace />} />
+							<Route path="dashboard" element={<Dashboard />} />
+							<Route path="login" element={<AdminLoginPage />} />
 
-                <Route path="users" element={<UserManagement />} />
+							<Route path="users" element={<UserManagement />} />
 
-              <Route path="users/create" element={<CreateUser />} />
-              <Route path="users/:id" element={<UserDetails />} />
-              <Route path="users/edit/:id" element={<EditUser />} />
-              <Route path="roles" element={<RoleManagement />} />
-            </Route>
-          </Route>
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
-  );
+							<Route path="users/create" element={<CreateUser />} />
+							<Route path="users/:id" element={<UserDetails />} />
+							<Route path="users/edit/:id" element={<EditUser />} />
+							<Route path="roles" element={<RoleManagement />} />
+							<Route path="raffles" element={<RaffleManagement />} />
+							<Route path="raffles/list" element={<RaffleList />} />
+							<Route path="raffles/list/:id" element={<ViewRaffles/>} />
+
+							
+						</Route>
+					</Route>
+				</Routes>
+			</Suspense>
+		</BrowserRouter>
+	);
 }
 
 export default App;
