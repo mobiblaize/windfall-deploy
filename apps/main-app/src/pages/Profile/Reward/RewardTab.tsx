@@ -147,7 +147,7 @@ function RewardTab() {
           </>
           {activeTab === "earned" && <ReferralBonusEarned />}
           {activeTab === "used" && <ReferralBonusUsed />}
-          <Flex my="md" justify="space-between" px="lg" align="center">
+          <Flex my="md" justify="space-between" gap={2} wrap="wrap" px="lg" align="center">
             <Text className="">Page 1 of 10</Text>
             <Group>
               <Button

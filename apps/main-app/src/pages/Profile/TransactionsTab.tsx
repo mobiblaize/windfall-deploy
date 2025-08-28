@@ -8,7 +8,6 @@ import {
   Button,
   TextInput,
   ActionIcon,
-  Image,
   Table,
 } from "@mantine/core";
 import { FaAngleDown } from "react-icons/fa";
@@ -16,10 +15,9 @@ import MyGameHeader from "./MyGameHeader";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { HiSearch } from "react-icons/hi";
 import { IoFilterOutline } from "react-icons/io5";
-import { LuDownload } from "react-icons/lu";
 import TableContainer from "../../components/TableContainer";
-import visaIcon from "../../assets/visa-icon.png";
 import { useNavigate } from "react-router-dom";
+import { RiArrowRightUpLine } from "react-icons/ri";
 
 function TransactionsTab() {
   const navigate = useNavigate();
@@ -95,7 +93,6 @@ function TransactionsTab() {
               headers={[
                 "Transaction ID",
                 "Transaction date & time",
-                "Paid via",
                 "Transaction value",
                 "Payment channel",
                 "Transaction status",
@@ -116,14 +113,6 @@ function TransactionsTab() {
                       <Text className="!text-secondary-text !pr-0 !text-sm">
                         11:00am
                       </Text>
-                    </Table.Td>
-                    <Table.Td className="!pr-0">
-                      <Flex align="center" gap={10}>
-                        <Image src={visaIcon} h={32} w={36} />
-                        <Text className="!text-secondary-text !pr-0 !text-base">
-                          ** 3904
-                        </Text>
-                      </Flex>
                     </Table.Td>
                     <Table.Td className="!pr-0">₦ 10,000</Table.Td>
                     <Table.Td className="!pr-0">
@@ -146,7 +135,7 @@ function TransactionsTab() {
                         size={35}
                         className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                       >
-                        <LuDownload />
+                        <RiArrowRightUpLine />
                       </ActionIcon>
                     </Table.Td>
                   </Table.Tr>
@@ -169,10 +158,6 @@ function TransactionsTab() {
                   </p>
                   <p>
                     <strong>Date:</strong> April 11, 2005 — 11:00am
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <strong>Paid via:</strong>{" "}
-                    <Image src={visaIcon} h={24} w={28} /> ** 3904
                   </p>
                   <p>
                     <strong>Value:</strong> ₦ 10,000
@@ -197,14 +182,14 @@ function TransactionsTab() {
                     size={35}
                     className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                   >
-                    <LuDownload />
+                    <RiArrowRightUpLine />
                   </ActionIcon>
                 </div>
               );
             })}
           </div>
 
-          <Flex my="md" justify="space-between" px="lg" align="center">
+          <Flex my="md" justify="space-between" gap={2} wrap="wrap" px="lg" align="center">
             <Text>Page 1 of 10</Text>
             <Group>
               <Button

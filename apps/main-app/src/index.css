@@ -33,5 +33,11 @@ button {
 
 
   --breakpoint-avg: 68.5rem;
+  /* Mantine-aligned breakpoints */
+  --breakpoint-mantine-xs: 36em;   /* 576px */
+  --breakpoint-mantine-sm: 48em;   /* 768px */
+  --breakpoint-mantine-md: 62em;   /* 992px */
+  --breakpoint-mantine-lg: 75em;   /* 1200px */
+  --breakpoint-mantine-xl: 88em;   /* 1408px */
 }
 

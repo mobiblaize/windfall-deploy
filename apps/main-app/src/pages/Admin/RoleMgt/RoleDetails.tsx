@@ -27,13 +27,60 @@ import { GoArrowUpRight } from "react-icons/go";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { HiSearch } from "react-icons/hi";
 import { IoFilterOutline } from "react-icons/io5";
+import TabSwitcher from "../../../components/TabSwitcher";
 
 const breadCrumbs: Crumb[] = [
   { label: "Role Management", to: "/admin/roles" },
   { label: "View Role Details" },
 ];
 
-const activities = [1, 2, 3, 4, 5, 6];
+const tabs = ["Show All", "Active", "Inactive"];
+
+// ✅ static users data
+const users = [
+  {
+    name: "Adekunle Ibrahim",
+    id: "8940",
+    created: "April 11, 2024",
+    last: "June 20, 2025",
+  },
+  {
+    name: "Hameedat Yahaya",
+    id: "9044",
+    created: "May 11, 2024",
+    last: "January 11, 2025",
+  },
+  {
+    name: "Jide Jimoh",
+    id: "4904",
+    created: "April 11, 2024",
+    last: "June 20, 2025",
+  },
+  {
+    name: "Segun Adeshida",
+    id: "9940",
+    created: "May 11, 2024",
+    last: "January 11, 2025",
+  },
+  {
+    name: "Adeola Olaolu",
+    id: "8404",
+    created: "April 11, 2024",
+    last: "June 20, 2025",
+  },
+  {
+    name: "Esther Chuwudi",
+    id: "8940",
+    created: "May 11, 2024",
+    last: "January 11, 2025",
+  },
+  {
+    name: "Monday Isaac",
+    id: "22222",
+    created: "April 11, 2024",
+    last: "June 20, 2025",
+  },
+];
 
 export default function RoleDetails() {
   const [role, setRole] = useState({
@@ -53,6 +100,8 @@ export default function RoleDetails() {
     useState(false);
   const [deleteAlertModalOpen, setDeleteAlertModalOpen] = useState(false);
   const [deleteSuccessModalOpen, setDeleteSuccessModalOpen] = useState(false);
+
+  const [activeTab, setActiveTab] = useState("Show All");
 
   const navigate = useNavigate();
 
@@ -166,22 +215,33 @@ export default function RoleDetails() {
           <Grid gutter="xl">
             <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
               <Text className="!text-sm !text-secondary-text">Role Name</Text>
-              <Text className="!font-medium !text-[#575757]">
-                {role.name}
-              </Text>
+              <Text className="!font-medium !text-[#575757]">{role.name}</Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
-              <Text className="!text-sm !text-secondary-text">Number of Users</Text>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 2 }}
+              className="md:border-l md:border-gray-200"
+            >
+              <Text className="!text-sm !text-secondary-text">
+                Number of Users
+              </Text>
               <Text className="!font-medium !text-[#575757]">{role.users}</Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 2 }}
+              className="md:border-l md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">Department</Text>
-              <Text className="!font-medium !text-[#575757]">{role.department}</Text>
+              <Text className="!font-medium !text-[#575757]">
+                {role.department}
+              </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 2 }}
+              className="md:border-l md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">
                 Date Created
               </Text>
@@ -190,32 +250,41 @@ export default function RoleDetails() {
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 3 }}
+              className="md:border-l md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">Created by</Text>
               <Text className="!font-medium !text-[#575757]">
                 {role.created_by}
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 12, md: 12 }}>
-              <Text className="!text-sm !text-secondary-text">Description</Text>
-              <Text className="!font-medium !text-[#575757]">
-                {role.description}
-              </Text>
+            <Grid.Col
+              span={{ base: 12 }}
+              className="pt-4"
+            >
+              <div className="md:pt-4 md:border-t md:border-gray-200">
+                <Text className="!text-sm !text-secondary-text">Description</Text>
+                <Text className="!font-medium !text-[#575757]">
+                  {role.description}
+                </Text>
+              </div>
             </Grid.Col>
-
           </Grid>
         </Card>
 
+        {/* Users Section */}
         <section className="text-secondary-text">
           <Box className="border !border-secondary-text/50 rounded-xl bg-white">
+            {/* Header */}
             <Flex justify="space-between" px="md" pt="lg" wrap="wrap" gap={8}>
               <div>
                 <Text fz={20} fw="bold" className="!text-primary-red">
-                  User activities
+                  List of Users
                 </Text>
                 <Text className="!text-secondary-text">
-                  Track and manage user activity within platform
+                  Track and manage users under this role
                 </Text>
               </div>
               <Button
@@ -237,6 +306,13 @@ export default function RoleDetails() {
               gap={8}
               align="center"
             >
+              <Flex justify="space-between" align="center">
+                <TabSwitcher
+                  tabs={tabs}
+                  activeTab={activeTab}
+                  onChange={setActiveTab}
+                />
+              </Flex>
               <TextInput
                 leftSection={<HiSearch />}
                 placeholder="Search"
@@ -245,12 +321,12 @@ export default function RoleDetails() {
               <Group>
                 <Select
                   rightSection={<IoFilterOutline />}
-                  placeholder="sort by: show all"
+                  placeholder="Sort by: Show All"
                   className="!shadow-md"
                 />
                 <Select
                   rightSection={<IoFilterOutline />}
-                  placeholder="filter by: show all"
+                  placeholder="Filter by: Show All"
                   className="!shadow-md"
                 />
               </Group>
@@ -259,87 +335,71 @@ export default function RoleDetails() {
             {/* Table for larger screens */}
             <div className="!hidden sm:!block">
               <TableContainer
-                headers={["Date", "Time", "Affected Module", "Action Type", ""]}
+                headers={["User Name", "User ID", "Created", "Last Active", ""]}
               >
-                {activities.map((x) => {
-                  return (
-                    <Table.Tr key={x}>
-                      <Table.Td>
-                        <Text className="!text-base !font-medium">
-                          April 11, 2005
-                        </Text>
-                      </Table.Td>
-                      <Table.Td className="!pr-0">
-                        <Text className="!text-secondary-text !pr-0 !text-sm">
-                          11:00am
-                        </Text>
-                      </Table.Td>
-                      <Table.Td className="!pr-0">Game Management</Table.Td>
-                      <Table.Td className="!pr-0">
-                        <Text className="!text-base">Create Game</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <ActionIcon
-                          size={35}
-                          className="!bg-[#FFD5D6] !text-primary-red !text-xl"
-                        >
-                          <GoArrowUpRight />
-                        </ActionIcon>
-                      </Table.Td>
-                    </Table.Tr>
-                  );
-                })}
+                {users.map((user, i) => (
+                  <Table.Tr key={i}>
+                    <Table.Td>
+                      <Text className="!text-base !font-medium text-[#3B3B3B]">
+                        {user.name}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>{user.id}</Table.Td>
+                    <Table.Td>{user.created}</Table.Td>
+                    <Table.Td>{user.last}</Table.Td>
+                    <Table.Td>
+                      <ActionIcon
+                        size={35}
+                        onClick={() => navigate("/admin/users/1")}
+                        className="!bg-[#FFD5D6] !text-primary-red !text-xl"
+                      >
+                        <GoArrowUpRight />
+                      </ActionIcon>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
               </TableContainer>
             </div>
 
             {/* Card view for small screens */}
             <div className="sm:!hidden space-y-4 p-4">
-              {activities.map((x) => {
-                const active = x % 2;
-                return (
-                  <div
-                    key={x}
-                    className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
+              {users.map((user, i) => (
+                <div
+                  key={i}
+                  className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
+                >
+                  <p>
+                    <strong>User Name:</strong> {user.name}
+                  </p>
+                  <p>
+                    <strong>User ID:</strong> {user.id}
+                  </p>
+                  <p>
+                    <strong>Created:</strong> {user.created}
+                  </p>
+                  <p>
+                    <strong>Last Active:</strong> {user.last}
+                  </p>
+                  <ActionIcon
+                    size={35}
+                    onClick={() => navigate("/admin/users/1")}
+                    className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                   >
-                    <p>
-                      <strong>Transaction ID:</strong> 4HYE74793FS
-                    </p>
-                    <p>
-                      <strong>Date:</strong> April 11, 2005 — 11:00am
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <strong>Paid via:</strong>{" "}
-                    </p>
-                    <p>
-                      <strong>Value:</strong> ₦ 10,000
-                    </p>
-                    <p>
-                      <strong>Channel:</strong> Paystack
-                    </p>
-                    <p>
-                      <strong>Status:</strong>{" "}
-                      <span
-                        className={`py-[2px] px-2 rounded-xl inline-block font-medium ${
-                          active
-                            ? "bg-[#CCFBEF] text-[#06B280]"
-                            : "bg-[#FEF3F2] text-[#B42318]"
-                        }`}
-                      >
-                        {active ? "Successful" : "Failed"}
-                      </span>
-                    </p>
-                    <ActionIcon
-                      size={35}
-                      className="!bg-[#FFD5D6] !text-primary-red !text-xl"
-                    >
-                      <GoArrowUpRight />
-                    </ActionIcon>
-                  </div>
-                );
-              })}
+                    <GoArrowUpRight />
+                  </ActionIcon>
+                </div>
+              ))}
             </div>
 
-            <Flex my="md" justify="space-between" px="lg" align="center">
+            {/* Pagination */}
+            <Flex
+              my="md"
+              justify="space-between"
+              gap={2}
+              wrap="wrap"
+              px="lg"
+              align="center"
+            >
               <Text>Page 1 of 10</Text>
               <Group>
                 <Button

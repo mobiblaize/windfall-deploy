@@ -171,17 +171,26 @@ export default function UserDetails() {
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 3 }}
+              className="md:border-l md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">Role</Text>
               <Text className="!font-medium !text-[#575757]">{user.role}</Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 3 }}
+              className="mantine-md:border-l mantine-md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">Email</Text>
               <Text className="!font-medium !text-[#575757]">{user.email}</Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 3 }}
+              className="md:border-l md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">
                 Department Head
               </Text>
@@ -189,8 +198,12 @@ export default function UserDetails() {
                 {user.departmentHead}
               </Text>
             </Grid.Col>
+          </Grid>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+          <Grid gutter="xl" className="md:mt-8 mb-4 pt-8 md:!border-t md:!border-gray-200">
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 3 }}
+            >
               <Text className="!text-sm !text-secondary-text">
                 Date Created
               </Text>
@@ -199,21 +212,30 @@ export default function UserDetails() {
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 3 }}
+              className="md:border-l md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">Created by</Text>
               <Text className="!font-medium !text-[#575757]">
                 {user.createdBy}
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 3 }}
+              className="mantine-md:border-l mantine-md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">Department</Text>
               <Text className="!font-medium !text-[#575757]">
                 {user.department}
               </Text>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+            <Grid.Col
+              span={{ base: 12, sm: 6, md: 3 }}
+              className="md:border-l md:border-gray-200"
+            >
               <Text className="!text-sm !text-secondary-text">Last Active</Text>
               <Text className="!font-medium !text-[#575757]">
                 {user.lastActive}
@@ -356,7 +378,14 @@ export default function UserDetails() {
               })}
             </div>
 
-            <Flex my="md" justify="space-between" px="lg" align="center">
+            <Flex
+              my="md"
+              justify="space-between"
+              gap={2}
+              wrap="wrap"
+              px="lg"
+              align="center"
+            >
               <Text>Page 1 of 10</Text>
               <Group>
                 <Button
@@ -389,7 +418,7 @@ export default function UserDetails() {
         onClose={() => setDeactivateAlertModalOpen(false)}
         status="error"
         title={`${userActive ? "Deactivate" : "Reactivate"} User ?`}
-        description={`${userActive ? 'Are you sure you want to deactivate this user ? Kindly note that action would translate to this user access being temporarily revoked until their account is manually reactivated again': 'Are you sure you want to reactivate this user ? Kindly note that action would translate to this user revoked access being restored' }`}
+        description={`${userActive ? "Are you sure you want to deactivate this user ? Kindly note that action would translate to this user access being temporarily revoked until their account is manually reactivated again" : "Are you sure you want to reactivate this user ? Kindly note that action would translate to this user revoked access being restored"}`}
         primaryButton={{
           label: `${userActive ? "Deactivate" : "Reactivate"} User`,
           onClick: closeDeactivateAlertModal,
@@ -406,7 +435,7 @@ export default function UserDetails() {
         onClose={() => setDeactivateSuccessModalOpen(false)}
         status="success"
         title={`User ${userActive ? "Activated" : "Deactivated"}`}
-        description={`User profile has been successfully ${userActive ? "activated" : "deactivated"} and their access to the platform has been ${userActive ? "restored.": "revoked temporarily."}`}
+        description={`User profile has been successfully ${userActive ? "activated" : "deactivated"} and their access to the platform has been ${userActive ? "restored." : "revoked temporarily."}`}
         primaryButton={{
           label: "Close",
           onClick: () => setDeactivateSuccessModalOpen(false),

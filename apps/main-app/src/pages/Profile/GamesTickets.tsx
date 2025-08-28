@@ -2,7 +2,7 @@ import { Container, Flex, Select, SimpleGrid } from "@mantine/core";
 import MyGameHeader from "./MyGameHeader";
 import { FaAngleDown } from "react-icons/fa";
 import GamesTicketModal from "../../components/Modals/GamesTicketModal";
-import { useParams, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { type Crumb } from "../../components/DynamicBreadCrumbs";
 import { useEffect } from "react";
 
@@ -13,10 +13,7 @@ const items = [
 ];
 
 function GamesTickets() {
-  const { id } = useParams();
   const { setCrumbs } = useOutletContext<ContextType>();
-
-  console.log(id);
   
   useEffect(() => {
     setCrumbs(items);

@@ -22,7 +22,7 @@ export default function DynamicBreadcrumbs({ items }: DynamicBreadcrumbsProps) {
         {item.label}
       </span>
     ) : (
-      <Link key={item.label} to={item.to} className="text-gray-500 hover:text-gray-800">
+      <Link replace={true} key={item.label} to={item.to} className="text-gray-500 hover:text-gray-800">
         {item.label}
       </Link>
     );

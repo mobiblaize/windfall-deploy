@@ -36,9 +36,6 @@ const GameResultsTickets = lazy(
 );
 const RewardTab = lazy(() => import("./pages/Profile/Reward/RewardTab"));
 const TransactionsTab = lazy(() => import("./pages/Profile/TransactionsTab"));
-const TransactionReceipt = lazy(
-  () => import("./pages/Profile/TransactionReceipt")
-);
 const PaymentReceipt = lazy(() => import("./pages/Profile/PaymentReceipt"));
 
 // Settings
@@ -118,8 +115,7 @@ function App() {
               <Route path="result/:id" element={<GameResultsTickets />} />
               <Route path="reward" element={<RewardTab />} />
               <Route path="transaction" element={<TransactionsTab />} />
-              <Route path="transaction/:id" element={<TransactionReceipt />} />
-              <Route path="receipt/:id" element={<PaymentReceipt />} />
+              <Route path="transaction/:id" element={<PaymentReceipt />} />
               <Route path="notifications" element={<AllNotifications />} />
 
               {/* Settings nested inside profile */}

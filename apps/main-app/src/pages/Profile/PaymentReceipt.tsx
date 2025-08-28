@@ -1,20 +1,14 @@
-import {
-  Container,
-  Title,
-  Text,
-  Card,
-  Image,
-  Group,
-  Grid,
-} from "@mantine/core";
-import { IconCalendarWeek, IconTicket } from "@tabler/icons-react";
+import { Title, Text, Card, Image, Grid, Divider, Flex } from "@mantine/core";
 import walletImage from "../../assets/Wallet.png";
 import CustomButton from "../../components/Buttons/CustomButton";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import RaffleBadge from "../../components/RaffleBadge";
 import RelatedRaffles from "../raffles/RelatedRaffles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AlertModal from "../../components/Modals/AlertModal";
+import MyGameHeader from "./MyGameHeader";
+import type { Crumb } from "../../components/DynamicBreadCrumbs";
+import { useOutletContext } from "react-router-dom";
 
 const raffles = [
   {
@@ -62,87 +56,123 @@ const raffles = [
   },
 ];
 
+type ContextType = { setCrumbs: React.Dispatch<React.SetStateAction<Crumb[]>> };
+const items: Crumb[] = [
+  { label: "Transactions", to: "/profile/transaction" },
+  { label: "Order 121211" },
+];
+
 export default function PaymentReceipt() {
+  const { setCrumbs } = useOutletContext<ContextType>();
+
+  useEffect(() => {
+    setCrumbs(items);
+  }, [setCrumbs]);
+
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   return (
-    <Container size="xl" className="py-8">
-      <Group justify="space-between" className="!mb-10">
-        <div>
+    <div>
+      <MyGameHeader
+        title={
           <Title
             order={3}
             className="!font-bold !text-[#2D2D2D] !text-2xl !mb-1"
           >
-            Payment Receipt ID:{" "}
-            <span className="text-primary-red">9049404GJSB</span>
+            Order ID: <span className="text-primary-red">9049404GJSB</span>
           </Title>
-          <Text className="!text-sm" c="dimmed">
-            Details of raffle ticket purchased, consisting of all raffle tickets
-            across multiple games.
-          </Text>
-        </div>
-
-        <CustomButton onClick={()=>setSuccessModalOpen(true)} rightSection={<HiDocumentArrowDown size={18}/>}>
+        }
+        description="View and download transaction receipt."
+      >
+        <CustomButton
+          onClick={() => setSuccessModalOpen(true)}
+          rightSection={<HiDocumentArrowDown size={18} />}
+        >
           Download Receipt
         </CustomButton>
-      </Group>
-
-      <Grid gutter="lg" className="!mb-20">
-        {raffles.map((item, i) => (
-          <Grid.Col
-            key={i}
-            span={{ base: 12, sm: 6, md: 4 }}
-            className="!justify-end !flex !flex-col mb-10 !items-center"
-          >
-            <Image src={walletImage} alt="wallet" className="!w-[66%] mb-5" />
-            <Card
-              withBorder
-              radius="lg"
-              className="hover:shadow-md !pb-7 w-full"
+      </MyGameHeader>
+      <Divider />
+      <section className="sm:mx-5 px-6 md:px-16 py-12">
+        <Grid gutter="lg" className="!mb-20">
+          {raffles.map((item, i) => (
+            <Grid.Col
+              key={i}
+              span={{ base: 12, sm: 6, md: 4 }}
+              className="!justify-start !cursor-pointer !flex !flex-col mb-10 !items-center 
+             !transition-transform !duration-300 !ease-in-out 
+             hover:!translate-y-16 group"
             >
-              <Text
-                fw={600}
-                mt="sm"
-                className="!text-[#2D2D2D !text-xl !font-bold"
+              <Image src={walletImage} alt="wallet" className="!w-[66%] mb-5" />
+              <Card
+                withBorder
+                radius="lg"
+                className="!pb-7 w-full !shadow-md transition-all duration-300 !border !border-transparent
+               group-hover:!border-primary-red group-hover:!bg-light-red"
               >
-                {item.title}
-              </Text>
+                <Text
+                  fw={600}
+                  mt="sm"
+                  className="!text-[#2D2D2D] text-center !text-xl !font-bold"
+                >
+                  {item.title}
+                </Text>
 
-              <Text size="sm" c="dimmed">
-                {item.subtitle}
-              </Text>
+                <Text className="text-center !text-secondary-text !text-sm">
+                  {item.subtitle}
+                </Text>
 
-              <Group className="!mt-4 !mb-3 !gap-5 !justify-center">
-                <Group className="!gap-2 !justify-center !items-center">
-                  <IconTicket size={16} className="text-primary-red" />
-                  <Text size="xs" c="dimmed" className="text-primary-red">
-                    <span>Ticket(s): {item.tickets}</span>
+                <Flex justify="space-between" gap={5} className="!mt-4 !mb-3">
+                  <Text className="!text-sm !text-secondary-text">
+                    <span>No. of Ticket Unit (s):</span>
                   </Text>
-                </Group>
-
-                <Group className="!gap-2 !justify-center !items-center">
-                  <IconCalendarWeek size={16} className="text-primary-red" />
-                  <Text size="xs" c="dimmed">
-                    Purchased: {item.purchased}
+                  <Text className="!text-sm !text-primary-text !font-medium">
+                    <span>{item.tickets}</span>
                   </Text>
-                </Group>
-              </Group>
+                </Flex>
 
-              <RaffleBadge date={"June 2, 2025 | 10:00am"} status={"won"} />
-            </Card>
-          </Grid.Col>
-        ))}
-      </Grid>
+                <Flex justify="space-between" gap={5} className="!mb-3">
+                  <Text className="!text-sm !text-secondary-text">
+                    <span>Ticket Unit Price: </span>
+                  </Text>
+                  <Text className="!text-sm !text-primary-text !font-medium">
+                    <span>₦3,000</span>
+                  </Text>
+                </Flex>
 
-      <div className="-mx-5 mt-10">
-        <RelatedRaffles />
-      </div>
-            <AlertModal
-              opened={successModalOpen}
-              onClose={()=>setSuccessModalOpen(false)}
-              status="success"
-              title="Payment Receipt Downloaded"
-              description="Congratulation, you have successfully downloaded the payment receipt for this transaction."
-            />
-    </Container>
+                <Flex justify="space-between" gap={5} className="!mb-3">
+                  <Text className="!text-sm !text-secondary-text">
+                    <span>Discount Amount:</span>
+                  </Text>
+                  <Text className="!text-sm !text-primary-text !font-medium">
+                    <span>₦1,000</span>
+                  </Text>
+                </Flex>
+
+                <Flex justify="space-between" gap={5} className="!mb-3">
+                  <Text className="!text-sm !text-secondary-text">
+                    <span>Sub-Total:</span>
+                  </Text>
+                  <Text className="!text-sm !text-primary-text !font-medium">
+                    <span>₦29,000</span>
+                  </Text>
+                </Flex>
+
+                <RaffleBadge date={"June 2, 2025 | 10:00am"} status={"won"} />
+              </Card>
+            </Grid.Col>
+          ))}
+        </Grid>
+
+        <div className="-mx-5 mt-10">
+          <RelatedRaffles />
+        </div>
+        <AlertModal
+          opened={successModalOpen}
+          onClose={() => setSuccessModalOpen(false)}
+          status="success"
+          title="Receipt Downloaded"
+          description="Congratulation, you have successfully downloaded the receipt for this transaction."
+        />
+      </section>
+    </div>
   );
 }

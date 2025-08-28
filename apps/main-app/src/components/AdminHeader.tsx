@@ -82,9 +82,9 @@ export default function AdminHeader() {
   return (
     <Card className="!flex !flex-row !items-center !justify-between !w-full !py-3 !px-4 !bg-white !border-b !border-b-gray-200">
       {/* Left: Profile */}
-      <Group gap="sm">
+      <Group gap="sm" className="!text-primary-text">
         {isMobile && (
-          <Burger color="white" opened={opened} onClick={toggle} size="sm" />
+          <Burger opened={opened} onClick={toggle} size="sm" />
         )}
         <Avatar
           src="/assets/profile.jpg"
