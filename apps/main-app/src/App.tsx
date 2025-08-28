@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import ScrollUp from "./utils/helper/ScrollUp";
+import ProtectedRoute from "./utils/helper/ProtectedRoute";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
@@ -97,7 +98,14 @@ function App() {
             {/* Public routes */}
             <Route path="login" element={<LoginPage />} />
             <Route path="signup" element={<Signup />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route
+              path="dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route path="reset-password" element={<ResetPassword />} />
 
             {/* Draws */}

@@ -6,15 +6,72 @@ import {
   TextInput,
   Flex,
   PasswordInput,
+  Alert,
 } from "@mantine/core";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import LoggedinModal from "../../components/Modals/LoggedinModal";
 import SectionHeader from "../../components/SectionHeader";
 import loginLeft from "../../assets/login-img-l.png";
 import loginRight from "../../assets/login-img-r.png";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+
+import { hasLength, isEmail, useForm } from "@mantine/form";
+import CustomButton from "../../components/Buttons/CustomButton";
+import { usePostData } from "../../utils/hooks/useApis";
+import { notifications } from "@mantine/notifications";
+import { useSessionStorage } from "../../utils/hooks/useStorage";
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const { updateUser } = useSessionStorage();
+  const loginMutation = usePostData("customer/auth/login");
+
+  const form = useForm({
+    mode: "uncontrolled",
+    initialValues: {
+      email: "",
+      password: "",
+    },
+
+    validate: {
+      email: isEmail("Invalid email"),
+      password: hasLength(
+        { min: 2, max: 8 },
+        "Password must be 2-8 characters long"
+      ),
+    },
+  });
+
+  const handleSubmit = async (values: any) => {
+    if (form.validate().hasErrors) {
+      return;
+    }
+
+    const payload = {
+      username: values.email,
+      remember_me: true,
+      password: values.password,
+    };
+
+    try {
+      const response = await loginMutation.mutateAsync(payload);
+      updateUser(response?.data);
+      notifications.show({
+        title: "Login Successful",
+        message: response?.message || "You are now logged in",
+        color: "green",
+      });
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.log(error);
+      notifications.show({
+        title: "Login Failed",
+        message: error?.message || "An error occurred",
+        color: "red",
+      });
+    }
+  };
+
   return (
     <div className="mb-10 flex flex-col h-full">
       <SectionHeader
@@ -35,19 +92,32 @@ function LoginPage() {
               </Text>
             </div>
           </header>
-          <form>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            {/* error from api */}
+            {loginMutation.isError && (
+              <Alert color="red" title="Login Failed" className="!mb-5">
+                <Text>{loginMutation.error.message}</Text>
+              </Alert>
+            )}
+
             <Stack className="!capitalize" gap="xl">
               <TextInput
                 label="your email address"
                 placeholder="Enter your email address"
                 withAsterisk
                 classNames={{ label: "!text-lg" }}
+                key="email"
+                {...form.getInputProps("email")}
+                error={form.getInputProps("email").error}
               />
               <PasswordInput
                 className="!text-primary-text"
                 required
                 label="Enter Password"
                 placeholder="Confirm your password"
+                key="password"
+                {...form.getInputProps("password")}
+                error={form.getInputProps("password").error}
               />
               <Flex justify="flex-end">
                 <Text>
@@ -62,7 +132,14 @@ function LoginPage() {
               </Flex>
             </Stack>
             <Flex justify="flex-end" className="!mt-7 !mb-3">
-              <LoggedinModal />
+              {/* <LoggedinModal /> */}
+              <CustomButton
+                buttonType="submit"
+                disabled={loginMutation.isPending}
+                loading={loginMutation.isPending}
+              >
+                {loginMutation.isPending ? "Logging in..." : "Login"}
+              </CustomButton>
             </Flex>
           </form>
         </Card>

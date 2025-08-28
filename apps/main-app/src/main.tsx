@@ -6,6 +6,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const customColors: [
   string,
@@ -31,6 +32,15 @@ const customColors: [
   "#b30000",
 ];
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <MantineProvider
@@ -43,7 +53,9 @@ createRoot(document.getElementById("root")!).render(
       }}
     >
       <Notifications position="top-right" />
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </MantineProvider>
   </StrictMode>
 );

@@ -6,18 +6,27 @@ type CustomButtonProps = ButtonProps & {
   type?: "primary" | "dark";
   fullWidth?: boolean;
   onClick?: () => void;
-  size?: MantineSize | "compact-xs" | "compact-sm" | "compact-md" | "compact-lg" | "compact-xl" | (string & {});
+  size?:
+    | MantineSize
+    | "compact-xs"
+    | "compact-sm"
+    | "compact-md"
+    | "compact-lg"
+    | "compact-xl"
+    | (string & {});
   border?: boolean; // New prop
+  buttonType?: "button" | "submit" | "reset";
 };
 
 export default function CustomButton({
+  buttonType = "button",
   disabled,
   children,
   type = "primary",
   fullWidth = false,
   onClick,
   border = true, // default true
-  size="lg",
+  size = "lg",
   ...props
 }: CustomButtonProps) {
   const getBgColor = () => {
@@ -34,7 +43,7 @@ export default function CustomButton({
   return (
     <Button
       {...props}
-      type="button"
+      type={buttonType}
       size={size}
       fullWidth={fullWidth}
       disabled={disabled}
