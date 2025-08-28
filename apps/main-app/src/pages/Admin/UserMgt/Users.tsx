@@ -63,7 +63,7 @@ export default function Users() {
                   <NavLink to={"/admin/users/3"}>{user.name}</NavLink>
                 </Text>
                 <Text className="!text-secondary-text !text-sm">
-                  Role: <span className="!text-[#575757]"><NavLink to={"/admin/users/3"}>{user.role}</NavLink></span>
+                  Role: <span className="!text-[#575757]"><NavLink to={"/admin/roles/3"}>{user.role}</NavLink></span>
                 </Text>
               </div>
             </Flex>

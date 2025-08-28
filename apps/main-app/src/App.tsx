@@ -36,9 +36,6 @@ const GameResultsTickets = lazy(
 );
 const RewardTab = lazy(() => import("./pages/Profile/Reward/RewardTab"));
 const TransactionsTab = lazy(() => import("./pages/Profile/TransactionsTab"));
-const TransactionReceipt = lazy(
-  () => import("./pages/Profile/TransactionReceipt")
-);
 const PaymentReceipt = lazy(() => import("./pages/Profile/PaymentReceipt"));
 
 // Settings
@@ -79,6 +76,9 @@ const EditUser = lazy(() => import("./pages/Admin/UserMgt/EditUser"));
 
 
 const RoleManagement = lazy(() => import("./pages/Admin/RoleMgt/RoleMgt"));
+const CreateRole = lazy(() => import("./pages/Admin/RoleMgt/CreateRole"));
+const EditRole = lazy(() => import("./pages/Admin/RoleMgt/EditRole"));
+const RoleDetails = lazy(() => import("./pages/Admin/RoleMgt/RoleDetails"));
 
 function App() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -115,8 +115,7 @@ function App() {
               <Route path="result/:id" element={<GameResultsTickets />} />
               <Route path="reward" element={<RewardTab />} />
               <Route path="transaction" element={<TransactionsTab />} />
-              <Route path="transaction/:id" element={<TransactionReceipt />} />
-              <Route path="receipt/:id" element={<PaymentReceipt />} />
+              <Route path="transaction/:id" element={<PaymentReceipt />} />
               <Route path="notifications" element={<AllNotifications />} />
 
               {/* Settings nested inside profile */}
@@ -181,6 +180,9 @@ function App() {
               <Route path="users/:id" element={<UserDetails />} />
               <Route path="users/edit/:id" element={<EditUser />} />
               <Route path="roles" element={<RoleManagement />} />
+              <Route path="roles/create" element={<CreateRole />} />
+              <Route path="roles/:id" element={<RoleDetails />} />
+              <Route path="roles/edit/:id" element={<EditRole />} />
             </Route>
           </Route>
         </Routes>

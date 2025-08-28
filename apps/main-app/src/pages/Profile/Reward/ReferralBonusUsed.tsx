@@ -1,6 +1,5 @@
-import { Flex, Image, Table, Text } from "@mantine/core";
+import { Table, Text } from "@mantine/core";
 import TableContainer from "../../../components/TableContainer";
-import visaIcon from "../../../assets/visa-icon.png";
 
 export default function ReferralBonusUsed() {
   const transactions = [1, 2, 3, 4, 5, 6];
@@ -13,7 +12,6 @@ export default function ReferralBonusUsed() {
           headers={[
             "Transaction ID",
             "Transaction date & time",
-            "Paid Via",
             "Transaction Value",
             "Game Applicable",
             "Transaction status",
@@ -33,14 +31,6 @@ export default function ReferralBonusUsed() {
                   <Text className="!text-secondary-text !text-sm">
                     11:00am
                   </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Flex align="center" gap={10}>
-                    <Image src={visaIcon} h={32} w={36} />
-                    <Text className="!text-secondary-text !text-base">
-                      ** 3904
-                    </Text>
-                  </Flex>
                 </Table.Td>
                 <Table.Td>₦ 10,000</Table.Td>
                 <Table.Td>
@@ -77,10 +67,6 @@ export default function ReferralBonusUsed() {
               </p>
               <p>
                 <strong>Date:</strong> April 11, 2005 — 11:00am
-              </p>
-              <p className="flex items-center gap-2">
-                <strong>Paid Via:</strong>{" "}
-                <Image src={visaIcon} h={24} w={28} /> ** 3904
               </p>
               <p>
                 <strong>Transaction Value:</strong> ₦ 10,000
