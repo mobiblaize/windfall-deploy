@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Suspense, lazy } from "react";
+import ScrollUp from "./utils/helper/ScrollUp";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
@@ -74,7 +75,6 @@ const UserDetails = lazy(() => import("./pages/Admin/UserMgt/UserDetails"));
 const CreateUser = lazy(() => import("./pages/Admin/UserMgt/CreateUser"));
 const EditUser = lazy(() => import("./pages/Admin/UserMgt/EditUser"));
 
-
 const RoleManagement = lazy(() => import("./pages/Admin/RoleMgt/RoleMgt"));
 const CreateRole = lazy(() => import("./pages/Admin/RoleMgt/CreateRole"));
 const EditRole = lazy(() => import("./pages/Admin/RoleMgt/EditRole"));
@@ -88,6 +88,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollUp />
       <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
         <Routes>
           <Route path="/" element={<MainLayout />}>
@@ -174,7 +175,7 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="login" element={<AdminLoginPage />} />
 
-                <Route path="users" element={<UserManagement />} />
+              <Route path="users" element={<UserManagement />} />
 
               <Route path="users/create" element={<CreateUser />} />
               <Route path="users/:id" element={<UserDetails />} />
