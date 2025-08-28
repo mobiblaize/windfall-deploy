@@ -1,4 +1,4 @@
-import { Title, Text, Card, Image, Grid, Divider, Flex } from "@mantine/core";
+import { Text, Card, Image, Grid, Divider, Flex } from "@mantine/core";
 import walletImage from "../../assets/Wallet.png";
 import CustomButton from "../../components/Buttons/CustomButton";
 import { HiDocumentArrowDown } from "react-icons/hi2";
@@ -74,12 +74,11 @@ export default function PaymentReceipt() {
     <div>
       <MyGameHeader
         title={
-          <Title
-            order={3}
+          <span
             className="!font-bold !text-[#2D2D2D] !text-2xl !mb-1"
           >
             Order ID: <span className="text-primary-red">9049404GJSB</span>
-          </Title>
+          </span>
         }
         description="View and download transaction receipt."
       >
