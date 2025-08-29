@@ -2,6 +2,7 @@ import { Table, ActionIcon } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import StatusBadge from "../../../components/StatusBadge";
 import { useNavigate } from "react-router-dom";
+import RaffleCustomTable from "./RaffleCustomTable";
 
 export function RaffleTable() {
 	const elements = [
@@ -88,35 +89,10 @@ export function RaffleTable() {
 	];
 	const navigate = useNavigate();
 	const id = 2;
-	const rows = elements?.map((element) => (
-		<Table.Tr key={element.raffle_name}>
-			<Table.Td>{element.raffle_name}</Table.Td>
-			<Table.Td>{element.raffle_category}</Table.Td>
-			<Table.Td>{element.date_created}</Table.Td>
-			<Table.Td>{element.raffle_duration}</Table.Td>
-			<Table.Td>
-				<StatusBadge status={element.raffle_status} />
-			</Table.Td>
-			<Table.Td>
-				{" "}
-				<StatusBadge status={element.draw_status} />
-			</Table.Td>
-			<Table.Td>
-				<ActionIcon
-					className="!bg-[#FFD5D6]"
-					onClick={() => navigate(`/admin/raffles/list/${id}`)}
-				>
-					<RiArrowRightUpLine className="text-primary-red" />
-				</ActionIcon>
-			</Table.Td>
-		</Table.Tr>
-	));
+	
 
 	return (
-		<Table striped highlightOnHover>
-			<Table.Thead>
-				<Table.Tr className="capitalize">
-					{[
+		<RaffleCustomTable headers={[
 						"raffle name",
 						"raffle category",
 						"date created",
@@ -124,12 +100,31 @@ export function RaffleTable() {
 						"raffle status",
 						"draw status",
 						"",
-					]?.map((item) => (
-						<Table.Th>{item}</Table.Th>
-					))}
+		]}>
+			{elements?.map((element) => (
+				<Table.Tr key={element.raffle_name}>
+					<Table.Td>{element.raffle_name}</Table.Td>
+					<Table.Td>{element.raffle_category}</Table.Td>
+					<Table.Td>{element.date_created}</Table.Td>
+					<Table.Td>{element.raffle_duration}</Table.Td>
+					<Table.Td>
+						<StatusBadge status={element.raffle_status} />
+					</Table.Td>
+					<Table.Td>
+						<StatusBadge status={element.draw_status} />
+					</Table.Td>
+					<Table.Td>
+						<ActionIcon
+							className="!bg-[#FFD5D6]"
+							onClick={() => navigate(`/admin/raffles/list/${id}`)}
+						>
+							<RiArrowRightUpLine className="text-primary-red" />
+						</ActionIcon>
+					</Table.Td>
 				</Table.Tr>
-			</Table.Thead>
-			<Table.Tbody>{rows}</Table.Tbody>
-		</Table>
+			))}
+		</RaffleCustomTable>
+		
+		
 	);
 }

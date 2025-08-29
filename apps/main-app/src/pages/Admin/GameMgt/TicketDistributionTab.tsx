@@ -105,15 +105,16 @@ function TicketDistributionTab() {
 					</Text>
 				</Flex>
 				<Divider my="md" />
-				<Container className="!w-full !h-full">
+				<div className="w-full">
 					<BarChart
 						h={300}
 						data={data}
 						withTooltip={false}
 						dataKey="month"
 						series={[{ name: "Smartphones", color: "blue" }]}
+					
 					/>
-				</Container>
+				</div>
 			</Card>
 		</>
 	);

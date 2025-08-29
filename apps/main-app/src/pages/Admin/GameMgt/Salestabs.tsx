@@ -9,7 +9,7 @@ function Salestabs() {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const tabFromUrl = searchParams.get("sales");
-	const [tabs, setTabs] = useState(tabFromUrl || "mobile app");
+	const [tabs, setTabs] = useState(tabFromUrl || "website");
 	useEffect(() => {
 		if (tabFromUrl && tabFromUrl !== tabs) {
 			setTabs(tabFromUrl);

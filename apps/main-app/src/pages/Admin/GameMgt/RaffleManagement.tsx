@@ -1,4 +1,5 @@
 import {
+	Box,
 	Button,
 	Card,
 	Divider,
@@ -17,6 +18,7 @@ import { IoFilterOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { RaffleTable } from "./RaffleTable";
 import PerformanceMonitor from "./PerformanceMonitor";
+import { FilterMenu, SortMenu } from "../../../components/FilterMenu";
 
 const cards = [
 	{
@@ -48,7 +50,12 @@ function RaffleManagement() {
 	return (
 		<div className="text-primary-text mx-7 ">
 			<Card withBorder mt={"xl"} radius={"md"} py={24}>
-				<Flex justify={"space-between"} align={"center"}>
+				<Flex
+					justify={{ base: "start", xs: "space-between" }}
+					align={{ base: "start", xs: "center" }}
+					direction={{ base: "column", xs: "row" }}
+					gap={"md"}
+				>
 					<div>
 						<Text tt={"capitalize"} fz={"lg"} fw={600}>
 							Dashboard overview
@@ -92,19 +99,19 @@ function RaffleManagement() {
 			</Card>
 			<Card withBorder mt={"xl"} radius={"md"} px={0}>
 				<Flex
-					justify={"space-between"}
+					justify={{ base: "start", xs: "space-between" }}
 					px="md"
 					gap={"sm"}
 					direction={{ base: "column", xs: "row" }}
 				>
-					<div>
+					<Box>
 						<Text tt="capitalize" fz={"lg"} fw={600}>
 							Raffle list
 						</Text>
 						<Text className="!text-secondary-text !text-xs !capitalize">
 							a list of all raffled on the system
 						</Text>
-					</div>
+					</Box>
 
 					<Group>
 						<Button
@@ -134,26 +141,28 @@ function RaffleManagement() {
 						leftSection={<FaSearch />}
 					/>
 					<Flex gap={"md"}>
-						<Button
+						<FilterMenu items={[]} />
+						<SortMenu items={[]}/>
+						{/* <Button
 							className="!border-secondary-text !text-secondary-text !capitalize"
 							variant="outline"
 							rightSection={<IoFilterOutline size={18} />}
 						>
 							sort by: show all
-						</Button>
-						<Button
+						</Button> */}
+						{/* <Button
 							className="!border-secondary-text !text-secondary-text !capitalize"
 							variant="outline"
 							rightSection={<IoFilterOutline size={18} />}
 						>
 							filter by: show all
-						</Button>
+						</Button> */}
 					</Flex>
 				</Flex>
 				<Divider my={"lg"} />
-				<RaffleTable  />
+				<RaffleTable />
 			</Card>
-			<PerformanceMonitor/>
+			<PerformanceMonitor />
 		</div>
 	);
 }
