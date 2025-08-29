@@ -1,6 +1,7 @@
 import { Table, ActionIcon } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import StatusBadge from "../../../components/StatusBadge";
+import { useNavigate } from "react-router-dom";
 
 export function RaffleTable() {
 	const elements = [
@@ -85,7 +86,8 @@ export function RaffleTable() {
 			draw_status: "Not started",
 		},
 	];
-
+	const navigate = useNavigate();
+	const id = 2;
 	const rows = elements?.map((element) => (
 		<Table.Tr key={element.raffle_name}>
 			<Table.Td>{element.raffle_name}</Table.Td>
@@ -100,7 +102,10 @@ export function RaffleTable() {
 				<StatusBadge status={element.draw_status} />
 			</Table.Td>
 			<Table.Td>
-				<ActionIcon className="!bg-[#FFD5D6]">
+				<ActionIcon
+					className="!bg-[#FFD5D6]"
+					onClick={() => navigate(`/admin/raffles/list/${id}`)}
+				>
 					<RiArrowRightUpLine className="text-primary-red" />
 				</ActionIcon>
 			</Table.Td>

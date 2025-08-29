@@ -14,11 +14,11 @@ import { PiQuestionThin } from "react-icons/pi";
 import { formatCurrency } from "../../../utils/helper";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { FaFileArrowDown } from "react-icons/fa6";
-import { useSearchParams } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { FilterMenu, SortMenu } from "../../../components/FilterMenu";
 import { FaSearch } from "react-icons/fa";
 import TransactionDetailModal from "./TransactionDetailModal";
+import WebMobileTab from "./WebMobileTab";
+import RaffleCustomTable from "./RaffleCustomTable";
 
 function RaffleTransactionalList() {
 	return (
@@ -76,8 +76,14 @@ function RaffleTransactionalList() {
 					</Text>
 				</Box>
 				<Divider my="sm" />
-				<SimpleGrid my="lg" cols={3} spacing="xl" mt="md">
-					<Box className="!border-r !border-secondary-text/40">
+				<SimpleGrid
+					my="lg"
+					cols={{ base: 1, xs: 2, sm: 3 }}
+					spacing={{ base: 10, sm: "xl" }}
+					verticalSpacing={{ base: "lg", sm: "xl" }}
+					mt="md"
+				>
+					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
 						<Text
 							tt={"capitalize"}
 							fz={"sm"}
@@ -95,7 +101,7 @@ function RaffleTransactionalList() {
 							29.3% new user
 						</Text>
 					</Box>
-					<Box className="!border-r !border-secondary-text/40">
+					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
 						<Text
 							tt={"capitalize"}
 							fz={"sm"}
@@ -113,7 +119,7 @@ function RaffleTransactionalList() {
 							29.3% ticket sales across channel
 						</Text>
 					</Box>
-					<Box className="!border-r !border-secondary-text/40">
+					<Box className="sm:!border-r sm:!border-b-0  !border-secondary-text/40 py-3 sm:py-0">
 						<Text
 							tt={"capitalize"}
 							fz={"sm"}
@@ -134,7 +140,12 @@ function RaffleTransactionalList() {
 				</SimpleGrid>
 			</Card>
 			<Card mt="lg" mx="lg" px={0} radius={"md"} pb={0} mb={"lg"} withBorder>
-				<Flex justify={"space-between"} px="sm">
+				<Flex
+					direction={{ base: "column", xs: "row" }}
+					gap={10}
+					justify={"space-between"}
+					px="sm"
+				>
 					<Box>
 						<Text tt="capitalize" fz={"lg"} fw={600}>
 							game transaction list
@@ -153,55 +164,53 @@ function RaffleTransactionalList() {
 					</Button>
 				</Flex>
 				<Divider my="md" />
-				<Flex px="md" justify="space-between">
+				<Flex
+					direction={{ base: "column", xs: "row" }}
+					gap={10}
+					px="md"
+					wrap={"wrap"}
+					align={{ base: "start", md: "center" }}
+					justify={{ base: "start", sm: "space-between" }}
+				>
 					<WebMobileTab />
-					<Group>
-						<TextInput placeholder="search" leftSection={<FaSearch />} />
+					<Flex gap={{ base: "md" }} wrap={"wrap"}>
+						<TextInput
+							className="w-full sm:w-fit"
+							placeholder="search"
+							leftSection={<FaSearch />}
+						/>
+
 						<SortMenu items={[]} />
 						<FilterMenu items={[]} />
-					</Group>
+					</Flex>
 				</Flex>
 				<Divider my="md" />
-
-				<Table striped highlightOnHover >
-					<Table.Thead>
-						<Table.Tr className="capitalize">
-							{[
-								"transaction ID",
-								"customer detail",
-								"purchase date",
-								"purchase via",
-								"ticket price & number",
-								"",
-							]?.map((item) => (
-								<Table.Th>{item}</Table.Th>
-							))}
-						</Table.Tr>
-					</Table.Thead>
-					<Table.Tbody>
-						{[1, 2, 3, 4]?.map((element) => (
-							<Table.Tr key={element}>
-								<Table.Td>{element}</Table.Td>
-								<Table.Td>{element}</Table.Td>
-								<Table.Td>{element}</Table.Td>
-								<Table.Td>{element}</Table.Td>
-								<Table.Td>{element}</Table.Td>
-
-								<Table.Td>
-									<TransactionDetailModal/>
-								</Table.Td>
-							</Table.Tr>
-						))}
-					</Table.Tbody>
-				</Table>
-				<Divider />
-				<Flex
-					justify={"space-between"}
-					px="md"
-					my={"xs"}
-				
-					py="xs"
+				<RaffleCustomTable
+					headers={[
+						"transaction ID",
+						"customer detail",
+						"purchase date",
+						"purchase via",
+						"ticket price & number",
+						"",
+					]}
 				>
+					{[1, 2, 3, 4]?.map((element) => (
+						<Table.Tr key={element}>
+							<Table.Td>{element}</Table.Td>
+							<Table.Td>{element}</Table.Td>
+							<Table.Td>{element}</Table.Td>
+							<Table.Td>{element}</Table.Td>
+							<Table.Td>{element}</Table.Td>
+							<Table.Td className="text-right">
+								<TransactionDetailModal />
+							</Table.Td>
+						</Table.Tr>
+					))}
+				</RaffleCustomTable>
+
+				<Divider />
+				<Flex justify={"space-between"} px="md" my={"xs"} py="xs">
 					<Text fs={"italic"}>page 1 of 10</Text>
 					<Group>
 						<Button
@@ -223,43 +232,4 @@ function RaffleTransactionalList() {
 	);
 }
 
-const WebMobileTab = () => {
-	const [searchParams] = useSearchParams();
-	const tabFromUrl = searchParams.get("status");
-	const [activeStatus, setActiveStatus] = useState(tabFromUrl || "show all");
-	const statuses = ["show all", "web", "mobile app"];
-
-	// Keep activeStatus in sync with the URL
-	useEffect(() => {
-		setActiveStatus(tabFromUrl || "show all");
-	}, [tabFromUrl]);
-
-	const handleStatusFilter = (val: string) => {
-		setActiveStatus(val);
-	};
-	return (
-		<div className="capitalize text-sm w-fit">
-			<ul className="flex items-center border divide-y sm:divide-y-0 divide-secondary-text md:divide-x border-secondary-text  rounded-md text-nowrap">
-				{statuses.map((status) => {
-					const isActive = activeStatus === status;
-					const bgClass =
-						isActive ?
-							` bg-[#FFD5D6] text-primary-red`
-						:	"hover:bg-secondary-red";
-
-					return (
-						<li key={status}>
-							<button
-								onClick={() => handleStatusFilter(status)}
-								className={`px-3 py-1 rounded w-full  text-xs md:text-sm transition-colors duration-200 !capitalize ${bgClass}`}
-							>
-								{status}
-							</button>
-						</li>
-					);
-				})}
-			</ul>
-		</div>
-	);
-};
 export default RaffleTransactionalList;

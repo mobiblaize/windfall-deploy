@@ -5,6 +5,14 @@ const statusColors: Record<string, { bg: string; color: string }> = {
 		bg: "var(--color-secondary-green)",
 		color: "var(--color-primary-green)",
 	},
+	verified: {
+		bg: "var(--color-secondary-green)",
+		color: "var(--color-primary-green)",
+	},
+	successful: {
+		bg: "var(--color-secondary-green)",
+		color: "var(--color-primary-green)",
+	},
 	live: {
 		bg: "var(--color-secondary-green)",
 		color: "var(--color-primary-green)",

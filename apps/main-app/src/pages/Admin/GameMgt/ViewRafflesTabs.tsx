@@ -2,6 +2,10 @@ import { Divider, Tabs } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import RaffleTransactionalList from "./RaffleTransactionalList";
+import CustomerList from "./CustomerList";
+import PerformanceMonitor from "./PerformanceMonitor";
+import WinnerTab from "./WinnerTab";
+import GamedrawTab from "./GamedrawTab";
 
 function ViewRafflesTabs() {
 	const navigate = useNavigate();
@@ -37,7 +41,7 @@ function ViewRafflesTabs() {
 			className="space-y-7 "
 			unstyled
 		>
-			<Tabs.List className="mr-5 !tracking-wide overflow-scroll flex flex-nowrap">
+			<Tabs.List className="mr-5 !tracking-wide overflow-scroll flex flex-nowrap ">
 				{tablinks.map((item) => (
 					<Tabs.Tab
 						key={item}
@@ -45,8 +49,7 @@ function ViewRafflesTabs() {
 						className="relative 
         
         px-4 py-2 
-       
-        font-medium 
+        !font-xs sm:!font-medium 
         !capitalize 
         cursor-pointer 
         rounded-t-md 
@@ -57,21 +60,28 @@ function ViewRafflesTabs() {
         data-[active=true]:border-b-[3px] 
         data-[active=true]:border-b-solid 
         data-[active=true]:border-b-2[var(--color-primary-red)]
-        data-[active=true]:hover:text-primary-red
-      "
+        data-[active=true]:hover:text-primary-red text-nowrap"
 					>
 						{item}
 					</Tabs.Tab>
 				))}
 			</Tabs.List>
 			<Divider />
-            <Tabs.Panel value="transactional list">
-                <RaffleTransactionalList/>
-            </Tabs.Panel>
-			<Tabs.Panel value="customer list">customer list</Tabs.Panel>
-			<Tabs.Panel value="performance monitor">performance monitor</Tabs.Panel>
-			<Tabs.Panel value="winner">winner</Tabs.Panel>
-			<Tabs.Panel value="game draw">game draw</Tabs.Panel>
+			<Tabs.Panel value="transactional list">
+				<RaffleTransactionalList />
+			</Tabs.Panel>
+			<Tabs.Panel value="customer list">
+				<CustomerList />
+			</Tabs.Panel>
+			<Tabs.Panel value="performance monitor">
+				<PerformanceMonitor />
+			</Tabs.Panel>
+			<Tabs.Panel value="winner">
+				<WinnerTab />
+			</Tabs.Panel>
+			<Tabs.Panel value="game draw">
+				<GamedrawTab/>
+			</Tabs.Panel>
 		</Tabs>
 	);
 }

@@ -91,8 +91,9 @@ export const TakeAction = () => {
 			<Menu.Target>
 				<Button
 					variant="outline"
-					className="!text-secondary-text !border-secondary-text"
+					className="!text-secondary-text !border-secondary-text scale-90 sm:scale-100"
 					rightSection={<FaAngleDown />}
+					
 				>
 					Take action
 				</Button>

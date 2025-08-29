@@ -8,7 +8,14 @@ function ViewRaffles() {
 	return (
 		<div className="text-primary-text">
 			<Divider />
-			<Flex px={"md"} my="sm" align={"center"} justify={"space-between"} >
+			<Flex
+				px={"md"}
+				my="sm"
+				align={{ base: "start", sm: "center" }}
+				justify={{ base: "start", sm: "space-between" }}
+				gap={{ base: "sm", sm: "lg" }}
+				direction={{ base: "column", sm: "row" }}
+			>
 				<Box>
 					<Text tt={"capitalize"} fz={"lg"} fw={"600"}>
 						Lekki house raffle, lagos state
@@ -21,16 +28,16 @@ function ViewRaffles() {
 					<StatusBadge status="live" />
 					<Button
 						variant="outline"
-						className="!text-secondary-text !border-secondary-text !py-2"
+						className="!text-secondary-text !border-secondary-text !py-2 scale-90 sm:scale-100"
 						rightSection={<FaCalendarAlt className="text-primary-red" />}
 					>
 						Date: April 2025
 					</Button>
-					<TakeAction/>
+					<TakeAction />
 				</Group>
-            </Flex>
-            <ViewRafflesTabs/>
-			{/* <Divider my="lg" /> */}
+			</Flex>
+			<ViewRafflesTabs />
+			
 		</div>
 	);
 }
