@@ -1,13 +1,44 @@
-import { Card, Flex, List, Stack, Text, TextInput } from "@mantine/core";
+import { Card, Flex, List, PasswordInput, Stack, Text } from "@mantine/core";
 import { HiDocumentArrowDown } from "react-icons/hi2";
-import { FiEye } from "react-icons/fi";
 import CustomButton from "../../../../components/Buttons/CustomButton";
+import { useForm } from "@mantine/form";
 
-type NewPasswordProps = {
-  onComplete: () => void;
+export type PasswordFormValues = {
+  password: string;
+  password_confirmation: string;
 };
 
-function NewPassword({ onComplete }: NewPasswordProps) {
+type NewPasswordProps = {
+  onComplete: (formValues: PasswordFormValues) => void;
+  isLoading?: boolean;
+};
+
+function NewPassword({ onComplete, isLoading }: NewPasswordProps) {
+  const form = useForm({
+    initialValues: {
+      password: "",
+      password_confirmation: "",
+    },
+    validate: {
+      password: (value) => {
+        if (value.length < 8 ) {
+          return "Password must be at least 8 characters long";
+        }
+        if (!/[A-Z]/.test(value) || !/[a-z]/.test(value)) {
+          return "Use both uppercase and lowercase letters";
+        }
+        if (!/[0-9]/.test(value)) {
+          return "Include at least one number";
+        }
+        if (!/[!@#$%^&*]/.test(value)) {
+          return "Include at least one special character (!@#$%^&*)";
+        }
+        return null;
+      },
+      password_confirmation: (value, values) =>
+        value !== values.password ? "Passwords do not match" : null,
+    },
+  });
 
   return (
     <Card withBorder className="!rounded-lg" p={25}>
@@ -16,43 +47,49 @@ function NewPassword({ onComplete }: NewPasswordProps) {
         <div className="capitalize">
           <Text className="!font-semibold !text-xl">Password</Text>
           <Text className="!text-secondary-text">
-            Enter new pass word below
+            Enter new password below
           </Text>
         </div>
       </header>
-      <form>
+
+      <form onSubmit={form.onSubmit((values) => onComplete(values))}>
         <Stack className="!capitalize" gap="xl">
-          <TextInput
-            label="create new password"
+          <PasswordInput
+            label="Create new password"
             placeholder="Enter your password"
             withAsterisk
-            rightSection={<FiEye />}
             classNames={{
               label: "!text-sm !text-[#030303] font-normal",
               input: "!text-[#030303]",
             }}
+            type="password"
+            {...form.getInputProps("password")}
           />
+
           <List className="!text-secondary-text !list-disc">
             <List.Item>8–12 characters</List.Item>
             <List.Item>
-              Use both Uppercase letters (A-Z) and Lowercase letter (a-z).
+              Use both Uppercase letters (A-Z) and Lowercase letters (a-z).
             </List.Item>
             <List.Item>Include Numbers (0–9)</List.Item>
             <List.Item>Special characters (e.g. !@ # $ % ^ & *)</List.Item>
           </List>
-          <TextInput
-            label="confirm your new password"
+
+          <PasswordInput
+            label="Confirm your new password"
             placeholder="Confirm new password"
             withAsterisk
-            rightSection={<FiEye />}
             classNames={{
               label: "!text-sm !text-[#030303] font-normal",
               input: "!text-[#030303]",
             }}
+            type="password"
+            {...form.getInputProps("password_confirmation")}
           />
         </Stack>
+
         <Flex justify="flex-end" className="!mt-7">
-          <CustomButton onClick={onComplete}>Create Password</CustomButton>
+          <CustomButton disabled={isLoading} loading={isLoading} buttonType="submit">Create Password</CustomButton>
         </Flex>
       </form>
     </Card>

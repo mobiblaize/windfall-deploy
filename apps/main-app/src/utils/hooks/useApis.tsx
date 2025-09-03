@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { axiosInstance, baseUrl } from "../api/axios-instance";
 

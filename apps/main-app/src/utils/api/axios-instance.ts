@@ -1,29 +1,39 @@
-import axios from "axios";
+import axios, {
+  AxiosError,
+  type AxiosInstance,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from "axios";
 import { clearUser } from "../hooks/useStorage";
 
 export const baseUrl = "https://api.windfall.sbscuk.co.uk/public/api/v1/";
 
-const axiosInstance = axios.create({
+const axiosInstance: AxiosInstance = axios.create({
   baseURL: baseUrl,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-const attachToken = (config: any) => {
+const attachToken = (
+  config: InternalAxiosRequestConfig
+): InternalAxiosRequestConfig => {
   const token = localStorage.getItem("access_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-
+  if (token) {
+    config.headers.set("Authorization", `Bearer ${token}`);
+  }
   return config;
 };
 
 let isShowingError = false;
 const errorResetTimeout = 5000;
 
-const handleError = async (error: any) => {
+const handleError = async (error: AxiosError): Promise<never> => {
   if (!error.response) {
     console.log("Network error or server is unreachable.");
-    return Promise.reject(new Error("Network error or server is unreachable."));
+    return Promise.reject(
+      new Error("Network error or server is unreachable.")
+    );
   }
 
   const { status, data } = error.response;
@@ -31,7 +41,7 @@ const handleError = async (error: any) => {
 
   // Handle 401 errors with token refresh
   if (status === 401) {
-    if (!originalRequest.url.includes("auth/login")) {
+    if (originalRequest?.url && !originalRequest.url.includes("auth/login")) {
       clearUser();
       window.location.replace("/login");
       window.location.reload();
@@ -48,7 +58,7 @@ const handleError = async (error: any) => {
   };
 
   const errorMessage =
-    data?.message ||
+    (data as { message?: string })?.message ||
     messages[status as keyof typeof messages] ||
     "An unexpected error occurred.";
 
@@ -67,6 +77,9 @@ const handleError = async (error: any) => {
 };
 
 axiosInstance.interceptors.request.use(attachToken, Promise.reject);
-axiosInstance.interceptors.response.use((res) => res, handleError);
+axiosInstance.interceptors.response.use(
+  (res: AxiosResponse) => res,
+  handleError
+);
 
 export { axiosInstance };

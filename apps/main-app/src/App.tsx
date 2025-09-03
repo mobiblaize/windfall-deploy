@@ -1,10 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Suspense, lazy } from "react";
-import ScrollUp from "./utils/helper/ScrollUp";
 import ProtectedRoute from "./utils/helper/ProtectedRoute";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
+
+// Util
+const ScrollUp = lazy(() => import("./utils/helper/ScrollUp"));
 
 // Public pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -14,9 +16,9 @@ const SpecificResult = lazy(() => import("./pages/draws/SpecificResult"));
 const AllWinnersPage = lazy(() => import("./pages/winners/AllWinnersPage"));
 const RecentWinners = lazy(() => import("./pages/winners/RecentWinners"));
 const AllPricesPage = lazy(() => import("./pages/prizes/AllPricesPage"));
-const LoginPage = lazy(() => import("./pages/login/LoginPage"));
-const ResetPassword = lazy(() => import("./pages/login/ResetPassword"));
-const Signup = lazy(() => import("./pages/checkout/Signup"));
+const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const Signup = lazy(() => import("./pages/auth/Signup"));
 const Cart = lazy(() => import("./pages/checkout/Cart"));
 const CheckoutPage = lazy(() => import("./pages/checkout/CheckoutPage"));
 
@@ -97,7 +99,7 @@ function App() {
 
             {/* Public routes */}
             <Route path="login" element={<LoginPage />} />
-            <Route path="signup" element={<Signup />} />
+            <Route path="register" element={<Signup />} />
             <Route
               path="dashboard"
               element={
@@ -116,7 +118,12 @@ function App() {
             <Route path="winners/all-time/:id" element={<SpecificResult />} />
 
             {/* Profile grouped */}
-            <Route path="profile" element={<ProfileLayout />}>
+            <Route path="profile" 
+              element={
+                <ProtectedRoute>
+                  <ProfileLayout />
+                </ProtectedRoute>
+              }>
               <Route index element={<Navigate to="all-games" replace />} />
               <Route path="all-games" element={<GamesTab />} />
               <Route path="all-games/:id" element={<GamesTickets />} />
@@ -157,7 +164,12 @@ function App() {
 
             {/* Static pages */}
             <Route path="cart" element={<Cart />} />
-            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="checkout" 
+              element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              } />
             <Route path="checkout/signup" element={<Signup />} />
             <Route
               path="responsible-playing"

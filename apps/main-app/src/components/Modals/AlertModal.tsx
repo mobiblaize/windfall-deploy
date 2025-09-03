@@ -1,11 +1,11 @@
-import { Modal, Box, Image, Loader } from "@mantine/core";
+import { Modal, Box, Image, Loader, type ButtonProps } from "@mantine/core";
 import successImg from "../../assets/success.gif";
 import errorImg from "../../assets/error.gif";
 import msgImg from "../../assets/message.gif";
 import loadingImg from "../../assets/loading.gif";
 import CustomButton from "../../components/Buttons/CustomButton";
 
-type ButtonProps = {
+type CustomButtonProps =  ButtonProps & {
   label: string;
   disabled?: boolean;
   onClick: () => void;
@@ -18,8 +18,8 @@ type Props = {
   title: React.ReactNode;
   description: React.ReactNode;
   color?: "dark" | "primary";
-  primaryButton?: ButtonProps;
-  secondaryButton?: ButtonProps;
+  primaryButton?: CustomButtonProps;
+  secondaryButton?: CustomButtonProps;
 };
 
 export default function AlertModal({
@@ -95,7 +95,7 @@ export default function AlertModal({
         {(primaryButton || secondaryButton) && (
           <Box className="flex justify-center gap-4 mt-6">
             {primaryButton && (
-              <CustomButton disabled={primaryButton.disabled} onClick={primaryButton.onClick} className="flex-1">
+              <CustomButton disabled={primaryButton.disabled} loading={primaryButton.loading} onClick={primaryButton.onClick} className="flex-1">
                 {primaryButton.label}
               </CustomButton>
             )}
@@ -104,6 +104,7 @@ export default function AlertModal({
               <CustomButton
                 type="dark"
                 disabled={secondaryButton.disabled}
+                 loading={secondaryButton.loading}
                 onClick={secondaryButton.onClick}
                 variant="outline"
                 className="flex-1"

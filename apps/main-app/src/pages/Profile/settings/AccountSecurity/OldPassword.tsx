@@ -3,8 +3,8 @@ import { HiDocumentArrowDown } from "react-icons/hi2";
 import { FiEye } from "react-icons/fi";
 import CustomButton from "../../../../components/Buttons/CustomButton";
 import AlertModal from "../../../../components/Modals/AlertModal";
-import { useEffect, useState } from "react";
-import OTPInput from "react-otp-input";
+import { useState } from "react";
+import OtpModal from "./OtpModal";
 
 type OldPasswordProps = {
   onComplete: () => void;
@@ -14,26 +14,13 @@ function OldPassword({ onComplete }: OldPasswordProps) {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-
-  const [otp, setOtp] = useState("");
-  const [timeLeft, setTimeLeft] = useState(900); // 15 minutes = 900 seconds
-
-  useEffect(() => {
-    if (timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-    return () => clearInterval(timer);
-  }, [timeLeft]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
-    const secs = (seconds % 60).toString().padStart(2, "0");
-    return `${mins}:${secs}`;
-  };
+  const [timeLeft, setTimeLeft] = useState(20); // 15 minutes
 
   function validatePassword() {
     setEmailModalOpen(true);
+  }
+  function resendOtp() {
+    setTimeLeft(20);
   }
 
   function emailEntered() {
@@ -131,69 +118,14 @@ function OldPassword({ onComplete }: OldPasswordProps) {
           onClick: emailEntered,
         }}
       />
-      <AlertModal
+      <OtpModal
         opened={otpModalOpen}
-        status="message"
-        title={
-          <>
-            <div className="!mt-5">OTP Sent to reset Password</div>
-          </>
-        }
-        description={
-          <>
-            <Text className="!text-base !text-center !text-[#818181] !mb-5">
-              We send an six (6) digit OTP to your email address ola************
-              gmail.com
-              <br />
-              <br />
-              Enter OTP to Authorize your reset password process.
-            </Text>
-
-            <div className="text-center mb-5">
-              <OTPInput
-                value={otp}
-                onChange={setOtp}
-                numInputs={6}
-                inputStyle={{
-                  width: "3rem",
-                  height: "3rem",
-                  margin: "0 0.25rem",
-                  fontSize: "1.5rem",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  backgroundColor: "#f9f9fb",
-                  color: "#000",
-                }}
-                containerStyle={{
-                  justifyContent: "center",
-                }}
-                renderInput={(props, index) => (
-                  <input
-                    key={index}
-                    {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
-                  />
-                )}
-                shouldAutoFocus
-              />
-            </div>
-
-            <Text className="!text-red-600 !text-lg !mb-6 !font-semibold">
-              {formatTime(timeLeft)}
-            </Text>
-
-            {/* Resend */}
-            <Text className="text-sm text-gray-500">
-              Didn’t Receive Code?{" "}
-              <span className="text-red-600 underline cursor-pointer pb-2">
-                Resend OTP
-              </span>
-            </Text>
-          </>
-        }
-        primaryButton={{
-          label: "Validate OTP",
-          onClick: otpEntered,
-        }}
+        onClose={() => setOtpModalOpen(false)}
+        timeLeft={timeLeft}
+        setTimeLeft={setTimeLeft}
+        resendOtp={resendOtp}
+        onValidate={otpEntered}
+        emailMasked="ola************gmail.com"
       />
       <AlertModal
         opened={successModalOpen}
