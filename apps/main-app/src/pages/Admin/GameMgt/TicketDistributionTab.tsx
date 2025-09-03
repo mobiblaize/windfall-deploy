@@ -5,7 +5,6 @@ import {
 	Card,
 	Flex,
 	Divider,
-    Container,
     Text
 } from "@mantine/core";
 import { PiQuestionThin } from "react-icons/pi";

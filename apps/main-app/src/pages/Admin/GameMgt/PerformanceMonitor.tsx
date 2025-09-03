@@ -19,7 +19,7 @@ import Salestabs from "./Salestabs";
 
 function PerformanceMonitor() {
 	return (
-		<Card withBorder mt={"xl"} radius={"md"}>
+		<Card withBorder mt={"xl"} radius={"md"} mx="xl">
 			<Flex
 				align={{ base: "start", md: "center" }}
 				justify={{ base: "start", sm: "space-between" }}

@@ -23,7 +23,7 @@ import RaffleCustomTable from "./RaffleCustomTable";
 function RaffleTransactionalList() {
 	return (
 		<>
-			<Card mt="lg" mb="xl" mx="lg" radius={"md"} withBorder>
+			<Card mt="lg" mb="xl" mx="xl" radius={"md"} withBorder>
 				<Box>
 					<Text tt="capitalize" fz={"lg"} fw={600}>
 						Raffle list

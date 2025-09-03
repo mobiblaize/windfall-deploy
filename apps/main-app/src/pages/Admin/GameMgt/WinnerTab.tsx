@@ -4,7 +4,7 @@ import CustomTickets from "../../../components/CustomTickets";
 function WinnerTab() {
 	const winner = [1];
 	return (
-		<Card withBorder radius={"md"} mx="md">
+		<Card withBorder radius={"md"} mx="xl">
 			{winner.length ?
 				<SimpleGrid cols={{base:1, sm:2, }}>
 					{winner?.map((item) => (

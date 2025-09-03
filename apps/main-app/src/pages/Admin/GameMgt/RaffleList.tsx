@@ -14,6 +14,7 @@ import { RaffleTable } from "./RaffleTable";
 import { FaFileArrowDown } from "react-icons/fa6";
 import { Breadcrumbs, Anchor } from "@mantine/core";
 import { SortMenu, FilterMenu } from "../../../components/FilterMenu";
+import { useNavigate } from "react-router-dom";
 
 const items = [
 	{ title: "raffle management", href: "#" },
@@ -36,6 +37,8 @@ function NavCrumbs() {
 	);
 }
 function RaffleList() {
+	const navigate = useNavigate();
+
 	return (
 		<>
 			<NavCrumbs />
@@ -58,7 +61,10 @@ function RaffleList() {
 					</div>
 
 					<Group>
-						<Button rightSection={<IoIosAdd size={18} className="" />}>
+						<Button
+							onClick={() => navigate("/admin/create-raffle")}
+							rightSection={<IoIosAdd size={18} className="" />}
+						>
 							Create new
 						</Button>
 					</Group>

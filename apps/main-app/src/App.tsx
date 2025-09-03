@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import ViewRaffles from "./pages/Admin/GameMgt/ViewRaffles";
+import CreateLayout from "./pages/Admin/CreateRaffle/CreateLayout";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
@@ -187,7 +188,9 @@ function App() {
 							<Route path="roles" element={<RoleManagement />} />
 							<Route path="raffles" element={<RaffleManagement />} />
 							<Route path="raffles/list" element={<RaffleList />} />
-							<Route path="raffles/list/:id" element={<ViewRaffles/>} />
+							<Route path="raffles/list/:id" element={<ViewRaffles />} />
+							
+							<Route path="create-raffle" element={<CreateLayout/>} />
 
 							
 						</Route>

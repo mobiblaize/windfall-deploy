@@ -32,7 +32,7 @@ export default function DynamicBreadcrumbs({ items }: DynamicBreadcrumbsProps) {
   const backTarget = items.length > 1 ? items[0].to : "/";
 
   return (
-    <div className="px-0 py-3 text-sm flex items-center gap-2">
+    <div className="px-0 py-3 text-sm flex items-center gap-2 capitalize">
       <button
         onClick={() => (backTarget ? navigate(backTarget) : navigate("/"))}
         className="flex items-center text-gray-500 hover:text-gray-800"

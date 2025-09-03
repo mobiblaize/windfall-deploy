@@ -3,13 +3,22 @@ import StatusBadge from "../../../components/StatusBadge";
 import { FaCalendarAlt } from "react-icons/fa";
 import ViewRafflesTabs from "./ViewRafflesTabs";
 import { TakeAction } from "../../../components/FilterMenu";
+import DynamicBreadcrumbs, { type Crumb } from "../../../components/DynamicBreadCrumbs";
+
 
 function ViewRaffles() {
+
+	const breadCrumbs: Crumb[] = [
+	{ label: "Raffle Management", to: "/admin/raffles" },
+	{ label: "view a raffle", to: "/admin/raffles/list" },
+	{ label: "The raffle game name", to: `` },
+];
 	return (
 		<div className="text-primary-text">
+			<DynamicBreadcrumbs items={breadCrumbs} />
 			<Divider />
 			<Flex
-				px={"md"}
+				px={"lg"}
 				my="sm"
 				align={{ base: "start", sm: "center" }}
 				justify={{ base: "start", sm: "space-between" }}
@@ -37,7 +46,6 @@ function ViewRaffles() {
 				</Group>
 			</Flex>
 			<ViewRafflesTabs />
-			
 		</div>
 	);
 }

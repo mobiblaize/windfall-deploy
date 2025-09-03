@@ -35,6 +35,7 @@ const breadCrumbs: Crumb[] = [
   { label: "View User Details" },
 ];
 
+
 const activities = [1, 2, 3, 4, 5, 6];
 
 export default function UserDetails() {

@@ -48,7 +48,7 @@ function ViewRafflesTabs() {
 						value={item}
 						className="relative 
         
-        px-4 py-2 
+        px-2 py-2 mx-3
         !font-xs sm:!font-medium 
         !capitalize 
         cursor-pointer 
@@ -57,7 +57,7 @@ function ViewRafflesTabs() {
         hover:text-primary-red
         data-[active=true]:z-[1] 
         data-[active=true]:text-[var(--color-primary-red)] 
-        data-[active=true]:border-b-[3px] 
+        data-[active=true]:border-b-2
         data-[active=true]:border-b-solid 
         data-[active=true]:border-b-2[var(--color-primary-red)]
         data-[active=true]:hover:text-primary-red text-nowrap"
