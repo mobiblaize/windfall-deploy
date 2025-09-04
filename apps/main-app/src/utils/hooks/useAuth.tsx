@@ -1,8 +1,10 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useSessionStorage } from "./useStorage";
 
 export const useAuth = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { clearUser } = useSessionStorage();
 
   const isAuthenticated = () => {
     const userInfo = localStorage.getItem("user");
@@ -14,10 +16,19 @@ export const useAuth = () => {
     return userInfo ? JSON.parse(userInfo) : null;
   };
 
+  const getUserType = () => {
+    const userType = localStorage.getItem("user_type");
+    return userType;
+  };
+
+  const isAdmin = () => {
+    return getUserType() === 'admin';
+  };
+
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("access_token");
-    navigate("/login");
+    const isAdminUser = isAdmin();
+    clearUser();
+    navigate(isAdminUser ? "/admin/login": "/login");
   };
 
   const storeRedirectInfo = () => {
@@ -54,5 +65,6 @@ export const useAuth = () => {
     logout,
     storeRedirectInfo,
     getStoredRedirect,
+    isAdmin
   };
 };

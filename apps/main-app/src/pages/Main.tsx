@@ -10,10 +10,20 @@ export default function MainLayout() {
   const { width } = useViewportSize();
   const location = useLocation();
 
-  const isAdminLogin = location.pathname.startsWith("/admin/login");
+  const adminAuthRoutes = [
+    "/admin/login",
+    "/admin/reset-password",
+    "/admin/verify-email",
+    "/admin/change-password",
+  ];
+
+
+  const isAdminAuth = adminAuthRoutes.some((path) =>
+    location.pathname.startsWith(path)
+  );
   const isAdminPage = location.pathname.startsWith("/admin");
 
-  const headerHeight = isAdminLogin
+  const headerHeight = isAdminAuth
     ? 0
     : isAdminPage
       ? 68.7
@@ -28,14 +38,14 @@ export default function MainLayout() {
   const isMobile = useMediaQuery(`(max-width: ${mobileBP}px)`);
   
   const sideMenuWidth =
-    (!isAdminPage || isAdminLogin || isMobile) ? 0 : 300;
+    (!isAdminPage || isAdminAuth || isMobile) ? 0 : 300;
 
   return (
       <AppShell
         padding="md"
         layout="alt" // 👈 makes navbar take full height
         navbar={
-          isAdminPage && !isAdminLogin
+          isAdminPage && !isAdminAuth
             ? {
                 width: sideMenuWidth,
                 breakpoint: mobileBP,
@@ -44,16 +54,16 @@ export default function MainLayout() {
             : undefined
         }
         header={
-          !isAdminLogin
+          !isAdminAuth
             ? { height: headerHeight }
             : undefined
         }
       >
-        <AppShell.Header>
-          {isAdminPage && !isAdminLogin ? <AdminHeader /> : <Header />}
-        </AppShell.Header>
+        {!isAdminAuth && <AppShell.Header>
+          {isAdminPage ? <AdminHeader /> : <Header />}
+        </AppShell.Header>}
 
-        {isAdminPage && !isAdminLogin && (
+        {isAdminPage && !isAdminAuth && (
           <AppShell.Navbar p={0} w={sideMenuWidth ? sideMenuWidth : undefined}>
             <AdminSidebar />
           </AppShell.Navbar>

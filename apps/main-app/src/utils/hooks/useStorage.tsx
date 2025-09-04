@@ -12,6 +12,7 @@ export type AuthPayload = {
   user: User;
   access_token: string;
   refresh_token?: string;
+  user_type?: "user" | "admin";
 };
 
 const loadUserFromStorage = (): User | null => {
@@ -35,6 +36,7 @@ export const clearUser = () => {
   window.localStorage.removeItem("user");
   window.localStorage.removeItem("access_token");
   window.localStorage.removeItem("refresh_token");
+  window.localStorage.removeItem("is_admin");
 };
 
 export const useSessionStorage = () => {
@@ -45,6 +47,11 @@ export const useSessionStorage = () => {
       if (value) {
         window.localStorage.setItem("user", JSON.stringify(value.user));
         window.localStorage.setItem("access_token", value.access_token);
+        window.localStorage.setItem(
+          "user_type",
+          value.user_type === "admin" ? "admin" : "user"
+        );
+        window.localStorage.setItem('username', value?.user?.name);
         if (value.refresh_token) {
           window.localStorage.setItem("refresh_token", value.refresh_token);
         }
@@ -52,6 +59,7 @@ export const useSessionStorage = () => {
         window.localStorage.removeItem("user");
         window.localStorage.removeItem("access_token");
         window.localStorage.removeItem("refresh_token");
+        window.localStorage.removeItem("user_type");
       }
     }
     setUser(value ? value.user : null);
@@ -62,6 +70,7 @@ export const useSessionStorage = () => {
       window.localStorage.removeItem("user");
       window.localStorage.removeItem("access_token");
       window.localStorage.removeItem("refresh_token");
+      window.localStorage.removeItem("user_type");
     }
     setUser(null);
   };

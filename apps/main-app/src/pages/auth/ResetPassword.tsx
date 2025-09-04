@@ -98,12 +98,12 @@ function ResetPassword() {
   }
 
   function closeEmailModal() {
-    setEmailModalOpen(true);
+    setEmailModalOpen(false);
     toLogin();
   }
 
   function closeOtpModal() {
-    setEmailModalOpen(true);
+    setOtpModalOpen(false);
     toLogin();
   }
 
