@@ -11,7 +11,7 @@ function ViewRaffles() {
 	const breadCrumbs: Crumb[] = [
 	{ label: "Raffle Management", to: "/admin/raffles" },
 	{ label: "view a raffle", to: "/admin/raffles/list" },
-	{ label: "The raffle game name", to: `` },
+	{ label: "The raffle game name", to: ` ` },
 ];
 	return (
 		<div className="text-primary-text">
