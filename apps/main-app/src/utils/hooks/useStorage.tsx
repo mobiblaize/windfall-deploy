@@ -1,12 +1,24 @@
 import { atom, useAtom } from "jotai";
-
 import { useNavigate } from "react-router-dom";
 
-type User = {
+export type User = {
   id: string;
   name: string;
   email: string;
-  role: string;
+  avatar: string;
+  roles: {
+    uuid: string;
+    name: string;
+    display_name: string;
+    enforce_password_change: boolean;
+  }[];  
+};
+
+export type AuthPayload = {
+  user: User;
+  access_token: string;
+  refresh_token?: string;
+  user_type?: "user" | "admin";
 };
 
 const loadUserFromStorage = (): User | null => {
@@ -24,29 +36,39 @@ const loadUserFromStorage = (): User | null => {
   return null;
 };
 
-export const userAtom = atom<any>(loadUserFromStorage());
+export const userAtom = atom<User | null>(loadUserFromStorage());
 
 export const clearUser = () => {
   window.localStorage.removeItem("user");
   window.localStorage.removeItem("access_token");
   window.localStorage.removeItem("refresh_token");
+  window.localStorage.removeItem("is_admin");
 };
 
 export const useSessionStorage = () => {
   const [user, setUser] = useAtom(userAtom);
 
-  const updateUser = (value: any) => {
+  const updateUser = (value: AuthPayload | null) => {
     if (typeof window !== "undefined") {
       if (value) {
-        window.localStorage.setItem("user", JSON.stringify(value));
+        window.localStorage.setItem("user", JSON.stringify(value.user));
+        window.localStorage.setItem("access_token", value.access_token);
+        window.localStorage.setItem(
+          "user_type",
+          value.user_type === "admin" ? "admin" : "user"
+        );
+        window.localStorage.setItem('username', value?.user?.name);
+        if (value.refresh_token) {
+          window.localStorage.setItem("refresh_token", value.refresh_token);
+        }
       } else {
         window.localStorage.removeItem("user");
+        window.localStorage.removeItem("access_token");
+        window.localStorage.removeItem("refresh_token");
+        window.localStorage.removeItem("user_type");
       }
     }
-    setUser(value);
-    localStorage.setItem("user", JSON.stringify(value.user));
-    localStorage.setItem("access_token", value.access_token);
-    // localStorage.setItem("refresh_token", value.refresh_token);
+    setUser(value ? value.user : null);
   };
 
   const clearUser = () => {
@@ -54,6 +76,7 @@ export const useSessionStorage = () => {
       window.localStorage.removeItem("user");
       window.localStorage.removeItem("access_token");
       window.localStorage.removeItem("refresh_token");
+      window.localStorage.removeItem("user_type");
     }
     setUser(null);
   };
@@ -67,7 +90,6 @@ export const useLoggedOut = () => {
 
   const logout = () => {
     clearUser();
-
     router("/login");
   };
 

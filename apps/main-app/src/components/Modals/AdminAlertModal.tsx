@@ -1,4 +1,10 @@
-import { Modal, Box, Image, Loader, Button } from "@mantine/core";
+import {
+  Modal,
+  Box,
+  Image,
+  Button,
+  type ButtonProps,
+} from "@mantine/core";
 import successImg from "../../assets/success.gif";
 import errorImg from "../../assets/error.gif";
 import msgImg from "../../assets/message.gif";
@@ -6,7 +12,7 @@ import loadingImg from "../../assets/loading.gif";
 import delImg from "../../assets/delete.gif";
 import CustomButton from "../../components/Buttons/CustomButton";
 
-type ButtonProps = {
+type CustomButtonProps = ButtonProps & {
   label: string;
   disabled?: boolean;
   onClick: () => void;
@@ -19,8 +25,8 @@ type Props = {
   title: React.ReactNode;
   description: React.ReactNode;
   color?: "dark" | "primary";
-  primaryButton?: ButtonProps;
-  secondaryButton?: ButtonProps;
+  primaryButton?: CustomButtonProps;
+  secondaryButton?: CustomButtonProps;
 };
 
 export default function AdminAlertModal({
@@ -76,17 +82,13 @@ export default function AdminAlertModal({
       }}
     >
       <Box className="text-center">
-        {status === "loading" ? (
-          <Loader color="blue" size="lg" />
-        ) : (
-          <Image
-            src={getStatusImage()}
-            alt={status}
-            className="w-[100px] h-[100px] mx-auto mb-5"
-            fit="contain"
-            radius="md"
-          />
-        )}
+        <Image
+          src={primaryButton?.loading ? loadingImg : getStatusImage()}
+          alt={status}
+          className="w-[100px] h-[100px] mx-auto mb-5"
+          fit="contain"
+          radius="md"
+        />
 
         <div className={`!text-3xl !font-semibold !mb-4 ${getTitleColor()}`}>
           {title}

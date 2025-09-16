@@ -22,9 +22,9 @@ function ProfileHeader() {
 				</div>
 				<Flex align="center" gap={10}>
 					<Avatar size="lg" />
-					<div className="capitalize text-secondary-text ">
+					<div className="capitalize text-[#575757]">
 						<Text>adekunle ibrahim</Text>
-						<Text className="!text-primary-red">ID:1234151</Text>
+						<Text className="!text-primary-red">ID: 1234151</Text>
 					</div>
 				</Flex>
 			</Flex>

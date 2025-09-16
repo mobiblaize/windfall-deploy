@@ -9,19 +9,26 @@ import {
   Alert,
 } from "@mantine/core";
 import { HiDocumentArrowDown } from "react-icons/hi2";
-import LoggedinModal from "../../components/Modals/LoggedinModal";
 import SectionHeader from "../../components/SectionHeader";
 import loginLeft from "../../assets/login-img-l.png";
 import loginRight from "../../assets/login-img-r.png";
 import { NavLink, useNavigate } from "react-router-dom";
 
-import { hasLength, isEmail, useForm } from "@mantine/form";
+import { isNotEmpty, useForm } from "@mantine/form";
 import CustomButton from "../../components/Buttons/CustomButton";
 import { usePostData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { useSessionStorage } from "../../utils/hooks/useStorage";
+import AlertModal from "../../components/Modals/AlertModal";
+import { useState } from "react";
+
+type LoginFormValues = {
+  email: string;
+  password: string;
+};
 
 function LoginPage() {
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
   const navigate = useNavigate();
   const { updateUser } = useSessionStorage();
   const loginMutation = usePostData("customer/auth/login");
@@ -34,15 +41,18 @@ function LoginPage() {
     },
 
     validate: {
-      email: isEmail("Invalid email"),
-      password: hasLength(
-        { min: 2, max: 8 },
-        "Password must be 2-8 characters long"
-      ),
+      email: (value) =>
+        isNotEmpty("Email / Phone Number is required")(value) ,
+      password: isNotEmpty("Password is required"),
     },
   });
 
-  const handleSubmit = async (values: any) => {
+  function closeModal() {
+    setSuccessModalOpen(false);
+    navigate("/dashboard");
+  }
+
+  const handleSubmit = async (values: LoginFormValues) => {
     if (form.validate().hasErrors) {
       return;
     }
@@ -61,13 +71,13 @@ function LoginPage() {
         message: response?.message || "You are now logged in",
         color: "green",
       });
-      navigate("/dashboard");
-    } catch (error: any) {
+      setSuccessModalOpen(true);
+    } catch (error) {
       console.log(error);
       notifications.show({
         title: "Login Failed",
-        message: error?.message || "An error occurred",
-        color: "red",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
       });
     }
   };
@@ -95,26 +105,27 @@ function LoginPage() {
           <form onSubmit={form.onSubmit(handleSubmit)}>
             {/* error from api */}
             {loginMutation.isError && (
-              <Alert color="red" title="Login Failed" className="!mb-5">
+              <Alert color="var(--color-primary-red)" title="Login Failed" className="!mb-5">
                 <Text>{loginMutation.error.message}</Text>
               </Alert>
             )}
 
             <Stack className="!capitalize" gap="xl">
               <TextInput
-                label="your email address"
-                placeholder="Enter your email address"
+                label="Your Email / Phone number"
+                placeholder="Enter your Email / Phone Number"
                 withAsterisk
-                classNames={{ label: "!text-lg" }}
+                classNames={{ input: "!h-10 !rounded-lg" }}
                 key="email"
                 {...form.getInputProps("email")}
                 error={form.getInputProps("email").error}
               />
               <PasswordInput
                 className="!text-primary-text"
-                required
                 label="Enter Password"
                 placeholder="Confirm your password"
+                withAsterisk
+                classNames={{ input: "!h-10 !rounded-lg" }}
                 key="password"
                 {...form.getInputProps("password")}
                 error={form.getInputProps("password").error}
@@ -144,6 +155,17 @@ function LoginPage() {
           </form>
         </Card>
       </Container>
+      <AlertModal
+        opened={successModalOpen}
+        onClose={closeModal}
+        status="success"
+        title="Login Successful"
+        description="Congratulation, you have successfully log in to your WindFall raffle Account. Now start playing"
+        primaryButton={{
+          label: "Continue",
+          onClick: closeModal,
+        }}
+      />
     </div>
   );
 }

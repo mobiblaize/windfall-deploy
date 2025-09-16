@@ -1,42 +1,63 @@
-import axios from "axios";
+import axios, {
+  AxiosError,
+  type AxiosInstance,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from "axios";
 import { clearUser } from "../hooks/useStorage";
 
 export const baseUrl = "https://api.windfall.sbscuk.co.uk/public/api/v1/";
 
-const axiosInstance = axios.create({
+const axiosInstance: AxiosInstance = axios.create({
   baseURL: baseUrl,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-const attachToken = (config: any) => {
+const attachToken = (
+  config: InternalAxiosRequestConfig
+): InternalAxiosRequestConfig => {
   const token = localStorage.getItem("access_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-
+  if (token) {
+    config.headers.set("Authorization", `Bearer ${token}`);
+  }
   return config;
 };
 
 let isShowingError = false;
 const errorResetTimeout = 5000;
 
-const handleError = async (error: any) => {
+const handleError = async (error: AxiosError): Promise<never> => {
   if (!error.response) {
-    console.log("Network error or server is unreachable.");
-    return Promise.reject(new Error("Network error or server is unreachable."));
+    return Promise.reject({
+      error: true,
+      message: "Network error or server is unreachable.",
+      status: 0,
+      data: null,
+    });
   }
 
   const { status, data } = error.response;
   const originalRequest = error.config;
 
-  // Handle 401 errors with token refresh
+  // Handle 401 → logout and redirect
   if (status === 401) {
-    if (!originalRequest.url.includes("auth/login")) {
+    if (originalRequest?.url && !originalRequest.url.includes("login")) {
+      const userType = localStorage.getItem("user_type");
       clearUser();
-      window.location.replace("/login");
-      window.location.reload();
+      if (userType === "admin") {
+        window.location.replace("/admin/login");
+      } else {
+        window.location.replace("/login");
+      }
     }
-    return Promise.reject(error);
+    return Promise.reject({
+      error: true,
+      message: "Unauthorized: Please log in again.",
+      status,
+      data: data ?? null,
+    });
   }
 
   const messages: Record<number, string> = {
@@ -48,25 +69,31 @@ const handleError = async (error: any) => {
   };
 
   const errorMessage =
-    data?.message ||
+    (data as { message?: string })?.message ||
     messages[status as keyof typeof messages] ||
     "An unexpected error occurred.";
 
   if (!isShowingError) {
     isShowingError = true;
-
-    console.log(errorMessage);
-
-    // Reset the flag after timeout
+    console.error(errorMessage);
     setTimeout(() => {
       isShowingError = false;
     }, errorResetTimeout);
   }
 
-  return Promise.reject(new Error(errorMessage));
+  // Reject with structured object
+  return Promise.reject({
+    error: true,
+    message: errorMessage,
+    status,
+    data: (data as { data: unknown })?.data ?? null,
+  });
 };
 
 axiosInstance.interceptors.request.use(attachToken, Promise.reject);
-axiosInstance.interceptors.response.use((res) => res, handleError);
+axiosInstance.interceptors.response.use(
+  (res: AxiosResponse) => res,
+  handleError
+);
 
 export { axiosInstance };

@@ -1,8 +1,119 @@
-import { Tabs, Text, Title, Flex } from "@mantine/core";
+import { Tabs, Text, Title, Flex, Switch, Card } from "@mantine/core";
 import { BsPlus } from "react-icons/bs";
-import { useNavigate, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../../../components/Buttons/CustomButton";
-import Roles from "./Roles";
+import { useState } from "react";
+
+type TestRole = {
+  id: number;
+  name: string;
+  department: string;
+  users: number;
+  description: string;
+  active: boolean;
+};
+
+export interface Role {
+  uuid: string
+  name: string
+  display_name: string
+  guard_name?: string
+  description: string
+  is_active: string
+  created_at: string
+}
+
+const roles: TestRole[] = [
+  {
+    id: 1,
+    name: "Executive Role",
+    department: "Operations",
+    users: 32,
+    description:
+      "This is a short Description of this role and it is not more than two line i.e 15 words count",
+    active: true,
+  },
+  {
+    id: 2,
+    name: "Executive Role",
+    department: "Operations",
+    users: 32,
+    description:
+      "This is a short Description of this role and it is not more than two line i.e 15 words count",
+    active: false,
+  },
+  {
+    id: 3,
+    name: "Executive Role",
+    department: "Operations",
+    users: 32,
+    description:
+      "This is a short Description of this role and it is not more than two line i.e 15 words count",
+    active: true,
+  },
+];
+
+function RoleCard({ role }: { role: TestRole }) {
+  const [enabled, setEnabled] = useState(role.active);
+
+  return (
+    <Card
+      shadow="sm"
+      radius="lg"
+      padding="lg"
+      className={`rounded-2xl border transition ${
+        enabled
+          ? "border-gray-200 bg-white"
+          : "border-gray-200 bg-gray-50 opacity-70"
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <NavLink to={`/admin/roles/${role.id}`}>
+          <div className="flex items-start gap-4">
+            {/* Avatar with initials */}
+            <span
+              className={`flex items-center justify-center h-11 w-11 rounded-lg transition !font-semibold !border-3 ${
+                enabled
+                  ? "!bg-light-red !text-primary-red !border-[#FFBABA]"
+                  : "!bg-[#FAFAFB] !border-[#ABABAB] !text-[#ABABAB]"
+              }`}
+            >
+              ER
+            </span>
+            {/* Role Info */}
+            <div>
+              <Text className="!font-semibold !text-sm">{role.name}</Text>
+              <Text className="!text-sm !text-gray-500">
+                Department:{" "}
+                <span className="text-gray-700">{role.department}</span>
+              </Text>
+              <Text className="!text-sm !text-gray-500">
+                Number of User:{" "}
+                <span className="!text-gray-700">{role.users}</span>
+              </Text>
+            </div>
+          </div>
+        </NavLink>
+
+        {/* Toggle */}
+        <Switch
+          size="md"
+          className="!cursor-pointer"
+          color="#039855"
+          thumbIcon={<></>}
+          defaultChecked
+          checked={enabled}
+          onChange={(e) => setEnabled(e.currentTarget.checked)}
+        />
+      </div>
+
+      {/* Description */}
+      <Text className="!text-sm !text-gray-600 !mt-3 !leading-snug">
+        {role.description}
+      </Text>
+    </Card>
+  );
+}
 
 export default function RoleManagement() {
   const navigate = useNavigate();
@@ -28,7 +139,7 @@ export default function RoleManagement() {
         value={activeTab}
         onChange={handleTabChange}
         classNames={{
-          tab: "!text-secondary-text hover:!text-primary-red !transition hover:!bg-light-red !text-[14px] !font-medium data-[active=true]:!text-primary-red data-[active=true]:!border-b-2 data-[active=true]:!border-primary-red !pb-4",
+          tab: "!text-secondary-text hover:!text-primary-red !transition !bg-white hover:!bg-light-red !text-[14px] !border-transparent !font-medium data-[active=true]:!text-primary-red hover:!border-primary-red  data-[active=true]:!border-primary-red !pb-4",
           list: "gap-6",
         }}
       >
@@ -71,7 +182,11 @@ export default function RoleManagement() {
           </Tabs.Panel>
 
           <Tabs.Panel value="roles" pt="md">
-            <Roles />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {roles.map((role) => (
+                <RoleCard key={role.id} role={role} />
+              ))}
+            </div>
           </Tabs.Panel>
         </div>
       </Tabs>

@@ -1,10 +1,13 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { Suspense, lazy } from "react";
-import ScrollUp from "./utils/helper/ScrollUp";
 import ProtectedRoute from "./utils/helper/ProtectedRoute";
+import AdminProtectedRoute from "./utils/helper/AdminProtectedRoute";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
+
+// Util
+const ScrollUp = lazy(() => import("./utils/helper/ScrollUp"));
 
 // Public pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -14,9 +17,9 @@ const SpecificResult = lazy(() => import("./pages/draws/SpecificResult"));
 const AllWinnersPage = lazy(() => import("./pages/winners/AllWinnersPage"));
 const RecentWinners = lazy(() => import("./pages/winners/RecentWinners"));
 const AllPricesPage = lazy(() => import("./pages/prizes/AllPricesPage"));
-const LoginPage = lazy(() => import("./pages/login/LoginPage"));
-const ResetPassword = lazy(() => import("./pages/login/ResetPassword"));
-const Signup = lazy(() => import("./pages/checkout/Signup"));
+const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const Signup = lazy(() => import("./pages/auth/Signup"));
 const Cart = lazy(() => import("./pages/checkout/Cart"));
 const CheckoutPage = lazy(() => import("./pages/checkout/CheckoutPage"));
 
@@ -70,7 +73,10 @@ const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const ClaimPrices = lazy(() => import("./pages/ClaimPrices/ClaimPrices"));
 
 // Admin
-const AdminLoginPage = lazy(() => import("./pages/Admin/AdminLogin"));
+const AdminLoginPage = lazy(() => import("./pages/Admin/Auth/AdminLogin"));
+const AdminResetPasswordPage = lazy(() => import("./pages/Admin/Auth/AdminResetPassword"));
+const AdminChangePasswordPage = lazy(() => import("./pages/Admin/Auth/AdminChangePassword"));
+const VerifyEmailPage = lazy(() => import("./pages/Admin/Auth/VerifyEmail"));
 const UserManagement = lazy(() => import("./pages/Admin/UserMgt/UserMgt"));
 const UserDetails = lazy(() => import("./pages/Admin/UserMgt/UserDetails"));
 const CreateUser = lazy(() => import("./pages/Admin/UserMgt/CreateUser"));
@@ -97,15 +103,8 @@ function App() {
 
             {/* Public routes */}
             <Route path="login" element={<LoginPage />} />
-            <Route path="signup" element={<Signup />} />
-            <Route
-              path="dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="register" element={<Signup />} />
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="reset-password" element={<ResetPassword />} />
 
             {/* Draws */}
@@ -116,7 +115,14 @@ function App() {
             <Route path="winners/all-time/:id" element={<SpecificResult />} />
 
             {/* Profile grouped */}
-            <Route path="profile" element={<ProfileLayout />}>
+            <Route
+              path="profile"
+              element={
+                <ProtectedRoute>
+                  <ProfileLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<Navigate to="all-games" replace />} />
               <Route path="all-games" element={<GamesTab />} />
               <Route path="all-games/:id" element={<GamesTickets />} />
@@ -157,7 +163,14 @@ function App() {
 
             {/* Static pages */}
             <Route path="cart" element={<Cart />} />
-            <Route path="checkout" element={<CheckoutPage />} />
+            <Route
+              path="checkout"
+              element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="checkout/signup" element={<Signup />} />
             <Route
               path="responsible-playing"
@@ -179,19 +192,35 @@ function App() {
 
             {/* Admin grouped */}
             <Route path="admin">
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
+              {/* Public admin login */}
               <Route path="login" element={<AdminLoginPage />} />
+              <Route path="reset-password" element={<AdminResetPasswordPage />} />
+              <Route path="verify-email/:id" element={<VerifyEmailPage />} />
+              <Route path="change-password/:id" element={<AdminChangePasswordPage />} />
 
-              <Route path="users" element={<UserManagement />} />
+              {/* Protected admin routes */}
+              <Route
+                element={
+                  <AdminProtectedRoute>
+                    <Outlet />
+                  </AdminProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
 
-              <Route path="users/create" element={<CreateUser />} />
-              <Route path="users/:id" element={<UserDetails />} />
-              <Route path="users/edit/:id" element={<EditUser />} />
-              <Route path="roles" element={<RoleManagement />} />
-              <Route path="roles/create" element={<CreateRole />} />
-              <Route path="roles/:id" element={<RoleDetails />} />
-              <Route path="roles/edit/:id" element={<EditRole />} />
+                {/* User Management */}
+                <Route path="users" element={<UserManagement />} />
+                <Route path="users/create" element={<CreateUser />} />
+                <Route path="users/:id" element={<UserDetails />} />
+                <Route path="users/edit/:id" element={<EditUser />} />
+
+                {/* Role Management */}
+                <Route path="roles" element={<RoleManagement />} />
+                <Route path="roles/create" element={<CreateRole />} />
+                <Route path="roles/:id" element={<RoleDetails />} />
+                <Route path="roles/edit/:id" element={<EditRole />} />
+              </Route>
             </Route>
           </Route>
         </Routes>
