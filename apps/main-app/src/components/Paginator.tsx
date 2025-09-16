@@ -2,13 +2,17 @@ import { Button } from "@mantine/core";
 
 interface PaginatorProps {
   currentPage: number;
-  totalPages: number;
+  total: number;
+  pageSize: number;
   onPageChange?: (newPage: number) => void;
+  isLoading?: boolean;
 }
 
 export default function Paginator({
   currentPage,
-  totalPages,
+  isLoading = false,
+  total,
+  pageSize,
   onPageChange,
 }: PaginatorProps) {
   const sharedStyles = {
@@ -23,6 +27,8 @@ export default function Paginator({
     lineHeight: "20px",
   };
 
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
   return (
     <div
       className="flex justify-center items-center gap-7 bg-white rounded-2xl py-5 px-8"
@@ -30,7 +36,7 @@ export default function Paginator({
     >
       <Button
         variant="unstyled"
-        disabled={currentPage === 1}
+        disabled={(currentPage === 1) || isLoading}
         onClick={() => currentPage > 1 && onPageChange?.(currentPage - 1)}
         style={sharedStyles}
       >
@@ -44,7 +50,8 @@ export default function Paginator({
 
       <Button
         variant="unstyled"
-        disabled={currentPage === totalPages}
+        loading={isLoading}
+        disabled={(currentPage === totalPages) || isLoading}
         onClick={() => currentPage < totalPages && onPageChange?.(currentPage + 1)}
         style={sharedStyles}
       >

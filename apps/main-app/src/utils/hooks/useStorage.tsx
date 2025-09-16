@@ -1,11 +1,17 @@
 import { atom, useAtom } from "jotai";
 import { useNavigate } from "react-router-dom";
 
-type User = {
+export type User = {
   id: string;
   name: string;
   email: string;
-  role: string;
+  avatar: string;
+  roles: {
+    uuid: string;
+    name: string;
+    display_name: string;
+    enforce_password_change: boolean;
+  }[];  
 };
 
 export type AuthPayload = {

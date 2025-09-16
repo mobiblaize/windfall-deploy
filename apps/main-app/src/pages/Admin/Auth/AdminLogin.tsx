@@ -17,9 +17,21 @@ type LoginFormValues = {
   email: string;
   password: string;
 };
+export interface LoginErrorResponse {
+  error: boolean
+  message: string
+  data: LoginError
+}
+
+export interface LoginError {
+  user_id: string
+  enforce_password_change: boolean
+}
 
 export default function AdminLoginPage() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [userId, setUserId] = useState('');
+  const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
   const navigate = useNavigate();
   const { updateUser } = useSessionStorage();
   const loginMutation = usePostData("admin/auth/login");
@@ -29,6 +41,11 @@ export default function AdminLoginPage() {
   function closeModal() {
     setSuccessModalOpen(false);
     navigate("/admin/dashboard");
+  }
+  
+  function changePassword() {
+    setChangePasswordModalOpen(false);
+    navigate(`/admin/change-password/${userId}`);
   }
 
   const form = useForm({
@@ -65,12 +82,17 @@ export default function AdminLoginPage() {
       });
       setSuccessModalOpen(true);
     } catch (error) {
-      console.log(error);
+      console.log((error as LoginErrorResponse));
+      
       notifications.show({
         title: "Login Failed",
-        message: (error as { message: string })?.message || "An error occurred",
+        message: (error as LoginErrorResponse)?.message || "An error occurred",
         color: "var(--color-primary-red)",
       });
+      if ((error as LoginErrorResponse)?.data?.enforce_password_change) {
+        setUserId((error as LoginErrorResponse)?.data?.user_id);
+        setChangePasswordModalOpen(true);
+      }
     }
   };
 
@@ -186,6 +208,18 @@ export default function AdminLoginPage() {
           onClick: closeModal,
         }}
       />
+      
+        <AdminAlertModal
+          opened={changePasswordModalOpen}
+          onClose={() => setChangePasswordModalOpen(false)}
+          status="error"
+          title="Change Password"
+          description="Please, you are required to change your password to proceed"
+          primaryButton={{
+            label: "Change Password",
+            onClick: changePassword,
+          }}
+        />
     </div>
   );
 }

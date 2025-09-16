@@ -29,6 +29,13 @@ import {
   IconLogout,
 } from "@tabler/icons-react";
 import SideMenu from "./SideMenu";
+import { useAtom } from "jotai";
+import { userAtom } from "../utils/hooks/useStorage";
+import AdminAlertModal from "./Modals/AdminAlertModal";
+import { useState } from "react";
+import { useGetData } from "../utils/hooks/useApis";
+import { notifications } from "@mantine/notifications";
+import { useAuth } from "../utils/hooks/useAuth";
 
 const adminSideMenuItems = [
   {
@@ -76,18 +83,43 @@ const adminSideMenuItems = [
 ];
 
 export default function AdminHeader() {
+  const [user] = useAtom(userAtom);
+  const [logoutAlertModalOpen, setLogoutAlertModalOpen] =
+    useState(false);
+
+  const { logout } = useAuth();
+
   const [opened, { toggle, close }] = useDisclosure(false);
   const isMobile = useMediaQuery("(max-width: 1095px)");
+
+  const logoutMutation = useGetData("admin/logout");
+
+  const logoutUser = async () => {
+    try {
+      const response = await logoutMutation.mutateAsync();
+      setLogoutAlertModalOpen(false);
+      logout();
+      notifications.show({
+        title: "Logout Successful",
+        message: response?.message || "User logged out successfully",
+        color: "green",
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Logout Failed",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  };
 
   return (
     <Card className="!flex !flex-row !items-center !justify-between !w-full !py-3 !px-4 !bg-white !border-b !border-b-gray-200">
       {/* Left: Profile */}
       <Group gap="sm" className="!text-primary-text">
-        {isMobile && (
-          <Burger opened={opened} onClick={toggle} size="sm" />
-        )}
+        {isMobile && <Burger opened={opened} onClick={toggle} size="sm" />}
         <Avatar
-          src="/assets/profile.jpg"
+          src={user?.avatar}
           alt="Profile"
           radius="md"
           size={40}
@@ -95,14 +127,14 @@ export default function AdminHeader() {
         />
         <div>
           <Text className="!text-gray-700 !font-medium !text-sm">
-            Adekunle, I.O
+            {user?.name}
           </Text>
           <Badge
             radius="sm"
             size="md"
             className="!bg-light-red !text-[#C01048] !capitalize !font-medium !rounded-2xl"
           >
-            Raffle Manager
+            {user?.roles?.[0]?.display_name}
           </Badge>
         </div>
       </Group>
@@ -123,6 +155,7 @@ export default function AdminHeader() {
           radius="md"
           size="lg"
           className="!bg-red-50 hover:!bg-red-100 !w-[40px] !h-[40px] !border !border-[#FFD5D6]"
+          onClick={() => setLogoutAlertModalOpen(true)}
         >
           <IconLogout className="text-primary-red" size={22} />
         </ActionIcon>
@@ -140,10 +173,32 @@ export default function AdminHeader() {
           withCloseButton={false}
         >
           <ScrollArea>
-            <SideMenu menus={adminSideMenuItems} hideLink={true} onClose={close} />
+            <SideMenu
+              menus={adminSideMenuItems}
+              hideLink={true}
+              onClose={close}
+            />
           </ScrollArea>
         </Drawer>
       )}
+
+      <AdminAlertModal
+        opened={logoutAlertModalOpen}
+        onClose={() => setLogoutAlertModalOpen(false)}
+        status="error"
+        title="Log out from your Account"
+        description={`Are you sure you want to log out from your Admin Account`}
+        primaryButton={{
+          label: "Yes, Logout",
+          loading: logoutMutation.isPending,
+          disabled: logoutMutation.isPending,
+          onClick: logoutUser,
+        }}
+        secondaryButton={{
+          label: "No, Cancel",
+          onClick: () => setLogoutAlertModalOpen(false),
+        }}
+      />
     </Card>
   );
 }

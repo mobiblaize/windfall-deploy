@@ -159,7 +159,7 @@ export default function RaffleGames() {
 
       {/* Pagination Component */}
       <div className="px-6 md:px-16 pb-10">
-        <Paginator currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+        <Paginator currentPage={currentPage} total={totalPages} pageSize={1} onPageChange={setCurrentPage} />
       </div>
     </section>
   );
