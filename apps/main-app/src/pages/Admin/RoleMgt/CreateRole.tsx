@@ -1,6 +1,5 @@
-import { Card, Text, Title, Container, Flex, Button } from "@mantine/core";
-import { useState } from "react";
-import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import { Card, Text, Title, Container, Flex } from "@mantine/core";
+import { useEffect, useState } from "react";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +8,8 @@ import DynamicBreadcrumbs, {
 } from "../../../components/DynamicBreadCrumbs";
 import RoleStep1 from "./RoleStep1";
 import RoleStep2 from "./RoleStep2";
+import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
+import { notifications } from "@mantine/notifications";
 
 const breadCrumbs: Crumb[] = [
   { label: "Role Management", to: "/admin/roles" },
@@ -16,84 +17,68 @@ const breadCrumbs: Crumb[] = [
 ];
 
 export type Permission = {
-  module: string;
+  uuid: string;
+  name: string;
+  display_name: string;
   description: string;
-  canView: boolean;
-  canEdit: boolean;
+  module: string;
+  is_active: string;
+  created_at: string;
+  is_selected: boolean;
 };
-
-const initialPermissions: Permission[] = [
-  {
-    module: "Dashboard",
-    description: "Overview of system activities.",
-    canView: false,
-    canEdit: true,
-  },
-  {
-    module: "Raffle Management",
-    description: "Create and manage all raffles.",
-    canView: false,
-    canEdit: false,
-  },
-  {
-    module: "Draw Management",
-    description: "Control and schedule raffle draws.",
-    canView: true,
-    canEdit: false,
-  },
-  {
-    module: "Customer Management",
-    description: "View and manage user profiles",
-    canView: true,
-    canEdit: false,
-  },
-  {
-    module: "Transaction Management",
-    description: "Track all user payment activity",
-    canView: true,
-    canEdit: false,
-  },
-  {
-    module: "Prize Management",
-    description: "Add or update prize offerings",
-    canView: false,
-    canEdit: true,
-  },
-  {
-    module: "Prize Claim",
-    description: "Handle and approve prize claims",
-    canView: false,
-    canEdit: false,
-  },
-];
 
 export default function CreateRole() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  const [permissions, setPermissions] = useState(initialPermissions);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
 
-  const togglePermission = (index: number, field: "canView" | "canEdit") => {
+  const togglePermission = (index: number) => {
     const updated = [...permissions];
-    updated[index][field] = !updated[index][field];
+    updated[index]["is_selected"] = !updated[index]["is_selected"];
     setPermissions(updated);
   };
+
+  const {
+    isError: isPermissionError,
+    isLoading: isLoadingPermissions,
+    data: permissionResponse,
+    error: permissionError,
+  } = useFetchData(`admin/user-management/permissions/all`);
+  const createRoleMutation = usePostData("admin/user-management/roles/create");
 
   const [step, setStep] = useState<1 | 2>(1);
 
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
 
+  useEffect(() => {
+    if (isPermissionError) {
+      notifications.show({
+        title: "Failed to fetch permissions",
+        message:
+          (permissionError as { message?: string })?.message ||
+          "An error occurred",
+        color: "red",
+      });
+    }
+    if (permissionResponse) {
+      setPermissions(
+        (permissionResponse.data as Permission[])?.map((permission) => {
+          return {
+            ...permission,
+            is_selected: false,
+          };
+        })
+      );
+    }
+  }, [permissionError, isPermissionError, permissionResponse]);
+
   const navigate = useNavigate();
 
   function manageRoles() {
     setSuccessModalOpen(false);
     navigate("/admin/roles");
-  }
-
-  function closeAlertModal() {
-    setAlertModalOpen(false);
-    setSuccessModalOpen(true);
   }
 
   function back() {
@@ -104,6 +89,33 @@ export default function CreateRole() {
   function next() {
     if (step === 1) setStep(2);
     else setAlertModalOpen(true);
+  }
+
+  async function handleCreateRole() {
+    const payload = {
+      name,
+      description,
+      permissions: permissions
+        .filter((p) => p.is_selected) // only include checked
+        .map((p) => p.uuid), // extract ids
+    };
+
+    try {
+      const response = await createRoleMutation.mutateAsync(payload);
+      notifications.show({
+        title: "Role Creation Successful",
+        message: response?.message || "Role created successfully",
+        color: "green",
+      });
+      setAlertModalOpen(false);
+      setSuccessModalOpen(true);
+    } catch (error) {
+      notifications.show({
+        title: "Role Creation Failed",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
   }
 
   return (
@@ -146,52 +158,38 @@ export default function CreateRole() {
             setName={setName}
             description={description}
             setDescription={setDescription}
+            back={back}
+            next={next}
           />
         )}
         {step === 2 && (
           <RoleStep2
             permissions={permissions}
             togglePermission={togglePermission}
+            isLoadingPermissions={isLoadingPermissions}
+            back={back}
+            next={next}
           />
         )}
-
-        {/* Footer Buttons */}
-        <Flex
-          justify="flex-end"
-          gap={20}
-          className="!bg-white !rounded-xl !border !border-gray-200 !p-6 sm:!mx-5 md:!mx-30 lg:!mx-40 !mb-10"
-        >
-          <Button
-            size="lg"
-            fullWidth={false}
-            variant="default"
-            leftSection={<BsChevronLeft />}
-            onClick={back}
-          >
-            Back
-          </Button>
-          <CustomButton
-            size="lg"
-            border={false}
-            fullWidth={false}
-            variant="default"
-            rightSection={<BsChevronRight />}
-            onClick={next}
-          >
-            Continue
-          </CustomButton>
-        </Flex>
       </Container>
-      
+
       <AdminAlertModal
         opened={alertModalOpen}
         onClose={() => setAlertModalOpen(false)}
         status="error"
         title={<span>Create Role ?</span>}
-        description={<span>Are you sure you want to create this role with it associated permission? <br/> <br/> Kindly note that creation might not be immediate as it might pass through an approval process.</span>}
+        description={
+          <span>
+            Are you sure you want to create this role with it associated
+            permission? <br /> <br /> Kindly note that creation might not be
+            immediate as it might pass through an approval process.
+          </span>
+        }
         primaryButton={{
           label: "Create Role",
-          onClick: closeAlertModal,
+          onClick: handleCreateRole,
+          loading: createRoleMutation.isPending,
+          disabled: createRoleMutation.isPending,
         }}
         secondaryButton={{
           label: "Close",

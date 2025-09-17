@@ -73,7 +73,6 @@ function LoginPage() {
       });
       setSuccessModalOpen(true);
     } catch (error) {
-      console.log(error);
       notifications.show({
         title: "Login Failed",
         message: (error as { message: string })?.message || "An error occurred",

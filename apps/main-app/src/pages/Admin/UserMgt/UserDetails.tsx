@@ -436,7 +436,7 @@ export default function UserDetails() {
             </Grid.Col>
 
             <Grid.Col
-              span={{ base: 12, sm: 6, md: 3 }}
+              span={{ base: 12, sm: 6, md: 6 }}
               className="md:border-l md:border-gray-200"
             >
               <Text className="!text-sm !text-secondary-text">Last Active</Text>
@@ -444,7 +444,9 @@ export default function UserDetails() {
                 <Skeleton height={16} width="80%" />
               ) : (
                 <Text className="!font-medium break-words !text-[#575757]">
-                  {user?.last_login}
+                  {user?.created_at
+                    ? format(new Date(user.last_login), "MMMM d, yyyy h:mm a")
+                    : "-"}
                 </Text>
               )}
             </Grid.Col>

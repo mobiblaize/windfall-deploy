@@ -1,5 +1,7 @@
 import { Text, Flex, Avatar } from "@mantine/core";
+import { useAtom } from "jotai";
 import { Link, useLocation } from "react-router-dom";
+import { userAtom } from "../../utils/hooks/useStorage";
 const tabs = [
 	{ label: "My games", value: "all-games" },
 	{ label: "result", value: "result" },
@@ -10,6 +12,7 @@ const tabs = [
 ];
 function ProfileHeader() {
 	const location = useLocation();
+	const [user] = useAtom(userAtom);
 
 	return (
 		<header className=" bg-white px-10 pb-0 pt-6">
@@ -21,10 +24,10 @@ function ProfileHeader() {
 					</Text>
 				</div>
 				<Flex align="center" gap={10}>
-					<Avatar size="lg" />
+					<Avatar size="lg" src={user?.avatar} />
 					<div className="capitalize text-[#575757]">
-						<Text>adekunle ibrahim</Text>
-						<Text className="!text-primary-red">ID: 1234151</Text>
+						<Text>{user?.firstname} {user?.lastname}</Text>
+						<Text className="!text-primary-red">ID: {user?.uniqueID}</Text>
 					</div>
 				</Flex>
 			</Flex>

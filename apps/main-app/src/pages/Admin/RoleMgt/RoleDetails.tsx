@@ -13,10 +13,11 @@ import {
   Box,
   TextInput,
   Select,
+  Skeleton,
 } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DynamicBreadcrumbs, {
   type Crumb,
 } from "../../../components/DynamicBreadCrumbs";
@@ -27,81 +28,132 @@ import { GoArrowUpRight } from "react-icons/go";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { HiSearch } from "react-icons/hi";
 import { IoFilterOutline } from "react-icons/io5";
-import TabSwitcher from "../../../components/TabSwitcher";
+import TabSwitcher, {
+  type TabSwitcherTab,
+} from "../../../components/TabSwitcher";
+import { notifications } from "@mantine/notifications";
+import {
+  useDeleteData,
+  useFetchData,
+  useGetData,
+  useGetExportData,
+} from "../../../utils/hooks/useApis";
+import type { User } from "../UserMgt/UserMgt";
+import { useDebounce } from "../../../utils/hooks/useDebounce";
+import type { Role } from "./RoleMgt";
+import { format } from "date-fns";
+import TablePaginator from "../../../components/TablePaginator";
+import LoadingState from "../../../components/LoadingState";
+import EmptySection from "../../../components/EmptySection";
 
 const breadCrumbs: Crumb[] = [
   { label: "Role Management", to: "/admin/roles" },
   { label: "View Role Details" },
 ];
 
-const tabs = ["Show All", "Active", "Inactive"];
-
-// ✅ static users data
-const users = [
+const tabs: TabSwitcherTab[] = [
   {
-    name: "Adekunle Ibrahim",
-    id: "8940",
-    created: "April 11, 2024",
-    last: "June 20, 2025",
+    label: "Show All",
+    value: "",
   },
   {
-    name: "Hameedat Yahaya",
-    id: "9044",
-    created: "May 11, 2024",
-    last: "January 11, 2025",
+    label: "Active",
+    value: "active",
   },
   {
-    name: "Jide Jimoh",
-    id: "4904",
-    created: "April 11, 2024",
-    last: "June 20, 2025",
-  },
-  {
-    name: "Segun Adeshida",
-    id: "9940",
-    created: "May 11, 2024",
-    last: "January 11, 2025",
-  },
-  {
-    name: "Adeola Olaolu",
-    id: "8404",
-    created: "April 11, 2024",
-    last: "June 20, 2025",
-  },
-  {
-    name: "Esther Chuwudi",
-    id: "8940",
-    created: "May 11, 2024",
-    last: "January 11, 2025",
-  },
-  {
-    name: "Monday Isaac",
-    id: "22222",
-    created: "April 11, 2024",
-    last: "June 20, 2025",
+    label: "Inactive",
+    value: "inactive",
   },
 ];
 
 export default function RoleDetails() {
-  const [role, setRole] = useState({
-    id: 1,
-    name: "Executive Role",
-    department: "Operations",
-    users: 32,
-    created_at: "April 11, 2005",
-    created_by: "John Doe",
-    description:
-      "This is a short Description of this role and it is not more than two line i.e 15 words count",
-    active: true,
-  });
+  const { id } = useParams<{ id: string }>();
+  const [role, setRole] = useState<Role>();
+  const [users, setUsers] = useState<User[]>([]);
   const [deactivateAlertModalOpen, setDeactivateAlertModalOpen] =
     useState(false);
   const [deactivateSuccessModalOpen, setDeactivateSuccessModalOpen] =
     useState(false);
   const [deleteAlertModalOpen, setDeleteAlertModalOpen] = useState(false);
   const [deleteSuccessModalOpen, setDeleteSuccessModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<string | null>("");
+  const [filterBy, setFilterBy] = useState<string>("");
+  const debouncedSearch = useDebounce(search, 500);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [filterPage, setFilterPage] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(0);
 
-  const [activeTab, setActiveTab] = useState("Show All");
+  const usersMutation = useGetData(
+    `admin/user-management/roles/users-by-role/${id}?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
+  );
+
+  const exportUsersMutation = useGetExportData(
+    `admin/user-management/roles/users-by-role/${id}?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
+  );
+
+  const {
+    data: response,
+    isLoading,
+    isError,
+    error,
+  } = useFetchData(`admin/user-management/roles/show/${id}`);
+  const deactivateRoleMutation = useGetData(
+    `admin/user-management/roles/toggle-status/${id}`
+  );
+  const deleteRoleMutation = useDeleteData(
+    `admin/user-management/roles/delete`
+  );
+
+  function isActive(isActive?: "true" | "false") {
+    return isActive === "true";
+  }
+
+  const roleActive = isActive(role?.is_active);
+
+  useEffect(() => {
+    setFilterPage(1);
+    getUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, sortBy, filterBy]);
+
+  function onPageChange(page: number) {
+    setFilterPage(page);
+    getUsers();
+  }
+
+  async function getUsers() {
+    setUsers([]);
+    try {
+      const response = await usersMutation.mutateAsync();
+      setUsers(response.data?.records?.data || []);
+      setCurrentPage(response.data?.records?.current_page || 1);
+      setTotal(response.data?.records?.total || 0);
+      setPageSize(response.data?.records?.per_page || 10);
+    } catch (error) {
+      notifications.show({
+        title: "Failed to fetch users",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  }
+
+  // react to fetch result
+  useEffect(() => {
+    if (isError) {
+      notifications.show({
+        title: "Failed to fetch Role",
+        message:
+          (error as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+    }
+    if (response) {
+      setRole(response.data?.record);
+    }
+  }, [error, isError, response]);
 
   const navigate = useNavigate();
 
@@ -110,22 +162,81 @@ export default function RoleDetails() {
     navigate("/admin/roles");
   }
 
-  const roleActive = role.active;
+  const deactivateRole = async () => {
+    try {
+      const response = await deactivateRoleMutation.mutateAsync();
+      notifications.show({
+        title: "Action Successful",
+        message: response?.message || "Role status updated",
+        color: "green",
+      });
+      setRole((prev) =>
+        prev
+          ? {
+              ...prev,
+              is_active: response.data.is_active,
+            }
+          : prev
+      );
+      setDeactivateAlertModalOpen(false);
+      setDeactivateSuccessModalOpen(true);
+    } catch (error) {
+      notifications.show({
+        title: "Action Failed",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  };
 
-  function setRoleActive(value: boolean) {
-    setRole((prev) => ({ ...prev, active: value }));
-  }
+  const deleteRole = async () => {
+    try {
+      const response = await deleteRoleMutation.mutateAsync(id);
+      notifications.show({
+        title: "Action Successful",
+        message: response?.message || "Role deleted successfully",
+        color: "green",
+      });
+      setDeleteAlertModalOpen(false);
+      setDeleteSuccessModalOpen(true);
+    } catch (error) {
+      notifications.show({
+        title: "Action Failed",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  };
 
-  function closeDeactivateAlertModal() {
-    setDeactivateAlertModalOpen(false);
-    setRoleActive(!roleActive);
-    setDeactivateSuccessModalOpen(true);
-  }
+  const handleExport = () => {
+    exportUsersMutation.mutate(undefined, {
+      onSuccess: (data) => {
+        const url = window.URL.createObjectURL(new Blob([data]));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${role?.name}_users_export_${new Date()
+          .toISOString()
+          .slice(0, 10)}.xlsx`; // adjust extension if CSV/PDF
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
-  function closeDeleteAlertModal() {
-    setDeleteAlertModalOpen(false);
-    setDeleteSuccessModalOpen(true);
-  }
+        notifications.show({
+          title: "Export Successful",
+          message: "Your file has been downloaded",
+          color: "green",
+        });
+      },
+      onError: (error) => {
+        notifications.show({
+          title: "Export Failed",
+          message: error?.message || "An error occurred",
+          color: "var(--color-primary-red)",
+        });
+      },
+    });
+  };
 
   return (
     <div>
@@ -139,9 +250,13 @@ export default function RoleDetails() {
         <div className="px-6 md:px-16 pt-7 pb-2 mb-7">
           <Flex justify="space-between" align="center">
             <div>
-              <Title className="!text-primary-text text-2xl" order={2}>
-                Role Details (ID:9044)
-              </Title>
+                {isLoading ? (
+                  <Skeleton height={35} width="100%" />
+                ) : (
+                  <Title className="!text-primary-text text-2xl" order={2}>
+                    {role?.display_name}
+                  </Title>
+                )}
               <Text className="!text-secondary-text">
                 View and manage role details
               </Text>
@@ -152,7 +267,7 @@ export default function RoleDetails() {
 
               <ActionIcon
                 onClick={() => {
-                  navigate("/admin/roles/edit/3");
+                  navigate(`/admin/roles/edit/${role?.uuid}`);
                 }}
                 size={35}
                 className="!text-[#4313F7] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#F4F3FF] !h-10 !w-10 !flex !items-center !justify-center"
@@ -196,13 +311,13 @@ export default function RoleDetails() {
           {/* Header */}
           <div className="flex items-center space-x-3 mb-6">
             <span
-              className={`flex items-center justify-center h-11 w-11 rounded-lg transition !font-semibold !border-3 ${
-                role.active
+              className={`flex items-center uppercase justify-center h-11 w-11 rounded-lg transition !font-semibold !border-3 ${
+                roleActive
                   ? "!bg-light-red !text-primary-red !border-[#FFBABA]"
                   : "!bg-[#FAFAFB] !border-[#ABABAB] !text-[#ABABAB]"
               }`}
             >
-              ER
+              {role?.display_name.substring(0, 2)}
             </span>
             <Text className="!font-semibold !text-base !text-primary-text">
               Basic Details
@@ -215,39 +330,47 @@ export default function RoleDetails() {
           <Grid gutter="xl">
             <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
               <Text className="!text-sm !text-secondary-text">Role Name</Text>
-              <Text className="!font-medium !text-[#575757]">{role.name}</Text>
+              {isLoading ? (
+                <Skeleton height={16} width="80%" />
+              ) : (
+                <Text className="!font-medium break-words !text-[#575757]">
+                  {role?.display_name}
+                </Text>
+              )}
             </Grid.Col>
 
             <Grid.Col
-              span={{ base: 12, sm: 6, md: 2 }}
+              span={{ base: 12, sm: 6, md: 3 }}
               className="md:border-l md:border-gray-200"
             >
               <Text className="!text-sm !text-secondary-text">
                 Number of Users
               </Text>
-              <Text className="!font-medium !text-[#575757]">{role.users}</Text>
+              {isLoading ? (
+                <Skeleton height={16} width="80%" />
+              ) : (
+                <Text className="!font-medium break-words !text-[#575757]">
+                  {role?.user_count}
+                </Text>
+              )}
             </Grid.Col>
 
             <Grid.Col
-              span={{ base: 12, sm: 6, md: 2 }}
-              className="md:border-l md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">Department</Text>
-              <Text className="!font-medium !text-[#575757]">
-                {role.department}
-              </Text>
-            </Grid.Col>
-
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 2 }}
-              className="md:border-l md:border-gray-200"
+              span={{ base: 12, sm: 6, md: 3 }}
+              className="mantine-md:border-l mantine-md:border-gray-200"
             >
               <Text className="!text-sm !text-secondary-text">
                 Date Created
               </Text>
-              <Text className="!font-medium !text-[#575757]">
-                {role.created_at}
-              </Text>
+              {isLoading ? (
+                <Skeleton height={16} width="80%" />
+              ) : (
+                <Text className="!font-medium break-words !text-[#575757]">
+                  {role?.created_at
+                    ? format(new Date(role.created_at), "MMMM d, yyyy")
+                    : "-"}
+                </Text>
+              )}
             </Grid.Col>
 
             <Grid.Col
@@ -255,20 +378,27 @@ export default function RoleDetails() {
               className="md:border-l md:border-gray-200"
             >
               <Text className="!text-sm !text-secondary-text">Created by</Text>
-              <Text className="!font-medium !text-[#575757]">
-                {role.created_by}
-              </Text>
+              {isLoading ? (
+                <Skeleton height={16} width="80%" />
+              ) : (
+                <Text className="!font-medium break-words !text-[#575757]">
+                  {role?.updated_by?.name}
+                </Text>
+              )}
             </Grid.Col>
 
-            <Grid.Col
-              span={{ base: 12 }}
-              className="pt-4"
-            >
+            <Grid.Col span={{ base: 12 }} className="pt-4">
               <div className="md:pt-4 md:border-t md:border-gray-200">
-                <Text className="!text-sm !text-secondary-text">Description</Text>
-                <Text className="!font-medium !text-[#575757]">
-                  {role.description}
+                <Text className="!text-sm !text-secondary-text">
+                  Description
                 </Text>
+                {isLoading ? (
+                  <Skeleton height={16} width="80%" />
+                ) : (
+                  <Text className="!font-medium break-words !text-[#575757]">
+                    {role?.description}
+                  </Text>
+                )}
               </div>
             </Grid.Col>
           </Grid>
@@ -291,6 +421,9 @@ export default function RoleDetails() {
                 variant="outline"
                 className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
                 rightSection={<HiDocumentArrowDown />}
+                onClick={handleExport}
+                loading={exportUsersMutation?.isPending}
+                disabled={exportUsersMutation?.isPending}
               >
                 Export
               </Button>
@@ -309,113 +442,165 @@ export default function RoleDetails() {
               <Flex justify="space-between" align="center">
                 <TabSwitcher
                   tabs={tabs}
-                  activeTab={activeTab}
-                  onChange={setActiveTab}
+                  activeTab={filterBy}
+                  onChange={setFilterBy}
                 />
               </Flex>
               <TextInput
                 leftSection={<HiSearch />}
                 placeholder="Search"
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
                 className="!w-72 !rounded-xl shadow-md"
               />
               <Group>
                 <Select
+                  value={sortBy}
+                  onChange={setSortBy}
                   rightSection={<IoFilterOutline />}
-                  placeholder="Sort by: Show All"
+                  placeholder="Sort by: Show all"
+                  data={[
+                    { value: "asc", label: "Oldest to Newest" },
+                    { value: "desc", label: "Newest to Oldest" },
+                  ]}
                   className="!shadow-md"
+                  classNames={{
+                    label: "!capitalize ",
+                    options: "text-primary-text",
+                  }}
                 />
-                <Select
+                {/* <Select
+                  value={filterBy}
+                  onChange={setFilterBy}
                   rightSection={<IoFilterOutline />}
-                  placeholder="Filter by: Show All"
+                  placeholder="Filter by: Show all"
+                  data={[
+                    { value: "approved", label: "Approved" },
+                    { value: "pending", label: "Pending" },
+                    { value: "declined", label: "Declined" },
+                  ]}
                   className="!shadow-md"
-                />
+                  classNames={{
+                    label: "!capitalize ",
+                    options: "text-primary-text",
+                  }}
+                /> */}
               </Group>
             </Flex>
 
-            {/* Table for larger screens */}
-            <div className="!hidden sm:!block">
-              <TableContainer
-                headers={["User Name", "User ID", "Created", "Last Active", ""]}
-              >
-                {users.map((user, i) => (
-                  <Table.Tr key={i}>
-                    <Table.Td>
-                      <Text className="!text-base !font-medium text-[#3B3B3B]">
-                        {user.name}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>{user.id}</Table.Td>
-                    <Table.Td>{user.created}</Table.Td>
-                    <Table.Td>{user.last}</Table.Td>
-                    <Table.Td>
+            {usersMutation.isPending && (
+              <LoadingState
+                title="Loading users..."
+                description="Fetching role users"
+              />
+            )}
+
+            {!usersMutation.isPending && (
+              <>
+                {/* Table for larger screens */}
+                <div className="!hidden sm:!block">
+                  <TableContainer
+                    headers={[
+                      "User Name",
+                      "User ID",
+                      "Created",
+                      "Last Active",
+                      "",
+                    ]}
+                  >
+                    {users.map((user, i) => (
+                      <Table.Tr key={i}>
+                        <Table.Td>
+                          <Text className="!text-base !font-medium text-[#3B3B3B]">
+                            {user.name}
+                          </Text>
+                        </Table.Td>
+                        <Table.Td>{user.uniqueID}</Table.Td>
+                        <Table.Td>
+                          {user?.created_at
+                            ? format(new Date(user.created_at), "MMMM d, yyyy")
+                            : "-"}
+                        </Table.Td>
+                        <Table.Td>
+                          {user?.created_at
+                            ? format(
+                                new Date(user.last_login),
+                                "MMMM d, yyyy h:mm a"
+                              )
+                            : "-"}
+                        </Table.Td>
+                        <Table.Td>
+                          <ActionIcon
+                            size={35}
+                            onClick={() =>
+                              navigate(`/admin/users/${user.uuid}`)
+                            }
+                            className="!bg-[#FFD5D6] !text-primary-red !text-xl"
+                          >
+                            <GoArrowUpRight />
+                          </ActionIcon>
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </TableContainer>
+                </div>
+
+                {/* Card view for small screens */}
+                <div className="sm:!hidden space-y-4 p-4">
+                  {users.map((user, i) => (
+                    <div
+                      key={i}
+                      className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
+                    >
+                      <p>
+                        <strong>User Name:</strong> {user.name}
+                      </p>
+                      <p>
+                        <strong>User ID:</strong> {user.uniqueID}
+                      </p>
+                      <p>
+                        <strong>Created:</strong>{" "}
+                        {user?.created_at
+                          ? format(new Date(user.created_at), "MMMM d, yyyy")
+                          : "-"}
+                      </p>
+                      <p>
+                        <strong>Last Active:</strong>{" "}
+                        {user?.created_at
+                          ? format(
+                              new Date(user.last_login),
+                              "MMMM d, yyyy h:mm a"
+                            )
+                          : "-"}
+                      </p>
                       <ActionIcon
                         size={35}
-                        onClick={() => navigate("/admin/users/1")}
+                        onClick={() => navigate(`/admin/users/${user.uuid}`)}
                         className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                       >
                         <GoArrowUpRight />
                       </ActionIcon>
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
-              </TableContainer>
-            </div>
-
-            {/* Card view for small screens */}
-            <div className="sm:!hidden space-y-4 p-4">
-              {users.map((user, i) => (
-                <div
-                  key={i}
-                  className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
-                >
-                  <p>
-                    <strong>User Name:</strong> {user.name}
-                  </p>
-                  <p>
-                    <strong>User ID:</strong> {user.id}
-                  </p>
-                  <p>
-                    <strong>Created:</strong> {user.created}
-                  </p>
-                  <p>
-                    <strong>Last Active:</strong> {user.last}
-                  </p>
-                  <ActionIcon
-                    size={35}
-                    onClick={() => navigate("/admin/users/1")}
-                    className="!bg-[#FFD5D6] !text-primary-red !text-xl"
-                  >
-                    <GoArrowUpRight />
-                  </ActionIcon>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+
+                {!users.length && (
+                  <EmptySection
+                    description="No Users Found"
+                    title="No records found"
+                  />
+                )}
+              </>
+            )}
 
             {/* Pagination */}
-            <Flex
-              my="md"
-              justify="space-between"
-              gap={2}
-              wrap="wrap"
-              px="lg"
-              align="center"
-            >
-              <Text>Page 1 of 10</Text>
-              <Group>
-                <Button
-                  variant="outline"
-                  className="!border-secondary-text/50 hover:!bg-secondary-text/10 !text-secondary-text"
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  className="!border-secondary-text/50 hover:!bg-secondary-text/10 !text-secondary-text"
-                >
-                  Next
-                </Button>
-              </Group>
-            </Flex>
+            <TablePaginator
+              currentPage={currentPage}
+              isLoading={usersMutation.isPending}
+              total={total}
+              pageSize={pageSize}
+              onPageChange={onPageChange}
+            />
           </Box>
         </section>
       </div>
@@ -429,7 +614,9 @@ export default function RoleDetails() {
         description={`${roleActive ? "Are you sure you want to deactivate this role ? Kindly note that users under this role would be temporarily been revoked of their access and be assigned to system default role." : "Are you sure you want to reactivate this role ? Kindly note that users under this role would be restored of their access and be assigned back to this role."}`}
         primaryButton={{
           label: `${roleActive ? "Deactivate" : "Reactivate"} Role`,
-          onClick: closeDeactivateAlertModal,
+          loading: deactivateRoleMutation.isPending,
+          disabled: deactivateRoleMutation.isPending,
+          onClick: deactivateRole,
         }}
         secondaryButton={{
           label: "Close",
@@ -459,7 +646,9 @@ export default function RoleDetails() {
         description="Are you sure you want to delete this role? Kindly note that action is irreversible and therefore, this role would be removed / permanently deleted and it associated user access would be revoked"
         primaryButton={{
           label: "Delete Role",
-          onClick: closeDeleteAlertModal,
+          loading: deleteRoleMutation.isPending,
+          disabled: deleteRoleMutation.isPending,
+          onClick: deleteRole,
         }}
         secondaryButton={{
           label: "Close",

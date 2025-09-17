@@ -4,8 +4,11 @@ import { useNavigate } from "react-router-dom";
 export type User = {
   id: string;
   name: string;
+  firstname: string;
+  lastname: string;
   email: string;
   avatar: string;
+  uniqueID: string;
   roles: {
     uuid: string;
     name: string;
@@ -57,7 +60,7 @@ export const useSessionStorage = () => {
           "user_type",
           value.user_type === "admin" ? "admin" : "user"
         );
-        window.localStorage.setItem('username', value?.user?.name);
+        if (value.user_type === "admin") window.localStorage.setItem('username', value?.user?.name);
         if (value.refresh_token) {
           window.localStorage.setItem("refresh_token", value.refresh_token);
         }

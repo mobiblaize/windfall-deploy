@@ -1,7 +1,12 @@
+export interface TabSwitcherTab {
+  label: string;
+  value: string;
+}
+
 interface TabSwitcherProps {
-  tabs: string[];
+  tabs: TabSwitcherTab[];
   activeTab: string;
-  onChange: (tab: string) => void;
+  onChange: (value: string) => void;
   className?: string;
 }
 
@@ -14,14 +19,14 @@ export default function TabSwitcher({
   return (
     <div className={`flex w-fit ${className}`}>
       {tabs.map((tab, index) => {
-        const isActive = activeTab === tab;
+        const isActive = activeTab === tab.value;
         const isFirst = index === 0;
         const isLast = index === tabs.length - 1;
 
         return (
           <button
-            key={tab}
-            onClick={() => onChange(tab)}
+            key={tab.value}
+            onClick={() => onChange(tab.value)}
             className={`
               px-4 py-2 text-sm !font-medium transition-all
               ${
@@ -33,7 +38,7 @@ export default function TabSwitcher({
               ${isLast ? "rounded-r-lg" : ""}
             `}
           >
-            {tab}
+            {tab.label}
           </button>
         );
       })}

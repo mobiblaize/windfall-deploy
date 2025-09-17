@@ -10,6 +10,11 @@ import MyGameHeader from "../MyGameHeader";
 import { FiLogOut } from "react-icons/fi";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
+import AlertModal from "../../../components/Modals/AlertModal";
+import { useState } from "react";
+import { useAuth } from "../../../utils/hooks/useAuth";
+import { useGetData } from "../../../utils/hooks/useApis";
+import { notifications } from "@mantine/notifications";
 
 const settings: {
   title: string;
@@ -35,6 +40,30 @@ const settings: {
 
 function SettingsTab() {
   const navigate = useNavigate();
+  const [logoutAlertModalOpen, setLogoutAlertModalOpen] = useState(false);
+
+  const { logout } = useAuth();
+
+  const logoutMutation = useGetData("customer/auth/logout");
+
+  const logoutUser = async () => {
+    try {
+      const response = await logoutMutation.mutateAsync();
+      setLogoutAlertModalOpen(false);
+      logout();
+      notifications.show({
+        title: "Logout Successful",
+        message: response?.message || "User logged out successfully",
+        color: "green",
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Logout Failed",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  };
 
   return (
     <div>
@@ -46,6 +75,7 @@ function SettingsTab() {
           className="!h-12 !bg-primary-text !border-2 !border-dashed !border-primary-red"
           rightSection={<FiLogOut size={20} />}
           px={30}
+          onClick={() => setLogoutAlertModalOpen(true)}
         >
           Log Out
         </Button>
@@ -81,6 +111,24 @@ function SettingsTab() {
           ))}
         </SimpleGrid>
       </Container>
+
+      <AlertModal
+        opened={logoutAlertModalOpen}
+        onClose={() => setLogoutAlertModalOpen(false)}
+        status="error"
+        title="Log out from your Account"
+        description={`Are you sure you want to log out from your Admin Account`}
+        primaryButton={{
+          label: "Yes, Logout",
+          loading: logoutMutation.isPending,
+          disabled: logoutMutation.isPending,
+          onClick: logoutUser,
+        }}
+        secondaryButton={{
+          label: "No, Cancel",
+          onClick: () => setLogoutAlertModalOpen(false),
+        }}
+      />
     </div>
   );
 }
