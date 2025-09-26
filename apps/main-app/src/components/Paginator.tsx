@@ -27,7 +27,7 @@ export default function Paginator({
     lineHeight: "20px",
   };
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const totalPages = Math.max(1, Math.ceil(total / pageSize)) || 0;
 
   return (
     <div

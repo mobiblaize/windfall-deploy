@@ -1,145 +1,199 @@
-import { useState } from 'react';
-import RaffleCard from './RaffleCard';
-import FilterPill from './FilterPill'; // ✅ import here
-import raffleImg from '../assets/default-raffle.png';
-import { NavLink } from "react-router-dom";
-import type { Raffle } from '../models/raffles';
-
-const raffles: Raffle[] = [
-  {
-    title: 'Win One Bed Room Flat in Akoka-Yaba, Lagos State, Nigeria',
-    description: 'Play for a chance to own the latest iPhone.',
-    fee: '₦2K',
-    image: raffleImg,
-    sold: 70,
-    date: 'June 2, 2025 | 10:00am',
-    status: 'active',
-    category: 'apartment',
-    prizeType: 'iPhone',
-    ticketType: 'MacBook',
-    drawTime: '8am',
-    gameType: 'raffle',
-  },
-  {
-    title: 'Secure a Luxury Studio Apartment in Lekki, Lagos State, Nigeria',
-    description: 'Enter now to grab the opportunity of a brand new Samsung Galaxy.',
-    fee: '₦3K',
-    image: raffleImg,
-    sold: 60,
-    date: 'June 2, 2025 | 10:00am',
-    status: 'completed',
-    category: 'apartment',
-    prizeType: 'Samsung',
-    ticketType: 'MacBook',
-    drawTime: '9am',
-    gameType: 'instant',
-  },
-  {
-    title: 'Win a 2-Bedroom Apartment in Victoria Island, Lagos State, Nigeria',
-    description: 'Take part for a chance to win a MacBook Pro.',
-    fee: '₦5K',
-    image: raffleImg,
-    sold: 0,
-    date: 'June 2, 2025 | 10:00am',
-    status: 'upcoming',
-    category: 'apartment',
-    prizeType: 'MacBook',
-    ticketType: 'MacBook',
-    drawTime: '10am',
-    gameType: 'raffle',
-  },
-];
+import { useEffect, useState } from "react";
+import FilterPill from "./FilterPill";
+import RaffleCard from "./RaffleCard";
+import { notifications } from "@mantine/notifications";
+import { DateInput } from "@mantine/dates";
+import { CiCalendar } from "react-icons/ci";
+import "@mantine/dates/styles.css";
+import LoadingState from "./LoadingState";
+import EmptyState from "./EmptyState";
+import { useGetData } from "../utils/hooks/useApis";
+import type { Raffle } from "../models/raffles";
+import { Link } from "react-router-dom";
+import { Text } from "@mantine/core";
+import { RiArrowRightUpLine } from "react-icons/ri";
+import { IoClose } from "react-icons/io5";
 
 export default function SampleRafflesGames() {
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'upcoming' | 'instant'>('all');
-  const [category, setCategory] = useState('all');
-  const [prizeType, setPrizeType] = useState('all');
+  const [raffles, setRaffles] = useState<Raffle[]>([]);
+  const [startDate, setStartDate] = useState<string | null>("");
+  const [endDate, setEndDate] = useState<string | null>("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "live" | "upcoming" | "instant" | "ended"
+  >("all");
+  const [drawTime, setDrawTime] = useState("");
+  const [total, setTotal] = useState<number>(0);
 
-  const filteredRaffles = raffles.filter((raffle) => {
-    const statusMatch = statusFilter === 'all' || raffle.status === statusFilter;
-    const categoryMatch = category === 'all' || raffle.category === category;
-    const prizeMatch = prizeType === 'all' || raffle.prizeType === prizeType;
-    return statusMatch && categoryMatch && prizeMatch;
-  });
+  const getRafflesMutation = useGetData(
+    `guest/games/all-games?paginate=1&type=${statusFilter}&time_preset=${drawTime}&start_date=${startDate}&end_date=${endDate}&page=${1}&limit=${9}`
+  );
+
+  useEffect(() => {
+    getRaffles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, startDate, endDate, drawTime]);
+
+  async function getRaffles() {
+    try {
+      const response = await getRafflesMutation.mutateAsync();
+      setRaffles(response.data?.data || []);
+      setTotal(response.data?.total || 0);
+    } catch (error) {
+      setRaffles([]);
+      setTotal(0);
+      notifications.show({
+        title: "Failed to fetch raffle games",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  }
 
   return (
-    <section className="px-6 md:px-16 py-20 bg-white">
-      {/* Top Heading */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800">Raffles/Games</h2>
-          <p className="text-sm text-gray-500">One ticket. One shot. Your keys could be next.</p>
-        </div>
-
-        {/* Dropdown filters */}
-        <div className="flex flex-wrap gap-3 items-center">
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border rounded px-3 py-2 text-sm text-gray-600"
-          >
-            <option value="all">Category: Show All</option>
-            <option value="apartment">Apartments</option>
-            <option value="car">Cars</option>
-            <option value="phone">Phones</option>
-          </select>
-
-          <select
-            value={prizeType}
-            onChange={(e) => setPrizeType(e.target.value)}
-            className="border rounded px-3 py-2 text-sm text-gray-600"
-          >
-            <option value="all">Prize Type</option>
-            <option value="iPhone">iPhone</option>
-            <option value="Samsung">Samsung</option>
-            <option value="MacBook">MacBook</option>
-          </select>
-
-          <NavLink to={"/raffles"}>
-            <p className="text-red-500 text-sm font-medium hover:underline">
-              Explore All (60)
+    <section className="bg-white py-15">
+      <div className="px-6 md:px-16 mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800">Raffles/Games</h2>
+            <p className="text-sm text-gray-500">
+              One ticket. One shot. Your keys could be next.
             </p>
-          </NavLink>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <select
+              value={drawTime}
+              onChange={(e) => setDrawTime(e.target.value)}
+              className="border border-[#d0d5dd] rounded px-3 py-2 text-sm text-gray-600"
+            >
+              <option value="">Draw Time</option>
+              <option value="next_24_hours">Next 24 Hours</option>
+              <option value="next_3_hours">Next 3 Hours</option>
+              <option value="next_3_hours">Next 3 Hours</option>
+            </select>
+
+            <DateInput
+              placeholder="Start Date"
+              withAsterisk
+              valueFormat="DD/MM/YYYY"
+              value={startDate}
+              onChange={(e) => setStartDate(e)}
+              classNames={{
+                label: "!capitalize",
+              }}
+              popoverProps={{
+                classNames: {
+                  dropdown: "!text-primary-text",
+                },
+              }}
+              rightSection={
+                startDate ? (
+                  <IoClose
+                    className="cursor-pointer text-gray-500 hover:text-red-500"
+                    onClick={() => setStartDate('')}
+                  />
+                ) : (
+                  <CiCalendar />
+                )
+              }
+            />
+
+            <DateInput
+              placeholder="End Date"
+              withAsterisk
+              rightSection={
+                endDate ? (
+                  <IoClose
+                    className="cursor-pointer text-gray-500 hover:text-red-500"
+                    onClick={() => setStartDate('')}
+                  />
+                ) : (
+                  <CiCalendar />
+                )
+              }
+              valueFormat="DD/MM/YYYY"
+              value={endDate}
+              onChange={(e) => setEndDate(e)}
+              classNames={{
+                label: "!capitalize",
+              }}
+              popoverProps={{
+                classNames: {
+                  dropdown: "!text-primary-text",
+                },
+              }}
+            />
+
+            <Link to="/raffles">
+              <Text className="!text-primary-red !flex !gap-x-3 !items-center hover:!underline hover:!text-primary-red/60 transition-all ease-linear duration-300">
+                Explore All
+                <span>
+                  <RiArrowRightUpLine className="bg-black text-white font-light text-lg rounded-full" />
+                </span>
+              </Text>
+            </Link>
+          </div>
+        </div>
+
+        {/* Filter Pills */}
+        <div className="flex flex-wrap gap-3">
+          <FilterPill
+            label="All Games"
+            count={total}
+            active={statusFilter === "all"}
+            onClick={() => setStatusFilter("all")}
+          />
+          <FilterPill
+            label="Live Games"
+            count={total}
+            active={statusFilter === "live"}
+            onClick={() => setStatusFilter("live")}
+          />
+          <FilterPill
+            label="Upcoming Games"
+            count={total}
+            active={statusFilter === "upcoming"}
+            onClick={() => setStatusFilter("upcoming")}
+          />
+          <FilterPill
+            label="Instant Games"
+            count={total}
+            active={statusFilter === "instant"}
+            onClick={() => setStatusFilter("instant")}
+          />
+          <FilterPill
+            label="Ended Games"
+            count={total}
+            active={statusFilter === "ended"}
+            onClick={() => setStatusFilter("ended")}
+          />
         </div>
       </div>
 
-      {/* Filter Pills */}
-      <div className="flex flex-wrap gap-3 mb-8">
-        <FilterPill
-          label="All Games"
-          count={40}
-          active={statusFilter === 'all'}
-          onClick={() => setStatusFilter('all')}
-        />
-        <FilterPill
-          label="Live Games"
-          count={10}
-          active={statusFilter === 'active'}
-          onClick={() => setStatusFilter('active')}
-        />
-        <FilterPill
-        
-          label="Upcoming Games"
-          count={16}
-          active={statusFilter === 'upcoming'}
-          onClick={() => setStatusFilter('upcoming')}
-        />
-        <FilterPill
-          label="Instant Games"
-          count={12}
-          active={statusFilter === 'instant'}
-          onClick={() => setStatusFilter('instant')}
-        />
-      </div>
+      {/* Raffles Grid */}
+      <div className="px-6 md:px-16">
+        {getRafflesMutation.isPending && (
+          <LoadingState description="Fetching games from the system." />
+        )}
 
-      {/* Raffles List */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {filteredRaffles.map((raffle, idx) => (
-          <RaffleCard key={idx} {...raffle} />
-        ))}
-
-        {filteredRaffles.length === 0 && (
-          <p className="text-center text-gray-400 col-span-full">No raffles match your filters.</p>
+        {!getRafflesMutation.isPending && (
+          <>
+            {raffles.length ? (
+              <>
+                <div className="grid gap-6 md:grid-cols-3">
+                  {raffles.map((raffle, idx) => (
+                    <RaffleCard key={idx} {...raffle} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <EmptyState
+                description="No Raffles Found"
+                title="No raffles found"
+              />
+            )}
+          </>
         )}
       </div>
     </section>

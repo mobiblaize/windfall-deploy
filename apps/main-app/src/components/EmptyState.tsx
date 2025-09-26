@@ -5,7 +5,7 @@ type props = {
   redirectLink?: string;
   title: string;
   description: string;
-  btnText: string;
+  btnText?: string;
 };
 
 function EmptyState({ title, description, btnText, redirectLink}: props) {
@@ -25,7 +25,7 @@ function EmptyState({ title, description, btnText, redirectLink}: props) {
         <Text className="!text-secondary-text" my="sm">
           {description}
         </Text>
-        {redirectLink && <Button
+        {(redirectLink && btnText) && <Button
           onClick={() => navigate(redirectLink)}
           className="!border !border-dashed !border-secondary-red !px-7 !h-12 !tracking-wide"
         >

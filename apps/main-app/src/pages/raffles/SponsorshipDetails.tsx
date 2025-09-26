@@ -1,7 +1,7 @@
-export default function SponsorshipDetails() {
+export default function SponsorshipDetails({ details }: {details: string}) {
   return (
-    <div className="space-y-6 text-gray-800 text-base leading-relaxed bg-white rounded-xl px-10 py-8 shadow-sm">
-      <div>
+    <div className="space-y-6 text-gray-800 text-base leading-relaxed bg-white rounded-xl px-10 py-8 shadow-sm" dangerouslySetInnerHTML={{ __html: details }}>
+      {/* <div>
         <p className="font-semibold text-black">📄 Sponsorship Details for This Game</p>
         <p>
           This raffle is proudly sponsored by [Insert Sponsor Name(s)], who have made it possible
@@ -31,7 +31,7 @@ export default function SponsorshipDetails() {
       <div>
         <p className="font-semibold text-black">Sponsor Acknowledgment:</p>
         <p>Sponsor Acknowledgment:</p>
-      </div>
+      </div> */}
     </div>
   );
 }

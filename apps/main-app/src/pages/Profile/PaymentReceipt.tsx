@@ -1,60 +1,82 @@
 import { Text, Card, Image, Grid, Divider, Flex } from "@mantine/core";
-import walletImage from "../../assets/Wallet.png";
 import CustomButton from "../../components/Buttons/CustomButton";
 import { HiDocumentArrowDown } from "react-icons/hi2";
-import RaffleBadge from "../../components/RaffleBadge";
 import RelatedRaffles from "../raffles/RelatedRaffles";
 import { useEffect, useState } from "react";
 import AlertModal from "../../components/Modals/AlertModal";
 import MyGameHeader from "./MyGameHeader";
 import type { Crumb } from "../../components/DynamicBreadCrumbs";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
+import { useFetchData } from "../../utils/hooks/useApis";
+import { notifications } from "@mantine/notifications";
+import { formatCurrency } from "../../utils/helper/formatCurrency";
+import GameBadge from "../../components/GameBadge";
+import type { RaffleStatus } from "../../models/raffles";
+import LoadingState from "../../components/LoadingState";
+import EmptyState from "../../components/EmptyState";
 
-const raffles = [
-  {
-    title: "1 Bed Room Flat at Banana Island, Lagos State, Nigeria",
-    subtitle: "Win 3 bed room flat at the high prestige location",
-    tickets: 32,
-    purchased: "April 11, 2025",
-    drawDate: "June 2, 2025 | 10:00am",
-  },
-  {
-    title: "1 Bed Room Flat at Banana Island, Lagos State, Nigeria",
-    subtitle: "Win 3 bed room flat at the high prestige location",
-    tickets: 32,
-    purchased: "April 11, 2025",
-    drawDate: "June 2, 2025 | 10:00am",
-  },
-  {
-    title: "1 year of Mini-Flat Rent, Ikorodu, Lagos State, Nigeria",
-    subtitle:
-      "Seize the chance to win a stunning 3 bedroom condo in a sought-after area",
-    tickets: 32,
-    purchased: "April 11, 2025",
-    drawDate: "August 15, 2025 | 1:00pm",
-  },
-  {
-    title: "2023 Tesla Model S",
-    subtitle: "Experience the luxury of electric driving",
-    tickets: 50,
-    purchased: "April 11, 2025",
-    drawDate: "July 15, 2025 | 12:00pm",
-  },
-  {
-    title: "4 Bedroom Villa at Ocean View, Miami, Florida",
-    subtitle: "Enter to win a luxurious 4 bedroom villa in an upscale area",
-    tickets: 50,
-    purchased: "April 11, 2025",
-    drawDate: "July 10, 2025 | 12:00pm",
-  },
-  {
-    title: "4 Bedroom Villa at Ocean View, Miami, Florida",
-    subtitle: "Enter to win a luxurious 4 bedroom villa in an upscale area",
-    tickets: 50,
-    purchased: "April 11, 2025",
-    drawDate: "July 10, 2025 | 3:00pm",
-  },
-];
+export interface OrderData {
+  order: Order;
+  order_details: OrderDetail[];
+}
+
+export interface Order {
+  uuid: string;
+  uniqueID: string;
+  customer_id: string;
+  game_id: string;
+  platform: string;
+  merchant: string;
+  merchant_id: string;
+  payment_method: string;
+  payment_type: string;
+  transaction_id: string;
+  reference: string;
+  early_bird: number;
+  quantity: number;
+  total_amount: string;
+  paid_amount: string;
+  promo_amount: string;
+  discount_amount: string;
+  referral_balance_amount: string;
+  promo_code: string;
+  promo_code_id: string;
+  referral_code: string;
+  status: 'order placed' | 'pending' | 'failed';
+  payment_status: string;
+  ip_address: string;
+  city: string;
+  region: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
+export interface OrderDetail {
+  uuid: string;
+  game_id: string;
+  order_id: string;
+  quantity: number;
+  unit_amount: string;
+  total_amount: string;
+  paid_amount: string;
+  discount_amount: string;
+  created_at: string;
+  updated_at: string;
+  game: Game;
+}
+
+export interface Game {
+  uuid: string;
+  name: string;
+  instant_game: string;
+  card_image: string;
+  description: string;
+  supporting_text: string;
+  start_date: string;
+  end_date: string;
+  main_active_status: RaffleStatus;
+}
 
 type ContextType = { setCrumbs: React.Dispatch<React.SetStateAction<Crumb[]>> };
 const items: Crumb[] = [
@@ -63,115 +85,196 @@ const items: Crumb[] = [
 ];
 
 export default function PaymentReceipt() {
+  const { id } = useParams<{ id: string }>();
   const { setCrumbs } = useOutletContext<ContextType>();
+  const [order, setOrder] = useState<OrderData>();
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [paymentSuccessModalOpen, setPaymentSuccessModalOpen] = useState(false);
+  const {
+    data: response,
+    isLoading,
+    isError,
+    error,
+  } = useFetchData(`customer/games/order/${id}/games?paginate=0`);
 
   useEffect(() => {
     setCrumbs(items);
   }, [setCrumbs]);
 
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  useEffect(() => {
+    if (isError) {
+      notifications.show({
+        title: "Failed to fetch order details",
+        message:
+          (error as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+    }
+    if (response) {
+      setOrder(response.data);
+      const hasReceipt = location.pathname.includes("/receipt/");
+      if (hasReceipt) {
+        setPaymentSuccessModalOpen(true);
+      }
+    }
+  }, [error, isError, response]);
+
+  const cardImages = (cardImage: string) => {
+    return cardImage ? cardImage.split("|").filter(Boolean) : [];
+  };
+
   return (
     <div>
       <MyGameHeader
         title={
-          <span
-            className="!font-bold !text-[#2D2D2D] !text-2xl !mb-1"
-          >
-            Order ID: <span className="text-primary-red">9049404GJSB</span>
+          <span className="!font-bold !text-[#2D2D2D] !text-2xl !mb-1">
+            Order ID:{" "}
+            <span className="text-primary-red">{order?.order?.uniqueID}</span>
           </span>
         }
         description="View and download transaction receipt."
       >
-        <CustomButton
-          onClick={() => setSuccessModalOpen(true)}
-          rightSection={<HiDocumentArrowDown size={18} />}
-        >
-          Download Receipt
-        </CustomButton>
+        {order && (
+          <CustomButton
+            onClick={() => setSuccessModalOpen(true)}
+            rightSection={<HiDocumentArrowDown size={18} />}
+          >
+            Download Receipt
+          </CustomButton>
+        )}
       </MyGameHeader>
       <Divider />
       <section className="sm:mx-5 px-6 md:px-16 py-12">
-        <Grid gutter="lg" className="!mb-20">
-          {raffles.map((item, i) => (
-            <Grid.Col
-              key={i}
-              span={{ base: 12, sm: 6, md: 4 }}
-              className="!justify-start !cursor-pointer !flex !flex-col mb-10 !items-center 
+        {isLoading && (
+          <LoadingState description="Getting your transaction details" />
+        )}
+
+        {!isLoading && (
+          <>
+            {!order && (
+              <EmptyState
+                description="Order not Found"
+                title="Order not found"
+                btnText="Explore Games"
+                redirectLink="/raffles"
+              />
+            )}
+            {order && (
+              <Grid gutter="lg" className="!mb-20">
+                {order?.order_details.map((item) => {
+                  const isInstant =
+                    item.game?.main_active_status === "instant" ||
+                    item.game?.instant_game === "true";
+                  return (
+                    <Grid.Col
+                      key={item.uuid}
+                      span={{ base: 12, sm: 6, md: 4 }}
+                      className="!justify-start !cursor-pointer !flex !flex-col mb-10 !items-center 
              !transition-transform !duration-300 !ease-in-out 
              hover:!translate-y-16 group"
-            >
-              <Image src={walletImage} alt="wallet" className="!w-[66%] mb-5" />
-              <Card
-                withBorder
-                radius="lg"
-                className="!pb-7 w-full !shadow-md transition-all duration-300 !border !border-transparent
+                    >
+                      <Image
+                        src={cardImages(item.game.card_image)}
+                        alt="wallet"
+                        className="!w-[66%] mb-5"
+                      />
+                      <Card
+                        withBorder
+                        radius="lg"
+                        className="!pb-7 w-full !shadow-md transition-all duration-300 !border !border-transparent
                group-hover:!border-primary-red group-hover:!bg-light-red"
-              >
-                <Text
-                  fw={600}
-                  mt="sm"
-                  className="!text-[#2D2D2D] text-center !text-xl !font-bold"
-                >
-                  {item.title}
-                </Text>
+                      >
+                        <Text
+                          fw={600}
+                          mt="sm"
+                          className="!text-[#2D2D2D] text-center !text-xl !font-bold"
+                        >
+                          {item.game.name}
+                        </Text>
 
-                <Text className="text-center !text-secondary-text !text-sm">
-                  {item.subtitle}
-                </Text>
+                        <Text className="text-center !text-secondary-text !text-sm">
+                          {item.game.description}
+                        </Text>
 
-                <Flex justify="space-between" gap={5} className="!mt-4 !mb-3">
-                  <Text className="!text-sm !text-secondary-text">
-                    <span>No. of Ticket Unit (s):</span>
-                  </Text>
-                  <Text className="!text-sm !text-primary-text !font-medium">
-                    <span>{item.tickets}</span>
-                  </Text>
-                </Flex>
+                        <Flex
+                          justify="space-between"
+                          gap={5}
+                          className="!mt-4 !mb-3"
+                        >
+                          <Text className="!text-sm !text-secondary-text">
+                            <span>No. of Ticket Unit (s):</span>
+                          </Text>
+                          <Text className="!text-sm !text-primary-text !font-medium">
+                            <span>{item.quantity}</span>
+                          </Text>
+                        </Flex>
 
-                <Flex justify="space-between" gap={5} className="!mb-3">
-                  <Text className="!text-sm !text-secondary-text">
-                    <span>Ticket Unit Price: </span>
-                  </Text>
-                  <Text className="!text-sm !text-primary-text !font-medium">
-                    <span>₦3,000</span>
-                  </Text>
-                </Flex>
+                        <Flex justify="space-between" gap={5} className="!mb-3">
+                          <Text className="!text-sm !text-secondary-text">
+                            <span>Ticket Unit Price: </span>
+                          </Text>
+                          <Text className="!text-sm !text-primary-text !font-medium">
+                            <span>{formatCurrency(item.unit_amount)}</span>
+                          </Text>
+                        </Flex>
 
-                <Flex justify="space-between" gap={5} className="!mb-3">
-                  <Text className="!text-sm !text-secondary-text">
-                    <span>Discount Amount:</span>
-                  </Text>
-                  <Text className="!text-sm !text-primary-text !font-medium">
-                    <span>₦1,000</span>
-                  </Text>
-                </Flex>
+                        <Flex justify="space-between" gap={5} className="!mb-3">
+                          <Text className="!text-sm !text-secondary-text">
+                            <span>Discount Amount:</span>
+                          </Text>
+                          <Text className="!text-sm !text-primary-text !font-medium">
+                            <span>{formatCurrency(item.discount_amount)}</span>
+                          </Text>
+                        </Flex>
 
-                <Flex justify="space-between" gap={5} className="!mb-3">
-                  <Text className="!text-sm !text-secondary-text">
-                    <span>Sub-Total:</span>
-                  </Text>
-                  <Text className="!text-sm !text-primary-text !font-medium">
-                    <span>₦29,000</span>
-                  </Text>
-                </Flex>
+                        <Flex justify="space-between" gap={5} className="!mb-3">
+                          <Text className="!text-sm !text-secondary-text">
+                            <span>Sub-Total:</span>
+                          </Text>
+                          <Text className="!text-sm !text-primary-text !font-medium">
+                            <span>{formatCurrency(item.paid_amount)}</span>
+                          </Text>
+                        </Flex>
 
-                <RaffleBadge date={"June 2, 2025 | 10:00am"} status={"won"} />
-              </Card>
-            </Grid.Col>
-          ))}
-        </Grid>
+                        <GameBadge
+                          date={item.game?.start_date}
+                          status={item.game?.main_active_status}
+                          gameType={isInstant ? "instant" : "raffle"}
+                        />
+                      </Card>
+                    </Grid.Col>
+                  );
+                })}
+              </Grid>
+            )}
+          </>
+        )}
 
-        <div className="-mx-5 mt-10">
-          <RelatedRaffles />
-        </div>
-        <AlertModal
-          opened={successModalOpen}
-          onClose={() => setSuccessModalOpen(false)}
-          status="success"
-          title="Receipt Downloaded"
-          description="Congratulation, you have successfully downloaded the receipt for this transaction."
-        />
+        {order?.order_details?.[0]?.game_id && (
+          <div className="-mx-5 mt-10">
+            <RelatedRaffles id={order?.order_details?.[0]?.game_id} />
+          </div>
+        )}
       </section>
+      <AlertModal
+        opened={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        status="success"
+        title="Receipt Downloaded"
+        description="Congratulation, you have successfully downloaded the receipt for this transaction."
+      />
+      <AlertModal
+        opened={paymentSuccessModalOpen}
+        status="success"
+        title={ order?.order.status === "order placed" ? "Raffle Ticket Payment Completed": order?.order.status === "pending" ? "Raffle Ticket Payment Processing": "Raffle Ticket Payment Failed"}
+        description={ order?.order.status === "order placed" ? "Congratulation, you have successfully, paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and can see more on your WindFall Raffle Profile.": order?.order.status === "pending" ? "Your payment is still being processed. You will be notified once the process is completed.": "Unfortunately, your payment was not successful. Please try again or use a different payment method."}
+        primaryButton={{
+          label: "Done",
+          onClick: () => {
+            setPaymentSuccessModalOpen(false);
+          },
+        }}
+      />
     </div>
   );
 }

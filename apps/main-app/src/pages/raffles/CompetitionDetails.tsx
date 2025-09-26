@@ -1,9 +1,9 @@
-import { IconCalendar } from "@tabler/icons-react";
+// import { IconCalendar } from "@tabler/icons-react";
 
-export default function CompetitionDetails() {
+export default function CompetitionDetails({ details }: {details: string}) {
   return (
-    <div className="space-y-6 text-gray-800 text-lg leading-relaxed bg-white rounded-xl px-10 py-8 rounded-b-xl shadow-sm">
-      <div>
+    <div className="space-y-6 text-gray-800 text-lg leading-relaxed bg-white rounded-xl px-10 py-8 rounded-b-xl shadow-sm" dangerouslySetInnerHTML={{ __html: details }}>
+      {/* <div>
         <p className="font-semibold text-black">🎮 Game Details:</p>
         <p>
           A fully finished luxury studio apartment located in the heart of Lekki, Lagos — complete with modern fittings, 24/7 power, and secure gated access.
@@ -55,7 +55,7 @@ export default function CompetitionDetails() {
       <div>
         <p className="font-semibold text-black">🔔 Notifications:</p>
         <p>All participants will receive updates and results via email and SMS.</p>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -22,13 +22,13 @@ export const useAuth = () => {
   };
 
   const isAdmin = () => {
-    return getUserType() === 'admin';
+    return getUserType() === "admin";
   };
 
   const logout = () => {
     const isAdminUser = isAdmin();
     clearUser();
-    navigate(isAdminUser ? "/admin/login": "/login");
+    navigate(isAdminUser ? "/admin/login" : "/login");
   };
 
   const storeRedirectInfo = () => {
@@ -43,12 +43,12 @@ export const useAuth = () => {
     }
   };
 
-  const getStoredRedirect = () => {
+  const getStoredRedirect = (clearData = true) => {
     const redirectPage = localStorage.getItem("redirectPage");
     const pageDetails = localStorage.getItem("pageDetails");
 
     // Clear stored redirect info
-    if (redirectPage) {
+    if (redirectPage && clearData) {
       localStorage.removeItem("redirectPage");
       localStorage.removeItem("pageDetails");
     }
@@ -59,12 +59,23 @@ export const useAuth = () => {
     };
   };
 
+  const handleLoginRedirect = (defaultRedirect: string) => {
+    const { page, details } = getStoredRedirect();
+
+    // If a redirect page was stored, use it; otherwise use default
+    navigate(page || defaultRedirect, {
+      replace: true,
+      state: details || undefined,
+    });
+  };
+
   return {
     isAuthenticated,
     getUserInfo,
     logout,
     storeRedirectInfo,
     getStoredRedirect,
-    isAdmin
+    handleLoginRedirect,
+    isAdmin,
   };
 };

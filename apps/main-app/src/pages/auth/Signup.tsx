@@ -10,6 +10,7 @@ import {
   Button,
   PasswordInput,
   Loader,
+  Alert,
 } from "@mantine/core";
 import { CiCalendar } from "react-icons/ci";
 import { DateInput } from "@mantine/dates";
@@ -19,13 +20,14 @@ import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
 import "@mantine/dates/styles.css";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import OtpModal from "../Profile/settings/AccountSecurity/OtpModal";
 import AlertModal from "../../components/Modals/AlertModal";
 import { IconCheck } from "@tabler/icons-react";
 import { useSessionStorage } from "../../utils/hooks/useStorage";
+import maskEmail from "../../utils/helper/MaskEmail";
+import type { UserCart } from "../checkout/Cart";
 
-const hasCart = false;
 const otpTime = 300; // 5 minutes in seconds
 
 export interface NewUser {
@@ -49,30 +51,20 @@ export interface NewUser {
   referral_link: string;
 }
 
-function maskEmail(email: string) {
-  const [local, domain] = email.split("@");
-  if (!domain) return email; // fallback if invalid
-  const visible = local.slice(0, 2); // show first 2 letters
-  const hidden = "*".repeat(local.length - 2);
-  return `${visible}${hidden}@${domain}`;
-}
-
-function Signup() {
+function Signup({ cart = null, returnUrl }: {cart?: UserCart | null, returnUrl?: string}) {
   const [timeLeft, setTimeLeft] = useState(otpTime); // 15 minutes
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [emailVerifed, setEmailVerifed] = useState(false);
   const [maskedEmail, setMaskedEmail] = useState("");
+  const { updateUser } = useSessionStorage();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const registerMutation = usePostData("customer/auth/signup_only");
   const sendOtpMutation = usePostData("customer/auth/send-otp-email");
   const confirmOtpMutation = usePostData("customer/auth/confirm-otp-email");
   const loginMutation = usePostData("customer/auth/login");
-
-  const { updateUser } = useSessionStorage();
-
-  const location = useLocation();
 
   async function verifyEmail() {
     setMaskedEmail(maskEmail(form.values.email));
@@ -113,7 +105,7 @@ function Signup() {
 
   function closeSuccessModal() {
     setSuccessModalOpen(false);
-    navigate("/dashboard");
+    navigate(returnUrl ? returnUrl: "/dashboard");
   }
 
   async function login() {
@@ -211,7 +203,7 @@ function Signup() {
       lga: (val) => (val ? null : "Select an LGA"),
       heard_from: (val) => (val ? null : "This field is required"),
       password: (value) => {
-        if (value.length < 8 ) {
+        if (value.length < 8) {
           return "Password must be at least 8 characters long";
         }
         if (!/[A-Z]/.test(value) || !/[a-z]/.test(value)) {
@@ -245,15 +237,14 @@ function Signup() {
   useEffect(() => {
     setEmailVerifed(false);
   }, [form.values.email]);
-  
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const refCode = params.get("ref_code");
     if (refCode) {
       form.setFieldValue("referral_code", refCode);
-    }	
-  	// eslint-disable-next-line react-hooks/exhaustive-deps
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ✅ Handle form submission
@@ -307,10 +298,13 @@ function Signup() {
   return (
     <div className="text-primary-text mt-16 mb-32">
       <Container px={0} size={560} className="!mx-3 sm:!mx-auto">
-        {hasCart && (
+        {cart && (
           <>
             <Text className="!text-2xl !font-semibold">
-              Checkout <span className="text-primary-red">(07)</span>
+              Checkout{" "}
+              <span className="text-primary-red">
+                ({cart?.cart.summary.total_quantity})
+              </span>
             </Text>
             <Text className="!text-secondary-text">
               Buy Raffle ticket in very simple step and stand a chance to win
@@ -328,13 +322,15 @@ function Signup() {
                 />
                 <Text className="!text-secondary-text !tracking-wide">
                   No Account Detected. Do you have Windfall Account ?{" "}
-                  <span className="text-primary-red underline">Log in</span>
+                  <NavLink to="/login">
+                    <span className="text-primary-red underline font-bold">Log in</span>
+                  </NavLink>
                 </Text>
               </div>
             </Card>
           </>
         )}
-        {!hasCart && (
+        {!cart && (
           <div className="mb-5">
             <Text className="!text-2xl !font-semibold">
               <span className="text-primary-red">Sign Up</span>
@@ -355,6 +351,15 @@ function Signup() {
 
           <Card.Section mx="xs" my="xs" className="!text-primary-text">
             <form onSubmit={form.onSubmit(handleSubmit)}>
+              {registerMutation.isError && (
+                <Alert
+                  color="var(--color-primary-red)"
+                  title="Login Failed"
+                  className="!mb-5"
+                >
+                  <Text>{registerMutation.error.message}</Text>
+                </Alert>
+              )}
               <Stack gap="xl">
                 <TextInput
                   label="Your Full Name"

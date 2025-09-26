@@ -12,7 +12,7 @@ import { HiDocumentArrowDown } from "react-icons/hi2";
 import SectionHeader from "../../components/SectionHeader";
 import loginLeft from "../../assets/login-img-l.png";
 import loginRight from "../../assets/login-img-r.png";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import { isNotEmpty, useForm } from "@mantine/form";
 import CustomButton from "../../components/Buttons/CustomButton";
@@ -21,6 +21,8 @@ import { notifications } from "@mantine/notifications";
 import { useSessionStorage } from "../../utils/hooks/useStorage";
 import AlertModal from "../../components/Modals/AlertModal";
 import { useState } from "react";
+import { useAuth } from "../../utils/hooks/useAuth";
+import { useTransferCart } from "../../utils/hooks/useTransferCart";
 
 type LoginFormValues = {
   email: string;
@@ -29,9 +31,11 @@ type LoginFormValues = {
 
 function LoginPage() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const navigate = useNavigate();
   const { updateUser } = useSessionStorage();
   const loginMutation = usePostData("customer/auth/login");
+  const { handleLoginRedirect } = useAuth();
+  const { transferCart } = useTransferCart();
+  
 
   const form = useForm({
     mode: "uncontrolled",
@@ -49,7 +53,7 @@ function LoginPage() {
 
   function closeModal() {
     setSuccessModalOpen(false);
-    navigate("/dashboard");
+    handleLoginRedirect("/dashboard");
   }
 
   const handleSubmit = async (values: LoginFormValues) => {
@@ -72,6 +76,7 @@ function LoginPage() {
         color: "green",
       });
       setSuccessModalOpen(true);
+      transferCart();
     } catch (error) {
       notifications.show({
         title: "Login Failed",

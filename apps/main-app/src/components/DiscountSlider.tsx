@@ -1,16 +1,11 @@
 import { Slider } from "@mantine/core";
 import { FaTicketAlt } from "react-icons/fa";
-
-type DiscountOption = {
-  units: number;
-  discount: string;
-  selected?: boolean;
-};
+import type { DiscountTier } from "../models/raffles";
 
 interface DiscountSliderProps {
   value: number;
   max: number;
-  activeDiscount?: DiscountOption;
+  activeDiscount?: DiscountTier;
   onChange: (val: number) => void;
 }
 
@@ -63,7 +58,7 @@ export default function DiscountSlider({
       <div className="text-center -mt-9">
         <p className="text-sm text-gray-600 mb-1">Discount</p>
         <p className="bg-black text-white text-nowrap text-sm px-4 py-2 rounded-md">
-          {activeDiscount?.discount ?? 'No Discount'}
+          {activeDiscount?.value ? activeDiscount?.value+'%': 'No Discount'}
         </p>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { colorMap, type RaffleStatus } from "../models/raffles";
 
 interface RaffleBadgeProps {
@@ -32,7 +33,9 @@ export default function RaffleBadge({
       >
         {label || colors.text}
       </span>
-      &nbsp; {description ?? date}
+      &nbsp; {description ?? date
+                          ? format(new Date(date), "MMMM d, yyyy | h:mma")
+                          : ""}
     </span>
   );
 }

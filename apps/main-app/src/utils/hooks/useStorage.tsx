@@ -1,21 +1,51 @@
 import { atom, useAtom } from "jotai";
 import { useNavigate } from "react-router-dom";
 
-export type User = {
+export interface User {
+  uuid: string
+  uniqueID: string
+  email: string
+  phone_number: string
+  avatar: string
+  firstname: string
+  lastname: string
+  date_of_birth: string
+  gender: string
+  lga: string
+  area: string
+  spend_limit_status: string
+  referral_code: string
+  referral_link: string
+  referral_balance: string
+  exclusion_type: string
+  exclude_till: string
+  notification_setting: NotificationSetting
   id: string;
   name: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  avatar: string;
-  uniqueID: string;
   roles: {
     uuid: string;
     name: string;
     display_name: string;
     enforce_password_change: boolean;
   }[];  
-};
+}
+
+export interface NotificationSetting {
+  uuid: string
+  user_id: string
+  push_notification: string
+  email_notification: string
+  game_draw: string
+  game_result_winners: string
+  game_suggestions: string
+  new_games: string
+  payment_transactions: string
+  promotional: string
+  account_security: string
+  created_at: string
+  updated_at: string
+}
+
 
 export type AuthPayload = {
   user: User;

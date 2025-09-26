@@ -1,11 +1,6 @@
-import { useState } from "react";
-// import { IconPlus, IconMinus } from "@tabler/icons-react";
-import raffleImg1 from "../../assets/raffle-img-1.jpg";
-import raffleImg2 from "../../assets/raffle-img-2.jpg";
-import raffleImg3 from "../../assets/raffle-img-3.jpg";
-import raffleImg4 from "../../assets/raffle-img-4.jpg";
+import { useEffect, useState } from "react";
 import { PiMinusFill, PiPlusFill } from "react-icons/pi";
-import { Button, Card, Progress, Text } from "@mantine/core";
+import { Button, Card, Text } from "@mantine/core";
 import DiscountSlider from "../../components/DiscountSlider";
 import RaffleBadge from "../../components/RaffleBadge";
 import { IconCash } from "@tabler/icons-react";
@@ -14,64 +9,90 @@ import { FaReceipt, FaUser } from "react-icons/fa";
 import type { Raffle } from "../../models/raffles";
 import LiveBadge from "./LiveBadge";
 import InstantBadge from "./InstantBadge";
+import { Carousel } from "@mantine/carousel";
+import "@mantine/carousel/styles.css";
+import { formatCurrency } from "../../utils/helper/formatCurrency";
+import { useCart } from "../../utils/hooks/useCart";
+import { notifications } from "@mantine/notifications";
+import { useNavigate } from "react-router-dom";
+import { evaluateDiscount } from "../../utils/helper/evaluateDiscount";
 
-const mockImages = [raffleImg1, raffleImg2, raffleImg3, raffleImg4];
-
-type DiscountOption = {
-  units: number;
-  discount: string;
-  selected?: boolean;
-};
 interface RaffleProps {
   raffle: Raffle;
 }
 
 export default function RaffleInfo({ raffle }: RaffleProps) {
-  const [selectedImage, setSelectedImage] = useState(mockImages[0]);
   const [quantity, setQuantity] = useState(1);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [maxTickets, setMaxTickets] = useState(0);
+  const [activeThumbnail, setActiveThumbnail] = useState(0);
+  const { addItemToCart, addItemMutation, getItemQuantity } = useCart();
+  
+  const navigate = useNavigate();
 
-  const discounts: DiscountOption[] = [
-    { units: 2, discount: "5% Off" },
-    { units: 20, discount: "7% Off" },
-    { units: 100, discount: "17% Off" },
-    { units: 250, discount: "50% Off" },
-  ];
+  useEffect(() => {
+    setMaxTickets(
+      raffle.discount?.tiers?.reduce((prev, current) =>
+        prev.max > current.max ? prev : current
+      )?.max ?? raffle.maximum_ticket_number_purchase
+    );
+    setQuantity(getItemQuantity(raffle.uuid) ?? raffle.minimum_ticket_number_purchase);
+    console.log(getItemQuantity(raffle.uuid));
+    
+    setActiveSlide(0);
+    setActiveThumbnail(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [raffle]);
 
-  function setDiscountQuantity(quantity: number) {
-    setQuantity(quantity <= maxTickets ? quantity : maxTickets);
+  function selectImage(idx: number) {
+    setActiveThumbnail(idx);
+    setActiveSlide(idx);
   }
 
-  const pricePerTicket = 3000;
-  const maxTickets = 300;
+  const handleAddToCart = async (toCheckout = false) => {    
+    try {
+      const response = await addItemToCart(raffle.uuid, quantity);
+      notifications.show({
+        title: "Action Successful",
+        message: response?.message || "Item added successfully",
+        color: "green",
+      });
+      if (toCheckout) navigate("/checkout");
+    } catch (error) {
+      
+      notifications.show({
+        title: "Failed to Add Item",
+        message:
+          (error as { message?: string })?.message ||
+          "An error occurred",
+        color: "red",
+      });
+    }
+  };
 
-  const totalOriginalPrice = pricePerTicket * quantity;
+  const galleryImages = raffle.gallery_images
+    ? raffle.gallery_images.split("|").filter(Boolean)
+    : [];
 
-  const progressColor = "var(--primary-red)";
+  const {
+  activeDiscount,
+  discountedPricePerItem: discountedPricePerTicket,
+  discountedTotal: discountedPrice,
+  totalOriginalPrice,
+} = evaluateDiscount(raffle.ticket_price, quantity, raffle.discount?.tiers);
 
-  const activeDiscount = discounts
-    .slice()
-    .reverse()
-    .find((d) => quantity >= d.units);
+  const pricePerTicket = raffle.ticket_price;
 
-  const discountPercent = activeDiscount?.discount
-    ? parseFloat(activeDiscount.discount) / 100
-    : 0;
-
-  const discountedPricePerTicket = Math.round(
-    pricePerTicket * (1 - discountPercent)
-  );
-
-  const discountedPrice = discountedPricePerTicket * quantity;
-
-  const isInstant = raffle?.gameType === "instant";
-  const isActive = raffle?.status === "active";
-  const isClosed = raffle?.status === "completed";
-  const isUpcoming = raffle?.status === "upcoming";
+  const isInstant =
+    raffle?.main_active_status === "instant" || raffle?.instant_game === "true";
+  const isActive = raffle?.main_active_status === "live";
+  const isClosed = raffle?.main_active_status === "ended";
+  const isUpcoming = raffle?.main_active_status === "upcoming";
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
       const newQty = prev + delta;
-      if (newQty < 1) return 1;
+      if (newQty < raffle.minimum_ticket_number_purchase) return raffle.minimum_ticket_number_purchase;
       if (newQty > maxTickets) return maxTickets;
       return newQty;
     });
@@ -81,36 +102,72 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
     <div className="grid md:grid-cols-2 gap-10">
       <div>
         <div className="flex flex-col md:flex-row gap-6">
-          {!isInstant && (
-            <div className="flex md:flex-col gap-3">
-              {mockImages.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`thumb-${idx}`}
-                  onClick={() => setSelectedImage(img)}
-                  className={`w-16 h-16 object-cover rounded-md border-2 cursor-pointer ${
-                    selectedImage === img
-                      ? "border-red-500"
-                      : "border-transparent"
-                  }`}
-                />
-              ))}
+          <div className="flex md:flex-col gap-3">
+            <div className="w-full md:w-auto !h-[100%]">
+              <Carousel
+                slideGap="sm"
+                withControls={false}
+                withIndicators={false}
+                orientation={
+                  window.innerWidth < 768 ? "horizontal" : "vertical"
+                }
+                className="max-w-full md:max-w-[100px] !h-[100%]"
+                slideSize="auto"
+                styles={{
+                  viewport: { overflow: "hidden", height: "100%" },
+                  container: { alignItems: "start", height: "100%" },
+                }}
+              >
+                {galleryImages.map((img, idx) => (
+                  <Carousel.Slide key={idx} className="!w-auto">
+                    <img
+                      src={img}
+                      alt={`thumb-${idx}`}
+                      onClick={() => selectImage(idx)}
+                      className={`w-16 h-16 object-cover rounded-md border-2 cursor-pointer ${
+                        activeThumbnail === idx
+                          ? "border-red-500"
+                          : "border-transparent"
+                      }`}
+                    />
+                  </Carousel.Slide>
+                ))}
+              </Carousel>
             </div>
-          )}
-
-          <div className="flex-1 aspect-[1/1]">
-            <img
-              src={selectedImage}
-              alt="Main"
-              className="rounded-xl w-full h-full object-cover"
-            />
+          </div>
+          <div className="flex-1">
+            <div className="aspect-[1/1]">
+              <Carousel
+                withIndicators
+                height="100%"
+                className="rounded-xl overflow-hidden w-full h-full"
+                styles={{
+                  viewport: { height: "100%" },
+                  container: { height: "100%" },
+                }}
+                initialSlide={activeSlide}
+                onSlideChange={setActiveThumbnail}
+              >
+                {galleryImages.map((img, idx) => (
+                  <Carousel.Slide key={idx}>
+                    <img
+                      src={img}
+                      alt={`raffle-${idx}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </Carousel.Slide>
+                ))}
+              </Carousel>
+            </div>
           </div>
         </div>
 
         <div className="mt-8">
-          {(!isInstant && isActive) && (
-            <RaffleBadge date={new Date().toDateString()} status="active" />
+          {!isInstant && isActive && (
+            <RaffleBadge
+              date={raffle.start_date}
+              status={raffle.main_active_status}
+            />
           )}
           {isInstant && (
             <div className="flex gap-5">
@@ -124,7 +181,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
         <div className="mt-5">
           <div className="">
-            <div className="mb-3">
+            {/* <div className="mb-3">
               <Progress
                 h={7}
                 value={60}
@@ -132,9 +189,9 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
                 size="sm"
                 radius="xl"
               />
-            </div>
+            </div> */}
             <div className="flex items-center justify-between">
-              {isActive && (
+              {/* {isActive && (
                 <>
                   <div>
                     <p className="text-lg mt-1 text-gray-500 text-right">
@@ -147,7 +204,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
                     </p>
                   </div>
                 </>
-              )}
+              )} */}
               {isClosed && (
                 <>
                   <div>
@@ -174,11 +231,9 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
       <div className="bg-white p-10 rounded-xl flex flex-col gap-6 text-center shadow-sm">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Secure a Luxury Studio Apartment in Lekki, Lagos State, Nigeria
+            {raffle.name}
           </h1>
-          <p className="text-gray-500 mt-1">
-            Enter now to grab the opportunity of a brand new Samsung Galaxy.
-          </p>
+          <p className="text-gray-500 mt-1">{raffle.description}</p>
         </div>
 
         <div className="flex justify-center items-center gap-5">
@@ -233,13 +288,13 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
             />
 
             <div className="flex flex-wrap justify-center gap-4 w-full">
-              {discounts.map((item, i) => {
-                const isActive = activeDiscount?.units === item.units;
+              {raffle.discount?.tiers?.map((item, i) => {
+                const isActive = activeDiscount?.value === item.value;
                 return (
                   <Card
                     key={i}
                     withBorder
-                    onClick={() => setDiscountQuantity(item.units)}
+                    onClick={() => setQuantity(item.min)}
                     className={`!flex !flex-col !items-center !justify-center !text-center !py-3 !cursor-pointer !rounded-xl !border-2 !border-dashed !transition
           ${
             isActive
@@ -249,13 +304,13 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
           !min-w-[100px] !max-w-full !flex-grow`}
                   >
                     <Text className="!text-[#575757] !text-base">
-                      {item.units} Units
+                      {item.min} Units
                     </Text>
                     <Text
                       fw={700}
                       className={`!text-lg !font-bold ${isActive ? "!text-primary-red" : "!text-black"}`}
                     >
-                      {item.discount}
+                      {item.value}% Off
                     </Text>
                   </Card>
                 );
@@ -268,8 +323,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
           <div>
             <RaffleBadge
               date={new Date().toDateString()}
-              status={raffle.status}
-              description={raffle.date}
+              status={raffle.main_active_status}
             />
           </div>
         )}
@@ -277,11 +331,15 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         <div className="flex justify-center mb-4 items-center space-x-6 text-gray-500 text-sm">
           <div className="flex items-center gap-1">
             <FaReceipt />
-            <span>Min Entry: ₦3K</span>
+            <span>
+              Min Entry: {formatCurrency(raffle.maximum_ticket_amount_purchase)}
+            </span>
           </div>
           <div className="flex items-center gap-1">
             <FaUser className="rounded-full" />
-            <span>Max/Person: 200 Tickets</span>
+            <span>
+              Max/Person: {raffle.maximum_ticket_number_purchase} Tickets
+            </span>
           </div>
         </div>
 
@@ -307,7 +365,6 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
         <div className="flex flex-wrap justify-center gap-4">
           <Button
-            disabled={!isActive}
             size="xl"
             fullWidth={!isActive}
             style={{
@@ -318,6 +375,9 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
             }}
             className={`text-sm !text-wrap font-semibold py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-primary-red`}
             rightSection={<IoCartSharp />}
+            onClick={()=> handleAddToCart()}
+            loading={addItemMutation.isPending}
+            disabled={!isActive || addItemMutation.isPending}
           >
             Add To Cart
           </Button>
@@ -328,6 +388,9 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
                 backgroundColor: "black",
                 color: "#fff",
               }}
+              onClick={()=> handleAddToCart(true)}
+              loading={addItemMutation.isPending}
+              disabled={!isActive || addItemMutation.isPending}
               className={`text-sm font-semibold !py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-gray-900 !shadow-md`}
               rightSection={<IconCash />}
             >
@@ -335,7 +398,11 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
             </Button>
           )}
         </div>
-        {!isActive && <Text className="!text-sm !text-secondary-text">Price change based on number of tickets</Text>}
+        {!isActive && (
+          <Text className="!text-sm !text-secondary-text">
+            Price change based on number of tickets
+          </Text>
+        )}
       </div>
     </div>
   );
