@@ -58,25 +58,27 @@ function CartItemComponent({
 
   return (
     <Card className="!border !border-dashed !border-primary-red !rounded-lg !my-10 !bg-white/80">
-      <div className="grid grid-flow-row md:grid-cols-2 gap-x-10 items-center ">
-        <div className="flex items-center gap-x-3">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+        {/* Left: Image + Details */}
+        <div className="flex items-center gap-x-3 flex-1">
           <div
             onClick={() => navigate(`/raffles/${item.game_id}`)}
-            className="rounded-2xl cursor-pointer overflow-hidden border-2 border-primary-red h-24 w-32 "
+            className="rounded-2xl cursor-pointer overflow-hidden border-2 border-primary-red h-24 w-32"
           >
             <Image src={cardImages?.[0]} className="h-full" />
           </div>
           <div>
-            <Text className=" md:!text-xl !font-semibold">
-              {item.game_name}
-            </Text>
+            <Text className="md:!text-xl !font-semibold">{item.game_name}</Text>
             <Text className="!text-secondary-text">{item.description}</Text>
             <div className="mt-1">
               {isInstant && <InstantBadge size="sm" />}
             </div>
           </div>
         </div>
-        <div className="flex justify-around items-center">
+
+        {/* Right: Quantity + Prices + Remove */}
+        <div className="flex flex-wrap gap-4 justify-around items-center flex-1">
+          {/* Quantity Controls */}
           <div className="flex gap-x-2 md:gap-x-5 items-center">
             <PiPlusFill
               onClick={() => handleQuantityChange(1)}
@@ -84,7 +86,7 @@ function CartItemComponent({
               className="p-2 text-[#ABABAB] rounded-full bg-white cursor-pointer shadow-md"
             />
 
-            <Text className="!px-4 !py-1 !rounded-t-lg !font-semibold !text-primary-red  md:!text-xl !bg-secondary-red !border-b-2 !border-primary-red">
+            <Text className="!px-4 !py-1 !rounded-t-lg !font-semibold !text-primary-red md:!text-xl !bg-secondary-red !border-b-2 !border-primary-red">
               {quantity}
             </Text>
 
@@ -94,32 +96,39 @@ function CartItemComponent({
               className="p-2 text-[#ABABAB] rounded-full bg-white cursor-pointer shadow-md"
             />
           </div>
-          <div className="text-center tracking-wide">
-            <Text className="!text-secondary-text !text-sm md:!text-base">
-              Unit price
-            </Text>
-            <Text className="!font-semibold md:!text-xl ">
-              {formatCurrency(item.unit_price)}
-            </Text>
-          </div>
-          <div className="text-center tracking-wide">
-            <Text className="!text-secondary-text !text-sm md:!text-base">
-              Total price
-            </Text>
-            <Text className="!font-semibold md:!text-xl ">
-              {formatCurrency(item.total_price)}
-            </Text>
-            {hasDiscount && (
-              <Text className="!line-through !text-primary-red !font-light md:!text-lg">
-                {formatCurrency(originalPrice)}
-              </Text>
-            )}
-          </div>
 
-          <HiMiniTrash
-            onClick={() => removeItem(item)}
-            className="text-primary-red rounded-full bg-[#FFD5D6] p-1 md:p-2 cursor-pointer text-3xl md:text-4xl"
-          />
+          <div className="flex gap-x-2 justify-around items-center flex-1">
+            {/* Unit Price */}
+            <div className="text-center tracking-wide">
+              <Text className="!text-secondary-text !text-sm md:!text-base">
+                Unit price
+              </Text>
+              <Text className="!font-semibold md:!text-xl ">
+                {formatCurrency(item.unit_price)}
+              </Text>
+            </div>
+
+            {/* Total Price */}
+            <div className="text-center tracking-wide">
+              <Text className="!text-secondary-text !text-sm md:!text-base">
+                Total price
+              </Text>
+              <Text className="!font-semibold md:!text-xl ">
+                {formatCurrency(item.total_price)}
+              </Text>
+              {hasDiscount && (
+                <Text className="!line-through !text-primary-red !font-light md:!text-lg">
+                  {formatCurrency(originalPrice)}
+                </Text>
+              )}
+            </div>
+
+            {/* Remove Button */}
+            <HiMiniTrash
+              onClick={() => removeItem(item)}
+              className="text-primary-red rounded-full bg-[#FFD5D6] p-1 md:p-2 cursor-pointer text-3xl md:text-4xl"
+            />
+          </div>
         </div>
       </div>
     </Card>

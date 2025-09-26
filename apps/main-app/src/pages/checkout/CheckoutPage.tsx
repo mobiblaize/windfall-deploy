@@ -8,10 +8,11 @@ import {
   Divider,
   TextInput,
   Container,
+  Alert,
 } from "@mantine/core";
 import CheckoutItem from "./CheckoutItem";
 import AlertModal from "../../components/Modals/AlertModal";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CustomButton from "../../components/Buttons/CustomButton";
 import { useCart } from "../../utils/hooks/useCart";
@@ -22,6 +23,7 @@ import { formatCurrency } from "../../utils/helper/formatCurrency";
 import { useAtom } from "jotai";
 import { userAtom } from "../../utils/hooks/useStorage";
 import EmptyCart from "./EmptyCart";
+import type { Item } from "./Cart";
 
 export interface CheckoutSummary {
   items: CheckoutSummaryItem[];
@@ -80,8 +82,27 @@ export interface Checkout {
   callback: string;
 }
 
+export interface PaymentConfiguration {
+  registration_configuration: RegistrationConfiguration
+  game_configuration: GameConfiguration
+}
+
+export interface RegistrationConfiguration {
+  use_lga: boolean
+  use_lga_area: boolean
+  verify_email_otp: boolean
+}
+
+export interface GameConfiguration {
+  use_promo_code: boolean
+  use_referral_amount: boolean
+}
+
+
 function CheckoutPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { data } = location.state || {};
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [summary, setSummary] = useState<CheckoutSummary>();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>();
@@ -91,9 +112,13 @@ function CheckoutPage() {
   const [promoCode, setPromoCode] = useState("");
   const [isValidated, setIsValidated] = useState(false);
   const [referralAmount, setReferralAmount] = useState<number | string>("");
+  const [paymentConfig, setPaymentConfig] = useState<PaymentConfiguration>();
+  const [errorMsg, setErrorMsg] = useState<string>();
 
   const { cart, cartLoading, cartError, isCartError } = useCart();
+  const [buyNowItem, setBuyNowItem] = useState<Item>();
   const [user] = useAtom(userAtom);
+
 
   const getSummaryMutation = usePostData(`customer/games/checkout/summary`);
   const checkoutMutation = usePostData(`customer/games/checkout`);
@@ -103,6 +128,22 @@ function CheckoutPage() {
     isError: isPaymentMethodsError,
     error: paymentMethodsError,
   } = useFetchData(`guest/dropdown/payment-methods`);
+  const {
+    data: confgResponse,
+    isError: isConfigError,
+    error: configError,
+  } = useFetchData(`guest/dropdown/get-all-configurations`);
+  
+  useEffect(() => {
+    if (getSummaryMutation.isError) return setErrorMsg(getSummaryMutation.error.message) 
+    if (checkoutMutation.isError) return setErrorMsg(checkoutMutation.error.message) 
+    else setErrorMsg(undefined);
+  }, [getSummaryMutation, checkoutMutation]);  
+
+  useEffect(() => {
+    if (data?.buy_now) setBuyNowItem(data?.buy_now) 
+      else setBuyNowItem(undefined);
+  }, [data]);
 
   useEffect(() => {
     setIsValidated(false);
@@ -138,16 +179,40 @@ function CheckoutPage() {
     }
   }, [paymentMethodsError, isPaymentMethodsError, paymentMethodsResponse]);
 
+  useEffect(() => {
+    if (isConfigError) {
+      notifications.show({
+        title: "Failed to fetch payment configurations",
+        message:
+          (configError as { message?: string })?.message ||
+          "An error occurred",
+        color: "red",
+      });
+    }
+    if (confgResponse) {
+      setPaymentConfig(confgResponse.data);
+    }
+  }, [configError, isConfigError, confgResponse]);
+
   const handleGetSummary = async () => {
     const payload = {
-      type: "cart",
+      type: buyNowItem ? "buy_now" : "cart",
       promo_code: promoCode || "",
       referral_balance_amount: referralAmount || "",
     };
+
+    if (buyNowItem) {
+      Object.assign(payload, {
+        game_id: buyNowItem.game_id,
+        quantity: buyNowItem.quantity,
+      });
+    }
+
     try {
       const response = await getSummaryMutation.mutateAsync(payload);
       setSummary(response.data);
       setIsValidated(true);
+      setErrorMsg(undefined);
       notifications.show({
         title: "Checkout Summary updated",
         message: response?.message || "Summary fetched successfully",
@@ -170,6 +235,14 @@ function CheckoutPage() {
       referral_balance_amount: referralAmount || "",
       promo_code: promoCode || "",
     };
+
+    if (buyNowItem) {
+      Object.assign(payload, {
+        type: "buy_now",
+        game_id: buyNowItem.game_id,
+        quantity: buyNowItem.quantity,
+      });
+    }
     try {
       const response: CheckoutResponse =
         await checkoutMutation.mutateAsync(payload);
@@ -193,19 +266,34 @@ function CheckoutPage() {
     }
   };
 
-  const paymentChanels = selectedPaymentMethod?.channels;
-  const totalPrice = isValidated ? summary?.amount_to_pay: cart?.cart.summary.total_discounted_amount;
-  const totalNoOfTickets = isValidated ? summary?.total_ticket_count : cart?.cart.summary.total_quantity;
+  const allowPromoCode = () => {
+    if (!buyNowItem) return paymentConfig?.game_configuration.use_promo_code;
+    return buyNowItem.allow_promo_code_usage === 'true' && paymentConfig?.game_configuration.use_promo_code;
+  }
 
+  const allowReferralBalance = () => {
+    if (!buyNowItem) return paymentConfig?.game_configuration.use_referral_amount;
+    return buyNowItem.allow_referral_balance_usage === 'true' && paymentConfig?.game_configuration.use_referral_amount;
+  }
+  
+  const paymentChanels = selectedPaymentMethod?.channels;
+  const totalPrice = isValidated
+    ? summary?.amount_to_pay
+    : buyNowItem
+      ? buyNowItem.total_price
+      : cart?.cart.summary.total_discounted_amount;
+  const totalNoOfTickets = isValidated
+    ? summary?.total_ticket_count
+    : buyNowItem
+      ? buyNowItem.quantity
+      : cart?.cart.summary.total_quantity;
 
   return (
     <div className="text-primary-text mt-16 mb-32 ">
       <Container size="lg" className="!mx-3 sm:!mx-auto">
         <Text className="!text-2xl !font-semibold">
           Checkout{" "}
-          <span className="text-primary-red">
-            ({cart?.cart.summary.total_quantity || 0})
-          </span>
+          <span className="text-primary-red">({totalNoOfTickets || 0})</span>
         </Text>
         <Text className="!text-secondary-text !mb-5">
           Buy Raffle ticket in very simple step and stand a chance to win big!!!
@@ -240,9 +328,13 @@ function CheckoutPage() {
                           No items found
                         </Text>
                       )}
-                      {cart?.cart.items.map((item) => (
-                        <CheckoutItem key={item.uuid} item={item} />
-                      ))}
+                      {buyNowItem && (
+                        <CheckoutItem key={buyNowItem.uuid} item={buyNowItem} />
+                      )}
+                      {!buyNowItem &&
+                        cart?.cart.items.map((item) => (
+                          <CheckoutItem key={item.uuid} item={item} />
+                        ))}
                     </section>
                   </Card>
                   <Card
@@ -250,6 +342,11 @@ function CheckoutPage() {
                     className=" !rounded-b-xl !rounded-t-none"
                     py="xl"
                   >
+                    {errorMsg && (
+                      <Alert color="var(--color-primary-red)" title="Checkout Failed" className="!mb-5">
+                        <Text>{errorMsg}</Text>
+                      </Alert>
+                    )}
                     <div className="!bg-secondary-red !border-primary-red py-3 border px-3 rounded-md">
                       <Text className="!text-primary-red !text-xl !font-medium">
                         Checkout Summary
@@ -262,8 +359,7 @@ function CheckoutPage() {
                           Total number of tickets
                         </Text>
                         <Text className="!font-bold !text-lg">
-                          {totalNoOfTickets}{" "}
-                          Tickets
+                          {totalNoOfTickets} Tickets
                         </Text>
                       </Flex>
                       <Flex justify="space-between" gap={10} align="center">
@@ -274,7 +370,7 @@ function CheckoutPage() {
                           {formatCurrency(totalPrice)}
                         </Text>
                       </Flex>
-                      <Flex justify="space-between" gap={10} align="center">
+                      {allowPromoCode() && <Flex justify="space-between" gap={10} align="center">
                         <Text className="!text-secondary-text !text-lg !capitalize">
                           promo code
                         </Text>
@@ -290,8 +386,8 @@ function CheckoutPage() {
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.currentTarget.value)}
                         />
-                      </Flex>
-                      <Flex justify="space-between" gap={10} align="center">
+                      </Flex>}
+                      {allowReferralBalance() && <Flex justify="space-between" gap={10} align="center">
                         <div>
                           <Text className="!text-secondary-text !text-lg !capitalize">
                             Referral balance
@@ -322,7 +418,7 @@ function CheckoutPage() {
                             );
                           }}
                         />
-                      </Flex>
+                      </Flex>}
                     </Stack>
                     <Divider my="xl" />
                     <Flex justify="space-between" gap={10} align="center">

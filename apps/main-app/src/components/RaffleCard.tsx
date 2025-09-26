@@ -1,13 +1,15 @@
-import { Button } from "@mantine/core";
+import { Button, Progress } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import type { Raffle } from "../models/raffles";
 import GameBadge from "./GameBadge";
 import { formatCurrency } from "../utils/helper/formatCurrency";
+import { getTicketsSoldPercentage } from "../utils/helper/getTicketsSoldPercentage";
 
 export default function RaffleCard(raffle: Raffle) {
   const isActive = raffle.main_active_status === "live";
   const isInstant = (raffle.main_active_status === "instant") || (raffle.instant_game === "true");
   const navigate = useNavigate();
+  const progressColor = isActive ? "var(--primary-red)" : "#f79009";
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-4 text-center">
@@ -54,18 +56,18 @@ export default function RaffleCard(raffle: Raffle) {
       </Button>
       {/* </div> */}
 
-      {/* <div className="mt-5">
+      {raffle.total_tickets && <div className="mt-5">
         <div className="flex items-center">
           <div className="w-2/3">
-            <Progress value={20} color={progressColor} size="sm" radius="xl" />
+            <Progress value={getTicketsSoldPercentage(raffle.available_tickets, raffle.total_tickets)} color={progressColor} size="sm" radius="xl" />
           </div>
           <div className="w-1/3">
             <p className="text-xs mt-1 text-gray-500 text-right">
-              {20}% Entries Sold
+              {getTicketsSoldPercentage(raffle.available_tickets, raffle.total_tickets)}% Entries Sold
             </p>
           </div>
         </div>
-      </div> */}
+      </div>}
     </div>
   );
 }

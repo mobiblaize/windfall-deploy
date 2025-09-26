@@ -22,7 +22,7 @@ import { useSessionStorage } from "../../utils/hooks/useStorage";
 import AlertModal from "../../components/Modals/AlertModal";
 import { useState } from "react";
 import { useAuth } from "../../utils/hooks/useAuth";
-import { useTransferCart } from "../../utils/hooks/useTransferCart";
+import { useCart } from "../../utils/hooks/useCart";
 
 type LoginFormValues = {
   email: string;
@@ -34,7 +34,7 @@ function LoginPage() {
   const { updateUser } = useSessionStorage();
   const loginMutation = usePostData("customer/auth/login");
   const { handleLoginRedirect } = useAuth();
-  const { transferCart } = useTransferCart();
+  const { transferCart } = useCart();
   
 
   const form = useForm({

@@ -27,8 +27,8 @@ export const useAuth = () => {
 
   const logout = () => {
     const isAdminUser = isAdmin();
-    clearUser();
     navigate(isAdminUser ? "/admin/login" : "/login");
+    clearUser();
   };
 
   const storeRedirectInfo = () => {

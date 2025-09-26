@@ -39,6 +39,8 @@ export interface Item {
   discount_amount: number
   total_price: number
   discount: Discount
+  allow_promo_code_usage?: 'true' | 'false'
+  allow_referral_balance_usage?:  'true' | 'false'
 }
 
 export interface Discount {

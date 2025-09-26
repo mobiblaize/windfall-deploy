@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PiMinusFill, PiPlusFill } from "react-icons/pi";
-import { Button, Card, Text } from "@mantine/core";
+import { Button, Card, Progress, Text } from "@mantine/core";
 import DiscountSlider from "../../components/DiscountSlider";
 import RaffleBadge from "../../components/RaffleBadge";
 import { IconCash } from "@tabler/icons-react";
@@ -16,6 +16,8 @@ import { useCart } from "../../utils/hooks/useCart";
 import { notifications } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
 import { evaluateDiscount } from "../../utils/helper/evaluateDiscount";
+import { raffleToCartItem } from "../../utils/helper/raffleToCartItem";
+import { getTicketsSoldPercentage } from "../../utils/helper/getTicketsSoldPercentage";
 
 interface RaffleProps {
   raffle: Raffle;
@@ -27,7 +29,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
   const [maxTickets, setMaxTickets] = useState(0);
   const [activeThumbnail, setActiveThumbnail] = useState(0);
   const { addItemToCart, addItemMutation, getItemQuantity } = useCart();
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,12 +38,14 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         prev.max > current.max ? prev : current
       )?.max ?? raffle.maximum_ticket_number_purchase
     );
-    setQuantity(getItemQuantity(raffle.uuid) ?? raffle.minimum_ticket_number_purchase);
+    setQuantity(
+      getItemQuantity(raffle.uuid) ?? raffle.minimum_ticket_number_purchase
+    );
     console.log(getItemQuantity(raffle.uuid));
-    
+
     setActiveSlide(0);
     setActiveThumbnail(0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [raffle]);
 
   function selectImage(idx: number) {
@@ -49,7 +53,8 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
     setActiveSlide(idx);
   }
 
-  const handleAddToCart = async (toCheckout = false) => {    
+  const handleAddToCart = async (buyNow = false) => {
+    if (buyNow) return navigate(`/checkout`, { state: { data: { buy_now: raffleToCartItem(raffle, quantity) } } });
     try {
       const response = await addItemToCart(raffle.uuid, quantity);
       notifications.show({
@@ -57,14 +62,11 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         message: response?.message || "Item added successfully",
         color: "green",
       });
-      if (toCheckout) navigate("/checkout");
     } catch (error) {
-      
       notifications.show({
         title: "Failed to Add Item",
         message:
-          (error as { message?: string })?.message ||
-          "An error occurred",
+          (error as { message?: string })?.message || "An error occurred",
         color: "red",
       });
     }
@@ -75,11 +77,11 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
     : [];
 
   const {
-  activeDiscount,
-  discountedPricePerItem: discountedPricePerTicket,
-  discountedTotal: discountedPrice,
-  totalOriginalPrice,
-} = evaluateDiscount(raffle.ticket_price, quantity, raffle.discount?.tiers);
+    activeDiscount,
+    discountedPricePerItem: discountedPricePerTicket,
+    discountedTotal: discountedPrice,
+    totalOriginalPrice,
+  } = evaluateDiscount(raffle.ticket_price, quantity, raffle.discount?.tiers);
 
   const pricePerTicket = raffle.ticket_price;
 
@@ -88,11 +90,13 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
   const isActive = raffle?.main_active_status === "live";
   const isClosed = raffle?.main_active_status === "ended";
   const isUpcoming = raffle?.main_active_status === "upcoming";
+  const progressColor = "var(--primary-red)";
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
       const newQty = prev + delta;
-      if (newQty < raffle.minimum_ticket_number_purchase) return raffle.minimum_ticket_number_purchase;
+      if (newQty < raffle.minimum_ticket_number_purchase)
+        return raffle.minimum_ticket_number_purchase;
       if (newQty > maxTickets) return maxTickets;
       return newQty;
     });
@@ -181,30 +185,30 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
         <div className="mt-5">
           <div className="">
-            {/* <div className="mb-3">
+            {raffle.total_tickets && <div className="mb-3">
               <Progress
                 h={7}
-                value={60}
+                value={getTicketsSoldPercentage(raffle.available_tickets, raffle.total_tickets)}
                 color={progressColor}
                 size="sm"
                 radius="xl"
               />
-            </div> */}
+            </div>}
             <div className="flex items-center justify-between">
-              {/* {isActive && (
+              {(isActive && raffle.total_tickets) && (
                 <>
                   <div>
                     <p className="text-lg mt-1 text-gray-500 text-right">
-                      60% Entries Sold
+                      {getTicketsSoldPercentage(raffle.available_tickets, raffle.total_tickets)}% Entries Sold
                     </p>
                   </div>
                   <div>
                     <p className="text-lg mt-1 text-gray-500 text-right">
-                      1000 Tickets Left
+                      {raffle.available_tickets} Tickets Left
                     </p>
                   </div>
                 </>
-              )} */}
+              )}
               {isClosed && (
                 <>
                   <div>
@@ -375,7 +379,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
             }}
             className={`text-sm !text-wrap font-semibold py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-primary-red`}
             rightSection={<IoCartSharp />}
-            onClick={()=> handleAddToCart()}
+            onClick={() => handleAddToCart()}
             loading={addItemMutation.isPending}
             disabled={!isActive || addItemMutation.isPending}
           >
@@ -388,7 +392,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
                 backgroundColor: "black",
                 color: "#fff",
               }}
-              onClick={()=> handleAddToCart(true)}
+              onClick={() => handleAddToCart(true)}
               loading={addItemMutation.isPending}
               disabled={!isActive || addItemMutation.isPending}
               className={`text-sm font-semibold !py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-gray-900 !shadow-md`}

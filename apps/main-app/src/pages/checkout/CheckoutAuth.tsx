@@ -2,10 +2,10 @@ import { useCart } from '../../utils/hooks/useCart';
 import Signup from '../auth/Signup';
 
 const CheckoutAuth = () => {
-    const { cart } = useCart();
+    const { cart, transferCart } = useCart();
 
     return (
-        <Signup returnUrl="/checkout" cart={cart} />
+        <Signup returnUrl="/checkout" cart={cart} transferCart={transferCart} />
     );
 };
 

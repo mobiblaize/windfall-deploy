@@ -1,16 +1,22 @@
 import { Flex, Text } from "@mantine/core";
 import type { Item } from "./Cart";
 import { formatCurrency } from "../../utils/helper/formatCurrency";
+import InstantBadge from "../raffles/InstantBadge";
 
 function CheckoutItem({ item }: { item: Item }) {
+  const isInstant = item?.instant_game === "true";
   return (
     <div className=" border-2 border-dashed border-secondary-text rounded-xl py-5 px-5">
-      <Text fz="lg" fw={600}>
-        {item.game_name}
-      </Text>
-      <Text className="!text-secondary-text">
-        {item.description}
-      </Text>
+      <Flex justify="space-between" gap={10} wrap={"wrap"}>
+        <div>
+          <Text fz="lg" fw={600}>
+            {item.game_name}
+          </Text>
+          <Text className="!text-secondary-text !text-wrap">{item.description}</Text>
+        </div>
+        {isInstant && <InstantBadge size="sm" />}
+      </Flex>
+
       <Flex justify="space-around" my="md">
         <div className="text-center capitalize">
           <Text fw={100} className="!text-secondary-text">

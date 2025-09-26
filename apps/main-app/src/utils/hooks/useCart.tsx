@@ -1,10 +1,12 @@
 import { atom, useAtom } from "jotai";
 import { useFetchData, usePostData, useDeleteData } from "./useApis";
 import type { Item, UserCart } from "../../pages/checkout/Cart";
-import { userAtom } from "./useStorage";
+import { userAtom, useSessionStorage } from "./useStorage";
 import { atomWithStorage } from "jotai/utils";
 import { v4 as uuidv4 } from "uuid";
 import { useEffect } from "react";
+import type { ApiResponse } from "../../models/apiResponse";
+import { notifications } from "@mantine/notifications";
 
 function getOrCreateGuestId(): string {
   const key = "guest_id";
@@ -27,6 +29,7 @@ export function useCart() {
   const [user] = useAtom(userAtom);
   const [cart, setCart] = useAtom(cartAtom);
   const [activeGuestId] = useAtom(guestIdAtom);
+  const { clearUser } = useSessionStorage();
 
   const guestHeaders: Record<string, string> | undefined =
     !user && activeGuestId ? { "X-Guest-Cart-ID": activeGuestId } : undefined;
@@ -41,11 +44,23 @@ export function useCart() {
   } = useFetchData("guest/cart", guestHeaders);
 
   // keep atom in sync with backend
-  useEffect(() => {
-    if (cartResponse?.data) {
+  useEffect(() => {    
+    if (isCartError && cartError) {      
+      const status = ((cartError as unknown) as ApiResponse)?.status;
+      if (status === 422) {
+        notifications.show({
+          title: "Session Expired",
+          message: "Please log in again.",
+          color: "red",
+        });
+        clearUser();
+      }
+    }
+
+    if (cartResponse?.data) {      
       setCart(cartResponse.data);
     }
-  }, [cartResponse, setCart]);
+  }, [cartResponse, setCart, cartError, isCartError, clearUser]);
 
   // add item
   const addItemMutation = usePostData("", guestHeaders);
@@ -64,7 +79,7 @@ export function useCart() {
 
   // update item
   const updateItemMutation = usePostData("", guestHeaders);
-  const updateItemToCart = async (item: Item, quantity: number) => {
+  const updateItemToCart = async (item: Item, quantity: number) => {    
     if (!cart) return;
 
     const response = await updateItemMutation.mutateAsync({
@@ -98,7 +113,7 @@ export function useCart() {
     setCart(null); // reset atom
     return response;
   };
-  
+
   // transfer cart (guest to user)
   const transferCartMutation = usePostData("customer/cart/transfer");
   const transferCart = async () => {
@@ -125,6 +140,8 @@ export function useCart() {
   const getItemQuantity = (itemId: string): number | undefined => {
     return cart?.cart.items.find((i) => i.game_id === itemId)?.quantity;
   };
+
+  const totalItemsQuantity = cart?.cart.summary.total_quantity;
 
   return {
     // global state
@@ -155,5 +172,6 @@ export function useCart() {
 
     // helpers
     getItemQuantity,
+    totalItemsQuantity
   };
 }

@@ -51,7 +51,7 @@ export interface NewUser {
   referral_link: string;
 }
 
-function Signup({ cart = null, returnUrl }: {cart?: UserCart | null, returnUrl?: string}) {
+function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | null, returnUrl?: string, transferCart?: () => void}) {
   const [timeLeft, setTimeLeft] = useState(otpTime); // 15 minutes
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
@@ -118,6 +118,7 @@ function Signup({ cart = null, returnUrl }: {cart?: UserCart | null, returnUrl?:
     try {
       const response = await loginMutation.mutateAsync(payload);
       updateUser(response?.data);
+      if (transferCart) transferCart();
       notifications.show({
         title: "Login Successful",
         message: response?.message || "You are now logged in",

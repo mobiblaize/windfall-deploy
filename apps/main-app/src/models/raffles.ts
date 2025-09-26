@@ -71,6 +71,7 @@ export interface Raffle {
   percentage_markup: number
   ticket_price: number
   available_tickets: number
+  total_tickets: number
   minimum_ticket_number_purchase: number
   maximum_ticket_number_purchase: number
   maximum_ticket_amount_purchase: number
@@ -92,8 +93,8 @@ export interface Raffle {
   gallery_images: string
   main_active_status: RaffleStatus
   approvalStatus: string
-  allow_promo_code_usage: string
-  allow_referral_balance_usage: string
+  allow_promo_code_usage: 'true' | 'false'
+  allow_referral_balance_usage:  'true' | 'false'
   minimum_referral_balance_amount: number
   maximum_referral_balance_amount: number
   is_active: string
