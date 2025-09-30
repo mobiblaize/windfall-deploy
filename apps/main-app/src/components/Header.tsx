@@ -29,7 +29,7 @@ import SideMenu from "./SideMenu";
 import { useCart } from "../utils/hooks/useCart";
 
 const menuItems = [
-  { name: "Home", path: "/" },
+  { name: "Home", path: "/dashboard" },
   { name: "How it Works", path: "/game-rules" },
   { name: "Raffles", path: "/raffles" },
   { name: "Game Result", path: "/profile/result" },

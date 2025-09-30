@@ -1,6 +1,5 @@
 import { Text, Center, Card, Button, Image } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import RelatedRaffles from "../raffles/RelatedRaffles";
 
 function EmptyDraw() {
 	const navigate = useNavigate();
@@ -31,7 +30,6 @@ function EmptyDraw() {
 					</Card.Section>
 				</Card>
             </Center>
-            <RelatedRaffles/>
 		</div>
 	);
 }

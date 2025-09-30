@@ -90,10 +90,6 @@ const EditRole = lazy(() => import("./pages/Admin/RoleMgt/EditRole"));
 const RoleDetails = lazy(() => import("./pages/Admin/RoleMgt/RoleDetails"));
 
 function App() {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const isAuthenticated = user.id;
-
-  console.log(isAuthenticated);
 
   return (
     <BrowserRouter>
@@ -112,6 +108,8 @@ function App() {
             {/* Draws */}
             <Route path="draws" element={<Draws />} />
             <Route path="draws/recent" element={<RecentDraws />} />
+
+            {/* winners */}
             <Route path="winners/all-time" element={<AllWinnersPage />} />
             <Route path="winners/recent" element={<RecentWinners />} />
             <Route path="winners/all-time/:id" element={<SpecificResult />} />

@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { evaluateDiscount } from "../../utils/helper/evaluateDiscount";
 import { raffleToCartItem } from "../../utils/helper/raffleToCartItem";
 import { getTicketsSoldPercentage } from "../../utils/helper/getTicketsSoldPercentage";
+import defaultRaffleImg from "../../utils/helper/defaultRaffeImg";
 
 interface RaffleProps {
   raffle: Raffle;
@@ -74,7 +75,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
   const galleryImages = raffle.gallery_images
     ? raffle.gallery_images.split("|").filter(Boolean)
-    : [];
+    : [defaultRaffleImg];
 
   const {
     activeDiscount,
@@ -326,7 +327,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         {!isActive && (
           <div>
             <RaffleBadge
-              date={new Date().toDateString()}
+              date={raffle.start_date}
               status={raffle.main_active_status}
             />
           </div>

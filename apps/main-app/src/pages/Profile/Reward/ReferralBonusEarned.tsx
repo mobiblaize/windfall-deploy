@@ -1,9 +1,14 @@
 import { Table, Text } from "@mantine/core";
 import TableContainer from "../../../components/TableContainer";
+import type { ReferralTransaction } from "./RewardTab";
+import { format } from "date-fns";
+import { formatCurrency } from "../../../utils/helper/formatCurrency";
 
-export default function ReferralBonusEarned() {
-  const referrals = [1, 2, 3, 4, 5, 6];
-
+export default function ReferralBonusEarned({
+  transactions,
+}: {
+  transactions: ReferralTransaction[];
+}) {
   return (
     <div>
       {/* Table for larger screens */}
@@ -13,43 +18,34 @@ export default function ReferralBonusEarned() {
             "Transaction ID",
             "Transaction date & time",
             "User Referred",
-            "Referee Sign Up status",
             "Bonus Earned",
           ]}
         >
-          {referrals.map((x) => {
-            const active = x % 2;
+          {transactions.map((transaction) => {
             return (
-              <Table.Tr key={x}>
+              <Table.Tr key={transaction.order.uuid}>
                 <Table.Td className="text-secondary-text !text-base">
-                  4HYE74793FS
+                  {transaction.order.uniqueID}
                 </Table.Td>
                 <Table.Td>
                   <Text className="!text-base !font-medium">
-                    April 11, 2005
+                    {transaction.date
+                      ? format(new Date(transaction.date), "MMMM d, yyyy")
+                      : ""}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    11:00am
+                    {transaction.date
+                      ? format(new Date(transaction.date), "h:mm a")
+                      : ""}
                   </Text>
                 </Table.Td>
                 <Table.Td>
-                  <Text className="!text-base !font-medium">Mobi Blaize</Text>
+                  <Text className="!text-base !font-medium">{transaction.referred_user.firstname} {transaction.referred_user.lastname}</Text>
                   <Text className="!text-secondary-text !text-sm">
-                    ID: 9044
+                    ID: {transaction.referred_user.uuid}
                   </Text>
                 </Table.Td>
-                <Table.Td>
-                  <p
-                    className={`py-[2px] px-2 rounded-xl inline-block font-medium ${
-                      active
-                        ? "bg-[#CCFBEF] text-[#06B280]"
-                        : "bg-[#FEF3F2] text-[#B42318]"
-                    }`}
-                  >
-                    {active ? "Successful" : "Failed"}
-                  </p>
-                </Table.Td>
-                <Table.Td>₦ 10,000</Table.Td>
+                <Table.Td>{formatCurrency(transaction.amount)}</Table.Td>
               </Table.Tr>
             );
           })}
@@ -58,36 +54,27 @@ export default function ReferralBonusEarned() {
 
       {/* Card view for small screens */}
       <div className="sm:!hidden space-y-4 p-4">
-        {referrals.map((x) => {
-          const active = x % 2;
+        {transactions.map((transaction) => {
           return (
             <div
-              key={x}
+               key={transaction.order.uuid}
               className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
             >
               <p>
-                <strong>Transaction ID:</strong> 4HYE74793FS
+                <strong>Transaction ID:</strong> {transaction.order.uniqueID}
               </p>
               <p>
-                <strong>Date:</strong> April 11, 2005 — 11:00am
+                <strong>Date:</strong> {transaction.date
+                      ? format(new Date(transaction.date), "MMMM d, yyyy")
+                      : ""} — {transaction.date
+                      ? format(new Date(transaction.date), "h:mm a")
+                      : ""}
               </p>
               <p>
-                <strong>User Referred:</strong> Mobi Blaize (ID: 9044)
+                <strong>User Referred:</strong> {transaction.referred_user.firstname} {transaction.referred_user.lastname} (ID: {transaction.referred_user.uuid})
               </p>
               <p>
-                <strong>Sign Up Status:</strong>{" "}
-                <span
-                  className={`py-[2px] px-2 rounded-xl inline-block font-medium ${
-                    active
-                      ? "bg-[#CCFBEF] text-[#06B280]"
-                      : "bg-[#FEF3F2] text-[#B42318]"
-                  }`}
-                >
-                  {active ? "Successful" : "Failed"}
-                </span>
-              </p>
-              <p>
-                <strong>Bonus Earned:</strong> ₦ 10,000
+                <strong>Bonus Earned:</strong> {formatCurrency(transaction.amount)}
               </p>
             </div>
           );

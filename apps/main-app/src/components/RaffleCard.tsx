@@ -4,6 +4,7 @@ import type { Raffle } from "../models/raffles";
 import GameBadge from "./GameBadge";
 import { formatCurrency } from "../utils/helper/formatCurrency";
 import { getTicketsSoldPercentage } from "../utils/helper/getTicketsSoldPercentage";
+import defaultRaffleImg from "../utils/helper/defaultRaffeImg";
 
 export default function RaffleCard(raffle: Raffle) {
   const isActive = raffle.main_active_status === "live";
@@ -16,7 +17,7 @@ export default function RaffleCard(raffle: Raffle) {
       {/* Image */}
       <div className="overflow-hidden mb-3">
         <img
-          src={raffle.card_image}
+          src={raffle.card_image || defaultRaffleImg}
           alt="raffle"
           className="w-full rounded-xl h-70 object-cover mb-[-1.25rem]"
         />
@@ -24,6 +25,7 @@ export default function RaffleCard(raffle: Raffle) {
           date={raffle.start_date}
           status={raffle.main_active_status}
           gameType={isInstant ? "instant" : "raffle"}
+          active={raffle.is_active}
         />
       </div>
 

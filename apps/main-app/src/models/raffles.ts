@@ -11,6 +11,11 @@ export const colorMap = {
     label: "#030303",
     text: "Draw Closed",
   },
+  inactive: {
+    bg: "#FF2F31",
+    label: "#030303",
+    text: "Inactive",
+  },
   upcoming: {
     bg: "#f79009",
     label: "#93370d",

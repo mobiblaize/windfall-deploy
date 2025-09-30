@@ -8,6 +8,7 @@ import { formatCurrency } from "../../utils/helper/formatCurrency";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDebounce } from "../../utils/hooks/useDebounce";
+import defaultRaffleImg from "../../utils/helper/defaultRaffeImg";
 
 interface CartItemProps {
   item: Item;
@@ -49,9 +50,7 @@ function CartItemComponent({
     });
   };
 
-  const cardImages = item.card_image
-    ? item.card_image.split("|").filter(Boolean)
-    : [];
+  const cardImage = item.card_image ? item.card_image : defaultRaffleImg;
 
   const hasDiscount = !!Number(item.discount_percentage);
   const originalPrice = Number(item.unit_price) * Number(item.quantity);
@@ -65,7 +64,7 @@ function CartItemComponent({
             onClick={() => navigate(`/raffles/${item.game_id}`)}
             className="rounded-2xl cursor-pointer overflow-hidden border-2 border-primary-red h-24 w-32"
           >
-            <Image src={cardImages?.[0]} className="h-full" />
+            <Image src={cardImage} className="h-full" />
           </div>
           <div>
             <Text className="md:!text-xl !font-semibold">{item.game_name}</Text>

@@ -1,8 +1,9 @@
 import { instantGameColorMap, type RaffleStatus } from "../models/raffles";
 
 interface RaffleBadgeProps {
-  status: RaffleStatus;
   date?: string;
+  active?: string;
+  status?: RaffleStatus;
   label?: string;
   description?: string;
   className?: string;
@@ -10,15 +11,16 @@ interface RaffleBadgeProps {
 }
 
 export default function InstantRaffleBadge({
-  status,
+  active,
   className,
   label,
+  status,
   description,
   bgColor,
 }: RaffleBadgeProps) {
   const colors =
     instantGameColorMap[
-      status === "completed" ? "closed" : status === "upcoming" ? "upcoming" : "open"
+      (active === "false") || (status === "ended") ? "closed" : "open"
     ];    
 
   return (

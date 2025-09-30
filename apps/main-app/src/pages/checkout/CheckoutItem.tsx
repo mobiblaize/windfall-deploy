@@ -5,6 +5,9 @@ import InstantBadge from "../raffles/InstantBadge";
 
 function CheckoutItem({ item }: { item: Item }) {
   const isInstant = item?.instant_game === "true";
+  const hasDiscount = !!Number(item.discount_percentage);
+  const originalPrice = Number(item.unit_price) * Number(item.quantity);
+  
   return (
     <div className=" border-2 border-dashed border-secondary-text rounded-xl py-5 px-5">
       <Flex justify="space-between" gap={10} wrap={"wrap"}>
@@ -35,6 +38,11 @@ function CheckoutItem({ item }: { item: Item }) {
             total price
           </Text>
           <Text fw={500}>{formatCurrency(item.total_price)}</Text>
+          {hasDiscount && (
+            <Text className="!line-through !text-primary-red !font-light md:!text-lg">
+              {formatCurrency(originalPrice)}
+            </Text>
+          )}
         </div>
       </Flex>
     </div>

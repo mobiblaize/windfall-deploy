@@ -1,6 +1,6 @@
 // components/HeroSlider.tsx
 import { Button } from '@mantine/core';
-import hero from '../assets/hero-img.jpg';
+import hero from '../assets/hero.png';
 import { useNavigate } from 'react-router-dom';
 
 export default function HeroSlider() {

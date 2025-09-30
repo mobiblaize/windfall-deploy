@@ -1,38 +1,34 @@
 import { Modal, Button, Flex } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { BsTrophyFill } from "react-icons/bs";
-import GameTicketItem from "../../pages/Profile/GameTicketItem";
 import AlertModal from "./AlertModal";
 import { useState } from "react";
+import GameTicket from "../../pages/Profile/GameTicket";
+import type { OrderTicket } from "../../pages/Profile/GamesTickets";
+import type { Raffle } from "../../models/raffles";
 
 type Props = {
-  item: unknown;
+  item: OrderTicket;
+  game: Raffle;
   isOpened?: boolean;
-  onClose?: () => void;
+  onClose: () => void;
 };
 
-export default function GamesTicketModal({ item, isOpened = false, onClose }: Props) {
-  const [opened, { open, close }] = useDisclosure(isOpened);
-    const [successModalOpen, setSuccessModalOpen] = useState(false);
-
-  const closeModal = () => {
-    close();
-    if (onClose) onClose(); // safely call onClose if defined
-  };
+export default function GamesTicketModal({ item, game, isOpened = false, onClose }: Props) {
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   return (
     <>
       <Modal
-        opened={opened}
-        onClose={closeModal}
+        opened={isOpened}
+        onClose={onClose}
         centered
         size="lg"
         className="!rounded-2xl !text-primary-text"
         classNames={{ content: "!rounded-3xl" }}
       >
         <div className="mx-7">
-          <GameTicketItem item={item} containerBgColor='bg-white' />
+          <GameTicket status="won" game={game} item={item} containerBgColor='bg-white' />
         </div>
 
         <Flex gap={20} my="lg" mx="xl">
@@ -51,9 +47,6 @@ export default function GamesTicketModal({ item, isOpened = false, onClose }: Pr
           </Button>
         </Flex>
       </Modal>
-
-      {/* Trigger Button or Item */}
-      <GameTicketItem item={item} handleClick={open} />
 
       <AlertModal
         opened={successModalOpen}
