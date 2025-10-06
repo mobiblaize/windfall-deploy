@@ -22,7 +22,7 @@ function CartItemComponent({
   setItemQuantity,
 }: CartItemProps) {
   const [quantity, setQuantity] = useState(item.quantity);
-  const debouncedQuantity = useDebounce(quantity, 500);
+  const debouncedQuantity = useDebounce(quantity, 1000);
   const navigate = useNavigate();
   const isInstant = item?.instant_game === "true";
 

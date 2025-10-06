@@ -117,7 +117,7 @@ function SettingsTab() {
         onClose={() => setLogoutAlertModalOpen(false)}
         status="error"
         title="Log out from your Account"
-        description={`Are you sure you want to log out from your Admin Account`}
+        description={`Are you sure you want to log out from your Account`}
         primaryButton={{
           label: "Yes, Logout",
           loading: logoutMutation.isPending,

@@ -136,6 +136,22 @@ function GameResultsTickets() {
                 </div>
               )}
             </Flex>
+
+            {/* <Box className="border border-primary-red rounded-xl py-4 bg-secondary-red !my-10 px-7">
+              <Flex justify="space-between">
+                <Group>
+                  <PiWarningOctagonFill className="text-primary-red text-3xl" />
+                  <Text>
+                    So sorry you didn’t win this time. Stand a Chance to Win
+                    Next Time.{" "}
+                  </Text>
+                </Group>
+                <Button className="!h-12 !bg-primary-text !border-2 !border-dashed !border-primary-red">
+                  Explore Games
+                </Button>
+              </Flex>
+            </Box> */}
+            
             <SimpleGrid
               py="lg"
               cols={{ base: 1, md: 2 }}

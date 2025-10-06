@@ -75,8 +75,6 @@ function Cart() {
 
   const navigate = useNavigate();
 
-  console.log(cart);
-
   const removeItem = async (item: Item) => {	
 		try {
 		  const response = await removeItemFromCart(item.game_id);

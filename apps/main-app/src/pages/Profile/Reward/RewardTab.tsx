@@ -266,13 +266,13 @@ function RewardTab() {
               {activeTab === "redeemed" && (
                 <ReferralBonusUsed transactions={transactions} />
               )}
+              {!transactions.length && (
+                <EmptySection
+                  description="No transactions found"
+                  title="No records found"
+                />
+              )}
             </>
-          )}
-          {!transactions.length && (
-            <EmptySection
-              description="No transactions found"
-              title="No records found"
-            />
           )}
           <TablePaginator
             currentPage={currentPage}
