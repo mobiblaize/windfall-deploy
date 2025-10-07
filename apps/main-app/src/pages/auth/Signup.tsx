@@ -55,7 +55,7 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
   const [timeLeft, setTimeLeft] = useState(otpTime); // 15 minutes
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [emailVerifed, setEmailVerifed] = useState(false);
+  const [emailVerifed, setEmailVerified] = useState(false);
   const [maskedEmail, setMaskedEmail] = useState("");
   const { updateUser } = useSessionStorage();
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
     };
     try {
       await confirmOtpMutation.mutateAsync(payload);
-      setEmailVerifed(true);
+      setEmailVerified(true);
       setOtpModalOpen(false);
       form.clearFieldError("email");
     } catch (error) {
@@ -176,6 +176,7 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
       email: "",
       phone_number: "",
       lga: "",
+      area: "",
       referral_code: "",
       heard_from: "",
       password: "",
@@ -202,6 +203,7 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
       phone_number: (val) =>
         val.length >= 10 ? null : "Enter a valid phone number",
       lga: (val) => (val ? null : "Select an LGA"),
+      area: (val) => (val ? null : "Select a landmark"),
       heard_from: (val) => (val ? null : "This field is required"),
       password: (value) => {
         if (value.length < 8) {
@@ -236,7 +238,7 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
 
   // reset emailVerified whenever email changes
   useEffect(() => {
-    setEmailVerifed(false);
+    setEmailVerified(false);
   }, [form.values.email]);
 
   useEffect(() => {
@@ -265,6 +267,7 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
       password: values.password,
       password_confirmation: values.password_confirmation,
       lga: values.lga,
+      area: values.area,
       opt_in_exclusive_offer: values.opt_in_exclusive_offer,
       date_of_birth: values.dateOfBirth
         ? new Date(values.dateOfBirth).toISOString().split("T")[0]
@@ -457,6 +460,22 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
                     options: "text-primary-text",
                   }}
                   {...form.getInputProps("lga")}
+                />
+                <Select
+                  data={[ {
+                    label: 'Select a landmark',
+                    value: ''
+                  }, ...lgas]}
+                  label="Landmark"
+                  placeholder="Select a landmark"
+                  withAsterisk
+                  searchable
+                  rightSection={<FaAngleDown />}
+                  classNames={{
+                    label: "!capitalize ",
+                    options: "text-primary-text",
+                  }}
+                  {...form.getInputProps("area")}
                 />
                 <TextInput
                   label="Referral Code (Optional)"

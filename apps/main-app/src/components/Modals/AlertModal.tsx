@@ -3,6 +3,7 @@ import successImg from "../../assets/success.gif";
 import errorImg from "../../assets/error.gif";
 import msgImg from "../../assets/message.gif";
 import loadingImg from "../../assets/loading.gif";
+import delImg from "../../assets/delete.gif";
 import CustomButton from "../../components/Buttons/CustomButton";
 
 type CustomButtonProps = ButtonProps & {
@@ -14,7 +15,7 @@ type CustomButtonProps = ButtonProps & {
 type Props = {
   opened: boolean;
   onClose?: () => void;
-  status?: "success" | "error" | "loading" | "message";
+  status?: "success" | "error" | "loading" | "message" | "delete";
   title: React.ReactNode;
   description: React.ReactNode;
   color?: "dark" | "primary";
@@ -42,6 +43,8 @@ export default function AlertModal({
         return loadingImg;
       case "message":
         return msgImg;
+      case "delete":
+        return delImg;
       default:
         return "";
     }
@@ -88,33 +91,46 @@ export default function AlertModal({
         <div className="!text-base !text-[#818181]">{description}</div>
 
         {/* Buttons */}
-        {(primaryButton || secondaryButton) && (
-          <Box className="flex justify-center gap-4 mt-6">
-            {primaryButton && (
-              <CustomButton
-                disabled={primaryButton.disabled}
-                loading={primaryButton.loading}
-                onClick={primaryButton.onClick}
-                className="flex-1"
+        {(primaryButton || secondaryButton) &&
+          (() => {
+            const isFullWidth =
+              !(primaryButton && secondaryButton) ||
+              primaryButton?.fullWidth ||
+              secondaryButton?.fullWidth;
+            return (
+              <div
+                className={`grid gap-4 mt-6 grid-cols-1 ${
+                  !isFullWidth ? " sm:grid-cols-2" : ""
+                }`}
               >
-                {primaryButton.label}
-              </CustomButton>
-            )}
+                {primaryButton && (
+                  <CustomButton
+                    disabled={primaryButton.disabled}
+                    loading={primaryButton.loading}
+                    onClick={primaryButton.onClick}
+                    className="w-full"
+                    fullWidth={primaryButton.fullWidth}
+                  >
+                    {primaryButton.label}
+                  </CustomButton>
+                )}
 
-            {secondaryButton && (
-              <CustomButton
-                type="dark"
-                disabled={secondaryButton.disabled}
-                loading={secondaryButton.loading}
-                onClick={secondaryButton.onClick}
-                variant="outline"
-                className="flex-1"
-              >
-                {secondaryButton.label}
-              </CustomButton>
-            )}
-          </Box>
-        )}
+                {secondaryButton && (
+                  <CustomButton
+                    type="dark"
+                    disabled={secondaryButton.disabled}
+                    loading={secondaryButton.loading}
+                    onClick={secondaryButton.onClick}
+                    variant="outline"
+                    className="w-full"
+                    fullWidth={secondaryButton.fullWidth}
+                  >
+                    {secondaryButton.label}
+                  </CustomButton>
+                )}
+              </div>
+            );
+          })()}
       </Box>
     </Modal>
   );

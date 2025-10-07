@@ -151,7 +151,7 @@ export default function Header() {
               )}
             </Link>
 
-            <Link to="/profile">
+            <Link to="/profile/all-games">
               <span>
                 <FaUser className="rounded-full p-2 text-4xl hover:bg-primary-text" />
               </span>

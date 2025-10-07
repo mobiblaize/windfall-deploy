@@ -1,4 +1,12 @@
-import { Card, Flex, List, PasswordInput, Stack, Text } from "@mantine/core";
+import {
+  Alert,
+  Card,
+  Flex,
+  List,
+  PasswordInput,
+  Stack,
+  Text,
+} from "@mantine/core";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import CustomButton from "../../../../components/Buttons/CustomButton";
 import { useForm } from "@mantine/form";
@@ -11,9 +19,10 @@ export type PasswordFormValues = {
 type NewPasswordProps = {
   onComplete: (formValues: PasswordFormValues) => void;
   isLoading?: boolean;
+  error?: string;
 };
 
-function NewPassword({ onComplete, isLoading }: NewPasswordProps) {
+function NewPassword({ onComplete, isLoading, error }: NewPasswordProps) {
   const form = useForm({
     initialValues: {
       password: "",
@@ -21,7 +30,7 @@ function NewPassword({ onComplete, isLoading }: NewPasswordProps) {
     },
     validate: {
       password: (value) => {
-        if (value.length < 8 ) {
+        if (value.length < 8) {
           return "Password must be at least 8 characters long";
         }
         if (!/[A-Z]/.test(value) || !/[a-z]/.test(value)) {
@@ -46,13 +55,20 @@ function NewPassword({ onComplete, isLoading }: NewPasswordProps) {
         <HiDocumentArrowDown className="p-2 rounded-md bg-secondary-red text-primary-red text-5xl" />
         <div className="capitalize">
           <Text className="!font-semibold !text-xl">Password</Text>
-          <Text className="!text-secondary-text">
-            Enter new password below
-          </Text>
+          <Text className="!text-secondary-text">Enter new password below</Text>
         </div>
       </header>
 
       <form onSubmit={form.onSubmit((values) => onComplete(values))}>
+        {error && (
+          <Alert
+            color="var(--color-primary-red)"
+            title="Update Failed"
+            className="!mb-5"
+          >
+            <Text>{error}</Text>
+          </Alert>
+        )}
         <Stack className="!capitalize" gap="xl">
           <PasswordInput
             label="Create new password"
@@ -89,7 +105,13 @@ function NewPassword({ onComplete, isLoading }: NewPasswordProps) {
         </Stack>
 
         <Flex justify="flex-end" className="!mt-7">
-          <CustomButton disabled={isLoading} loading={isLoading} buttonType="submit">Create Password</CustomButton>
+          <CustomButton
+            disabled={isLoading}
+            loading={isLoading}
+            buttonType="submit"
+          >
+            Create Password
+          </CustomButton>
         </Flex>
       </form>
     </Card>

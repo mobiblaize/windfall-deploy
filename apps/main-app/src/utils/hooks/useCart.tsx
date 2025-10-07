@@ -125,6 +125,9 @@ export function useCart() {
         payload: {}, // no body
         headers: { "X-Guest-Cart-ID": activeGuestId },
       });
+      if (response?.data) {
+        setCart(response.data);
+      }
 
       // clear guest id after successful transfer
       localStorage.removeItem("guest_id");

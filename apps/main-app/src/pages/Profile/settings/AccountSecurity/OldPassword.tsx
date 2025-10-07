@@ -1,42 +1,33 @@
-import { Card, Flex, Stack, Text, TextInput } from "@mantine/core";
+import { Card, Flex, Stack, Text, PasswordInput, Alert } from "@mantine/core";
 import { HiDocumentArrowDown } from "react-icons/hi2";
-import { FiEye } from "react-icons/fi";
 import CustomButton from "../../../../components/Buttons/CustomButton";
-import AlertModal from "../../../../components/Modals/AlertModal";
-import { useState } from "react";
-import OtpModal from "./OtpModal";
+import { useForm } from "@mantine/form";
 
 type OldPasswordProps = {
-  onComplete: () => void;
+  onComplete: ({ password }: { password: string }) => void;
+  loading?: boolean;
+  error?: string;
 };
 
-function OldPassword({ onComplete }: OldPasswordProps) {
-  const [emailModalOpen, setEmailModalOpen] = useState(false);
-  const [otpModalOpen, setOtpModalOpen] = useState(false);
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(20); // 15 minutes
+function OldPassword({ onComplete, loading, error }: OldPasswordProps) {
+  const form = useForm({
+    initialValues: {
+      password: "",
+      password_confirmation: "",
+    },
+    validate: {
+      password: (val) => (val ? null : "Old Password is required"),
+      password_confirmation: (value, values) =>
+        value !== values.password ? "Passwords do not match" : null,
+    },
+  });
 
-  function validatePassword() {
-    setEmailModalOpen(true);
-  }
-  function resendOtp() {
-    setTimeLeft(20);
-  }
-
-  function emailEntered() {
-    setEmailModalOpen(false);
-    setOtpModalOpen(true);
-  }
-
-  function otpEntered() {
-    setOtpModalOpen(false);
-    setSuccessModalOpen(true);
-  }
-
-  function validateOtp() {
-    setOtpModalOpen(false);
-    onComplete();
-  }
+  const handleSubmit = (values: typeof form.values) => {
+    if (form.validate().hasErrors) {
+      return;
+    }
+    onComplete({ password: values.password });
+  };
 
   return (
     <Card withBorder className="!rounded-lg">
@@ -51,92 +42,50 @@ function OldPassword({ onComplete }: OldPasswordProps) {
           </Text>
         </div>
       </header>
-      <form>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        {error && (
+          <Alert
+            color="var(--color-primary-red)"
+            title="Update Failed"
+            className="!mb-5"
+          >
+            <Text>{error}</Text>
+          </Alert>
+        )}
         <Stack className="!capitalize" gap="xl">
-          <TextInput
+          <PasswordInput
             label="Enter your Old Password"
             placeholder="Enter your Old Password"
             withAsterisk
-            rightSection={<FiEye />}
             classNames={{
               label: "!text-sm !text-[#030303] font-normal",
               input: "!text-[#030303]",
             }}
+            {...form.getInputProps("password")}
+            error={form.getInputProps("password").error}
           />
-          <TextInput
+          <PasswordInput
             label="Confirm your Old Password"
             placeholder="Confirm your Old Password"
             withAsterisk
-            rightSection={<FiEye />}
             classNames={{
               label: "!text-sm !text-[#030303] font-normal",
               input: "!text-[#030303]",
             }}
+            {...form.getInputProps("password_confirmation")}
+            error={form.getInputProps("password_confirmation").error}
           />
         </Stack>
         <Flex justify="flex-end" className="!mt-7">
-          <CustomButton onClick={validatePassword}>
+          <CustomButton
+            disabled={loading}
+            loading={loading}
+            buttonType="submit"
+          >
             Validate Password
           </CustomButton>
         </Flex>
       </form>
-      <AlertModal
-        opened={emailModalOpen}
-        status="error"
-        title={
-          <>
-            <div className="!mt-5">Forget Password ?</div>
-          </>
-        }
-        description={
-          <>
-            <Text className="!text-base !text-center !text-[#818181] !mb-5">
-              To start the forget password process, kindly enter your email
-              below.
-              <br />
-              <br />
-              Don't not close this window after you press “Yes Forget Password”
-              Button
-            </Text>
-
-            <div className="text-start mb-2">
-              <TextInput
-                label="Your Email Address"
-                placeholder="Enter Your Email Address"
-                withAsterisk
-                rightSection={<FiEye />}
-                classNames={{
-                  label: "!text-sm !text-[#030303] font-normal",
-                  input: "!text-[#030303]",
-                }}
-              />
-            </div>
-          </>
-        }
-        primaryButton={{
-          label: "Yes, Forget Password",
-          onClick: emailEntered,
-        }}
-      />
-      <OtpModal
-        opened={otpModalOpen}
-        onClose={() => setOtpModalOpen(false)}
-        timeLeft={timeLeft}
-        setTimeLeft={setTimeLeft}
-        resendOtp={resendOtp}
-        onValidate={otpEntered}
-        emailMasked="ola************gmail.com"
-      />
-      <AlertModal
-        opened={successModalOpen}
-        status="success"
-        title="OTP Validated"
-        description="Congratulation, OTP has been successfully validated. You can know proceed to creating a new password"
-        primaryButton={{
-          label: "Continue",
-          onClick: validateOtp,
-        }}
-      />
     </Card>
   );
 }
