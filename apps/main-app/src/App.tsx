@@ -2,6 +2,8 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "./utils/helper/ProtectedRoute";
 import AdminProtectedRoute from "./utils/helper/AdminProtectedRoute";
+import ViewRaffles from "./pages/Admin/GameMgt/ViewRaffles";
+import CreateLayout from "./pages/Admin/CreateRaffle/CreateLayout";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
@@ -39,7 +41,7 @@ const GamesTickets = lazy(() => import("./pages/Profile/GamesTickets"));
 const GamesTab = lazy(() => import("./pages/Profile/GamesTab"));
 const ResultsTab = lazy(() => import("./pages/Profile/ResultsTab"));
 const GameResultsTickets = lazy(
-  () => import("./pages/Profile/GameResultsTickets")
+	() => import("./pages/Profile/GameResultsTickets")
 );
 const RewardTab = lazy(() => import("./pages/Profile/Reward/RewardTab"));
 const TransactionsTab = lazy(() => import("./pages/Profile/TransactionsTab"));
@@ -48,16 +50,16 @@ const PaymentReceipt = lazy(() => import("./pages/Profile/PaymentReceipt"));
 // Settings
 const SettingsTab = lazy(() => import("./pages/Profile/settings/SettingsTab"));
 const PersonalSettingsTab = lazy(
-  () => import("./pages/Profile/settings/PersonalSettingsTab")
+	() => import("./pages/Profile/settings/PersonalSettingsTab")
 );
 const AccountSecurity = lazy(
-  () => import("./pages/Profile/settings/AccountSecurity/AccountSecurity")
+	() => import("./pages/Profile/settings/AccountSecurity/AccountSecurity")
 );
 const ChangePassword = lazy(
-  () => import("./pages/Profile/settings/AccountSecurity/ChangePassword")
+	() => import("./pages/Profile/settings/AccountSecurity/ChangePassword")
 );
 const NotificationSettingsTab = lazy(
-  () => import("./pages/Profile/settings/NotificationSettingsTab")
+	() => import("./pages/Profile/settings/NotificationSettingsTab")
 );
 const AllNotifications = lazy(() => import("./pages/Profile/AllNotifications"));
 
@@ -89,15 +91,20 @@ const CreateRole = lazy(() => import("./pages/Admin/RoleMgt/CreateRole"));
 const EditRole = lazy(() => import("./pages/Admin/RoleMgt/EditRole"));
 const RoleDetails = lazy(() => import("./pages/Admin/RoleMgt/RoleDetails"));
 
+const RaffleManagement = lazy(
+	() => import("./pages/Admin/GameMgt/RaffleManagement")
+);
+const RaffleList = lazy(() => import("./pages/Admin/GameMgt/RaffleList"));
+
 function App() {
 
-  return (
-    <BrowserRouter>
-      <ScrollUp />
-      <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
+	return (
+		<BrowserRouter>
+      		<ScrollUp />
+			<Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+				<Routes>
+					<Route path="/" element={<MainLayout />}>
+						<Route index element={<Navigate to="/dashboard" replace />} />
 
             {/* Public routes */}
             <Route path="login" element={<LoginPage />} />
@@ -134,22 +141,22 @@ function App() {
               <Route path="transaction/receipt/:id" element={<PaymentReceipt />} />
               <Route path="notifications" element={<AllNotifications />} />
 
-              {/* Settings nested inside profile */}
-              <Route path="settings" element={<SettingsTab />} />
-              <Route
-                path="settings/personal"
-                element={<PersonalSettingsTab />}
-              />
-              <Route
-                path="settings/notification"
-                element={<NotificationSettingsTab />}
-              />
-              <Route path="settings/account" element={<AccountSecurity />} />
-              <Route
-                path="settings/change-password"
-                element={<ChangePassword />}
-              />
-            </Route>
+							{/* Settings nested inside profile */}
+							<Route path="settings" element={<SettingsTab />} />
+							<Route
+								path="settings/personal"
+								element={<PersonalSettingsTab />}
+							/>
+							<Route
+								path="settings/notification"
+								element={<NotificationSettingsTab />}
+							/>
+							<Route path="settings/account" element={<AccountSecurity />} />
+							<Route
+								path="settings/change-password"
+								element={<ChangePassword />}
+							/>
+						</Route>
 
             {/* Raffles */}
             <Route path="raffles" element={<RaffleGames />} />
@@ -160,7 +167,7 @@ function App() {
             />
             <Route path="raffles/receipts/:id" element={<RaffleGroups />} /> */}
 
-            <Route path="prize" element={<AllPricesPage />} />
+						<Route path="prize" element={<AllPricesPage />} />
 
             {/* Static pages */}
             <Route path="cart" element={<Cart />} />
@@ -226,6 +233,12 @@ function App() {
                 <Route path="roles/create" element={<CreateRole />} />
                 <Route path="roles/:id" element={<RoleDetails />} />
                 <Route path="roles/edit/:id" element={<EditRole />} />
+
+				<Route path="raffles" element={<RaffleManagement />} />
+				<Route path="raffles/list" element={<RaffleList />} />
+				<Route path="raffles/list/:id" element={<ViewRaffles />} />
+				
+				<Route path="create-raffle" element={<CreateLayout/>} />
               </Route>
             </Route>
           </Route>
