@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextInput, PasswordInput, Card, Flex } from "@mantine/core";
+import { TextInput, PasswordInput, Card, Flex, Alert, Text } from "@mantine/core";
 import { IconLogin } from "@tabler/icons-react";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import loginMain from "../../../assets/admin-login-main.png";
@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
   const { updateUser } = useSessionStorage();
   const loginMutation = usePostData("admin/auth/login");
   
-  const lastUserName = localStorage.getItem("username");
+  const lastUserName = localStorage.getItem("username");  
   
   function closeModal() {
     setSuccessModalOpen(false);
@@ -81,9 +81,7 @@ export default function AdminLoginPage() {
         color: "green",
       });
       setSuccessModalOpen(true);
-    } catch (error) {
-      console.log((error as LoginErrorResponse));
-      
+    } catch (error) {      
       notifications.show({
         title: "Login Failed",
         message: (error as LoginErrorResponse)?.message || "An error occurred",
@@ -109,13 +107,18 @@ export default function AdminLoginPage() {
 
           {/* Welcome Text */}
           <h2 className="text-[#818181] text-lg mb-0">Welcome Back</h2>
-          <h1 className="text-red-500 font-bold text-3xl mb-2">
+          {(lastUserName && lastUserName !== "undefined") && <h1 className="text-red-500 font-bold text-3xl mb-2">
             {lastUserName}
-          </h1>
+          </h1>}
           <p className="text-[#818181] mb-3">Log into your account with ease</p>
 
           {/* Form */}
           <form className="space-y-4 relative z-10">
+            {loginMutation.isError && (
+              <Alert color="var(--color-primary-red)" title="Login Failed" className="!mb-5">
+                <Text>{loginMutation.error.message}</Text>
+              </Alert>
+            )}
             <TextInput
               required
               className="!text-primary-text"

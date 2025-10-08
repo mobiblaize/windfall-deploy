@@ -7,15 +7,16 @@ interface RaffleBadgeProps {
   gameType: GameType;
   status: RaffleStatus;
   label?: string;
+  active?: string;
   className?: string;
   description?: string;
 }
 
-export default function GameBadge({ date, status, label, className, gameType, description }: RaffleBadgeProps) {
+export default function GameBadge({ date, active, status, label, className, gameType, description }: RaffleBadgeProps) {
   const isInstant = gameType==='instant';
   return (
     <>
-    {isInstant && <InstantRaffleBadge status={status} description={description} />}
+    {isInstant && <InstantRaffleBadge active={active} status={status} description={description} />}
     {!isInstant && <RaffleBadge date={date} status={status} label={label} className={className} description={description} />}
     </>
   );

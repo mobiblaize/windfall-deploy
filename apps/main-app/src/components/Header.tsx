@@ -10,21 +10,26 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { IconZoomFilled, IconChevronDown, IconHome,
+import {
+  IconZoomFilled,
+  IconChevronDown,
+  IconHome,
   IconInfoCircle,
   IconGift,
   IconTrophy,
   IconCalendarStats,
   IconPhoneCall,
   IconAward,
-  IconStar } from "@tabler/icons-react";
+  IconStar,
+} from "@tabler/icons-react";
 import { IoCartSharp } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import SideMenu from "./SideMenu";
+import { useCart } from "../utils/hooks/useCart";
 
 const menuItems = [
-  { name: "Home", path: "/" },
+  { name: "Home", path: "/dashboard" },
   { name: "How it Works", path: "/game-rules" },
   { name: "Raffles", path: "/raffles" },
   { name: "Game Result", path: "/profile/result" },
@@ -85,6 +90,7 @@ export default function Header() {
   const location = useLocation();
   const [opened, { toggle, close }] = useDisclosure(false);
   const isMobile = useMediaQuery("(max-width: 1095px)");
+  const { totalItemsQuantity } = useCart();
 
   return (
     <div className="bg-[#010101] text-white max-w-[100%]">
@@ -107,7 +113,7 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="flex items-center gap-[29px] overflow-x-auto">
+        <div className="flex items-center gap-[29px] overflow-x-auto  !overflow-visible">
           {!isMobile && (
             <span className="font-normal text-[#cdcdcd] text-nowrap">
               <NavLink to={"/download-app"}>
@@ -135,13 +141,17 @@ export default function Header() {
               </div>
             )}
 
-            <Link to="/cart">
-              <span>
-                <IoCartSharp className="rounded-full p-2 text-4xl hover:bg-primary-text" />
-              </span>
+            <Link to="/cart" className="relative inline-block">
+              <IoCartSharp className="rounded-full p-2 text-4xl hover:bg-primary-text" />
+
+              {!!totalItemsQuantity && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalItemsQuantity}
+                </span>
+              )}
             </Link>
 
-            <Link to="/profile">
+            <Link to="/profile/all-games">
               <span>
                 <FaUser className="rounded-full p-2 text-4xl hover:bg-primary-text" />
               </span>

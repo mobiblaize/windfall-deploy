@@ -2,138 +2,216 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { axiosInstance, baseUrl } from "../api/axios-instance";
 
-// Create Data
-export const usePostData = (url: string) => {
-  const mutation = useMutation({
-    mutationFn: async (arg: any) => {
-      const response = await axiosInstance.post(baseUrl + url, arg);
-      return response.data;
-    },
-  });
+type RequestHeaders = Record<string, string>;
 
-  return mutation;
+// -----------------------------
+// Merge Headers Helper
+// -----------------------------
+const normalizeHeaders = (headers: any): Record<string, string> => {
+  const normalized: Record<string, string> = {};
+  Object.entries(headers || {}).forEach(([key, value]) => {
+    if (typeof value === "string") normalized[key] = value;
+  });
+  return normalized;
 };
 
-export const usePostExportData = (url: string) => {
-  const mutation = useMutation({
-    mutationFn: async (arg: any) => {
-      const response = await axiosInstance.post(baseUrl + url, arg, {
-        responseType: "blob",
+const mergeHeaders = (
+  defaultHeaders?: RequestHeaders,
+  headers?: RequestHeaders
+): RequestHeaders => {
+  return {
+    ...normalizeHeaders(axiosInstance.defaults.headers.common),
+    ...normalizeHeaders(axiosInstance.defaults.headers.get),
+    ...normalizeHeaders(axiosInstance.defaults.headers.post),
+    ...normalizeHeaders(axiosInstance.defaults.headers.put),
+    ...normalizeHeaders(axiosInstance.defaults.headers.delete),
+    ...defaultHeaders,
+    ...headers,
+  };
+};
+
+
+// -----------------------------
+// Create Data (POST)
+// -----------------------------
+export const usePostData = (url: string, defaultHeaders?: RequestHeaders) => {
+  return useMutation({
+    mutationFn: async (
+      arg:
+        | any // raw payload
+        | { url?: string; payload?: any; headers?: RequestHeaders } // structured
+    ) => {
+      let apiUrl = url;
+      let payload: any = arg;
+      let headers: RequestHeaders | undefined;
+
+      if (typeof arg === "object" && ("url" in arg || "payload" in arg || "headers" in arg)) {
+        const structured = arg as { url?: string; payload?: any; headers?: RequestHeaders };
+        apiUrl = structured.url ?? url;
+        payload = structured.payload ?? {};
+        headers = structured.headers;
+      }
+
+      const response = await axiosInstance.post(baseUrl + apiUrl, payload, {
+        headers: mergeHeaders(defaultHeaders, headers),
       });
       return response.data;
     },
   });
-
-  return mutation;
 };
 
-// Get Export Data
-export const useGetExportData = (url: string) => {
-  const mutation = useMutation({
-    mutationFn: async () => {
+
+// -----------------------------
+// Create Export Data (POST Blob)
+// -----------------------------
+export const usePostExportData = (url: string, defaultHeaders?: RequestHeaders) => {
+  return useMutation({
+    mutationFn: async (arg: any & { headers?: RequestHeaders }) => {
+      const { headers, ...payload } = arg;
+      const response = await axiosInstance.post(baseUrl + url, payload, {
+        responseType: "blob",
+        headers: mergeHeaders(defaultHeaders, headers),
+      });
+      return response.data;
+    },
+  });
+};
+
+// -----------------------------
+// Get Export Data (GET Blob)
+// -----------------------------
+export const useGetExportData = (url: string, defaultHeaders?: RequestHeaders) => {
+  return useMutation({
+    mutationFn: async (headers?: RequestHeaders) => {
       const response = await axiosInstance.get(baseUrl + url, {
         responseType: "blob",
+        headers: mergeHeaders(defaultHeaders, headers),
       });
       return response.data;
     },
   });
-
-  return mutation;
 };
 
-// Upload Data
-export const useUploadData = (url: string) => {
-  const mutation = useMutation({
-    mutationFn: async (arg: any) => {
-      const response = await axiosInstance.post(baseUrl + url, arg, {
+// -----------------------------
+// Upload Data (POST FormData)
+// -----------------------------
+export const useUploadData = (url: string, defaultHeaders?: RequestHeaders) => {
+  return useMutation({
+    mutationFn: async (arg: any & { headers?: RequestHeaders }) => {
+      const { headers, ...payload } = arg;
+      const response = await axiosInstance.post(baseUrl + url, payload, {
         headers: {
+          ...mergeHeaders(defaultHeaders, headers),
           "Content-Type": "multipart/form-data",
         },
       });
       return response.data;
     },
   });
-
-  return mutation;
 };
 
-// Logout
-export const useLogout = () => {
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const response = await axiosInstance.get(
-        baseUrl + "customer/auth/logout"
-      );
+// -----------------------------
+// Logout (GET)
+// -----------------------------
+export const useLogout = (defaultHeaders?: RequestHeaders) => {
+  return useMutation({
+    mutationFn: async (headers?: RequestHeaders) => {
+      const response = await axiosInstance.get(baseUrl + "customer/auth/logout", {
+        headers: mergeHeaders(defaultHeaders, headers),
+      });
       return response.data;
     },
   });
-
-  return mutation;
 };
 
-// Update (PUT) Data
-export const usePutData = (url: string) => {
-  const mutation = useMutation({
-    mutationFn: async (arg: any) => {
-      const response = await axiosInstance.put(baseUrl + url, arg);
+// -----------------------------
+// Update Data (PUT)
+// -----------------------------
+export const usePutData = (url: string, defaultHeaders?: RequestHeaders) => {
+  return useMutation({
+    mutationFn: async (arg: any & { headers?: RequestHeaders }) => {
+      const { headers, ...payload } = arg;
+      const response = await axiosInstance.put(baseUrl + url, payload, {
+        headers: mergeHeaders(defaultHeaders, headers),
+      });
       return response.data;
     },
   });
-
-  return mutation;
 };
 
+// -----------------------------
 // Delete Data
-export const useDeleteData = (url: string) => {
-  const mutation = useMutation({
-    mutationFn: async (id?: string) => {
-      let api_url = `${baseUrl}${url}`;
+// -----------------------------
+export const useDeleteData = (url: string, defaultHeaders?: RequestHeaders) => {
+  return useMutation({
+    mutationFn: async (
+      arg?: string | { id?: string; headers?: RequestHeaders }
+    ) => {
+      let apiUrl = `${baseUrl}${url}`;
+      let headers: RequestHeaders = {};
 
-      if (id) {
-        api_url = `${api_url}/${id}`;
+      if (typeof arg === "object") {
+        if (arg.id) apiUrl = `${apiUrl}/${arg.id}`;
+        headers = arg.headers || {};
+      } else if (arg) {
+        apiUrl = `${apiUrl}/${arg}`;
       }
 
-      const response = await axiosInstance.delete(api_url);
+      const response = await axiosInstance.delete(apiUrl, {
+        headers: mergeHeaders(defaultHeaders, headers),
+      });
 
       return response.data;
     },
   });
-
-  return mutation;
 };
 
-// Get Data (Single Fetch)
-export const useGetData = (url: string) => {
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const response = await axiosInstance.get(baseUrl + url);
+// -----------------------------
+// Get Data (Single GET)
+// -----------------------------
+export const useGetData = (url: string, defaultHeaders?: RequestHeaders) => {
+  return useMutation<any, Error, RequestHeaders | void>({
+    mutationFn: async (headers) => {
+      const response = await axiosInstance.get(baseUrl + url, {
+        headers: mergeHeaders(defaultHeaders, headers ?? {}),
+      });
       return response.data;
     },
   });
-
-  return mutation;
 };
 
+// -----------------------------
 // Fetch Data (GET with Query)
-export const useFetchData = (url: string | null) => {
+// -----------------------------
+export const useFetchData = (url: string | null, defaultHeaders?: RequestHeaders) => {
   const query = useQuery({
     queryKey: [url],
     queryFn: async () => {
-      const response = await axiosInstance.get(baseUrl + url);
+      const response = await axiosInstance.get(baseUrl + url, {
+        headers: mergeHeaders(defaultHeaders),
+      });
       return response.data;
     },
-    enabled: !!url, // only run query if url is truthy
+    enabled: !!url,
   });
 
   return { ...query, isLoading: query.isFetching || query.isLoading };
 };
 
+// -----------------------------
 // Fetch Post Data (POST with Query)
-export const useFetchPostData = (url: string, options: any) => {
+// -----------------------------
+export const useFetchPostData = (
+  url: string,
+  options: any,
+  defaultHeaders?: RequestHeaders
+) => {
   const query = useQuery({
     queryKey: [url, options],
     queryFn: async () => {
-      const response = await axiosInstance.post(baseUrl + url, options);
+      const response = await axiosInstance.post(baseUrl + url, options, {
+        headers: mergeHeaders(defaultHeaders),
+      });
       return response.data;
     },
   });

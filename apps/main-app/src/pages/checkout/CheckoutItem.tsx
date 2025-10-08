@@ -1,38 +1,52 @@
 import { Flex, Text } from "@mantine/core";
+import type { Item } from "./Cart";
+import { formatCurrency } from "../../utils/helper/formatCurrency";
+import InstantBadge from "../raffles/InstantBadge";
 
-function CheckoutItem({item}:{item:unknown}) {
-	console.log(item);
-	
-	return (
-		<div className=" border-2 border-dashed border-secondary-text rounded-xl py-5 px-5">
-			<Text fz="lg" fw={600}>
-				Secure a Luxury Studio Apartment in Lekki, Lagos State, Nigeria
-			</Text>
-			<Text className="!text-secondary-text">
-				Enter now to grab the opportunity of a brand new Ho...
-			</Text>
-			<Flex justify="space-around" my="md">
-				<div className="text-center capitalize">
-					<Text fw={100} className="!text-secondary-text">
-						QTY
-					</Text>
-					<Text fw={500}>25 units</Text>
-				</div>
-				<div className="text-center capitalize">
-					<Text fw={100} className="!text-secondary-text">
-						unit price
-					</Text>
-					<Text fw={500}>25 units</Text>
-				</div>
-				<div className="text-center capitalize">
-					<Text fw={100} className="!text-secondary-text">
-						total price
-					</Text>
-					<Text fw={500}>25 units</Text>
-				</div>
-			</Flex>
-		</div>
-	);
+function CheckoutItem({ item }: { item: Item }) {
+  const isInstant = item?.instant_game === "true";
+  const hasDiscount = !!Number(item.discount_percentage);
+  const originalPrice = Number(item.unit_price) * Number(item.quantity);
+  
+  return (
+    <div className=" border-2 border-dashed border-secondary-text rounded-xl py-5 px-5">
+      <Flex justify="space-between" gap={10} wrap={"wrap"}>
+        <div>
+          <Text fz="lg" fw={600}>
+            {item.game_name}
+          </Text>
+          <Text className="!text-secondary-text !text-wrap">{item.description}</Text>
+        </div>
+        {isInstant && <InstantBadge size="sm" />}
+      </Flex>
+
+      <Flex justify="space-around" my="md">
+        <div className="text-center capitalize">
+          <Text fw={100} className="!text-secondary-text">
+            QTY
+          </Text>
+          <Text fw={500}>{item.quantity} units</Text>
+        </div>
+        <div className="text-center capitalize">
+          <Text fw={100} className="!text-secondary-text">
+            unit price
+          </Text>
+          <Text fw={500}>{formatCurrency(item.unit_price)}</Text>
+        </div>
+        <div className="text-center capitalize">
+          <Text fw={100} className="!text-secondary-text">
+            total price
+          </Text>
+          <Text fw={500}>{formatCurrency(item.total_price)}</Text>
+          {hasDiscount && (
+            <Text className="!line-through !text-primary-red !font-light md:!text-lg">
+              {formatCurrency(originalPrice)}
+            </Text>
+          )}
+        </div>
+      </Flex>
+    </div>
+  );
 }
 
 export default CheckoutItem;

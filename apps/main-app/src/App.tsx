@@ -22,14 +22,16 @@ const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const Signup = lazy(() => import("./pages/auth/Signup"));
 const Cart = lazy(() => import("./pages/checkout/Cart"));
 const CheckoutPage = lazy(() => import("./pages/checkout/CheckoutPage"));
+const CheckoutAuth = lazy(() => import("./pages/checkout/CheckoutAuth"));
+const RedirectOrderDetails = lazy(() => import("./components/RedirectOrderDetails"));
 
 // Raffles
 const RaffleGames = lazy(() => import("./pages/raffles/RaffleGames"));
 const RaffleDetails = lazy(() => import("./pages/raffles/RaffleDetails"));
-const RaffleGroups = lazy(() => import("./pages/raffles/RaffleGroups"));
-const RafflesPaymentReceipt = lazy(
-  () => import("./pages/raffles/RafflesPaymentReceipt")
-);
+// const RaffleGroups = lazy(() => import("./pages/raffles/RaffleGroups"));
+// const RafflesPaymentReceipt = lazy(
+//   () => import("./pages/raffles/RafflesPaymentReceipt")
+// );
 
 // Profile
 const ProfileLayout = lazy(() => import("./pages/Profile/ProfileLayout"));
@@ -88,10 +90,6 @@ const EditRole = lazy(() => import("./pages/Admin/RoleMgt/EditRole"));
 const RoleDetails = lazy(() => import("./pages/Admin/RoleMgt/RoleDetails"));
 
 function App() {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const isAuthenticated = user.id;
-
-  console.log(isAuthenticated);
 
   return (
     <BrowserRouter>
@@ -110,6 +108,8 @@ function App() {
             {/* Draws */}
             <Route path="draws" element={<Draws />} />
             <Route path="draws/recent" element={<RecentDraws />} />
+
+            {/* winners */}
             <Route path="winners/all-time" element={<AllWinnersPage />} />
             <Route path="winners/recent" element={<RecentWinners />} />
             <Route path="winners/all-time/:id" element={<SpecificResult />} />
@@ -131,6 +131,7 @@ function App() {
               <Route path="reward" element={<RewardTab />} />
               <Route path="transaction" element={<TransactionsTab />} />
               <Route path="transaction/:id" element={<PaymentReceipt />} />
+              <Route path="transaction/receipt/:id" element={<PaymentReceipt />} />
               <Route path="notifications" element={<AllNotifications />} />
 
               {/* Settings nested inside profile */}
@@ -153,11 +154,11 @@ function App() {
             {/* Raffles */}
             <Route path="raffles" element={<RaffleGames />} />
             <Route path="raffles/:id" element={<RaffleDetails />} />
-            <Route
+            {/* <Route
               path="raffles/receipts"
               element={<RafflesPaymentReceipt />}
             />
-            <Route path="raffles/receipts/:id" element={<RaffleGroups />} />
+            <Route path="raffles/receipts/:id" element={<RaffleGroups />} /> */}
 
             <Route path="prize" element={<AllPricesPage />} />
 
@@ -171,7 +172,12 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="checkout/signup" element={<Signup />} />
+            <Route path="checkout/signup" element={<CheckoutAuth />} />
+
+            
+            <Route path="/payment-success" element={<RedirectOrderDetails />} />
+            <Route path="/payment-failed" element={<RedirectOrderDetails />} />
+
             <Route
               path="responsible-playing"
               element={<ResponsiblePlaying />}

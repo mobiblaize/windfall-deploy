@@ -34,7 +34,7 @@ export interface User {
   approvalStatus: string;
   login_count: number;
   updated_by: string;
-  last_login?: string;
+  last_login: string;
   created_at: string;
   roles: Role[];
 }
@@ -235,7 +235,7 @@ export default function UserManagement() {
         </div>
 
         <div className="px-6 md:px-16">
-          <Tabs.Panel value="users" pt="md">
+          <Tabs.Panel value="users" pt="md" pb={30}>
             {getUsersMutation.isPending && <LoadingState description="Fetching users data from the system." />}
             {!getUsersMutation.isPending && (
               <>
@@ -336,9 +336,9 @@ export default function UserManagement() {
         opened={deactivateSuccessModalOpen}
         onClose={() => setDeactivateSuccessModalOpen(false)}
         status="success"
-        title={`User ${currentUserActiveStatus ? "Activated" : "Deactivated"}`}
+        title={`User ${!currentUserActiveStatus ? "Activated" : "Deactivated"}`}
         description={`User profile has been successfully ${
-          currentUserActiveStatus ? "activated" : "deactivated"
+          !currentUserActiveStatus ? "activated" : "deactivated"
         }.`}
         primaryButton={{
           label: "Close",
