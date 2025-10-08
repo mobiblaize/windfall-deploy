@@ -113,7 +113,7 @@ export default function AdminLoginPage() {
           <p className="text-[#818181] mb-3">Log into your account with ease</p>
 
           {/* Form */}
-          <form className="space-y-4 relative z-10">
+          <form className="space-y-4 relative z-10" onSubmit={form.onSubmit(handleSubmit)}>
             {loginMutation.isError && (
               <Alert color="var(--color-primary-red)" title="Login Failed" className="!mb-5">
                 <Text>{loginMutation.error.message}</Text>
@@ -148,7 +148,7 @@ export default function AdminLoginPage() {
 
               <CustomButton
                 border={false}
-                onClick={form.onSubmit(handleSubmit)}
+                buttonType="submit"
                 disabled={loginMutation.isPending}
                 loading={loginMutation.isPending}
                 size="md"
