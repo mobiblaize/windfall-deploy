@@ -1,6 +1,7 @@
+import { notifications } from "@mantine/notifications";
 import { atom, useAtom } from "jotai";
 import { useCallback, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export interface User {
   uuid: string;
@@ -84,6 +85,7 @@ export const useSessionStorage = () => {
   const [user, setUser] = useAtom(userAtom);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const updateUser = (value: AuthPayload | null) => {
     if (typeof window !== "undefined") {
@@ -136,9 +138,15 @@ export const useSessionStorage = () => {
       const expiry = parseInt(expiryStr, 10);
       const now = Date.now();
 
+      const isAdminPage = location.pathname.startsWith("/admin");
       if (now >= expiry) {
         clearUser();
-        navigate("/login");
+        navigate(isAdminPage ? "/admin/login" : "/login");
+        notifications.show({
+          title: "Session Timed Out",
+          message: "Please login again",
+          color: "red",
+        });
       } else {
         const timeout = expiry - now;
 
@@ -149,7 +157,12 @@ export const useSessionStorage = () => {
 
         timerRef.current = setTimeout(() => {
           clearUser();
-          navigate("/login");
+          navigate(isAdminPage ? "/admin/login" : "/login");
+          notifications.show({
+            title: "Session Timed Out",
+            message: "Please login again",
+            color: "red",
+          });
         }, timeout);
       }
     }
