@@ -1,230 +1,254 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-	Box,
-	Card,
-	Checkbox,
-	Divider,
-	Radio,
-	Select,
-	SimpleGrid,
-	Text,
-	TextInput,
+  Box,
+  Card,
+  Checkbox,
+  Divider,
+  Radio,
+  Select,
+  SimpleGrid,
+  Text,
+  TextInput,
 } from "@mantine/core";
 import { DateInput, TimeInput } from "@mantine/dates";
+import type { UseFormReturnType } from "@mantine/form";
 import { FaAngleDown } from "react-icons/fa";
+import { useState } from "react";
+import "@mantine/dates/styles.css";
 
-type Props = {};
-function BasicInformation({}: Props) {
-	return (
-		<Box>
-			<SimpleGrid cols={{ base: 1, sm: 2 }}>
-				<Box>
-					<Text tt="capitalize" fw={500}>
-						Raffle name
-					</Text>
-					<Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-						enter unique name for this raffle
-					</Text>
-				</Box>
-				<TextInput
-					placeholder="Enter raffle name"
-					classNames={{ input: "placeholder:text-xs" }}
-				/>
-			</SimpleGrid>
-			<Divider my="md" />
-			<SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
-				<Box>
-					<Text tt="capitalize" fw={500}>
-						short description
-					</Text>
-					<Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-						briefly describe what this raffle is all about.
-					</Text>
-				</Box>
-				<TextInput
-					placeholder="Enter raffle description"
-					classNames={{ input: "placeholder:text-xs" }}
-				/>
-			</SimpleGrid>
-			<Divider my="md" />
-			<SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
-				<Box>
-					<Text tt="capitalize" fw={500}>
-						Raffle category
-					</Text>
-					<Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-						Put this raffle in a specific category.
-					</Text>
-				</Box>
-				<Select
-					placeholder="Select category"
-					data={[
-						"instant raffle",
-						"money raffle",
-						"one-time raffle",
-						"house raffle",
-						"luxury raffle",
-						"general raffle",
-					]}
-					rightSection={<FaAngleDown />}
-					classNames={{ input: "placeholder:text-xs" }}
-				/>
-			</SimpleGrid>
-			<Divider my="md" />
-			<SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
-				<Box>
-					<Text tt="capitalize" fw={500}>
-						Raffle prize
-					</Text>
-					<Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-						prize to be won in this raffle.
-					</Text>
-				</Box>
-				{/* <Select
-					placeholder="Select prize"
-					data={[]}
-					rightSection={<FaAngleDown />}
-					classNames={{ input: "placeholder:text-xs" }}
-				/> */}
-				<TextInput
-					placeholder="Enter raffle description"
-					classNames={{ input: "placeholder:text-xs" }}
-				/>
-			</SimpleGrid>
-			<Divider my="md" />
-			<SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
-				<Box>
-					<Text tt="capitalize" fw={500}>
-						Raffle date
-					</Text>
-					<Text fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-						Define the start and End date for this raffle i.e When raffle would
-						go live all on website and mobile App.
-					</Text>
-				</Box>
-				<Box>
-					<Radio
-						label="straight to live raffle game"
-						variant="outline"
-						description="Therefore raffle would go to live as soon as it published from the
-						admin, ticket would be available for purchase instantly"
-					/>
-					<Card withBorder mt="md" radius="md" className="p-4">
-						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-							<DateInput
-								label="Start date"
-								placeholder="Pick start date"
-								required
-								classNames={{ input: "placeholder:text-xs" }}
-							/>
-							<DateInput
-								label="End date"
-								placeholder="Pick end date"
-								required
-								classNames={{ input: "placeholder:text-xs" }}
-							/>
-						</SimpleGrid>
-						<Divider my="md" />
-						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-							<TimeInput
-								label="Start time"
-								required
-								classNames={{ input: "placeholder:text-xs" }}
-							/>
-							<TimeInput
-								label="End time"
-								required
-								classNames={{ input: "placeholder:text-xs" }}
-							/>
-						</SimpleGrid>
-					</Card>
-					<Radio
-						mt="md"
-						label="schedule raffle"
-						variant="outline"
-						description="Raffle would go to live as soon as it is published from the admin, but ticket would only be available after the defined raffle scheduled date."
-					/>
-				</Box>
-			</SimpleGrid>
+type Props = { form: UseFormReturnType<any>; categories: any };
 
-			<Divider my="md" />
-			<Box
-				className="border-y border-dashed border-primary-red bg-secondary-red "
-				py={"sm"}
-				px={"md"}
-				my={"md"}
-			>
-				<Text tt="capitalize" fw={500} fz={"sm"}>
-					other details
-				</Text>
-				<Text tt="capitalize" fz={"xs"} c="var(--secondary-text)">
-					other raffle important detail
-				</Text>
-			</Box>
-			<SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
-				<Box>
-					<Text tt="capitalize" fw={500}>
-						allow use of promo code
-					</Text>
-					<Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-						enable use of promo code for discounted ticket.
-					</Text>
-				</Box>
-				<Box c={"var(--secondary-text)"} fz="xs">
-					<Checkbox
-						variant="outline"
-						label="No, Don't allow promo code for payment"
-						fz="xs"
-					/>
-					<Checkbox
-						variant="outline"
-						label="Yes, allow promo code for payment"
-						fz="xs"
-						mt="sm"
-					/>
-				</Box>
-			</SimpleGrid>
-			<Divider my="md" />
-			<SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
-				<Box>
-					<Text tt="capitalize" fw={500}>
-						referral payment
-					</Text>
-					<Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-						Enable referrals to boost user participation.
-					</Text>
-				</Box>
-				<Box c={"var(--secondary-text)"} fz="xs">
-					<Checkbox
-						variant="outline"
-						label="No, Don't allow referral balance for payment"
-						fz="xs"
-					/>
-					<Checkbox
-						variant="outline"
-						label="Yes, allow referral balance for payment"
-						fz="xs"
-						mt='sm'
-					/>
-				</Box>
-			</SimpleGrid>
-			<Divider my="md" />
-			<SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
-				<Box>
-					<Text tt="capitalize" fw={500}>
-						CTA text
-					</Text>
-					<Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-						Enter the catching call to action
-					</Text>
-				</Box>
-				<TextInput
-					placeholder="Enter CTA text"
-					classNames={{ input: "placeholder:text-xs" }}
-				/>
-			</SimpleGrid>
-			<Divider my="md" />
-		</Box>
-	);
+function BasicInformation({ form, categories }: Props) {
+  const [isScheduled, setIsScheduled] = useState(form.values.is_scheduled);
+
+  const handleScheduleChange = (value: boolean) => {
+    setIsScheduled(value);
+    form.setFieldValue("is_scheduled", value);
+  };
+
+  return (
+    <Box>
+      {/* Raffle Name */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }}>
+        <Box>
+          <Text tt="capitalize" fw={500}>
+            Raffle name
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Enter unique name for this raffle.
+          </Text>
+        </Box>
+        <TextInput
+          placeholder="Enter raffle name"
+          classNames={{ input: "placeholder:text-xs" }}
+          {...form.getInputProps("name")}
+        />
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      {/* Description */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={500}>
+            Short description
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Briefly describe what this raffle is all about.
+          </Text>
+        </Box>
+        <TextInput
+          placeholder="Enter short description"
+          classNames={{ input: "placeholder:text-xs" }}
+          {...form.getInputProps("description")}
+        />
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      {/* Category */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={500}>
+            Raffle category
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Put this raffle in a specific category.
+          </Text>
+        </Box>
+        <Select
+          placeholder="Select category"
+          data={categories}
+          rightSection={<FaAngleDown />}
+          classNames={{
+            input: "placeholder:text-xs",
+            options: "text-primary-text",
+          }}
+          {...form.getInputProps("category_id")}
+        />
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      {/* Raffle Date & Schedule */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={500}>
+            Raffle date
+          </Text>
+          <Text fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Define the start and end date for this raffle (when it goes live).
+          </Text>
+        </Box>
+        <Box>
+          <Radio
+            checked={!isScheduled}
+            onChange={() => handleScheduleChange(false)}
+            label="Straight to live raffle game"
+            description="Raffle goes live immediately upon publishing. Tickets available instantly."
+          />
+
+          {isScheduled && (
+            <Card withBorder mt="md" radius="md" className="p-4">
+              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                <DateInput
+                  label="Start date"
+                  placeholder="Pick start date"
+                  required
+                  classNames={{ input: "placeholder:text-xs" }}
+                  {...form.getInputProps("start_date")}
+                  error={form.errors.start_date}
+                />
+                <DateInput
+                  label="End date"
+                  placeholder="Pick end date"
+                  required
+                  classNames={{ input: "placeholder:text-xs" }}
+                  {...form.getInputProps("end_date")}
+                  error={form.errors.end_date}
+                />
+              </SimpleGrid>
+
+              <Divider my="md" />
+
+              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                <TimeInput
+                  label="Start time"
+                  required
+                  classNames={{ input: "placeholder:text-xs" }}
+                  {...form.getInputProps("start_time")}
+                />
+                <TimeInput
+                  label="End time"
+                  required
+                  classNames={{ input: "placeholder:text-xs" }}
+                  {...form.getInputProps("end_time")}
+                />
+              </SimpleGrid>
+            </Card>
+          )}
+
+          <Radio
+            mt="md"
+            checked={isScheduled}
+            onChange={() => handleScheduleChange(true)}
+            label="Schedule raffle"
+            description="Raffle will be published but tickets only become available after the scheduled date."
+          />
+        </Box>
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      {/* Allow promo code usage */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={500}>
+            Allow use of promo code
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Enable use of promo code for discounted tickets.
+          </Text>
+        </Box>
+        <Checkbox
+          label="Allow promo code for payment"
+          {...form.getInputProps("allow_promo_code_usage", {
+            type: "checkbox",
+          })}
+        />
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      {/* Referral payment */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={500}>
+            Referral payment
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Enable referrals to boost user participation.
+          </Text>
+        </Box>
+        <Box>
+          <Checkbox
+            label="Allow referral balance for payment"
+            {...form.getInputProps("allow_referral_balance_usage", {
+              type: "checkbox",
+            })}
+          />
+
+          {form.values.allow_referral_balance_usage && (
+            <Card withBorder mt="md" radius="md" className="p-4">
+              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                <TextInput
+                  label="Minimum referral balance amount"
+                  type="number"
+                  placeholder="Enter minimum amount"
+                  classNames={{ input: "placeholder:text-xs" }}
+                  {...form.getInputProps("minimum_referral_balance_amount")}
+                />
+                <TextInput
+                  label="Maximum referral balance amount"
+                  type="number"
+                  placeholder="Enter maximum amount"
+                  classNames={{ input: "placeholder:text-xs" }}
+                  {...form.getInputProps("maximum_referral_balance_amount")}
+                />
+              </SimpleGrid>
+            </Card>
+          )}
+        </Box>
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      {/* CTA Text */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={500}>
+            CTA text
+          </Text>
+          <Text tt="capitalize" fw={100} fz="xs" c="var(--secondary-text)">
+            Enter a catchy call to action.
+          </Text>
+        </Box>
+
+        <div>
+          <TextInput
+            placeholder="Play with ₦ 1,000 Today!!"
+            classNames={{ input: "placeholder:text-xs" }}
+            {...form.getInputProps("cta_text")}
+            maxLength={15}
+          />
+
+          <Text fz="xs" mt={4} c="dimmed">
+            15 characters, including spaces & punctuation
+          </Text>
+        </div>
+      </SimpleGrid>
+    </Box>
+  );
 }
 
 export default BasicInformation;

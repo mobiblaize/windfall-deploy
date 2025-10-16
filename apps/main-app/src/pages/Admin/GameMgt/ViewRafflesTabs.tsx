@@ -1,4 +1,4 @@
-import { Divider, Tabs } from "@mantine/core";
+import { Tabs } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import RaffleTransactionalList from "./RaffleTransactionalList";
@@ -27,13 +27,13 @@ function ViewRafflesTabs() {
 		params.set("view", newTab);
 		navigate(`?${params.toString()}`);
 	};
-	const tablinks = [
-		"transactional list",
-		"customer list",
-		"performance monitor",
-		"winner",
-		"game draw",
-	];
+	// const tablinks = [
+	// 	"transactional list",
+	// 	"customer list",
+	// 	"performance monitor",
+	// 	"winner",
+	// 	"game draw",
+	// ];
 	return (
 		<Tabs
 			value={tabs}
@@ -41,32 +41,6 @@ function ViewRafflesTabs() {
 			className="space-y-7 "
 			unstyled
 		>
-			<Tabs.List className="mr-5 !tracking-wide overflow-scroll flex flex-nowrap ">
-				{tablinks.map((item) => (
-					<Tabs.Tab
-						key={item}
-						value={item}
-						className="relative 
-        
-        px-2 py-2 mx-3
-        !font-xs sm:!font-medium 
-        !capitalize 
-        cursor-pointer 
-        rounded-t-md 
-        text-secondary-text
-        hover:text-primary-red
-        data-[active=true]:z-[1] 
-        data-[active=true]:text-[var(--color-primary-red)] 
-        data-[active=true]:border-b-2
-        data-[active=true]:border-b-solid 
-        data-[active=true]:border-b-2[var(--color-primary-red)]
-        data-[active=true]:hover:text-primary-red text-nowrap"
-					>
-						{item}
-					</Tabs.Tab>
-				))}
-			</Tabs.List>
-			<Divider />
 			<Tabs.Panel value="transactional list">
 				<RaffleTransactionalList />
 			</Tabs.Panel>

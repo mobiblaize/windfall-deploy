@@ -1,9 +1,11 @@
 import { Box, Text } from "@mantine/core";
 import TextEditor from "./TextEditor";
+import type { UseFormReturnType } from "@mantine/form";
 
-type Props = {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Props = {form: UseFormReturnType<any>};
 
-function ContentMarketing({}: Props) {
+function ContentMarketing({form}: Props) {
 	return (
 		<Box>
 			<Box
@@ -20,7 +22,7 @@ function ContentMarketing({}: Props) {
 				</Text>
 			</Box>
 
-			<TextEditor />
+			<TextEditor form={form} name="competition_details" />
 
 			<Box
 				className="border-y border-dashed border-primary-red bg-secondary-red "
@@ -35,7 +37,7 @@ function ContentMarketing({}: Props) {
 					Enter the raffle sponsors details below
 				</Text>
 			</Box>
-			<TextEditor />
+			<TextEditor form={form} name="sponsorship_details" />
 		</Box>
 	);
 }

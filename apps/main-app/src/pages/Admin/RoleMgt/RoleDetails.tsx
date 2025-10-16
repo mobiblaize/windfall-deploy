@@ -242,12 +242,12 @@ export default function RoleDetails() {
     <div>
       {/* Breadcrumb */}
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
-        <div className="px-6 md:px-16 py-1">
+        <div className="px-6 md:px-10 py-1">
           <DynamicBreadcrumbs items={breadCrumbs} />
         </div>
       </Card>
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
-        <div className="px-6 md:px-16 pt-7 pb-2 mb-7">
+        <div className="px-6 md:px-10 pt-7 pb-2 mb-7">
           <Flex justify="space-between" align="center">
             <div>
                 {isLoading ? (
@@ -301,7 +301,7 @@ export default function RoleDetails() {
         </div>
       </Card>
 
-      <div className="px-6 md:px-16 pt-10 pb-10 ">
+      <div className="px-6 md:px-10 pt-10 pb-10 ">
         <Card
           shadow="sm"
           radius="lg"

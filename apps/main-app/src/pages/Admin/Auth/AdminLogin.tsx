@@ -12,6 +12,7 @@ import { notifications } from "@mantine/notifications";
 import { useSessionStorage } from "../../../utils/hooks/useStorage";
 import { usePostData } from "../../../utils/hooks/useApis";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
+import { useAuth } from "../../../utils/hooks/useAuth";
 
 type LoginFormValues = {
   email: string;
@@ -33,6 +34,7 @@ export default function AdminLoginPage() {
   const [userId, setUserId] = useState('');
   const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { handleLoginRedirect } = useAuth();
   const { updateUser } = useSessionStorage();
   const loginMutation = usePostData("admin/auth/login");
   
@@ -40,7 +42,7 @@ export default function AdminLoginPage() {
   
   function closeModal() {
     setSuccessModalOpen(false);
-    navigate("/admin/dashboard");
+    handleLoginRedirect("/admin/dashboard");
   }
   
   function changePassword() {

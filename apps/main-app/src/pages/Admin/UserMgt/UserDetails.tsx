@@ -8,7 +8,6 @@ import {
   Avatar,
   Divider,
   ActionIcon,
-  Table,
   Group,
   Button,
   Box,
@@ -24,7 +23,6 @@ import DynamicBreadcrumbs, {
 } from "../../../components/DynamicBreadCrumbs";
 import { FaUserEdit } from "react-icons/fa";
 import { RiDeleteBin3Fill } from "react-icons/ri";
-import TableContainer from "../../../components/TableContainer";
 import { GoArrowUpRight } from "react-icons/go";
 import { HiDocumentArrowDown } from "react-icons/hi2";
 import { HiSearch } from "react-icons/hi";
@@ -41,8 +39,7 @@ import { notifications } from "@mantine/notifications";
 import { useDebounce } from "../../../utils/hooks/useDebounce";
 import TablePaginator from "../../../components/TablePaginator";
 import { format } from "date-fns";
-import LoadingState from "../../../components/LoadingState";
-import EmptySection from "../../../components/EmptySection";
+import DynamicTableSection from "../../../components/DynamicTableSection";
 
 const breadCrumbs: Crumb[] = [
   { label: "User Management", to: "/admin/users" },
@@ -259,12 +256,12 @@ export default function UserDetails() {
     <div>
       {/* Breadcrumb */}
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
-        <div className="px-6 md:px-16 py-1">
+        <div className="px-6 md:px-10 py-1">
           <DynamicBreadcrumbs items={breadCrumbs} />
         </div>
       </Card>
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
-        <div className="px-6 md:px-16 pt-7 pb-2 mb-7">
+        <div className="px-6 md:px-10 pt-7 pb-2 mb-7">
           <Flex justify="space-between" align="center">
             <div>
               {isLoading ? (
@@ -321,7 +318,7 @@ export default function UserDetails() {
         </div>
       </Card>
 
-      <div className="px-6 md:px-16 pt-10 pb-10 ">
+      <div className="px-6 md:px-10 pt-10 pb-10 ">
         <Card
           shadow="sm"
           radius="lg"
@@ -526,120 +523,36 @@ export default function UserDetails() {
               </Group>
             </Flex>
 
-            {userActivitiesMutation.isPending && (
-              <LoadingState
-                title="Loading user activities..."
-                description="Fetching user activities"
-              />
-            )}
+            <DynamicTableSection
+              headers={[
+                { label: "Date", key: "date" },
+                { label: "Time", key: "time" },
+                { label: "Affected Module", key: "module" },
+                { label: "Action Type", key: "type" },
+                { label: "", key: "action" },
+              ]}
+              data={userActivities}
+              loading={userActivitiesMutation.isPending}
+              renderItems={(activity) => [
+                activity?.created_at
+                  ? format(new Date(activity.created_at), "MMMM d, yyyy")
+                  : "-",
+                activity?.created_at
+                  ? format(new Date(activity.created_at), "h:mm a")
+                  : "-",
+                activity.action_module,
+                activity.action_type,
+                
+                <ActionIcon
+                  onClick={() => showUserAction(activity)}
+                  size={35}
+                  className="!bg-[#FFD5D6] !text-primary-red !text-xl"
+                >
+                  <GoArrowUpRight />
+                </ActionIcon>
+              ]}
+            />
 
-            {!userActivitiesMutation.isPending && (
-              <>
-                {/* Table for larger screens */}
-                <div className="!hidden sm:!block">
-                  <TableContainer
-                    headers={[
-                      "Date",
-                      "Time",
-                      "Affected Module",
-                      "Action Type",
-                      "",
-                    ]}
-                  >
-                    {userActivities.map((activity) => {
-                      return (
-                        <Table.Tr key={activity.uuid}>
-                          <Table.Td>
-                            <Text className="!text-base !font-medium">
-                              {activity?.created_at
-                                ? format(
-                                    new Date(activity.created_at),
-                                    "MMMM d, yyyy"
-                                  )
-                                : ""}
-                            </Text>
-                          </Table.Td>
-                          <Table.Td className="!pr-0">
-                            <Text className="!text-secondary-text !pr-0 !text-sm">
-                              {activity?.created_at
-                                ? format(
-                                    new Date(activity.created_at),
-                                    "h:mm a"
-                                  )
-                                : ""}
-                            </Text>
-                          </Table.Td>
-                          <Table.Td className="!pr-0">
-                            {activity.action_module}
-                          </Table.Td>
-                          <Table.Td className="!pr-0">
-                            <Text className="!text-base">
-                              {activity.action_type}
-                            </Text>
-                          </Table.Td>
-                          <Table.Td>
-                            <ActionIcon
-                              onClick={() => showUserAction(activity)}
-                              size={35}
-                              className="!bg-[#FFD5D6] !text-primary-red !text-xl"
-                            >
-                              <GoArrowUpRight />
-                            </ActionIcon>
-                          </Table.Td>
-                        </Table.Tr>
-                      );
-                    })}
-                  </TableContainer>
-                </div>
-
-                {/* Card view for small screens */}
-                <div className="sm:!hidden space-y-4 p-4">
-                  {userActivities.map((activity) => (
-                    <div
-                      key={activity.uuid}
-                      className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
-                    >
-                      <p>
-                        <strong>Date:</strong>{" "}
-                        {activity?.created_at
-                          ? format(
-                              new Date(activity.created_at),
-                              "MMMM d, yyyy"
-                            )
-                          : "-"}
-                      </p>
-                      <p>
-                        <strong>Time:</strong>{" "}
-                        {activity?.created_at
-                          ? format(new Date(activity.created_at), "h:mm a")
-                          : "-"}
-                      </p>
-                      <p>
-                        <strong>Affected Module:</strong>{" "}
-                        {activity.action_module}
-                      </p>
-                      <p>
-                        <strong>Action Type:</strong> {activity.action_type}
-                      </p>
-                      <ActionIcon
-                        onClick={() => showUserAction(activity)}
-                        size={35}
-                        className="!bg-[#FFD5D6] !text-primary-red !text-xl"
-                      >
-                        <GoArrowUpRight />
-                      </ActionIcon>
-                    </div>
-                  ))}
-                </div>
-
-                {!userActivities.length && (
-                  <EmptySection
-                    description="No activities found"
-                    title="No records found"
-                  />
-                )}
-              </>
-            )}
 
             <TablePaginator
               currentPage={currentPage}

@@ -173,7 +173,7 @@ export default function UserManagement() {
         }}
       >
         <div className="bg-white border-b-2 border-[#d0d5dd]">
-          <div className="px-6 md:px-16 pt-5 pb-2">
+          <div className="px-6 md:px-10 pt-5 pb-2">
             <Flex mb="lg" justify="space-between">
               <div>
                 <Title className="!text-primary-text text-2xl" order={2}>
@@ -217,7 +217,7 @@ export default function UserManagement() {
             </Flex>
           </div>
 
-          <Flex className="px-6 md:px-16" gap={15} justify="space-between">
+          <Flex className="px-6 md:px-10" gap={15} justify="space-between">
             <Tabs.List>
               <Tabs.Tab value="users">Manage Users</Tabs.Tab>
               <Tabs.Tab value="roles">Manage Roles</Tabs.Tab>
@@ -234,7 +234,7 @@ export default function UserManagement() {
           </Flex>
         </div>
 
-        <div className="px-6 md:px-16">
+        <div className="px-6 md:px-10">
           <Tabs.Panel value="users" pt="md" pb={30}>
             {getUsersMutation.isPending && <LoadingState description="Fetching users data from the system." />}
             {!getUsersMutation.isPending && (

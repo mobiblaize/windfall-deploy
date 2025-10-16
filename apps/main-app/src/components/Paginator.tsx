@@ -36,7 +36,7 @@ export default function Paginator({
     >
       <Button
         variant="unstyled"
-        disabled={(currentPage === 1) || isLoading}
+        disabled={(currentPage <= 1) || isLoading}
         onClick={() => currentPage > 1 && onPageChange?.(currentPage - 1)}
         style={sharedStyles}
       >

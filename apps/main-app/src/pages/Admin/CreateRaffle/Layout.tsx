@@ -1,4 +1,4 @@
-import { Box, Container, Divider, Flex, Text } from "@mantine/core";
+import { Box, Divider, Flex, Text } from "@mantine/core";
 import React from "react";
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 
 function Layout({ description, label, children, className }: Props) {
 	return (
-		<Container className={`${className}`} px={0}>
+		<div className={`${className}`}>
 			<Flex>
 				<Box>
 					<Text fw={600} fz={"lg"} c="var(--primary-red)" tt="capitalize">
@@ -23,7 +23,7 @@ function Layout({ description, label, children, className }: Props) {
 			</Flex>
 			<Divider my="md" />
 			{children}
-		</Container>
+		</div>
 	);
 }
 

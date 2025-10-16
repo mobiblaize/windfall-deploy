@@ -82,8 +82,8 @@ export default function RaffleGames() {
             >
               <option value="">Draw Time</option>
               <option value="next_24_hours">Next 24 Hours</option>
-              <option value="next_3_hours">Next 3 Hours</option>
-              <option value="next_3_hours">Next 3 Hours</option>
+              <option value="next_3_days">Next 3 Days</option>
+              <option value="next_7_days">Next 7 Days</option>
             </select>
 
             <DateInput
@@ -119,7 +119,7 @@ export default function RaffleGames() {
                 endDate ? (
                   <IoClose
                     className="cursor-pointer text-gray-500 hover:text-red-500"
-                    onClick={() => setStartDate('')}
+                    onClick={() => setEndDate('')}
                   />
                 ) : (
                   <CiCalendar />
@@ -149,30 +149,35 @@ export default function RaffleGames() {
           <FilterPill
             label="All Games"
             count={total}
+            loading={getRafflesMutation.isPending}
             active={statusFilter === "all"}
             onClick={() => setStatusFilter("all")}
           />
           <FilterPill
             label="Live Games"
             count={total}
+            loading={getRafflesMutation.isPending}
             active={statusFilter === "live"}
             onClick={() => setStatusFilter("live")}
           />
           <FilterPill
             label="Upcoming Games"
             count={total}
+            loading={getRafflesMutation.isPending}
             active={statusFilter === "upcoming"}
             onClick={() => setStatusFilter("upcoming")}
           />
           <FilterPill
             label="Instant Games"
             count={total}
+            loading={getRafflesMutation.isPending}
             active={statusFilter === "instant"}
             onClick={() => setStatusFilter("instant")}
           />
           <FilterPill
             label="Ended Games"
             count={total}
+            loading={getRafflesMutation.isPending}
             active={statusFilter === "ended"}
             onClick={() => setStatusFilter("ended")}
           />

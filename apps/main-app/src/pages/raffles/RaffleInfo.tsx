@@ -264,8 +264,8 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
           {isActive && (
             <div className="flex gap-x-2 md:gap-x-5 items-center">
-              <PiPlusFill
-                onClick={() => handleQuantityChange(1)}
+              <PiMinusFill
+                onClick={() => handleQuantityChange(-1)}
                 size={32}
                 className="p-2 text-[#ABABAB] rounded-full bg-white cursor-pointer shadow-md"
               />
@@ -273,9 +273,9 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
               <Text className="!px-5 !pt-1.5 !rounded-t-lg !font-semibold !text-primary-red !text-2xl md:!text-3xl !bg-secondary-red !border-dashed !border-b-1 !border-primary-red ">
                 {quantity}
               </Text>
-
-              <PiMinusFill
-                onClick={() => handleQuantityChange(-1)}
+              
+              <PiPlusFill
+                onClick={() => handleQuantityChange(1)}
                 size={32}
                 className="p-2 text-[#ABABAB] rounded-full bg-white cursor-pointer shadow-md"
               />
@@ -394,7 +394,6 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
                 color: "#fff",
               }}
               onClick={() => handleAddToCart(true)}
-              loading={addItemMutation.isPending}
               disabled={!isActive || addItemMutation.isPending}
               className={`text-sm font-semibold !py-2 !rounded-xl transition !border-2 !border-dashed !border-secondary-red hover:bg-gray-900 !shadow-md`}
               rightSection={<IconCash />}

@@ -69,7 +69,7 @@ export default function UserAction({ opened, onClose, activity }: UserActionModa
           <div key={idx}>
             <div className="flex justify-between items-center py-5">
               <Text className="!text[#4C4D61]">{item.label}</Text>
-              <div className="!font-medium text-[#000014]">{item.value}</div>
+              <div className="!font-medium text-[#000014] text-end">{item.value}</div>
             </div>
             {idx !== fields.length - 1 && <Divider />}
           </div>

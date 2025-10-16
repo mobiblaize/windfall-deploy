@@ -17,7 +17,7 @@ function GamedrawTab() {
 	const draw: any[] = [1];
 	return (
 		
-            <Box mx="xl">
+            <Box mt="xl" pb="xl" mx="xl">
                 {draw.length ?
 				<SimpleGrid cols={{ base: 1, sm: 2 }}>
 					{draw?.map((item) => (

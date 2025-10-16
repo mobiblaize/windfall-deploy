@@ -34,10 +34,10 @@ export default function HeroSlider() {
       </div>
 
       {/* Dots Navigation (Mockup for now) */}
-      <div className="absolute bottom-5 right-5 flex gap-2 z-20">
+      {/* <div className="absolute bottom-5 right-5 flex gap-2 z-20">
         <span className="w-3 h-3 rounded-full bg-white/60" />
         <span className="w-3 h-3 rounded-full bg-white/90" />
-      </div>
+      </div> */}
     </section>
   );
 }

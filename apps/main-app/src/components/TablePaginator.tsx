@@ -15,7 +15,7 @@ export default function TablePaginator({
   pageSize,
   onPageChange,
 }: PaginatorProps) {
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const totalPages = Math.max(1, Math.ceil(total / pageSize)) || 0;
   return (
     <Flex
       my="md"
@@ -32,7 +32,7 @@ export default function TablePaginator({
         <Button
           variant="outline"
           className="!border-secondary-text/50 hover:!bg-secondary-text/10 !text-secondary-text"
-          disabled={currentPage === 1 || isLoading}
+          disabled={currentPage <= 1 || isLoading}
           onClick={() => currentPage > 1 && onPageChange?.(currentPage - 1)}
         >
           Previous

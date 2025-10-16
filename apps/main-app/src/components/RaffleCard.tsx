@@ -8,7 +8,8 @@ import defaultRaffleImg from "../utils/helper/defaultRaffeImg";
 
 export default function RaffleCard(raffle: Raffle) {
   const isActive = raffle.main_active_status === "live";
-  const isInstant = (raffle.main_active_status === "instant") || (raffle.instant_game === "true");
+  const isInstant =
+    raffle.main_active_status === "instant" || raffle.instant_game === "true";
   const navigate = useNavigate();
   const progressColor = isActive ? "var(--primary-red)" : "#f79009";
 
@@ -35,7 +36,10 @@ export default function RaffleCard(raffle: Raffle) {
       </h3>
       <p className="text-gray-500 text-sm mt-1">{raffle.description}</p>
 
-      <p className="text-xs mt-3 mb-2 text-gray-500">Min Entry Fee: <span>{formatCurrency(raffle.maximum_ticket_amount_purchase)}</span></p>
+      <p className="text-xs mt-3 mb-2 text-gray-500">
+        Min Entry Fee:{" "}
+        <span>{formatCurrency(raffle.maximum_ticket_amount_purchase)}</span>
+      </p>
       {/* <div className="border-2 border-dashed border-red-500 rounded-md my-2"> */}
       <Button
         fullWidth
@@ -52,24 +56,40 @@ export default function RaffleCard(raffle: Raffle) {
           !isActive ? "" : isInstant ? "!bg-instant-blue" : "!bg-primary-red"
         }`}
       >
-        {isInstant
-          ? `Purchase Ticket For ${formatCurrency(raffle.ticket_price)}`
-          : `Buy Ticket For ${formatCurrency(raffle.ticket_price)}`}
+        {raffle.cta_text
+          ? raffle.cta_text
+          : isInstant
+            ? `Purchase Ticket For ${formatCurrency(raffle.ticket_price)}`
+            : `Buy Ticket For ${formatCurrency(raffle.ticket_price)}`}
       </Button>
       {/* </div> */}
 
-      {raffle.total_tickets && <div className="mt-5">
-        <div className="flex items-center">
-          <div className="w-2/3">
-            <Progress value={getTicketsSoldPercentage(raffle.available_tickets, raffle.total_tickets)} color={progressColor} size="sm" radius="xl" />
-          </div>
-          <div className="w-1/3">
-            <p className="text-xs mt-1 text-gray-500 text-right">
-              {getTicketsSoldPercentage(raffle.available_tickets, raffle.total_tickets)}% Entries Sold
-            </p>
+      {raffle.total_tickets && (
+        <div className="mt-5">
+          <div className="flex items-center">
+            <div className="w-2/3">
+              <Progress
+                value={getTicketsSoldPercentage(
+                  raffle.available_tickets,
+                  raffle.total_tickets
+                )}
+                color={progressColor}
+                size="sm"
+                radius="xl"
+              />
+            </div>
+            <div className="w-1/3">
+              <p className="text-xs mt-1 text-gray-500 text-right">
+                {getTicketsSoldPercentage(
+                  raffle.available_tickets,
+                  raffle.total_tickets
+                )}
+                % Entries Sold
+              </p>
+            </div>
           </div>
         </div>
-      </div>}
+      )}
     </div>
   );
 }

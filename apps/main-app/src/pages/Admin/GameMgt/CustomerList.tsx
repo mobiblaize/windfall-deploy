@@ -22,7 +22,7 @@ import RaffleCustomTable from "./RaffleCustomTable";
 
 function CustomerList() {
 	return (
-		<Box mx={"xl"}>
+		<Box mt="xl" pb="xl" mx="xl">
 			<Card withBorder radius={"md"}>
 				<Box>
 					<Text tt={"capitalize"} fz={"xl"} fw={"600"}>

@@ -22,6 +22,7 @@ import { evaluateAge } from "../../../utils/helper/evaluateAge";
 import { formatDateString } from "../../../utils/helper/formatDateString";
 import AlertModal from "../../../components/Modals/AlertModal";
 import { useNavigate } from "react-router-dom";
+import { useSessionStorage } from "../../../utils/hooks/useStorage";
 
 const inputStyles = {
   input: {
@@ -73,6 +74,7 @@ function PersonalSettingsTab() {
   const [profile, setProfile] = useState<UserProfile>();
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const { setUser } = useSessionStorage();
   const {
     data: response,
     isLoading,
@@ -160,6 +162,7 @@ function PersonalSettingsTab() {
         message: response?.message || "Profile updated successfully",
         color: "green",
       });
+      if (!response?.error) setUser(response.data);
       setConfirmationModalOpen(false);
       setSuccessModalOpen(true);
     } catch (error) {

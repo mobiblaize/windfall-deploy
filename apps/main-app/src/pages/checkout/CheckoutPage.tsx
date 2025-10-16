@@ -305,8 +305,8 @@ function CheckoutPage() {
 
         {!cartLoading && (
           <>
-            {!cart?.cart.summary.total_quantity && <EmptyCart />}
-            {cart?.cart.summary.total_quantity && (
+            {!cart?.cart.summary.total_quantity && !buyNowItem && <EmptyCart />}
+            {(cart?.cart.summary.total_quantity || buyNowItem) && (
               <div className="grid grid-flow-row lg:grid-cols-5 gap-7">
                 <div className="!col-span-5 md:!col-span-3">
                   <Card
@@ -323,7 +323,7 @@ function CheckoutPage() {
                       </Text>
                     </header>
                     <section className="space-y-5">
-                      {!cart?.cart.items?.length && (
+                      {!cart?.cart.items?.length && !buyNowItem && (
                         <Text className="!text-secondary-text !mb-10 !text-center !tracking-wide">
                           No items found
                         </Text>

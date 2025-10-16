@@ -16,7 +16,7 @@ export function FilterMenu({ items }: Props) {
 		>
 			<Menu.Target>
 				<Button
-					className="!border-secondary-text !text-secondary-text !capitalize"
+					className="!border-[#D0D5DD] !text-secondary-text !capitalize"
 					variant="outline"
 					rightSection={<IoFilterOutline size={18} />}
 				>
@@ -53,7 +53,7 @@ export const SortMenu = ({ items }: Props) => {
 		>
 			<Menu.Target>
 				<Button
-					className="!border-secondary-text !text-secondary-text !capitalize"
+					className="!border-[#D0D5DD] !text-secondary-text !capitalize"
 					variant="outline"
 					rightSection={<IoFilterOutline size={18} />}
 				>
@@ -91,7 +91,7 @@ export const TakeAction = () => {
 			<Menu.Target>
 				<Button
 					variant="outline"
-					className="!text-secondary-text !border-secondary-text scale-90 sm:scale-100"
+					className="!text-secondary-text !border-[#D0D5DD] scale-90 sm:scale-100"
 					rightSection={<FaAngleDown />}
 					
 				>

@@ -11,7 +11,6 @@ import {
 	Table,
 } from "@mantine/core";
 import { PiQuestionThin } from "react-icons/pi";
-import { formatCurrency } from "../../../utils/helper";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { FaFileArrowDown } from "react-icons/fa6";
 import { FilterMenu, SortMenu } from "../../../components/FilterMenu";
@@ -19,11 +18,12 @@ import { FaSearch } from "react-icons/fa";
 import TransactionDetailModal from "./TransactionDetailModal";
 import WebMobileTab from "./WebMobileTab";
 import RaffleCustomTable from "./RaffleCustomTable";
+import { formatCurrency } from "../../../utils/helper/formatCurrency";
 
 function RaffleTransactionalList() {
 	return (
-		<>
-			<Card mt="lg" mb="xl" mx="xl" radius={"md"} withBorder>
+		<Box mt="xl" pb="xl" mx="xl">
+			<Card withBorder radius={"md"}>
 				<Box>
 					<Text tt="capitalize" fz={"lg"} fw={600}>
 						Raffle list
@@ -228,7 +228,7 @@ function RaffleTransactionalList() {
 					</Group>
 				</Flex>
 			</Card>
-		</>
+		</Box>
 	);
 }
 

@@ -173,12 +173,12 @@ export default function EditUser() {
     <div>
       {/* Breadcrumb */}
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
-        <div className="px-6 md:px-16 py-1">
+        <div className="px-6 md:px-10 py-1">
           <DynamicBreadcrumbs items={breadCrumbs} />
         </div>
       </Card>
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
-        <div className="px-6 md:px-16 pt-7 pb-2">
+        <div className="px-6 md:px-10 pt-7 pb-2">
           <Flex mb="lg" justify="space-between">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
