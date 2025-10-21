@@ -36,7 +36,7 @@ function Salestabs({ salesStats, loading, ticketStats }: {salesStats?: TicketSal
   ];
 
   const breakdowns = (()=> {
-    return salesStats?.highest_grossing_platform?.platform_breakdown?.filter(x=>x.platform===tabs) ?? [];
+    return salesStats?.highest_grossing_platform?.last_30_days_platform_breakdown?.filter(x=>x.platform===tabs) ?? [];
   })();
   return (
     <Tabs

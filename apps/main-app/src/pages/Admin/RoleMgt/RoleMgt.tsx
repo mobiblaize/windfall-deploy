@@ -340,8 +340,10 @@ export default function RoleManagement() {
                   </>
                 ) : (
                   <EmptyState
-                    btnText="Add User"
+                    btnText="Create Role"
                     description="No roles found"
+                    format="secondary"
+                    fullWidth={true}
                     title="No roles found"
                     redirectLink="/admin/roles/create"
                   />

@@ -82,13 +82,13 @@ export default function AdminAlertModal({
       }}
     >
       <Box className="text-center">
-        <Image
+        {getStatusImage() && <Image
           src={primaryButton?.loading ? loadingImg : getStatusImage()}
           alt={status}
           className="w-[100px] h-[100px] mx-auto mb-5"
           fit="contain"
           radius="md"
-        />
+        />}
 
         <div className={`!text-3xl !font-semibold !mb-4 ${getTitleColor()}`}>
           {title}

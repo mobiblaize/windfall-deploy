@@ -8,8 +8,6 @@ import {
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "./utils/helper/ProtectedRoute";
 import AdminProtectedRoute from "./utils/helper/AdminProtectedRoute";
-import ViewRaffles from "./pages/Admin/GameMgt/ViewRaffles";
-import CreateLayout from "./pages/Admin/CreateRaffle/CreateLayout";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
@@ -107,6 +105,38 @@ const RaffleManagement = lazy(
   () => import("./pages/Admin/GameMgt/RaffleManagement")
 );
 const RaffleList = lazy(() => import("./pages/Admin/GameMgt/RaffleList"));
+const ViewRaffles = lazy(() => import("./pages/Admin/GameMgt/ViewRaffles"));
+const CreateLayout = lazy(
+  () => import("./pages/Admin/CreateRaffle/CreateLayout")
+);
+
+const Support = lazy(() => import("./pages/Admin/Support/Support"));
+const ViewComplaint = lazy(() => import("./pages/Admin/Support/ViewComplaint"));
+
+const PromoCode = lazy(() => import("./pages/Admin/PromoCode/PromoCode"));
+const CreatePromoCode = lazy(
+  () => import("./pages/Admin/PromoCode/CreatePromoCode")
+);
+const ViewPromoCode = lazy(
+  () => import("./pages/Admin/PromoCode/ViewPromoCode")
+);
+
+const AuditTrail = lazy(() => import("./pages/Admin/AuditTrail/AuditTrail"));
+
+const TransactionDashboard = lazy(
+  () => import("./pages/Admin/TransactionMgt/TransactionDashboard")
+);
+const TransactionList = lazy(
+  () => import("./pages/Admin/TransactionMgt/TransactionList")
+);
+
+const CustomerDashboard = lazy(
+  () => import("./pages/Admin/CustomerMgt/CustomerDashboard")
+);
+
+const Notifications = lazy(
+  () => import("./pages/Admin/Notifications/Notifications")
+);
 
 function App() {
   return (
@@ -254,10 +284,35 @@ function App() {
                 <Route path="roles/edit/:id" element={<EditRole />} />
 
                 <Route path="raffles" element={<RaffleManagement />} />
-                <Route path="raffles/list" element={<RaffleList />} />
-                <Route path="raffles/list/:id" element={<ViewRaffles />} />
-
+                <Route path="raffles/all" element={<RaffleList />} />
+                <Route path="raffles/:id" element={<ViewRaffles />} />
                 <Route path="raffles/create" element={<CreateLayout />} />
+
+                {/* Customer Support */}
+                <Route path="support" element={<Support />} />
+                <Route path="support/:id" element={<ViewComplaint />} />
+
+                {/* Promo Code */}
+                <Route path="promo-codes">
+                  <Route index element={<PromoCode />} />
+                  <Route path="create" element={<CreatePromoCode />} />
+                  <Route path=":id" element={<ViewPromoCode />} />
+                </Route>
+
+                {/* Audit Trail */}
+                <Route path="audit" element={<AuditTrail />} />
+
+                {/* Customers */}
+                <Route path="customers" element={<CustomerDashboard />} />
+
+                {/* Notifications */}
+                <Route path="notifications" element={<Notifications />} />
+
+                {/* Transactions */}
+                <Route path="transactions">
+                  <Route index element={<TransactionDashboard />} />
+                  <Route path="all" element={<TransactionList />} />
+                </Route>
               </Route>
             </Route>
           </Route>

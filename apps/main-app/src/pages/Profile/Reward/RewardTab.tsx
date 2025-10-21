@@ -268,6 +268,7 @@ function RewardTab() {
               )}
               {!transactions.length && (
                 <EmptySection
+                  format="secondary"
                   description="No transactions found"
                   title="No records found"
                 />

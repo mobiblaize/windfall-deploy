@@ -8,7 +8,6 @@ import {
   Skeleton,
 } from "@mantine/core";
 import { BiSolidBell } from "react-icons/bi";
-import { RaffleTable } from "./RaffleTable";
 import PerformanceMonitor from "./PerformanceMonitor";
 import { useFetchData } from "../../../utils/hooks/useApis";
 import { useEffect, useState } from "react";
@@ -17,6 +16,7 @@ import { DateInput } from "@mantine/dates";
 import { IoClose } from "react-icons/io5";
 import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
+import SampleRaffles from "./SampleRaffles";
 
 type StatsCard = {
   title: string;
@@ -218,7 +218,7 @@ function RaffleManagement() {
       </div>
 
       {/* === Raffle list table === */}
-      <RaffleTable />
+      <SampleRaffles />
 
       <PerformanceMonitor />
     </>

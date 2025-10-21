@@ -104,7 +104,7 @@ export default function RaffleGames() {
                 startDate ? (
                   <IoClose
                     className="cursor-pointer text-gray-500 hover:text-red-500"
-                    onClick={() => setStartDate('')}
+                    onClick={() => setStartDate("")}
                   />
                 ) : (
                   <CiCalendar />
@@ -119,7 +119,7 @@ export default function RaffleGames() {
                 endDate ? (
                   <IoClose
                     className="cursor-pointer text-gray-500 hover:text-red-500"
-                    onClick={() => setEndDate('')}
+                    onClick={() => setEndDate("")}
                   />
                 ) : (
                   <CiCalendar />
@@ -185,7 +185,7 @@ export default function RaffleGames() {
       </div>
 
       {/* Raffles Grid */}
-      <div className="px-6 md:px-16 pt-15 pb-10">
+      <div className="px-6 md:px-16 pt-15 pb-15">
         {getRafflesMutation.isPending && (
           <LoadingState description="Fetching games from the system." />
         )}
@@ -201,10 +201,14 @@ export default function RaffleGames() {
                 </div>
               </>
             ) : (
-              <EmptyState
-                description="No raffle games found"
-                title="No Games Found"
-              />
+              <div className="-mt-10">
+                <EmptyState
+                  description="No raffle games found"
+                  title="No Games Found"
+                  format="secondary"
+                  fullWidth={true}
+                />
+              </div>
             )}
           </>
         )}

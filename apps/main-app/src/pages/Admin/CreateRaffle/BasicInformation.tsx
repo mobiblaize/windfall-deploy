@@ -108,46 +108,6 @@ function BasicInformation({ form, categories }: Props) {
             description="Raffle goes live immediately upon publishing. Tickets available instantly."
           />
 
-          {isScheduled && (
-            <Card withBorder mt="md" radius="md" className="p-4">
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                <DateInput
-                  label="Start date"
-                  placeholder="Pick start date"
-                  required
-                  classNames={{ input: "placeholder:text-xs" }}
-                  {...form.getInputProps("start_date")}
-                  error={form.errors.start_date}
-                />
-                <DateInput
-                  label="End date"
-                  placeholder="Pick end date"
-                  required
-                  classNames={{ input: "placeholder:text-xs" }}
-                  {...form.getInputProps("end_date")}
-                  error={form.errors.end_date}
-                />
-              </SimpleGrid>
-
-              <Divider my="md" />
-
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                <TimeInput
-                  label="Start time"
-                  required
-                  classNames={{ input: "placeholder:text-xs" }}
-                  {...form.getInputProps("start_time")}
-                />
-                <TimeInput
-                  label="End time"
-                  required
-                  classNames={{ input: "placeholder:text-xs" }}
-                  {...form.getInputProps("end_time")}
-                />
-              </SimpleGrid>
-            </Card>
-          )}
-
           <Radio
             mt="md"
             checked={isScheduled}
@@ -155,6 +115,44 @@ function BasicInformation({ form, categories }: Props) {
             label="Schedule raffle"
             description="Raffle will be published but tickets only become available after the scheduled date."
           />
+
+          <Card withBorder mt="md" radius="md" className="p-4">
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+              <DateInput
+                label="Start date"
+                placeholder="Pick start date"
+                required
+                classNames={{ input: "placeholder:text-xs" }}
+                {...form.getInputProps("start_date")}
+                error={form.errors.start_date}
+              />
+              <DateInput
+                label="End date"
+                placeholder="Pick end date"
+                required
+                classNames={{ input: "placeholder:text-xs" }}
+                {...form.getInputProps("end_date")}
+                error={form.errors.end_date}
+              />
+            </SimpleGrid>
+
+            <Divider my="md" />
+
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+              <TimeInput
+                label="Start time"
+                required
+                classNames={{ input: "placeholder:text-xs" }}
+                {...form.getInputProps("start_time")}
+              />
+              <TimeInput
+                label="End time"
+                required
+                classNames={{ input: "placeholder:text-xs" }}
+                {...form.getInputProps("end_time")}
+              />
+            </SimpleGrid>
+          </Card>
         </Box>
       </SimpleGrid>
 

@@ -46,6 +46,10 @@ export const instantGameColorMap = {
     color: "#ff2f31",
     text: "Game Closed",
   },
+  inactive: {
+    color: "#ff2f31",
+    text: "Inactive",
+  },
 };
 
 export const liveGameColorMap = {

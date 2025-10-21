@@ -298,6 +298,8 @@ export default function UserManagement() {
                     btnText="Add User"
                     description="No users found"
                     title="No users found"
+                    format="secondary"
+                    fullWidth={true}
                     redirectLink="/admin/users/create"
                   />
                 )}

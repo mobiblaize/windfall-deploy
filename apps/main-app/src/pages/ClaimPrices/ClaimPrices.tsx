@@ -11,7 +11,7 @@ import ClaimPricesStep2 from "./ClaimPricesStep2";
 import ClaimPricesStep3 from "./ClaimPricesStep3";
 import ClaimSuccessModal from "./ClaimSuccessModal";
 import { useNavigate } from "react-router-dom";
-import GamesTicketModal from "../../components/Modals/GamesTicketModal";
+// import GamesTicketModal from "../../components/Modals/GamesTicketModal";
 
 const formData = {
   raffleTitle: "3 bedroom house in lekki",
@@ -106,7 +106,7 @@ export default function ClaimPrices() {
                     alt="raffle"
                     className="w-full rounded-xl h-70 object-cover mb-[-1.25rem]"
                   />
-                  <RaffleBadge date={"June 2, 2025 | 10:00am"} status={"won"} />
+                  {/* <RaffleBadge date={"June 2, 2025 | 10:00am"} status={"won"} /> */}
                 </div>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 6 }}>
@@ -238,13 +238,13 @@ export default function ClaimPrices() {
         referenceId={referenceId}
       />
 
-      {ticketModalOpen && (
+      {/* {ticketModalOpen && (
         <GamesTicketModal
           item={""}
           isOpened={ticketModalOpen}
           onClose={() => setTicketModalOpen(false)}
         />
-      )}
+      )} */}
     </div>
   );
 }

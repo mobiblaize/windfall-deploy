@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { PiMinusFill, PiPlusFill } from "react-icons/pi";
 import { Button, Card, Progress, Text } from "@mantine/core";
 import DiscountSlider from "../../components/DiscountSlider";
-import RaffleBadge from "../../components/RaffleBadge";
 import { IconCash } from "@tabler/icons-react";
 import { IoCartSharp } from "react-icons/io5";
 import { FaReceipt, FaUser } from "react-icons/fa";
@@ -19,6 +18,7 @@ import { evaluateDiscount } from "../../utils/helper/evaluateDiscount";
 import { raffleToCartItem } from "../../utils/helper/raffleToCartItem";
 import { getTicketsSoldPercentage } from "../../utils/helper/getTicketsSoldPercentage";
 import defaultRaffleImg from "../../utils/helper/defaultRaffeImg";
+import GameBadge from "../../components/GameBadge";
 
 interface RaffleProps {
   raffle: Raffle;
@@ -55,7 +55,10 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
   }
 
   const handleAddToCart = async (buyNow = false) => {
-    if (buyNow) return navigate(`/checkout`, { state: { data: { buy_now: raffleToCartItem(raffle, quantity) } } });
+    if (buyNow)
+      return navigate(`/checkout`, {
+        state: { data: { buy_now: raffleToCartItem(raffle, quantity) } },
+      });
     try {
       const response = await addItemToCart(raffle.uuid, quantity);
       notifications.show({
@@ -169,9 +172,11 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
         <div className="mt-8">
           {!isInstant && isActive && (
-            <RaffleBadge
+            <GameBadge
               date={raffle.start_date}
               status={raffle.main_active_status}
+              gameType={isInstant ? "instant" : "raffle"}
+              active={raffle.is_active}
             />
           )}
           {isInstant && (
@@ -186,21 +191,30 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
         <div className="mt-5">
           <div className="">
-            {raffle.total_tickets && <div className="mb-3">
-              <Progress
-                h={7}
-                value={getTicketsSoldPercentage(raffle.available_tickets, raffle.total_tickets)}
-                color={progressColor}
-                size="sm"
-                radius="xl"
-              />
-            </div>}
+            {raffle.total_tickets && (
+              <div className="mb-3">
+                <Progress
+                  h={7}
+                  value={getTicketsSoldPercentage(
+                    raffle.available_tickets,
+                    raffle.total_tickets
+                  )}
+                  color={progressColor}
+                  size="sm"
+                  radius="xl"
+                />
+              </div>
+            )}
             <div className="flex items-center justify-between">
-              {(isActive && raffle.total_tickets) && (
+              {isActive && raffle.total_tickets && (
                 <>
                   <div>
                     <p className="text-lg mt-1 text-gray-500 text-right">
-                      {getTicketsSoldPercentage(raffle.available_tickets, raffle.total_tickets)}% Entries Sold
+                      {getTicketsSoldPercentage(
+                        raffle.available_tickets,
+                        raffle.total_tickets
+                      )}
+                      % Entries Sold
                     </p>
                   </div>
                   <div>
@@ -273,7 +287,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
               <Text className="!px-5 !pt-1.5 !rounded-t-lg !font-semibold !text-primary-red !text-2xl md:!text-3xl !bg-secondary-red !border-dashed !border-b-1 !border-primary-red ">
                 {quantity}
               </Text>
-              
+
               <PiPlusFill
                 onClick={() => handleQuantityChange(1)}
                 size={32}
@@ -326,9 +340,11 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
         {!isActive && (
           <div>
-            <RaffleBadge
+            <GameBadge
               date={raffle.start_date}
               status={raffle.main_active_status}
+              gameType={isInstant ? "instant" : "raffle"}
+              active={raffle.is_active}
             />
           </div>
         )}

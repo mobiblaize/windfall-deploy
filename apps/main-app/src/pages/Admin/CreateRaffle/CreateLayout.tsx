@@ -24,6 +24,7 @@ import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import { useNavigate } from "react-router-dom";
+import Prizes from "./Prizes";
 
 const breadCrumbs: Crumb[] = [
   { label: "Raffle Management", to: "/admin/raffles" },
@@ -65,7 +66,7 @@ function CreateLayout() {
   })();
 
   const form = useForm({
-    mode: "uncontrolled",
+    mode: "controlled",
     validateInputOnBlur: false,
     validateInputOnChange: false,
 
@@ -117,6 +118,15 @@ function CreateLayout() {
 
       // Nested arrays
       tiers: [],
+      prizes: [
+        {
+          name: "",
+          quantity: 1,
+          prize_cost: 0,
+          image: "",
+          description: "",
+        },
+      ],
     },
 
     validate: {
@@ -163,13 +173,13 @@ function CreateLayout() {
       },
 
       // ✅ Start / End date validations
-      start_date: (val, values) => {
-        if (!values.is_scheduled) return null;
+      start_date: (val) => {
+        // if (!values.is_scheduled) return null;
         if (!val) return "Start date required";
         return null;
       },
       end_date: (val, values) => {
-        if (!values.is_scheduled) return null;
+        // if (!values.is_scheduled) return null;
         if (!val) return "End date required";
         if (values.start_date) {
           const start = new Date(values.start_date);
@@ -178,13 +188,13 @@ function CreateLayout() {
         }
         return null;
       },
-      start_time: (val, values) => {
-        if (!values.is_scheduled) return null;
+      start_time: (val) => {
+        // if (!values.is_scheduled) return null;
         if (!val) return "Start time required";
         return null;
       },
       end_time: (val, values) => {
-        if (!values.is_scheduled) return null;
+        // if (!values.is_scheduled) return null;
         if (!val) return "End time required";
         if (!values.start_date || !values.end_date || !values.start_time)
           return null;
@@ -210,16 +220,41 @@ function CreateLayout() {
           ? null
           : "At least one gallery image is required",
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      prizes: (prizes: any[], values) => {
+        if (!prizes || prizes.length === 0)
+          return "At least one prize item is required";
+
+        // 🧩 New Rule: Scheduled raffles can only have one prize
+        if (values.is_scheduled && prizes.length > 1) {
+          return "Scheduled raffles can only have one prize";
+        }
+
+        for (let i = 0; i < prizes.length; i++) {
+          const prize = prizes[i];
+          if (!prize.name?.trim()) return `Prize ${i + 1}: Name is required`;
+          if (Number(prize.prize_cost) <= 0)
+            return `Prize ${i + 1}: Prize cost must be greater than zero`;
+          if (Number(prize.quantity) <= 0)
+            return `Prize ${i + 1}: Prize units must be greater than zero`;
+          if (!prize.image?.trim()) return `Prize ${i + 1}: Image is required`;
+        }
+
+        return null;
+      },
+
       // 🧩 Discount tiers validation
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tiers: (tiers: any[]) => {
+      tiers: (tiers: any[], values) => {
         if (!tiers || tiers.length === 0) return null;
 
         for (let i = 0; i < tiers.length; i++) {
           const tier = tiers[i];
           if (!tier.name?.trim()) return `Tier ${i + 1}: Name is required`;
-          if (tier.discount_percentage <= 0)
+          if (Number(tier.discount_percentage) <= 0)
             return `Tier ${i + 1}: Discount percentage must be greater than zero`;
+          if (Number(tier.discount_percentage) > 100)
+            return `Tier ${i + 1}: Discount percentage cannot be more than 100%`;
           if (Number(tier.number_of_entry_start) <= 0)
             return `Tier ${i + 1}: Minimum ticket range must be greater than zero`;
           if (Number(tier.number_of_entry_end) <= 0)
@@ -248,6 +283,16 @@ function CreateLayout() {
             }" and "${next.name || `Tier ${i + 2}`}"`;
           }
         }
+
+        // ✅ NEW VALIDATION: max tier cannot exceed maximum_ticket_number_purchase
+        const maxTierEnd = Math.max(
+          ...tiers.map((t) => Number(t.number_of_entry_end))
+        );
+
+        if (maxTierEnd > Number(values.maximum_ticket_number_purchase)) {
+          return `The highest tier range (${maxTierEnd}) cannot exceed the maximum ticket number per purchase (${values.maximum_ticket_number_purchase}).`;
+        }
+
         return null;
       },
     },
@@ -276,8 +321,9 @@ function CreateLayout() {
       "maximum_ticket_number_purchase",
       "tiers",
     ],
-    2: ["competition_details", "sponsorship_details"],
-    3: [],
+    2: ["prizes"],
+    3: ["competition_details", "sponsorship_details"],
+    4: [],
   };
 
   const validateStep = (stepIndex: number) => {
@@ -311,30 +357,6 @@ function CreateLayout() {
     navigate("/admin/raffles");
   }
 
-  const stepsLayout = [
-    {
-      label: "basic information",
-      description: "enter raffle basic detail below",
-      component: <BasicInformation form={form} categories={categories} />,
-    },
-    {
-      label: "ticket price & discount",
-      description: "set ticket price and discount",
-      component: <TicketPrice form={form} />,
-    },
-    {
-      label: "content marketing",
-      description:
-        "Enter other content that influences the decision of customer for this raffle",
-      component: <ContentMarketing form={form} />,
-    },
-    {
-      label: "media content",
-      description: "Set game banner, featured images etc.",
-      component: <MediaContent form={form} />,
-    },
-  ];
-
   async function handleCreateRaffle() {
     // Build final payload structure
     const payload = {
@@ -358,6 +380,7 @@ function CreateLayout() {
       discount_type: form.values.discount_type,
       discount_percentage: Number(form.values.discount_percentage),
       tiers: form.values.tiers,
+      prizes: form.values.prizes, // ✅ Include prizes array
       is_scheduled: String(form.values.is_scheduled),
       start_date: form.values.start_date,
       end_date: form.values.end_date,
@@ -404,6 +427,37 @@ function CreateLayout() {
       });
     }
   }
+
+  const gamePrefix = !form.values.is_scheduled ? "Instant " : "";
+
+  const stepsLayout = [
+    {
+      label: "basic information",
+      description: "enter raffle basic detail below",
+      component: <BasicInformation form={form} categories={categories} />,
+    },
+    {
+      label: "ticket price & discount",
+      description: "set ticket price and discount",
+      component: <TicketPrice form={form} />,
+    },
+    {
+      label: `${gamePrefix}Game Prizes`,
+      description: `Add prize to be won for this ${gamePrefix}game`,
+      component: <Prizes form={form} />,
+    },
+    {
+      label: "content marketing",
+      description:
+        "Enter other content that influences the decision of customer for this raffle",
+      component: <ContentMarketing form={form} />,
+    },
+    {
+      label: "media content",
+      description: "Set game banner, featured images etc.",
+      component: <MediaContent form={form} />,
+    },
+  ];
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)} className="pb-5">
@@ -472,16 +526,14 @@ function CreateLayout() {
         </Stepper>
 
         <Card withBorder mt="xl" radius="md">
-          {stepsLayout.map((step, index) => (
-            <Layout
-              key={step.label}
-              description={step.description}
-              label={step.label}
-              className={`${active === index ? "block" : "!hidden"}`}
-            >
-              {step.component}
-            </Layout>
-          ))}
+          <Layout
+            key={stepsLayout[active].label}
+            description={stepsLayout[active].description}
+            label={stepsLayout[active].label}
+            className="block"
+          >
+            {stepsLayout[active].component}
+          </Layout>
         </Card>
 
         {/* Footer Buttons */}

@@ -20,8 +20,8 @@ export default function InstantRaffleBadge({
 }: RaffleBadgeProps) {
   const colors =
     instantGameColorMap[
-      (active === "false") || (status === "ended") ? "closed" : "open"
-    ];    
+      (active === "false") || (status === "ended") ? "closed" : ((status === "inactive") || ((status as string) === "unknown") || !status ) ? "inactive" : "open"
+    ];
 
   return (
     <span

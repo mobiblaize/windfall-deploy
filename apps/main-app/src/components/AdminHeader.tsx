@@ -19,11 +19,10 @@ import {
   IconUsers,
   IconReceipt,
   IconGift,
-  IconTrophy,
+  // IconTrophy,
   IconHeadset,
   IconShare,
   IconTicketOff,
-  IconFileText,
   IconReportAnalytics,
   IconChartBar,
   IconLogout,
@@ -36,6 +35,7 @@ import { useState } from "react";
 import { useGetData } from "../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { useAuth } from "../utils/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const adminSideMenuItems = [
   {
@@ -43,7 +43,7 @@ const adminSideMenuItems = [
     items: [
       { name: "Dashboard", path: "/admin/dashboard", icon: IconHome },
       { name: "Raffle Management", path: "/admin/raffles", icon: IconTicket },
-      { name: "Instant Raffle", path: "/admin/instant-raffle", icon: IconBolt },
+      { name: "Instant Raffle", path: "/admin/instant-raffles", icon: IconBolt },
       {
         name: "Draw Management",
         path: "/admin/draws",
@@ -60,7 +60,7 @@ const adminSideMenuItems = [
         icon: IconReceipt,
       },
       { name: "Prize Claim", path: "/admin/prize-claims", icon: IconGift },
-      { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
+      // { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
     ],
   },
   {
@@ -71,11 +71,6 @@ const adminSideMenuItems = [
       { name: "Referral Program", path: "/admin/referrals", icon: IconShare },
       { name: "Promo-Code", path: "/admin/promo-codes", icon: IconTicketOff },
       { name: "User Management", path: "/admin/users", icon: IconUsers },
-      {
-        name: "Content Management",
-        path: "/admin/content",
-        icon: IconFileText,
-      },
       { name: "Audit Trail", path: "/admin/audit", icon: IconReportAnalytics },
       { name: "Report", path: "/admin/reports", icon: IconChartBar },
     ],
@@ -88,6 +83,7 @@ export default function AdminHeader() {
     useState(false);
 
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const [opened, { toggle, close }] = useDisclosure(false);
   const isMobile = useMediaQuery("(max-width: 1095px)");
@@ -142,6 +138,7 @@ export default function AdminHeader() {
       {/* Right: Icons */}
       <Group gap="xs">
         <ActionIcon
+          onClick={() => navigate('/admin/notifications')}
           variant="light"
           radius="md"
           size="lg"

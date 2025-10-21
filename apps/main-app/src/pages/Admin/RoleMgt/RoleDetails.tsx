@@ -588,6 +588,7 @@ export default function RoleDetails() {
                   <EmptySection
                     description="No Users Found"
                     title="No records found"
+                    format="secondary"
                   />
                 )}
               </>

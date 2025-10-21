@@ -22,7 +22,7 @@ export default function FilterPill({
   }, [loading]);
 
   function onFilter() {
-    setShowCount(false);
+    if (!active) setShowCount(false);
     onClick();
   }
 

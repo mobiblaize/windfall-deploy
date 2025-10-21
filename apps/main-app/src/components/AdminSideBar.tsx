@@ -9,12 +9,11 @@ import {
   IconUsers,
   IconReceipt,
   IconGift,
-  IconTrophy,
+  // IconTrophy,
   IconBell,
   IconHeadset,
   IconShare,
   IconTicketOff,
-  IconFileText,
   IconReportAnalytics,
   IconChartBar,
 } from "@tabler/icons-react";
@@ -22,7 +21,7 @@ import {
 const mainMenu = [
   { name: "Dashboard", path: "/admin/dashboard", icon: IconHome },
   { name: "Raffle Management", path: "/admin/raffles", icon: IconTicket },
-  { name: "Instant Raffle", path: "/admin/instant-raffle", icon: IconBolt },
+  { name: "Instant Raffle", path: "/admin/instant-raffles", icon: IconBolt },
   { name: "Draw Management", path: "/admin/draws", icon: IconCalendarStats },
   { name: "Customer Management", path: "/admin/customers", icon: IconUsers },
   {
@@ -31,7 +30,7 @@ const mainMenu = [
     icon: IconReceipt,
   },
   { name: "Prize Claim", path: "/admin/prize-claims", icon: IconGift },
-  { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
+  // { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
 ];
 
 const otherMenu = [
@@ -41,7 +40,6 @@ const otherMenu = [
   { name: "Referral Program", path: "/admin/referrals", icon: IconShare },
   { name: "Promo-Code", path: "/admin/promo-codes", icon: IconTicketOff },
   { name: "User Management", path: "/admin/users", icon: IconUsers },
-  { name: "Content Management", path: "/admin/content", icon: IconFileText },
   { name: "Audit Trail", path: "/admin/audit", icon: IconReportAnalytics },
   { name: "Report", path: "/admin/reports", icon: IconChartBar },
 ];

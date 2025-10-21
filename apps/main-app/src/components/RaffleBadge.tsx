@@ -22,16 +22,18 @@ export default function RaffleBadge({
 }: RaffleBadgeProps) {
   const colors = colorMap[status];
 
+  const defaultDisabledState = colorMap['inactive'];
+
   return (
     <span
       className={`inline-flex h-[40px] items-center text-xs px-4 py-1 border-2 text-white border-[#f6fefc] rounded-full mx-auto shadow-[0_2px_8px_0_rgba(150,194,155,0.32)] ${className}`}
-      style={{ backgroundColor: bgColor || colors.bg }}
+      style={{ backgroundColor: bgColor || colors?.bg || defaultDisabledState.bg }}
     >
       <span
         className="inline-flex h-[24px] items-center rounded-full text-white px-2 text-nowrap"
-        style={{ backgroundColor: labelColor || colors.label }}
+        style={{ backgroundColor: labelColor || colors?.label || defaultDisabledState.label }}
       >
-        {label || colors.text}
+        {label || colors?.text  || defaultDisabledState.text}
       </span>
       &nbsp; {description ?? date
                           ? format(new Date(date), "MMMM d, yyyy | h:mma")

@@ -6,17 +6,29 @@ import {
   Card,
   Center,
   Divider,
+  Flex,
   Group,
+  Radio,
   SimpleGrid,
   Text,
   TextInput,
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { BsPlus } from "react-icons/bs";
+import { FaTrash } from "react-icons/fa";
+import { formatCurrency } from "../../../utils/helper/formatCurrency";
 
 type Props = { form: UseFormReturnType<any> };
 
 function TicketPrice({ form }: Props) {
+  const [discountType, setDiscountType] = useState(form.values.discount_type);
+
+  const handleDiscountTypeChange = (value: string) => {
+    setDiscountType(value);
+    form.setFieldValue("discount_type", value);
+  };
+
   const addTier = () => {
     const newTier = {
       name: "",
@@ -31,10 +43,28 @@ function TicketPrice({ form }: Props) {
     form.removeListItem("tiers", index);
   };
 
-  const expectedSales =
-    (Number(form.values?.percentage_markup) * Number(form.values?.prize_cost)) /
-      100 +
-    Number(form.values?.prize_cost);
+  const [expectedSales, setExpectedSales] = useState(0);
+  const [totalTickets, setTotalTickets] = useState(0);
+
+  useEffect(() => {
+    const prizeCost = Number(form.values?.prize_cost) || 0;
+    const markup = Number(form.values?.percentage_markup) || 0;
+    const ticketPrice = Number(form.values?.ticket_price) || 0;
+
+    const sales = (markup * prizeCost) / 100 + prizeCost;
+    const tickets = ticketPrice > 0 ? Math.floor(sales / ticketPrice) : 0;
+
+    setExpectedSales(sales);
+    setTotalTickets(tickets);
+
+    // also sync it back to form so it’s part of form.values
+    form.setFieldValue("total_tickets", tickets);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    form.values?.prize_cost,
+    form.values?.percentage_markup,
+    form.values?.ticket_price,
+  ]);
 
   return (
     <Box>
@@ -94,7 +124,7 @@ function TicketPrice({ form }: Props) {
               expected sales (cost and profit markup)
             </Text>
             <Text tt="capitalize" fw={500} fz={"lg"}>
-              {(expectedSales || "---").toLocaleString()} (
+              {expectedSales ? formatCurrency(expectedSales) : "---"} (
               {form.values?.percentage_markup}%)
             </Text>
           </Box>
@@ -130,42 +160,77 @@ function TicketPrice({ form }: Props) {
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
         <Box>
           <Text tt="capitalize" fz={"md"} fw={500}>
-            Total ticket quantity
+            recommend ticket quantity
           </Text>
           <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-            Total available ticket quantity for this game.
+            Ticket quantity recommended base on cost breakdown.
           </Text>
         </Box>
         <TextInput
-          placeholder="Enter total ticket quantity"
-          classNames={{ input: "placeholder:text-xs" }}
-          type="number"
-          {...form.getInputProps("total_tickets")}
-          error={form.errors.total_tickets}
+          value={`${totalTickets} Tickets`}
+          readOnly
+          classNames={{
+            input:
+              "placeholder:text-xs bg-gray-50 text-gray-700 cursor-not-allowed",
+          }}
         />
       </SimpleGrid>
 
       <Divider my="md" />
 
-      {/* === MIN/MAX TICKET PURCHASE LIMITS === */}
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
-        <TextInput
-          label="Minimum Ticket Number Purchase"
-          placeholder="e.g. 1"
-          type="number"
-          classNames={{ label: "text-xs font-medium capitalize" }}
-          {...form.getInputProps("minimum_ticket_number_purchase")}
-          error={form.errors.minimum_ticket_number_purchase}
-        />
-        <TextInput
-          label="Maximum Ticket Number Purchase"
-          placeholder="e.g. 10"
-          type="number"
-          classNames={{ label: "text-xs font-medium capitalize" }}
-          {...form.getInputProps("maximum_ticket_number_purchase")}
-          error={form.errors.maximum_ticket_number_purchase}
-        />
+        <Box>
+          <Text tt="capitalize" fz={"md"} fw={500}>
+            Minimum Ticket to a Customer
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Minimum number of tickets a customer can purchase
+          </Text>
+        </Box>
+        <div>
+          <TextInput
+            placeholder="Enter value"
+            classNames={{ input: "placeholder:text-xs" }}
+            type="number"
+            {...form.getInputProps("minimum_ticket_number_purchase")}
+            error={form.errors.minimum_ticket_number_purchase}
+          />
+
+          <Text fz="xs" mt={4} c="dimmed">
+            Therefore the minimum x-quantity of tickets that a customer can buy
+            in a single checkout for this game
+          </Text>
+        </div>
       </SimpleGrid>
+
+      <Divider my="md" />
+
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
+        <Box>
+          <Text tt="capitalize" fz={"md"} fw={500}>
+            Maximum Ticket to a Customer
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Maximum number of tickets a customer can purchase
+          </Text>
+        </Box>
+        <div>
+          <TextInput
+            placeholder="Enter value"
+            classNames={{ input: "placeholder:text-xs" }}
+            type="number"
+            {...form.getInputProps("maximum_ticket_number_purchase")}
+            error={form.errors.maximum_ticket_number_purchase}
+          />
+
+          <Text fz="xs" mt={4} c="dimmed">
+            Therefore the maximum x-quantity of tickets that a customer can buy
+            in a single checkout for this game
+          </Text>
+        </div>
+      </SimpleGrid>
+
+      <Divider my="md" />
 
       {/* === DISCOUNT STRUCTURE === */}
       <Box
@@ -183,6 +248,33 @@ function TicketPrice({ form }: Props) {
         </Text>
       </Box>
 
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
+        <Box>
+          <Text tt="capitalize" fz={"md"} fw={500}>
+            Discount Type
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Select a discount type that best applies to this game
+          </Text>
+        </Box>
+        <Box>
+          <Radio
+            checked={discountType === "straight_line"}
+            onChange={() => handleDiscountTypeChange("straight_line")}
+            label="Apply to unit price of ticket"
+            description="Discount is applied to each ticket individually For example: Ticket = ₦5,000 ; Discount = 10% ; Buyer gets each ticket for ₦4,500"
+          />
+          <Radio
+            mt={"md"}
+            checked={discountType === "band"}
+            onChange={() => handleDiscountTypeChange("band")}
+            label="Apply to Culmination of Ticket Unit"
+            description="Discount is applied after adding up the total cost. For example: 5 Tickets = ₦25,000 ; Discount = 10% ; Total after discount = ₦22,500 "
+          />
+        </Box>
+      </SimpleGrid>
+      <Divider my="md" />
+
       {/* === TIERS SECTION === */}
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
         <Box>
@@ -196,7 +288,7 @@ function TicketPrice({ form }: Props) {
 
         <Box className="space-y-3">
           {form.values.tiers.map((tier: any, index: number) => (
-            <Card key={index} withBorder p={"sm"} radius="md">
+            <Card key={index} withBorder p={"sm"} radius="md" bg={"#F7F7F9"}>
               <Accordion chevronIconSize={17}>
                 <Accordion.Item value={`tier-${index}`}>
                   <Accordion.Control>
@@ -253,7 +345,7 @@ function TicketPrice({ form }: Props) {
                     <Group justify="flex-end" mt="md">
                       <Button
                         leftSection={<FaTrash size={12} />}
-                        color="red"
+                        className="!text-primary-red"
                         size="xs"
                         variant="light"
                         onClick={() => removeTier(index)}
@@ -267,14 +359,22 @@ function TicketPrice({ form }: Props) {
             </Card>
           ))}
 
-          <Button
-            leftSection={<FaPlus size={12} />}
-            size="xs"
-            variant="outline"
-            onClick={addTier}
-          >
-            Add Discount Tier
-          </Button>
+          <Flex justify={"end"}>
+            <Button
+              rightSection={
+                <div className="!inline-flex !bg-[#ffacad] p-1 w-fit rounded-md">
+                  <BsPlus className="!text-xl !text-primary-red" />
+                </div>
+              }
+              size="md"
+              variant="outline"
+              radius="md"
+              className="!border-[#D0D5DD]"
+              onClick={addTier}
+            >
+              Add New
+            </Button>
+          </Flex>
           {form.errors.tiers && (
             <Text c="red" size="sm" mt="xs">
               {form.errors.tiers}

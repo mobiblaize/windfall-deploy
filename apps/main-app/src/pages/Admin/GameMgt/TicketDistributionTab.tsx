@@ -9,16 +9,28 @@ import {
   Skeleton,
 } from "@mantine/core";
 import { PiQuestionThin } from "react-icons/pi";
-import { BarChart } from "@mantine/charts";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
-import type { PlatformBreakdown, TicketStats } from "./PerformanceMonitor";
+import type {
+  Last30DaysPlatformBreakdown,
+  TicketStats,
+} from "./PerformanceMonitor";
 
 function TicketDistributionTab({
   breakdowns = [],
   loading,
   ticketStats = [],
 }: {
-  breakdowns?: PlatformBreakdown[];
+  breakdowns?: Last30DaysPlatformBreakdown[];
   loading?: boolean;
   ticketStats?: TicketStats[];
 }) {
@@ -77,55 +89,58 @@ function TicketDistributionTab({
         </SimpleGrid>
       ) : breakdowns.length > 0 ? (
         <>
-          {Array.from({ length: Math.ceil(breakdowns.length / 3) }, (_, rowIndex) => {
-            const start = rowIndex * 3;
-            const end = start + 3;
-            const rowItems = breakdowns.slice(start, end);
+          {Array.from(
+            { length: Math.ceil(breakdowns.length / 3) },
+            (_, rowIndex) => {
+              const start = rowIndex * 3;
+              const end = start + 3;
+              const rowItems = breakdowns.slice(start, end);
 
-            return (
-              <SimpleGrid
-                key={rowIndex}
-                my="lg"
-                cols={{ base: 1, xs: 2, sm: 3 }}
-                spacing={{ base: 10, sm: "xl" }}
-                verticalSpacing={{ base: "lg", sm: "xl" }}
-              >
-                {rowItems.map((item, index) => (
-                  <Stack
-                    key={index}
-                    gap="xs"
-                    className={
-                      index < rowItems.length - 1
-                        ? "sm:border-r border-b sm:border-b-0 border-secondary-text/30"
-                        : ""
-                    }
-                  >
-                    <Text
-                      tt="capitalize"
-                      fz="sm"
-                      className="!text-secondary-text !flex !items-center !gap-x-2"
+              return (
+                <SimpleGrid
+                  key={rowIndex}
+                  my="lg"
+                  cols={{ base: 1, xs: 2, sm: 3 }}
+                  spacing={{ base: 10, sm: "xl" }}
+                  verticalSpacing={{ base: "lg", sm: "xl" }}
+                >
+                  {rowItems.map((item, index) => (
+                    <Stack
+                      key={index}
+                      gap="xs"
+                      className={
+                        index < rowItems.length - 1
+                          ? "sm:border-r border-b sm:border-b-0 border-secondary-text/30"
+                          : ""
+                      }
                     >
-                      {item.platform}
-                      <span>
-                        <PiQuestionThin />
-                      </span>
-                    </Text>
+                      <Text
+                        tt="capitalize"
+                        fz="sm"
+                        className="!text-secondary-text !flex !items-center !gap-x-2"
+                      >
+                        {item.platform}
+                        <span>
+                          <PiQuestionThin />
+                        </span>
+                      </Text>
 
-                    <Text>{formatCurrency(item.total_revenue)}</Text>
+                      <Text>{formatCurrency(item.total_revenue)}</Text>
 
-                    <Text
-                      tt="capitalize"
-                      fz="xs"
-                      className="!text-secondary-text"
-                    >
-                      {item.tickets_sold} tickets sold in the last{" "}
-                      {item.days_count} days
-                    </Text>
-                  </Stack>
-                ))}
-              </SimpleGrid>
-            );
-          })}
+                      <Text
+                        tt="capitalize"
+                        fz="xs"
+                        className="!text-secondary-text"
+                      >
+                        {item.tickets_sold} tickets sold in the last{" "}
+                        {item.days_count} days
+                      </Text>
+                    </Stack>
+                  ))}
+                </SimpleGrid>
+              );
+            }
+          )}
         </>
       ) : (
         <Text fz="sm" c="dimmed" my="lg">
@@ -153,13 +168,49 @@ function TicketDistributionTab({
           {loading ? (
             <Skeleton height={300} radius="md" />
           ) : chartData.length > 0 ? (
-            <BarChart
-              h={300}
-              data={chartData}
-              withTooltip
-              dataKey="date"
-              series={[{ name: "Tickets Sold", color: "blue" }]}
-            />
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="date" />
+                  <YAxis
+                    label={{
+                      value: "Tickets Sold",
+                      angle: -90,
+                      position: "insideLeft",
+                      style: { textAnchor: "middle" },
+                    }}
+                    tickCount={6}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      borderRadius: "8px",
+                      border: "1px solid #e5e7eb",
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="left"
+                    iconType="circle"
+                    wrapperStyle={{ paddingTop: "16px" }}
+                  />
+                  <Bar
+                    dataKey="Tickets Sold"
+                    fill="#2196F3"
+                    radius={[4, 4, 0, 0]}
+                    name="Tickets Sold"
+                    animationDuration={800}
+                    animationEasing="ease-in-out"
+                    // Smooth hover transition like Transaction Graph
+                    className="transition-all duration-300 hover:opacity-80"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           ) : (
             <Text fz="sm" c="dimmed" ta="center" py="lg">
               No ticket sales data available for the selected period.

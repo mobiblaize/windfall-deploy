@@ -183,7 +183,7 @@ export const useGetData = (url: string, defaultHeaders?: RequestHeaders) => {
 // -----------------------------
 // Fetch Data (GET with Query)
 // -----------------------------
-export const useFetchData = (url: string | null, defaultHeaders?: RequestHeaders) => {
+export const useFetchData = (url: string | null, defaultHeaders?: RequestHeaders, enabled = true) => {
   const query = useQuery({
     queryKey: [url],
     queryFn: async () => {
@@ -192,7 +192,7 @@ export const useFetchData = (url: string | null, defaultHeaders?: RequestHeaders
       });
       return response.data;
     },
-    enabled: !!url,
+    enabled: !!url && enabled,
   });
 
   return { ...query, isLoading: query.isFetching || query.isLoading };
@@ -204,7 +204,8 @@ export const useFetchData = (url: string | null, defaultHeaders?: RequestHeaders
 export const useFetchPostData = (
   url: string,
   options: any,
-  defaultHeaders?: RequestHeaders
+  defaultHeaders?: RequestHeaders, 
+  enabled = true
 ) => {
   const query = useQuery({
     queryKey: [url, options],
@@ -214,6 +215,7 @@ export const useFetchPostData = (
       });
       return response.data;
     },
+    enabled
   });
 
   return { ...query, isLoading: query.isFetching || query.isLoading };

@@ -22,6 +22,7 @@ interface DynamicTableSectionProps<T> {
    */
   renderItems: (item: T, headers: Header[]) => React.ReactNode[];
   emptyMessage?: string;
+  emptyTitle?: string;
   loadingTitle?: string;
   loadingMessage?: string;
 }
@@ -34,6 +35,7 @@ export default function DynamicTableSection<T>({
   loadingTitle = "Loading records...",
   loadingMessage = "Fetching data, please wait.",
   emptyMessage = "No records found",
+  emptyTitle = "No Records Found",
 }: DynamicTableSectionProps<T>) {
   const renderRowContent = (item: T) => {
     const content = renderItems(item, headers);
@@ -88,8 +90,8 @@ export default function DynamicTableSection<T>({
       )}
 
       {/* Empty State */}
-      {!loading && data.length === 0 && (
-        <EmptySection title="No records found" description={emptyMessage} />
+      {!loading && !data?.length && (
+        <EmptySection title={emptyTitle} format="secondary" description={emptyMessage} />
       )}
     </>
   );

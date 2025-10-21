@@ -6,13 +6,13 @@ import { DateInput } from "@mantine/dates";
 import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
 import LoadingState from "./LoadingState";
-import EmptyState from "./EmptyState";
 import { useGetData } from "../utils/hooks/useApis";
 import type { Raffle } from "../models/raffles";
 import { Link } from "react-router-dom";
 import { Text } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import { IoClose } from "react-icons/io5";
+import EmptySection from "./EmptySection";
 
 export default function SampleRafflesGames() {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
@@ -193,9 +193,10 @@ export default function SampleRafflesGames() {
                 </div>
               </>
             ) : (
-              <EmptyState
+              <EmptySection
                 description="No Raffles Found"
                 title="No raffles found"
+                format="secondary"
               />
             )}
           </>

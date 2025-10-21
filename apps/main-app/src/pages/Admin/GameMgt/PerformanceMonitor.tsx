@@ -1,12 +1,4 @@
-import {
-  Box,
-  Card,
-  Divider,
-  Flex,
-  Text,
-  Button,
-  Select,
-} from "@mantine/core";
+import { Box, Card, Divider, Flex, Text, Button, Select } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import { FaAngleDown } from "react-icons/fa";
 import Salestabs from "./Salestabs";
@@ -60,6 +52,7 @@ export interface Last30DaysPlatformBreakdown {
   platform: string;
   total_revenue: number;
   tickets_sold: number;
+  days_count: number;
 }
 
 export interface GameCategory {
@@ -139,24 +132,31 @@ function PerformanceMonitor() {
 
   const raffles: Raffle[] = rafflesResponse?.data;
   const rafflesData = (() => {
-    if (!raffles) return [];
-    return raffles?.map((item) => ({
-      value: item.uuid,
-      label: item.name,
-    }));
+    if (!raffles) return [{ value: "", label: "Game: All" }];
+
+    return [
+      { value: "", label: "Game: All" },
+      ...raffles.map((item) => ({
+        value: item.uuid,
+        label: item.name,
+      })),
+    ];
   })();
-  console.log(raffles);
 
   const categories: GameCategory[] | undefined =
     categoriesResponse?.data?.records;
+
   const categoriesData = (() => {
-    if (!categories) return [];
-    return categories?.map((item) => ({
-      value: item.uuid,
-      label: item.name,
-    }));
+    if (!categories) return [{ value: "", label: "Game Category: All"  }];
+
+    return [
+      { value: "", label: "Game Category: All"  }, // 👈 empty option first
+      ...categories.map((item) => ({
+        value: item.uuid,
+        label: item.name,
+      })),
+    ];
   })();
-  console.log(categories);
 
   useEffect(() => {
     if (isErrorCategories) {
@@ -349,7 +349,7 @@ function PerformanceMonitor() {
             <Button
               tt={"capitalize"}
               rightSection={<RiArrowRightUpLine size={16} />}
-              onClick={() => navigate(`/admin/raffles/list/${raffleId}`)}
+              onClick={() => navigate(`/admin/raffles/${raffleId}`)}
             >
               raffle details
             </Button>
@@ -378,37 +378,10 @@ function PerformanceMonitor() {
           </Text>
         </Box>
         <Card withBorder radius={"md"}>
-          {/* <Box>
-            <Text tt={"capitalize"} fz={"sm"} className="!text-secondary-text">
-              Total Number of Ticket Sold
-            </Text>
-            <Text className="!text-primary-green" fw={600} fz={28}>
-              5,000
-            </Text>
-            <Flex gap={2} align={"center"}>
-              <AiFillExclamationCircle className="text-secondary-text" />
-              <Text
-                className="!text-secondary-text"
-                tt={"capitalize"}
-                fz={"sm"}
-                mt={4}
-              >
-                + 20.4 % increase over the last 3 day
-              </Text>
-            </Flex>
-            <Flex gap={2} align={"center"}>
-              <AiFillExclamationCircle className="text-secondary-text" />
-              <Text
-                className="!text-secondary-text"
-                tt={"capitalize"}
-                fz={"sm"}
-                mt={4}
-              >
-                ₦ 20,000,000 in Total ticket revenue
-              </Text>
-            </Flex>
-          </Box> */}
-          <TicketPerformanceCard loading={ticketPerformanceMutation.isPending} ticketPerformance={ticketPerformance} />
+          <TicketPerformanceCard
+            loading={ticketPerformanceMutation.isPending}
+            ticketPerformance={ticketPerformance}
+          />
         </Card>
         <Box my={"lg"}>
           <Text
