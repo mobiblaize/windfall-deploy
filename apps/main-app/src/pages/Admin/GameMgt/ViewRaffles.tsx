@@ -15,7 +15,7 @@ import WinnerTab from "./WinnerTab";
 import GamedrawTab from "./GamedrawTab";
 
 function ViewRaffles() {
-  const [raffle, setRaffle] = useState<Raffle>();
+  const [raffle] = useState<Raffle>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("view");

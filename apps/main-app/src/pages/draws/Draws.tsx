@@ -51,7 +51,7 @@ export default function Draws() {
 					</SimpleGrid>
 				</section>
 				<section className="md:mx-2">
-					<Paginator currentPage={1} totalPages={2} onPageChange={setCurrentPage} />
+					<Paginator currentPage={1} total={1} pageSize={10} onPageChange={setCurrentPage} />
 				</section>
 			</main>
 		</div>

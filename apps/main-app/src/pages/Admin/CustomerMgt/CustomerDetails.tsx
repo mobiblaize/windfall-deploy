@@ -38,7 +38,6 @@ import type { User } from "../UserMgt/UserMgt";
 import UserAction from "../UserMgt/UserAction";
 import { PiQuestionThin } from "react-icons/pi";
 import { AiFillExclamationCircle } from "react-icons/ai";
-import { formatCurrency } from "../../../utils/helper/formatCurrency";
 
 const breadCrumbs: Crumb[] = [
   { label: "Customer Management", to: "/admin/customers" },

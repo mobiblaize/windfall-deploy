@@ -7,21 +7,17 @@ import {
   Flex,
   Textarea,
   Box,
-  TextInput,
-  Radio,
   SimpleGrid,
-  Select,
   Checkbox,
   Button,
   Divider,
-  Stack,
   Avatar,
   Group,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import DynamicBreadcrumbs, {
   type Crumb,
 } from "../../../components/DynamicBreadCrumbs";
@@ -29,8 +25,8 @@ import { notifications } from "@mantine/notifications";
 import { useFetchData, usePutData } from "../../../utils/hooks/useApis";
 import { useForm } from "@mantine/form";
 import type { User } from "../UserMgt/UserMgt";
-import { IconBell, IconVideo, IconWand } from "@tabler/icons-react";
-import { BsChevronLeft, BsChevronRight, BsMagic } from "react-icons/bs";
+import { IconBell, IconVideo } from "@tabler/icons-react";
+import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import { BiSolidBell } from "react-icons/bi";
 import CustomTickets from "../../../components/CustomTickets";
 import { FaMagic } from "react-icons/fa";
@@ -80,8 +76,6 @@ export default function ViewDraw() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
     const [timeLeft, setTimeLeft] = useState(300);
 
-  const navigate = useNavigate();
-
   //   const {
   //     isError: isRoleError,
   //     data: roleResponse,
@@ -90,7 +84,7 @@ export default function ViewDraw() {
 
   const {
     data: userResponse,
-    isLoading: isUserLoading,
+    // isLoading: isUserLoading,
     isError: isUserError,
     error: userError,
   } = useFetchData(`admin/user-management/users/show/${id}`);
@@ -103,7 +97,12 @@ export default function ViewDraw() {
     setUnlockDrawModalOpen(true);
   }
 
+  console.log(confirmModalOpen);
+  
+
   function submitUnlockPin(pin: string) {
+    console.log(pin);
+    
     setUnlockDrawModalOpen(false);
     setUnlockSuccessModalOpen(true);
   }
@@ -532,7 +531,7 @@ export default function ViewDraw() {
         description="Congratulations, a Lucky Number Winner has been chosen."
         primaryButton={{
           label: "Proceed",
-          onClick: () => setWinnerSuccessModalOpen(false),
+          onClick: updateUser,
         }}
       />
     </div>

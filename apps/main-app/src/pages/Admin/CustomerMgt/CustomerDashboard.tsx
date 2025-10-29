@@ -5,34 +5,18 @@ import {
   SimpleGrid,
   Text,
   Box,
-  Button,
-  TextInput,
   Group,
-  Select,
-  ActionIcon,
-  Badge,
 } from "@mantine/core";
-import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
+import { useFetchData } from "../../../utils/hooks/useApis";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { DateInput } from "@mantine/dates";
-import { IoClose, IoFilterOutline } from "react-icons/io5";
+import { IoClose } from "react-icons/io5";
 import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
-import TablePaginator from "../../../components/TablePaginator";
-import { HiDocumentArrowDown } from "react-icons/hi2";
-import TabSwitcher, {
-  type TabSwitcherTab,
-} from "../../../components/TabSwitcher";
-import { HiSearch } from "react-icons/hi";
-import DynamicTableSection from "../../../components/DynamicTableSection";
-import { useDebounce } from "../../../utils/hooks/useDebounce";
-import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { GoArrowUpRight } from "react-icons/go";
 import { PiQuestionThin } from "react-icons/pi";
 import { AiFillExclamationCircle } from "react-icons/ai";
-import { formatCurrency } from "../../../utils/helper/formatCurrency";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import { BsPlus } from "react-icons/bs";
 import CustomerDistribution from "./CustomerDistribution";
@@ -45,186 +29,23 @@ interface SupportStats {
   last_period_days_total: number;
   last_period_days_pending: number;
   last_period_days_resolved: number;
-  period: Period;
+  period: string;
 }
-
-export interface Period {
-  days: number;
-  start_date: string;
-  end_date: string;
-}
-
-type StatsCard = {
-  title: string;
-  value: number;
-  slug: "pending" | "resolved";
-  added: "last_period_days_pending" | "last_period_days_resolved";
-  className: string;
-  color: string;
-  period: string | number;
-};
-
-export interface Complaints {
-  uuid: string;
-  uniqueID: string;
-  issue_type: string;
-  platform: string;
-  customer_id: string;
-  customer_complaint: string;
-  other_information: string;
-  created_by: string;
-  staff_created_comment: string;
-  resolved_by: string;
-  time_resolved: string;
-  staff_resolution_comment: string;
-  status: string;
-  updated_at: string;
-}
-
-export interface Link {
-  url?: string;
-  label: string;
-  active: boolean;
-}
-
-const cards: StatsCard[] = [
-  {
-    title: "Resolved Issues",
-    value: 0,
-    slug: "resolved",
-    added: "last_period_days_resolved",
-    className:
-      "!bg-secondary-green !text-primary-green/50 !border-primary-green/50",
-    color: "!text-primary-green",
-    period: 3,
-  },
-  {
-    title: "Pending Issues",
-    value: 0,
-    slug: "pending",
-    added: "last_period_days_pending",
-    className:
-      "!bg-primary-warning/10 !text-primary-warning/50 !border-primary-warning/50 ",
-    color: "!text-primary-warning",
-    period: 3,
-  },
-];
-
-const tabs: TabSwitcherTab[] = [
-  {
-    label: "Show All",
-    value: "",
-  },
-  {
-    label: "Active",
-    value: "active",
-  },
-  {
-    label: "Inactive",
-    value: "inactive",
-  },
-];
 
 function CustomerDashboard() {
-  const [complaints, setComplaints] = useState<Complaints[]>([]);
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<string | null>("");
-  const [filterBy, setFilterBy] = useState<string>("");
-  const debouncedSearch = useDebounce(search, 500);
-  const [currentPage, setCurrentPage] = useState<number>(0);
-  const [filterPage, setFilterPage] = useState<number>(1);
-  const [total, setTotal] = useState<number>(0);
-  const [pageSize, setPageSize] = useState<number>(0);
 
   const navigate = useNavigate();
 
   const {
     data: statsResponse,
-    isLoading: isLoadingStats,
+    // isLoading: isLoadingStats,
     isError: isErrorStats,
     error: statsError,
   } = useFetchData(
     `admin/customer-support-management/stats?start_date=${startDate}&end_date=${endDate}`
   );
-
-  const {
-    data: complaintsResponse,
-    isLoading: isLoadingComplaints,
-    isError: isErrorComplaints,
-    error: complaintsError,
-  } = useFetchData(
-    `admin/promo-code-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
-  );
-
-  const exportComplaintsMutation = useGetExportData(
-    `admin/promo-code-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
-  );
-
-  useEffect(() => {
-    if (isErrorStats) {
-      notifications.show({
-        title: "Failed to fetch support stats",
-        message:
-          (statsError as { message?: string })?.message || "An error occurred",
-        color: "red",
-      });
-    }
-  }, [statsError, isErrorStats]);
-
-  useEffect(() => {
-    if (isErrorComplaints) {
-      notifications.show({
-        title: "Failed to fetch complaints",
-        message:
-          (complaintsError as { message?: string })?.message ||
-          "An error occurred",
-        color: "red",
-      });
-    }
-
-    if (complaintsResponse) {
-      setComplaints(complaintsResponse.data?.records?.data);
-      setCurrentPage(complaintsResponse.data?.records?.current_page || 1);
-      setTotal(complaintsResponse.data?.records?.total || 0);
-      setPageSize(complaintsResponse.data?.records?.per_page || 10);
-    }
-  }, [complaintsError, isErrorComplaints, complaintsResponse]);
-
-  const handleExport = () => {
-    exportComplaintsMutation.mutate(undefined, {
-      onSuccess: (data) => {
-        const url = window.URL.createObjectURL(new Blob([data]));
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `customer_complaints_export_${new Date()
-          .toISOString()
-          .slice(0, 10)}.xlsx`; // adjust extension if CSV/PDF
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-
-        notifications.show({
-          title: "Export Successful",
-          message: "Your file has been downloaded",
-          color: "green",
-        });
-      },
-      onError: (error) => {
-        notifications.show({
-          title: "Export Failed",
-          message: error?.message || "An error occurred",
-          color: "var(--color-primary-red)",
-        });
-      },
-    });
-  };
-
-  function onPageChange(page: number) {
-    setFilterPage(page);
-  }
 
   useEffect(() => {
     if (isErrorStats) {
@@ -238,6 +59,9 @@ function CustomerDashboard() {
   }, [statsError, isErrorStats]);
 
   const supportStats: SupportStats = statsResponse?.data;
+
+  console.log(supportStats);
+  
 
   return (
     <>

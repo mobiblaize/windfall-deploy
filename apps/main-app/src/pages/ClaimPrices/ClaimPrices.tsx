@@ -3,7 +3,6 @@ import SectionBanner from "../../components/SectionBanner";
 import CustomTickets from "../../components/CustomTickets";
 import raffleImg from "../../assets/default-raffle.png";
 import QRCodeImage from "../../assets/qr-code.png";
-import RaffleBadge from "../../components/RaffleBadge";
 import { IconTrophy } from "@tabler/icons-react";
 import ClaimPricesStep1 from "./ClaimPricesStep1";
 import { useState } from "react";
@@ -66,6 +65,9 @@ export default function ClaimPrices() {
     setSuccessModalOpen(false);
     navigate("/dashboard");
   }
+
+  console.log(ticketModalOpen);
+  
 
   return (
     <div className="bg-white pb-10">

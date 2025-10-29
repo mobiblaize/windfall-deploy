@@ -30,6 +30,9 @@ function CustomerTab({
     0
   );
 
+  console.log(ticketStats);
+  
+
   return (
     <>
       {/* --- Total revenue summary --- */}
