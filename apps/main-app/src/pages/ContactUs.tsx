@@ -11,8 +11,68 @@ import {
 import { IconPhone, IconMail } from "@tabler/icons-react";
 import SectionBanner from "../components/SectionBanner"; // adjust path as needed
 import MainButton from "../components/Buttons/MainButton";
+import { notifications } from "@mantine/notifications";
+import { usePostData } from "../utils/hooks/useApis";
+import { useForm } from "@mantine/form";
+
+const inputStyles = {
+  input: {
+    color: "#000",
+  },
+  dropdown: { color: "#000" },
+};
 
 export default function ContactUs() {
+  const contactUsMutation = usePostData(`guest/contact-us`);
+
+  const form = useForm({
+    initialValues: {
+      fullname: "",
+      email: "",
+      subject: "",
+      message: "",
+    },
+
+    validate: {
+      fullname: (val) =>
+        val.trim().split(" ").length >= 2
+          ? null
+          : "Enter both firstname and lastname",
+      email: (val) => {
+        if (!/^\S+@\S+\.\S+$/.test(val)) {
+          return "Invalid email";
+        }
+        return null;
+      },
+      subject: (val) => (val ? null : "Enter a subject"),
+      message: (val) => (val ? null : "Enter your message"),
+    },
+  });
+
+  const contactUs = async () => {
+    if (form.validate().hasErrors) {
+      return;
+    }
+
+    const payload = form.values;
+
+    try {
+      const response = await contactUsMutation.mutateAsync(payload);
+      notifications.show({
+        title: "Message submission Successful",
+        message: response?.message || "Your Message Has Been Sent Successfully",
+        color: "green",
+      });
+      form.reset();
+    } catch (error) {
+      notifications.show({
+        title: "Message submission Failed",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  };
+
   return (
     <div className="bg-white">
       <SectionBanner>
@@ -100,22 +160,26 @@ export default function ContactUs() {
                 Send us a message
               </Title>
 
-              <div className="space-y-4">
+              <form className="space-y-4" onSubmit={form.onSubmit(contactUs)}>
                 <TextInput
                   label="Your Full Name"
                   placeholder="Adekunle, Ibrahim Olamide"
                   required
+                  {...form.getInputProps("fullname")}
                 />
                 <TextInput
                   label="Email address"
                   placeholder="you@example.com"
                   required
+                  {...form.getInputProps("email")}
                 />
                 <Select
                   label="Subject"
                   placeholder="General inquiry"
                   data={["General inquiry", "Prize claim", "Technical issue"]}
                   required
+                  {...form.getInputProps("subject")}
+                  styles={inputStyles}
                 />
                 <TextInput
                   label="Raffle reference code"
@@ -126,6 +190,7 @@ export default function ContactUs() {
                   placeholder="Type your message here..."
                   required
                   className="!mb-5"
+                  {...form.getInputProps("message")}
                   styles={{
                     input: {
                       height: "8rem",
@@ -136,10 +201,10 @@ export default function ContactUs() {
                   Tip: Include your winning ticket number or draw date for
                   prize-related inquiries.
                 </Text>
-                <MainButton size="lg">
+                <MainButton disabled={contactUsMutation.isPending} loading={contactUsMutation.isPending} size="lg" buttonType="submit">
                   <span className="!text-base">Send Message</span>
                 </MainButton>
-              </div>
+              </form>
             </Card>
           </Grid.Col>
         </Grid>

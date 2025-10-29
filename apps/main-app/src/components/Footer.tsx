@@ -1,5 +1,5 @@
 // components/Footer.tsx
-import { Input, Button, createTheme, MantineProvider } from "@mantine/core";
+import { Button, createTheme, MantineProvider, TextInput } from "@mantine/core";
 import {
   IconBrandFacebookFilled,
   IconBrandInstagramFilled,
@@ -9,16 +9,61 @@ import google from "../assets/google-play.png";
 import apple from "../assets/apple-store.png";
 import over18 from "../assets/over-18.png";
 import { NavLink } from "react-router-dom";
+import { usePostData } from "../utils/hooks/useApis";
+import { notifications } from "@mantine/notifications";
+import { useForm } from "@mantine/form";
 
 export default function Footer() {
+  const subscribeMutation = usePostData(`guest/subscribe`);
+
+  const form = useForm({
+    initialValues: {
+      email: ""
+    },
+
+    validate: {
+      email: (val) => {
+        if (!val) return "Please enter your email"
+        if (!/^\S+@\S+\.\S+$/.test(val)) {
+          return "Invalid email";
+        }
+        return null;
+      },
+    },
+  });
+
+  const subscribe = async () => {
+    if (form.validate().hasErrors) {
+      return;
+    }
+
+    const payload = {
+      email: form.values.email,
+    };
+
+    try {
+      const response = await subscribeMutation.mutateAsync(payload);
+      notifications.show({
+        title: "Email Subscription Successful",
+        message: response?.message || "Thank You For Subscribing",
+        color: "green",
+      });
+      form.reset();
+    } catch (error) {
+      notifications.show({
+        title: "Email Subscription Failed",
+        message: (error as { message?: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  };
+
   const theme = createTheme({
     components: {
-      Input: Input.extend({
+      TextInput: TextInput.extend({
         classNames: {
           input:
             "!bg-[#1f1f1f] !text-[#cdcdcd] text-[14px] !h-[48px] placeholder:text-[14px] placeholder:text-[#cdcdcd] focus:ring-0 !border-none focus:border-green-500 !rounded-r-none",
-          // section:
-          //   "!rounded-s-lg !h-[48px] !w-fit hover:bg-[#2c2c2c] !top-0 mr-[-1px]",
         },
       }),
       Button: Button.extend({
@@ -41,14 +86,11 @@ export default function Footer() {
               Live in - Rent out - Sell up
             </p>
           </div>
-          {/* <div className="text-white text-2xl font-bold">
-            Windfall<span className="text-red-500">Raffle</span>
-          </div> */}
           <p className="text-xs mt-2 mb-6">
-            The purpose of this Business Requirement Document (BRD) is to
-            outline the functional and nonfunctional requirements for the
-            development of the "Online Raffle Web Application" for Windfall
-            Raffle.
+            At Home Windfall Limited we make you step into a world where luck
+            meets lifestyle, where our raffles open doors to new homes and
+            exciting prizes. We are committed to providing a seamless and
+            engaging platform that connects dreams with reality.
           </p>
 
           <div className="flex gap-4 mb-6">
@@ -86,20 +128,30 @@ export default function Footer() {
             </p>
             <div className="flex items-center w-full max-w-md">
               <MantineProvider theme={theme}>
-                <div className="flex w-full max-w-md">
-                  <Input
+                <form className="flex w-full max-w-md" onSubmit={form.onSubmit(subscribe)}>
+                  <TextInput
                     className="!rounded-r-none flex-grow-1"
                     radius="md"
                     size="md"
+                    type="email"
                     placeholder="sample@email.com"
+                    {...form.getInputProps("email")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        subscribe();
+                      }
+                    }}
                   />
                   <Button
-                    type="button"
+                    type="submit"
+                    disabled={subscribeMutation.isPending}
+                    loading={subscribeMutation.isPending}
                     className="!rounded-l-none bg-primary-red hover:bg-primary-red text-white h-[48px] px-5"
                   >
                     Subscribe
                   </Button>
-                </div>
+                </form>
               </MantineProvider>
             </div>
           </div>
@@ -108,19 +160,19 @@ export default function Footer() {
             <p className="font-semibold text-white mb-2">Quick Links</p>
             <ul className="space-y-2">
               <li>
-                <NavLink to={'/about'}>About Us</NavLink>
+                <NavLink to={"/about"}>About Us</NavLink>
               </li>
               <li>
-                <NavLink to={'/faq'}>FAQs</NavLink>
+                <NavLink to={"/faq"}>FAQs</NavLink>
               </li>
               <li>
-                <NavLink to={'/login'}>Login</NavLink>
-                </li>
-              <li>
-                <NavLink to={'/register'}>Register</NavLink>
+                <NavLink to={"/login"}>Login</NavLink>
               </li>
               <li>
-                <NavLink to={'/winners/all-time'}>Our Winner</NavLink>
+                <NavLink to={"/register"}>Register</NavLink>
+              </li>
+              <li>
+                <NavLink to={"/winners/all-time"}>Our Winner</NavLink>
               </li>
             </ul>
           </div>
@@ -128,17 +180,19 @@ export default function Footer() {
             <p className="font-semibold text-white mb-2">Resources</p>
             <ul className="space-y-2">
               <li>
-                <NavLink to={'/game-rules'}>How to play</NavLink>
+                <NavLink to={"/game-rules"}>How to play</NavLink>
               </li>
               <li>
-                <NavLink to={'/claim-prices'}>Claim prizes</NavLink>
+                <NavLink to={"/claim-prices"}>Claim prizes</NavLink>
               </li>
               <li>
-                <NavLink to={'/contact-us'}>Contact Us</NavLink>
+                <NavLink to={"/contact-us"}>Contact Us</NavLink>
               </li>
               <li>Blog</li>
               <li>
-                <NavLink to={'/responsible-playing'}>Responsible Playing</NavLink>
+                <NavLink to={"/responsible-playing"}>
+                  Responsible Playing
+                </NavLink>
               </li>
             </ul>
           </div>
@@ -146,18 +200,22 @@ export default function Footer() {
             <p className="font-semibold text-white mb-2">Legal</p>
             <ul className="space-y-2">
               <li>
-                <NavLink to={'/game-rules'}>Games Rules</NavLink>
+                <NavLink to={"/game-rules"}>Games Rules</NavLink>
               </li>
               <li>
-                <NavLink to={'/terms-and-conditions'}>Terms & Conditions</NavLink>
+                <NavLink to={"/terms-and-conditions"}>
+                  Terms & Conditions
+                </NavLink>
               </li>
               <li>
-                <NavLink to={'/privacy-policy'}>Privacy Policy</NavLink>
+                <NavLink to={"/privacy-policy"}>Privacy Policy</NavLink>
               </li>
               <li>
-                <NavLink to={'/terms-of-use'}>Terms of Use</NavLink>
+                <NavLink to={"/terms-of-use"}>Terms of Use</NavLink>
               </li>
-              <li><NavLink to={'/cookie-policy'}>Cookies Policy</NavLink></li>
+              <li>
+                <NavLink to={"/cookie-policy"}>Cookies Policy</NavLink>
+              </li>
             </ul>
           </div>
         </div>
@@ -184,7 +242,7 @@ export default function Footer() {
             </a>
           </p>
           <p>
-            Federal Competition & Consumer Protection Commission (FCCPC) –{" "}
+            Federal Competition & Consumer Protection Commission (FCCPC) -{" "}
             <a
               href="https://www.fccpc.gov.ng"
               target="_blank"

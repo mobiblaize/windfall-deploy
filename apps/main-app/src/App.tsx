@@ -134,8 +134,40 @@ const CustomerDashboard = lazy(
   () => import("./pages/Admin/CustomerMgt/CustomerDashboard")
 );
 
+const CustomerDetails = lazy(
+  () => import("./pages/Admin/CustomerMgt/CustomerDetails")
+);
+
+const Referrals = lazy(
+  () => import("./pages/Admin/Referrals/Referrals")
+);
+
+const Reports = lazy(
+  () => import("./pages/Admin/Reports/Reports")
+);
+
+const PrizeClaims = lazy(
+  () => import("./pages/Admin/PrizeClaims/PrizeClaims")
+);
+
+const CreatePrizeClaim = lazy(
+  () => import("./pages/Admin/PrizeClaims/CreatePrizeClaim")
+);
+
 const Notifications = lazy(
   () => import("./pages/Admin/Notifications/Notifications")
+);
+
+const DrawsOverview = lazy(
+  () => import("./pages/Admin/DrawMgt/DrawsOverview")
+);
+
+const ViewDraw = lazy(
+  () => import("./pages/Admin/DrawMgt/ViewDraw")
+);
+
+const PrizeManagement = lazy(
+  () => import("./pages/Admin/PrizeManagement/PrizeManagement")
 );
 
 function App() {
@@ -268,29 +300,38 @@ function App() {
                   </AdminProtectedRoute>
                 }
               >
-                <Route index element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route index element={<Navigate to="raffles" replace />} />
+                {/* <Route path="dashboard" element={<Dashboard />} /> */}
 
                 {/* User Management */}
-                <Route path="users" element={<UserManagement />} />
-                <Route path="users/create" element={<CreateUser />} />
-                <Route path="users/:id" element={<UserDetails />} />
-                <Route path="users/edit/:id" element={<EditUser />} />
+                <Route path="users">
+                  <Route index element={<UserManagement />} />
+                  <Route path="create" element={<CreateUser />} />
+                  <Route path=":id" element={<UserDetails />} />
+                  <Route path="edit/:id" element={<EditUser />} />
+                </Route>
 
                 {/* Role Management */}
-                <Route path="roles" element={<RoleManagement />} />
-                <Route path="roles/create" element={<CreateRole />} />
-                <Route path="roles/:id" element={<RoleDetails />} />
-                <Route path="roles/edit/:id" element={<EditRole />} />
+                <Route path="roles">
+                  <Route index element={<RoleManagement />} />
+                  <Route path="create" element={<CreateRole />} />
+                  <Route path=":id" element={<RoleDetails />} />
+                  <Route path="edit/:id" element={<EditRole />} />
+                </Route>
 
-                <Route path="raffles" element={<RaffleManagement />} />
-                <Route path="raffles/all" element={<RaffleList />} />
-                <Route path="raffles/:id" element={<ViewRaffles />} />
-                <Route path="raffles/create" element={<CreateLayout />} />
+
+                <Route path="raffles">
+                  <Route index element={<RaffleManagement />} />
+                  <Route path="all" element={<RaffleList />} />
+                  <Route path=":id" element={<ViewRaffles />} />
+                  <Route path="create" element={<CreateLayout />} />
+                </Route>
 
                 {/* Customer Support */}
-                <Route path="support" element={<Support />} />
-                <Route path="support/:id" element={<ViewComplaint />} />
+                <Route path="support">
+                  <Route index element={<Support />} />
+                  <Route path=":id" element={<ViewComplaint />} />
+                </Route>
 
                 {/* Promo Code */}
                 <Route path="promo-codes">
@@ -303,15 +344,41 @@ function App() {
                 <Route path="audit" element={<AuditTrail />} />
 
                 {/* Customers */}
-                <Route path="customers" element={<CustomerDashboard />} />
+                <Route path="customers">
+                  <Route index element={<CustomerDashboard />} />
+                  <Route path=":id" element={<CustomerDetails />} />
+                </Route>
 
                 {/* Notifications */}
                 <Route path="notifications" element={<Notifications />} />
+
+                {/* Referrals */}
+                <Route path="referrals" element={<Referrals />} />
+
+                {/* Reports */}
+                <Route path="reports" element={<Reports />} />
 
                 {/* Transactions */}
                 <Route path="transactions">
                   <Route index element={<TransactionDashboard />} />
                   <Route path="all" element={<TransactionList />} />
+                </Route>
+
+                {/* Draws */}
+                <Route path="draws">
+                  <Route index element={<DrawsOverview />} />
+                  <Route path=":id" element={<ViewDraw />} />
+                </Route>
+
+                {/* Prize Claims */}
+                <Route path="prize-claims">
+                  <Route index element={<PrizeClaims />} />
+                  <Route path="create" element={<CreatePrizeClaim />} />
+                </Route>
+
+                {/* Prize Management */}
+                <Route path="prizes">
+                  <Route index element={<PrizeManagement />} />
                 </Route>
               </Route>
             </Route>

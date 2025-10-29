@@ -4,6 +4,9 @@ import {
   Image,
   Button,
   type ButtonProps,
+  type MantineSize,
+  type MantineSpacing,
+  type MantineRadius,
 } from "@mantine/core";
 import successImg from "../../assets/success.gif";
 import errorImg from "../../assets/error.gif";
@@ -22,6 +25,9 @@ type Props = {
   opened: boolean;
   onClose?: () => void;
   status?: "success" | "error" | "loading" | "message" | "delete";
+  size?: MantineSize;
+  padding?: MantineSpacing;
+  radius?: MantineRadius;
   title: React.ReactNode;
   description: React.ReactNode;
   color?: "dark" | "primary";
@@ -38,6 +44,9 @@ export default function AdminAlertModal({
   color = "dark",
   primaryButton,
   secondaryButton,
+  size,
+  padding = "lg",
+  radius = "lg"
 }: Props) {
   const getStatusImage = () => {
     switch (status) {
@@ -73,8 +82,9 @@ export default function AdminAlertModal({
       onClose={onClose ? onClose : () => {}}
       centered
       withCloseButton={false}
-      radius="lg"
-      padding="lg"
+      radius={radius}
+      padding={padding}
+      size={size}
       overlayProps={{ blur: 3, opacity: 0.2 }}
       classNames={{
         body: "bg-white px-6 pb-6 pt-10",

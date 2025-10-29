@@ -15,11 +15,15 @@ const normalizeHeaders = (headers: any): Record<string, string> => {
   return normalized;
 };
 
+// Add required Platform: 'web' header to all outgoing requests
+const PLATFORM_HEADER: RequestHeaders = { Platform: "web" };
+
 const mergeHeaders = (
   defaultHeaders?: RequestHeaders,
   headers?: RequestHeaders
 ): RequestHeaders => {
   return {
+    ...PLATFORM_HEADER,
     ...normalizeHeaders(axiosInstance.defaults.headers.common),
     ...normalizeHeaders(axiosInstance.defaults.headers.get),
     ...normalizeHeaders(axiosInstance.defaults.headers.post),

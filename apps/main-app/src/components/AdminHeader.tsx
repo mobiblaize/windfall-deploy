@@ -12,14 +12,14 @@ import {
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
   IconBell,
-  IconHome,
+  // IconHome,
   IconTicket,
   IconBolt,
   IconCalendarStats,
   IconUsers,
   IconReceipt,
   IconGift,
-  // IconTrophy,
+  IconTrophy,
   IconHeadset,
   IconShare,
   IconTicketOff,
@@ -41,7 +41,7 @@ const adminSideMenuItems = [
   {
     title: "Main Menu",
     items: [
-      { name: "Dashboard", path: "/admin/dashboard", icon: IconHome },
+      // { name: "Dashboard", path: "/admin/dashboard", icon: IconHome },
       { name: "Raffle Management", path: "/admin/raffles", icon: IconTicket },
       { name: "Instant Raffle", path: "/admin/instant-raffles", icon: IconBolt },
       {
@@ -60,7 +60,7 @@ const adminSideMenuItems = [
         icon: IconReceipt,
       },
       { name: "Prize Claim", path: "/admin/prize-claims", icon: IconGift },
-      // { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
+      { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
     ],
   },
   {

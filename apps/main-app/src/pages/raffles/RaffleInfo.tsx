@@ -19,13 +19,16 @@ import { raffleToCartItem } from "../../utils/helper/raffleToCartItem";
 import { getTicketsSoldPercentage } from "../../utils/helper/getTicketsSoldPercentage";
 import defaultRaffleImg from "../../utils/helper/defaultRaffeImg";
 import GameBadge from "../../components/GameBadge";
+import evaluateMax from "../../utils/helper/evaluateMax";
 
 interface RaffleProps {
   raffle: Raffle;
 }
 
 export default function RaffleInfo({ raffle }: RaffleProps) {
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(
+    raffle.minimum_ticket_number_purchase
+  );
   const [activeSlide, setActiveSlide] = useState(0);
   const [maxTickets, setMaxTickets] = useState(0);
   const [activeThumbnail, setActiveThumbnail] = useState(0);
@@ -34,20 +37,21 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setMaxTickets(
-      raffle.discount?.tiers?.reduce((prev, current) =>
-        prev.max > current.max ? prev : current
-      )?.max ?? raffle.maximum_ticket_number_purchase
-    );
+    setMaxTickets(evaluateMax(raffle));
     setQuantity(
-      getItemQuantity(raffle.uuid) ?? raffle.minimum_ticket_number_purchase
+      Math.max(
+        (getItemQuantity(raffle.uuid) || 0,
+        raffle.minimum_ticket_number_purchase)
+      )
     );
-    console.log(getItemQuantity(raffle.uuid));
-
     setActiveSlide(0);
     setActiveThumbnail(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [raffle]);
+
+  function setDiscount(min: number) {
+    setQuantity(Math.max(raffle.minimum_ticket_number_purchase, min));
+  }
 
   function selectImage(idx: number) {
     setActiveThumbnail(idx);
@@ -300,6 +304,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         {isActive && (
           <>
             <DiscountSlider
+              min={raffle.minimum_ticket_number_purchase}
               value={quantity}
               max={maxTickets}
               onChange={setQuantity}
@@ -313,7 +318,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
                   <Card
                     key={i}
                     withBorder
-                    onClick={() => setQuantity(item.min)}
+                    onClick={() => setDiscount(item.min)}
                     className={`!flex !flex-col !items-center !justify-center !text-center !py-3 !cursor-pointer !rounded-xl !border-2 !border-dashed !transition
           ${
             isActive

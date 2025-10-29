@@ -33,6 +33,8 @@ import { useNavigate } from "react-router-dom";
 import { GoArrowUpRight } from "react-icons/go";
 import CustomBadge from "../../../components/CustomBadge";
 import type { User } from "../UserMgt/UserMgt";
+import CustomButton from "../../../components/Buttons/CustomButton";
+import { BsPlus } from "react-icons/bs";
 
 interface SupportStats {
   total: number;
@@ -60,7 +62,7 @@ type StatsCard = {
   period: string | number;
 };
 
-export interface Complaints {
+export interface PrizeClaim {
   uuid: string;
   uniqueID: string;
   issue_type: string;
@@ -79,17 +81,17 @@ export interface Complaints {
 }
 
 export interface Customer {
-  uuid: string
-  firstname: string
-  lastname: string
-  uniqueID: string
-  avatar: string
-  email: string
-  phone_number: string
-  landmark?: string
-  lga?: string
-  area?: string
-  referral_link: string
+  uuid: string;
+  firstname: string;
+  lastname: string;
+  uniqueID: string;
+  avatar: string;
+  email: string;
+  phone_number: string;
+  landmark?: string;
+  lga?: string;
+  area?: string;
+  referral_link: string;
 }
 
 export interface Link {
@@ -100,7 +102,7 @@ export interface Link {
 
 const cards: StatsCard[] = [
   {
-    title: "Resolved Issues",
+    title: "Total Prize Claimed",
     value: 0,
     slug: "resolved",
     added: "last_period_days_resolved",
@@ -110,7 +112,7 @@ const cards: StatsCard[] = [
     period: 3,
   },
   {
-    title: "Pending Issues",
+    title: "Pending Prize to be Claimed",
     value: 0,
     slug: "pending",
     added: "last_period_days_pending",
@@ -127,17 +129,17 @@ const tabs: TabSwitcherTab[] = [
     value: "",
   },
   {
-    label: "Resolved",
-    value: "resolved",
+    label: "Claimed",
+    value: "claimed",
   },
   {
-    label: "Pending",
-    value: "pending",
+    label: "Unclaimed",
+    value: "unclaimed",
   },
 ];
 
-function Support() {
-  const [complaints, setComplaints] = useState<Complaints[]>([]);
+function PrizeClaims() {
+  const [claims, setClaims] = useState<PrizeClaim[]>([]);
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
   const [search, setSearch] = useState("");
@@ -196,10 +198,10 @@ function Support() {
     }
 
     if (complaintsResponse) {
-      setComplaints(complaintsResponse.data?.data);
-      setCurrentPage(complaintsResponse.data?.current_page || 1);
-      setTotal(complaintsResponse.data?.total || 0);
-      setPageSize(complaintsResponse.data?.per_page || 10);
+      setClaims(complaintsResponse.data?.records?.data);
+      setCurrentPage(complaintsResponse.data?.records?.current_page || 1);
+      setTotal(complaintsResponse.data?.records?.total || 0);
+      setPageSize(complaintsResponse.data?.records?.per_page || 10);
     }
   }, [complaintsError, isErrorComplaints, complaintsResponse]);
 
@@ -262,10 +264,10 @@ function Support() {
           >
             <div>
               <Text tt={"capitalize"} fz={"lg"} fw={600}>
-                Support Overview
+                Claim Overview
               </Text>
               <Text className="!text-secondary-text !text-sm">
-                An snapshot of support issues raised by customer
+                An snapshot of support prize claim by customer
               </Text>
             </div>
             <Flex
@@ -335,7 +337,7 @@ function Support() {
           <section>
             <div>
               <Text tt={"capitalize"} className="!text-secondary-text !text-sm">
-                total number of support cases
+                Number of Prizes Won
               </Text>
               {isLoadingStats ? (
                 <Skeleton height={36} width={50} radius="sm" my={7} />
@@ -388,23 +390,39 @@ function Support() {
             {/* Header */}
             <Flex justify="space-between" px="md" pt="lg" wrap="wrap" gap={8}>
               <div>
-                <Text fz={20} fw="bold" className="!text-primary-text">
-                  Support List
+                <Text fz={20} fw="bold" className="!text-primary-green">
+                  Prize Claim List
                 </Text>
                 <Text className="!text-secondary-text">
-                  Track and manage case request on  the system
+                  Track and manage prize claim on the system
                 </Text>
               </div>
-              <Button
-                variant="outline"
-                className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
-                rightSection={<HiDocumentArrowDown />}
-                onClick={handleExport}
-                loading={exportComplaintsMutation?.isPending}
-                disabled={exportComplaintsMutation?.isPending}
-              >
-                Export
-              </Button>
+              <Group>
+                <CustomButton
+                  border={false}
+                  className="!rounded-lg !h-12"
+                  size="sm"
+                  onClick={() => navigate("create")}
+                  rightSection={
+                    <div className="!inline-flex !bg-[#ff8283] p-1 w-fit rounded-md">
+                      <BsPlus className=" !text-white" />
+                    </div>
+                  }
+                >
+                  New Claim
+                </CustomButton>
+                <Button
+                  variant="outline"
+                  className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
+                  rightSection={<HiDocumentArrowDown />}
+                  onClick={handleExport}
+                  loading={exportComplaintsMutation?.isPending}
+                  disabled={exportComplaintsMutation?.isPending}
+                  size="sm"
+                >
+                  Export
+                </Button>
+              </Group>
             </Flex>
 
             <Divider mt="md" mb="lg" />
@@ -461,47 +479,46 @@ function Support() {
                 { label: "Resolved Date", key: "resolved" },
                 { label: "", key: "action" },
               ]}
-              data={complaints}
+              data={claims}
               loading={isLoadingComplaints}
               emptyMessage="No complaints found"
-              renderItems={(complaint) => [
+              renderItems={(claim) => [
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
-                    {complaint.customer?.firstname} {complaint.customer?.lastname}
+                    {claim.customer?.firstname} {claim.customer?.lastname}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {complaint.uniqueID}
+                    {claim.uniqueID}
                   </Text>
                 </>,
-                complaint.uniqueID,
-                complaint?.updated_at
-                  ? format(new Date(complaint.updated_at), "MMMM d, yyyy")
+                claim.uniqueID,
+                claim?.updated_at
+                  ? format(new Date(claim.updated_at), "MMMM d, yyyy")
                   : "-",
-                complaint.issue_type,
-                complaint.platform,
+                claim.issue_type,
+                claim.platform,
 
                 <CustomBadge
-                  status={complaint.status === 'resolved' ? "successful" : "pending"}
-                  label={complaint.status}
+                  status={
+                    claim.status === "resolved" ? "successful" : "pending"
+                  }
+                  label={claim.status}
                 />,
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
-                    {complaint.time_resolved
-                      ? format(
-                          new Date(complaint.time_resolved),
-                          "MMMM d, yyyy"
-                        )
+                    {claim.time_resolved
+                      ? format(new Date(claim.time_resolved), "MMMM d, yyyy")
                       : " - "}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {complaint.time_resolved
-                      ? format(new Date(complaint.time_resolved), "h:mm a")
+                    {claim.time_resolved
+                      ? format(new Date(claim.time_resolved), "h:mm a")
                       : ""}
                   </Text>
                 </>,
 
                 <ActionIcon
-                  onClick={() => navigate(complaint.uuid)}
+                  onClick={() => navigate(claim.uuid)}
                   size={35}
                   className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                 >
@@ -525,7 +542,7 @@ function Support() {
   );
 }
 
-export default Support;
+export default PrizeClaims;
 
 type GridCardProps = Omit<StatsCard, "added"> & {
   added?: number;

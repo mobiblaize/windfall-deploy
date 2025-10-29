@@ -183,6 +183,7 @@ function PerformanceMonitor() {
   }, [isErrorRaffles, rafflesError]);
 
   async function getTicketSalesStats() {
+    if (!raffleId) return;
     try {
       const response = await ticketSalesMutation.mutateAsync();
       setTicketSalesStats(response.data);

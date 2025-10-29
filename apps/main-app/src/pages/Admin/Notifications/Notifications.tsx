@@ -95,11 +95,13 @@ function NotificationCard({ notification }: NotificationCardProps) {
           : "border-gray-200 bg-gray-50 opacity-70"
       }`}
     >
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-2">
         <div className="!text-secondary-text">
           <Text className="!font-medium !text-lg">
             {/* {notification.type}{" "} */}
-            <span className="!text-primary-text">{notification.type} </span>
+            <span className="!text-primary-text text-wrap break-all">
+              {notification.type}
+            </span>
           </Text>
           <Text className="!text-base">
             {notification?.created_at
@@ -143,6 +145,7 @@ export default function Notifications() {
   const [pageSize, setPageSize] = useState<number>(0);
 
   const params = {
+    paginate: 1,
     page: filterPage,
     limit: "10",
     status: status,
@@ -171,7 +174,14 @@ export default function Notifications() {
         color: "red",
       });
     }
-  }, [isError, error]);
+    if (notificationsResponse) {
+      setCurrentPage(
+        notificationsResponse.data?.notifications?.current_page || 1
+      );
+      setTotal(notificationsResponse.data?.notifications?.total || 0);
+      setPageSize(notificationsResponse.data?.notifications?.per_page || 10);
+    }
+  }, [isError, error, notificationsResponse]);
 
   useEffect(() => {
     if (isModuleError) {
@@ -211,7 +221,7 @@ export default function Notifications() {
   const extraCount = extraModules.length;
 
   const notifications: Notification[] =
-    notificationsResponse?.data?.notifications ?? [];
+    notificationsResponse?.data?.notifications?.data ?? [];
 
   return (
     <div>
@@ -398,15 +408,6 @@ export default function Notifications() {
                         />
                       ))}
                     </div>
-                    <div className="mt-10">
-                      <Paginator
-                        currentPage={currentPage}
-                        isLoading={isPending}
-                        total={total}
-                        pageSize={pageSize}
-                        onPageChange={onPageChange}
-                      />
-                    </div>
                   </>
                 ) : (
                   <EmptyState
@@ -418,6 +419,15 @@ export default function Notifications() {
                 )}
               </>
             )}
+            <div className="mt-10">
+              <Paginator
+                currentPage={currentPage}
+                isLoading={isPending}
+                total={total}
+                pageSize={pageSize}
+                onPageChange={onPageChange}
+              />
+            </div>
           </Box>
         </div>
       </Tabs>

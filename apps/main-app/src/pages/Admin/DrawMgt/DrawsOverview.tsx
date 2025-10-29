@@ -11,6 +11,7 @@ import {
   Group,
   Select,
   ActionIcon,
+  Box,
 } from "@mantine/core";
 import { BiSolidBell } from "react-icons/bi";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
@@ -33,6 +34,8 @@ import { useNavigate } from "react-router-dom";
 import { GoArrowUpRight } from "react-icons/go";
 import CustomBadge from "../../../components/CustomBadge";
 import type { User } from "../UserMgt/UserMgt";
+import { AiFillExclamationCircle } from "react-icons/ai";
+import RenderSkeletonText from "../../../components/RenderSkeletonText";
 
 interface SupportStats {
   total: number;
@@ -79,17 +82,17 @@ export interface Complaints {
 }
 
 export interface Customer {
-  uuid: string
-  firstname: string
-  lastname: string
-  uniqueID: string
-  avatar: string
-  email: string
-  phone_number: string
-  landmark?: string
-  lga?: string
-  area?: string
-  referral_link: string
+  uuid: string;
+  firstname: string;
+  lastname: string;
+  uniqueID: string;
+  avatar: string;
+  email: string;
+  phone_number: string;
+  landmark?: string;
+  lga?: string;
+  area?: string;
+  referral_link: string;
 }
 
 export interface Link {
@@ -127,16 +130,16 @@ const tabs: TabSwitcherTab[] = [
     value: "",
   },
   {
-    label: "Resolved",
-    value: "resolved",
+    label: "Web",
+    value: "web",
   },
   {
-    label: "Pending",
-    value: "pending",
+    label: "Mobile App",
+    value: "mobile",
   },
 ];
 
-function Support() {
+function DrawsOverview() {
   const [complaints, setComplaints] = useState<Complaints[]>([]);
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
@@ -196,10 +199,10 @@ function Support() {
     }
 
     if (complaintsResponse) {
-      setComplaints(complaintsResponse.data?.data);
-      setCurrentPage(complaintsResponse.data?.current_page || 1);
-      setTotal(complaintsResponse.data?.total || 0);
-      setPageSize(complaintsResponse.data?.per_page || 10);
+      setComplaints(complaintsResponse.data?.records?.data);
+      setCurrentPage(complaintsResponse.data?.records?.current_page || 1);
+      setTotal(complaintsResponse.data?.records?.total || 0);
+      setPageSize(complaintsResponse.data?.records?.per_page || 10);
     }
   }, [complaintsError, isErrorComplaints, complaintsResponse]);
 
@@ -262,10 +265,10 @@ function Support() {
           >
             <div>
               <Text tt={"capitalize"} fz={"lg"} fw={600}>
-                Support Overview
+                Draw Overview
               </Text>
               <Text className="!text-secondary-text !text-sm">
-                An snapshot of support issues raised by customer
+                An insight into the raffle draws on system
               </Text>
             </div>
             <Flex
@@ -333,20 +336,37 @@ function Support() {
 
           {/* === Skeleton for total games === */}
           <section>
-            <div>
+            <div className="mb-5">
               <Text tt={"capitalize"} className="!text-secondary-text !text-sm">
-                total number of support cases
+                Total Number of Draws
               </Text>
               {isLoadingStats ? (
-                <Skeleton height={36} width={50} radius="sm" my={7} />
+                <Box className="space-y-5">
+                  <RenderSkeletonText height={24} width="30%" />
+                  <RenderSkeletonText height={10} width="50%" />
+                </Box>
               ) : (
-                <Text
-                  fw={500}
-                  fz={32}
-                  className="!text-primary-red !font-semibold"
-                >
-                  {supportStats?.total ?? 0}
-                </Text>
+                <>
+                  <Text
+                    fw={500}
+                    fz={32}
+                    className="!text-primary-red !font-semibold"
+                  >
+                    {supportStats?.total ?? 0}
+                  </Text>
+
+                  <Text
+                    tt="capitalize"
+                    fz="sm"
+                    fw={600}
+                    className="!text-secondary-text !item-center !flex !gap-2"
+                    mb={5}
+                  >
+                    <AiFillExclamationCircle />
+                    <span className="!text-primary-green">22.4%</span> increase
+                    over the last days
+                  </Text>
+                </>
               )}
             </div>
 
@@ -389,10 +409,10 @@ function Support() {
             <Flex justify="space-between" px="md" pt="lg" wrap="wrap" gap={8}>
               <div>
                 <Text fz={20} fw="bold" className="!text-primary-text">
-                  Support List
+                  Draw List
                 </Text>
                 <Text className="!text-secondary-text">
-                  Track and manage case request on  the system
+                  A list of your draws on the system
                 </Text>
               </div>
               <Button
@@ -467,7 +487,8 @@ function Support() {
               renderItems={(complaint) => [
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
-                    {complaint.customer?.firstname} {complaint.customer?.lastname}
+                    {complaint.customer?.firstname}{" "}
+                    {complaint.customer?.lastname}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
                     {complaint.uniqueID}
@@ -481,7 +502,9 @@ function Support() {
                 complaint.platform,
 
                 <CustomBadge
-                  status={complaint.status === 'resolved' ? "successful" : "pending"}
+                  status={
+                    complaint.status === "resolved" ? "successful" : "pending"
+                  }
                   label={complaint.status}
                 />,
                 <>
@@ -525,7 +548,7 @@ function Support() {
   );
 }
 
-export default Support;
+export default DrawsOverview;
 
 type GridCardProps = Omit<StatsCard, "added"> & {
   added?: number;

@@ -13,10 +13,12 @@ import "@mantine/dates/styles.css";
 import LoadingState from "../../components/LoadingState";
 import EmptyState from "../../components/EmptyState";
 import { IoClose } from "react-icons/io5";
+import { useSearchParams } from "react-router-dom";
 
 export default function RaffleGames() {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [startDate, setStartDate] = useState<string | null>("");
+  const [search, setSearch] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "live" | "upcoming" | "instant" | "ended"
@@ -27,15 +29,26 @@ export default function RaffleGames() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [filterPage, setFilterPage] = useState<number>(1);
 
-  const getRafflesMutation = useGetData(
-    `guest/games/all-games?paginate=1&type=${statusFilter}&time_preset=${drawTime}&start_date=${startDate}&end_date=${endDate}&page=${filterPage}&limit=${15}`
-  );
+  // read & write query params
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  // initialize search from query param on mount / when query changes externally
   useEffect(() => {
-    getRaffles();
+    const q = searchParams.get("search");
+    // normalize null vs empty string
+    setSearch(q || "");
+    // when search param changes externally, reset to first page
+    setFilterPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]);
+  }, [searchParams.toString()]); // stringify to watch the actual param changes
 
+  // build the URL dynamically so the hook receives the latest values
+  const encodedSearch = search ? encodeURIComponent(search) : "";
+  const url = `guest/games/all-games?paginate=1&type=${statusFilter}&time_preset=${drawTime}&start_date=${startDate}&end_date=${endDate}&page=${filterPage}&limit=${15}&search=${encodedSearch}`;
+
+  const getRafflesMutation = useGetData(url);
+
+  // central fetch routine
   async function getRaffles() {
     try {
       const response = await getRafflesMutation.mutateAsync();
@@ -54,9 +67,27 @@ export default function RaffleGames() {
     }
   }
 
+  // refetch whenever any of these inputs change
+  useEffect(() => {
+    // call the fetch when dependencies change
+    getRaffles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, search]);
+
   function onPageChange(page: number) {
     setFilterPage(page);
     getRaffles();
+  }
+
+  function clearSearch() {
+    // remove from URL
+    const next = new URLSearchParams(searchParams.toString());
+    next.delete("search");
+    setSearchParams(next);
+    // clear local state and reset to page 1
+    setSearch("");
+    setFilterPage(1);
+    // getRaffles will be triggered by effect
   }
 
   return (
@@ -64,10 +95,27 @@ export default function RaffleGames() {
       <div className="px-6 md:px-16 py-10 bg-white">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800">
-              All Raffles/Games{" "}
-              <span className="text-primary-red">({total})</span>
-            </h2>
+            <div className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+              {search ? (
+                <>
+                  <span>Search: "{search}"</span>
+                  <button
+                    onClick={clearSearch}
+                    aria-label="Clear search"
+                    className="inline-flex items-center justify-center rounded-md p-1 hover:bg-gray-100"
+                    title="Clear search"
+                  >
+                    <IoClose />
+                  </button>
+                  <span className="text-primary-red">({total})</span>
+                </>
+              ) : (
+                <>
+                  <span>All Raffles/Games</span>{" "}
+                  <span className="text-primary-red">({total})</span>
+                </>
+              )}
+            </div>
             <p className="text-sm text-gray-500">
               One ticket. One shot. Your keys could be next.
             </p>
@@ -138,7 +186,13 @@ export default function RaffleGames() {
               }}
             />
 
-            <ActionIcon size={44} onClick={() => onPageChange(1)}>
+            <ActionIcon
+              size={44}
+              onClick={() => {
+                // trigger a fetch from the first page (e.g. when user changes filters)
+                onPageChange(1);
+              }}
+            >
               <IconZoomFilled />
             </ActionIcon>
           </div>
@@ -193,13 +247,11 @@ export default function RaffleGames() {
         {!getRafflesMutation.isPending && (
           <>
             {raffles.length ? (
-              <>
-                <div className="grid gap-6 md:grid-cols-3">
-                  {raffles.map((raffle, idx) => (
-                    <RaffleCard key={idx} {...raffle} />
-                  ))}
-                </div>
-              </>
+              <div className="grid gap-6 md:grid-cols-3">
+                {raffles.map((raffle, idx) => (
+                  <RaffleCard key={idx} {...raffle} />
+                ))}
+              </div>
             ) : (
               <div className="-mt-10">
                 <EmptyState

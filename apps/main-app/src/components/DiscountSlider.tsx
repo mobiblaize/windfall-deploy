@@ -5,6 +5,7 @@ import type { DiscountTier } from "../models/raffles";
 interface DiscountSliderProps {
   value: number;
   max: number;
+  min: number;
   activeDiscount?: DiscountTier;
   onChange: (val: number) => void;
 }
@@ -12,6 +13,7 @@ interface DiscountSliderProps {
 export default function DiscountSlider({
   value,
   max,
+  min,
   onChange,
   activeDiscount
 }: DiscountSliderProps) {
@@ -36,7 +38,7 @@ export default function DiscountSlider({
           value={value}
           label={null}
           onChange={onChange}
-          min={1}
+          min={min}
           max={max}
           step={1}
           className="slider-red"

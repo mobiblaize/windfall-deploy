@@ -10,7 +10,7 @@ import {
   Group,
   Select,
   ActionIcon,
-  Badge,
+  Skeleton,
 } from "@mantine/core";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { useEffect, useState } from "react";
@@ -35,16 +35,8 @@ import { AiFillExclamationCircle } from "react-icons/ai";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import { BsPlus } from "react-icons/bs";
-
-interface SupportStats {
-  total: number;
-  pending: number;
-  resolved: number;
-  last_period_days_total: number;
-  last_period_days_pending: number;
-  last_period_days_resolved: number;
-  period: Period;
-}
+import type { Raffle } from "../GameMgt/RaffleList";
+import CustomBadge from "../../../components/CustomBadge";
 
 export interface Period {
   days: number;
@@ -52,31 +44,30 @@ export interface Period {
   end_date: string;
 }
 
-type StatsCard = {
-  title: string;
-  value: number;
-  slug: "pending" | "resolved";
-  added: "last_period_days_pending" | "last_period_days_resolved";
-  className: string;
-  color: string;
-  period: string | number;
-};
-
-export interface Complaints {
+export interface PromoCodeItem {
   uuid: string;
   uniqueID: string;
-  issue_type: string;
-  platform: string;
-  customer_id: string;
-  customer_complaint: string;
-  other_information: string;
-  created_by: string;
-  staff_created_comment: string;
-  resolved_by: string;
-  time_resolved: string;
-  staff_resolution_comment: string;
-  status: string;
+  name: string;
+  code: string;
+  description: string;
+  type: string;
+  type_value: number;
+  start_date: string;
+  end_date: string;
+  is_active: string;
+  updated_by: UpdatedBy;
+  created_at: string;
   updated_at: string;
+  total_discount: string;
+  usage_count: number;
+  status: string;
+  games: Raffle[];
+}
+
+export interface UpdatedBy {
+  uuid: string;
+  name: string;
+  enforce_password_change: boolean;
 }
 
 export interface Link {
@@ -85,28 +76,21 @@ export interface Link {
   active: boolean;
 }
 
-const cards: StatsCard[] = [
-  {
-    title: "Resolved Issues",
-    value: 0,
-    slug: "resolved",
-    added: "last_period_days_resolved",
-    className:
-      "!bg-secondary-green !text-primary-green/50 !border-primary-green/50",
-    color: "!text-primary-green",
-    period: 3,
-  },
-  {
-    title: "Pending Issues",
-    value: 0,
-    slug: "pending",
-    added: "last_period_days_pending",
-    className:
-      "!bg-primary-warning/10 !text-primary-warning/50 !border-primary-warning/50 ",
-    color: "!text-primary-warning",
-    period: 3,
-  },
-];
+export interface PromoCodeStats {
+  total: number;
+  total_percentage_change_period: number;
+  active: number;
+  active_percentage_change_period: number;
+  inactive: number;
+  inactive_percentage_change_period: number;
+  pending: number;
+  discount_amount: number;
+  total_usage: number;
+  most_used_promo_name: string;
+  most_used_promo_count: number;
+  most_used_promo_percentage_change_period: number;
+  period: string;
+}
 
 const tabs: TabSwitcherTab[] = [
   {
@@ -123,8 +107,36 @@ const tabs: TabSwitcherTab[] = [
   },
 ];
 
+const renderStatValue = (
+  value: number | string | undefined,
+  loading: boolean
+) => {
+  if (loading) {
+    return <Skeleton height={28} width="50%" mb={12} />;
+  }
+  return value?.toLocaleString() ?? "N/A";
+};
+
+// Helper function to render percentage change
+const renderPercentageChange = (
+  value: number | undefined,
+  period: string | undefined,
+  loading: boolean,
+  text: string = "increase in the last"
+) => {
+  if (loading) {
+    return <Skeleton height={16} width="80%" />;
+  }
+  return (
+    <>
+      <span className="!text-primary-green">{value?.toLocaleString()}%</span>{" "}
+      {text} {period}
+    </>
+  );
+};
+
 function PromoCode() {
-  const [complaints, setComplaints] = useState<Complaints[]>([]);
+  const [promoCodes, setPromoCodes] = useState<PromoCodeItem[]>([]);
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
   const [search, setSearch] = useState("");
@@ -144,26 +156,26 @@ function PromoCode() {
     isError: isErrorStats,
     error: statsError,
   } = useFetchData(
-    `admin/customer-support-management/stats?start_date=${startDate}&end_date=${endDate}`
+    `admin/promo-code-management/stats?start_date=${startDate}&end_date=${endDate}`
   );
 
   const {
-    data: complaintsResponse,
-    isLoading: isLoadingComplaints,
-    isError: isErrorComplaints,
-    error: complaintsError,
+    data: promoCodesResponse,
+    isLoading: isLoadingPromoCodes,
+    isError: isErrorPromoCodes,
+    error: promoCodesError,
   } = useFetchData(
-    `admin/promo-code-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
+    `admin/promo-code-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`
   );
 
-  const exportComplaintsMutation = useGetExportData(
+  const exportPromoCodesMutation = useGetExportData(
     `admin/promo-code-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
   );
 
   useEffect(() => {
     if (isErrorStats) {
       notifications.show({
-        title: "Failed to fetch support stats",
+        title: "Failed to fetch promo stats",
         message:
           (statsError as { message?: string })?.message || "An error occurred",
         color: "red",
@@ -172,33 +184,33 @@ function PromoCode() {
   }, [statsError, isErrorStats]);
 
   useEffect(() => {
-    if (isErrorComplaints) {
+    if (isErrorPromoCodes) {
       notifications.show({
-        title: "Failed to fetch complaints",
+        title: "Failed to fetch promo codes",
         message:
-          (complaintsError as { message?: string })?.message ||
+          (promoCodesError as { message?: string })?.message ||
           "An error occurred",
         color: "red",
       });
     }
 
-    if (complaintsResponse) {
-      setComplaints(complaintsResponse.data?.records?.data);
-      setCurrentPage(complaintsResponse.data?.records?.current_page || 1);
-      setTotal(complaintsResponse.data?.records?.total || 0);
-      setPageSize(complaintsResponse.data?.records?.per_page || 10);
+    if (promoCodesResponse) {
+      setPromoCodes(promoCodesResponse.data?.records?.data);
+      setCurrentPage(promoCodesResponse.data?.records?.current_page || 1);
+      setTotal(promoCodesResponse.data?.records?.total || 0);
+      setPageSize(promoCodesResponse.data?.records?.per_page || 10);
     }
-  }, [complaintsError, isErrorComplaints, complaintsResponse]);
+  }, [promoCodesError, isErrorPromoCodes, promoCodesResponse]);
 
-  const handleExport = () => {
-    exportComplaintsMutation.mutate(undefined, {
+  const handleExportPromoCodes = () => {
+    exportPromoCodesMutation.mutate(undefined, {
       onSuccess: (data) => {
         const url = window.URL.createObjectURL(new Blob([data]));
         const a = document.createElement("a");
         a.href = url;
-        a.download = `customer_complaints_export_${new Date()
+        a.download = `promo_codes_export_${new Date()
           .toISOString()
-          .slice(0, 10)}.xlsx`; // adjust extension if CSV/PDF
+          .slice(0, 10)}.xlsx`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -213,21 +225,22 @@ function PromoCode() {
       onError: (error) => {
         notifications.show({
           title: "Export Failed",
-          message: error?.message || "An error occurred",
+          message:
+            (error as { message?: string })?.message || "An error occurred",
           color: "var(--color-primary-red)",
         });
       },
     });
   };
 
-  function onPageChange(page: number) {
+  function handlePageChange(page: number) {
     setFilterPage(page);
   }
 
   useEffect(() => {
     if (isErrorStats) {
       notifications.show({
-        title: "Failed to Load Raffle Stats",
+        title: "Failed to Load Promo Stats",
         message:
           (statsError as { message?: string })?.message || "An error occurred",
         color: "red",
@@ -235,7 +248,7 @@ function PromoCode() {
     }
   }, [statsError, isErrorStats]);
 
-  const supportStats: SupportStats = statsResponse?.data;
+  const stats: PromoCodeStats = statsResponse?.data;
 
   return (
     <>
@@ -276,195 +289,6 @@ function PromoCode() {
               >
                 Create New
               </CustomButton>
-            </Flex>
-          </Flex>
-          <Divider my="md" />
-
-          <Box mb={"lg"}>
-            <Text
-              tt={"capitalize"}
-              fz={"sm"}
-              className="!text-secondary-text !flex !items-center !gap-x-2"
-            >
-              total revenue generated{" "}
-              <span>
-                <PiQuestionThin />
-              </span>
-            </Text>
-            <Text className="!text-primary-green" fz={32} fw={600} mb="xs">
-              {formatCurrency(2000000)}
-            </Text>
-            <Text
-              tt="capitalize"
-              fz="sm"
-              fw={600}
-              className="!text-secondary-text !item-center !flex !gap-2"
-              mb={5}
-            >
-              <AiFillExclamationCircle />
-              <span className="!text-primary-green">22.4%</span> increase over
-              the last days
-            </Text>
-          </Box>
-          <Divider my="sm" />
-          <SimpleGrid
-            className="text-secondary-text"
-            my="lg"
-            cols={{ base: 1, xs: 2, sm: 4 }}
-            spacing={{ base: 10, sm: "xl" }}
-            verticalSpacing={{ base: "lg", sm: "xl" }}
-            mt="md"
-          >
-            <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
-              <Text
-                tt={"capitalize"}
-                fz={"sm"}
-                className=" !flex !items-center !gap-x-2"
-              >
-                total promo codes
-              </Text>
-              <Text fw={700} className="!text-primary-text" fz={28}>
-                5,000
-              </Text>
-              <Text tt="capitalize" fz="sm">
-                <span className="!text-primary-green">22.4%</span> new user
-              </Text>
-            </Box>
-            <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
-              <Text
-                tt={"capitalize"}
-                fz={"sm"}
-                className=" !flex !items-center !gap-x-2"
-              >
-                top purchase channel{" "}
-                <span>
-                  <PiQuestionThin />
-                </span>
-              </Text>
-              <Text
-                fw={700}
-                className="!text-primary-text"
-                fz={22}
-                tt="capitalize"
-              >
-                mobile app ~ 2.4k Tickets
-              </Text>
-              <Text tt="capitalize" fz="sm">
-                <span className="!text-primary-green">22.4%</span> ticket sales
-                across channel
-              </Text>
-            </Box>
-            <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
-              <Text
-                tt={"capitalize"}
-                fz={"sm"}
-                className=" !flex !items-center !gap-x-2"
-              >
-                top purchase channel{" "}
-                <span>
-                  <PiQuestionThin />
-                </span>
-              </Text>
-              <Text
-                fw={700}
-                className="!text-primary-text"
-                fz={22}
-                tt="capitalize"
-              >
-                mobile app ~ 2.4k Tickets
-              </Text>
-              <Text tt="capitalize" fz="sm">
-                <span className="!text-primary-green">22.4%</span> ticket sales
-                across channel
-              </Text>
-            </Box>
-            <Box className="sm:!border-b-0  !border-secondary-text/40 py-3 sm:py-0">
-              <Text
-                tt={"capitalize"}
-                fz={"sm"}
-                className=" !flex !items-center !gap-x-2"
-              >
-                peak sales time
-                <span>
-                  <PiQuestionThin />
-                </span>
-              </Text>
-              <Text fw={700} className="!text-primary-text" fz={22}>
-                7 - 9 pm
-              </Text>
-              <Text tt="capitalize" fz="sm">
-                <span className="!text-primary-green">103</span> sold this
-                period
-              </Text>
-            </Box>
-          </SimpleGrid>
-        </Card>
-
-        {/* === Complaint list table === */}
-
-        <section className="text-secondary-text my-10">
-          <Box className="border !border-secondary-text/50 rounded-xl bg-white">
-            {/* Header */}
-            <Flex justify="space-between" px="md" pt="lg" wrap="wrap" gap={8}>
-              <div>
-                <Text fz={20} fw="bold" className="!text-primary-red">
-                  Promo-Code List
-                </Text>
-                <Text className="!text-secondary-text">
-                  A List of promo-code created
-                </Text>
-              </div>
-              <Button
-                variant="outline"
-                className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
-                rightSection={<HiDocumentArrowDown />}
-                onClick={handleExport}
-                loading={exportComplaintsMutation?.isPending}
-                disabled={exportComplaintsMutation?.isPending}
-              >
-                Export
-              </Button>
-            </Flex>
-
-            <Divider mt="md" mb="lg" />
-
-            <Flex
-              justify="space-between"
-              px="md"
-              mb="lg"
-              wrap="wrap"
-              gap={8}
-              align="center"
-            >
-              <Flex justify="space-between" align="center">
-                <TabSwitcher
-                  tabs={tabs}
-                  activeTab={filterBy}
-                  onChange={setFilterBy}
-                />
-              </Flex>
-              <TextInput
-                leftSection={<HiSearch />}
-                placeholder="Search"
-                value={search}
-                onChange={(e) => setSearch(e.currentTarget.value)}
-                className="!w-72 !rounded-xl shadow-md"
-              />
-              <Select
-                value={sortBy}
-                onChange={setSortBy}
-                rightSection={<IoFilterOutline />}
-                placeholder="Sort by: Show all"
-                data={[
-                  { value: "asc", label: "Oldest to Newest" },
-                  { value: "desc", label: "Newest to Oldest" },
-                ]}
-                className="!shadow-md"
-                classNames={{
-                  label: "!capitalize ",
-                  options: "text-primary-text",
-                }}
-              />
               <Group>
                 <DateInput
                   placeholder="Start Date"
@@ -519,56 +343,267 @@ function PromoCode() {
                 />
               </Group>
             </Flex>
+          </Flex>
+          <Divider my="md" />
+
+          <Box mb={"lg"}>
+            <Text
+              tt={"capitalize"}
+              fz={"sm"}
+              className="!text-secondary-text !flex !items-center !gap-x-2"
+            >
+              total value discounted{" "}
+              <span>
+                <PiQuestionThin />
+              </span>
+            </Text>
+            <Text className="!text-primary-green" fz={32} fw={600} mb="xs">
+              {isLoadingStats ? (
+                <Skeleton height={40} width={200} />
+              ) : (
+                formatCurrency(stats?.discount_amount)
+              )}
+            </Text>
+            <Text
+              tt="capitalize"
+              fz="sm"
+              fw={600}
+              className="!text-secondary-text !item-center !flex !gap-2"
+              mb={5}
+            >
+              <AiFillExclamationCircle />
+              {renderPercentageChange(
+                stats?.total_percentage_change_period,
+                stats?.period,
+                isLoadingStats,
+                "increase over the last"
+              )}
+            </Text>
+          </Box>
+
+          <Divider my="sm" />
+          <SimpleGrid
+            className="text-secondary-text"
+            my="lg"
+            cols={{ base: 1, xs: 2, sm: 4 }}
+            spacing={{ base: 10, sm: "lg" }}
+            verticalSpacing={{ base: "lg", sm: "xl" }}
+            mt="md"
+          >
+            <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
+              <Text
+                tt={"capitalize"}
+                fz={"sm"}
+                className=" !flex !items-center !gap-x-2"
+              >
+                total promo codes
+              </Text>
+              <Text fw={700} className="!text-primary-text" fz={28}>
+                {renderStatValue(stats?.total, isLoadingStats)}
+              </Text>
+              <Text tt="capitalize" fz="sm">
+                {renderPercentageChange(
+                  stats?.total_percentage_change_period,
+                  stats?.period,
+                  isLoadingStats
+                )}
+              </Text>
+            </Box>
+
+            <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
+              <Text
+                tt={"capitalize"}
+                fz={"sm"}
+                className=" !flex !items-center !gap-x-2"
+              >
+                Active Promo Codes{" "}
+                <span>
+                  <PiQuestionThin />
+                </span>
+              </Text>
+              <Text fw={700} className="!text-primary-text" fz={22}>
+                {renderStatValue(stats?.active, isLoadingStats)}
+              </Text>
+              <Text tt="capitalize" fz="sm">
+                {renderPercentageChange(
+                  stats?.active_percentage_change_period,
+                  stats?.period,
+                  isLoadingStats
+                )}
+              </Text>
+            </Box>
+
+            <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
+              <Text
+                tt={"capitalize"}
+                fz={"sm"}
+                className=" !flex !items-center !gap-x-2"
+              >
+                Inactive Promo Codes{" "}
+                <span>
+                  <PiQuestionThin />
+                </span>
+              </Text>
+              <Text fw={700} className="!text-primary-text" fz={22}>
+                {renderStatValue(stats?.inactive, isLoadingStats)}
+              </Text>
+              <Text tt="capitalize" fz="sm">
+                {renderPercentageChange(
+                  stats?.inactive_percentage_change_period,
+                  stats?.period,
+                  isLoadingStats
+                )}
+              </Text>
+            </Box>
+
+            <Box className="sm:!border-b-0 !border-secondary-text/40 py-3 sm:py-0">
+              <Text
+                tt={"capitalize"}
+                fz={"sm"}
+                className=" !flex !items-center !gap-x-2"
+              >
+                Most Used Promo-Code{" "}
+                <span>
+                  <PiQuestionThin />
+                </span>
+              </Text>
+              <Text fw={700} className="!text-primary-text" fz={22}>
+                {isLoadingStats ? (
+                  <Skeleton height={22} width="80%" />
+                ) : (
+                  (stats?.most_used_promo_name ?? "N/A")
+                )}
+              </Text>
+              <Text tt="capitalize" fz="sm">
+                {renderPercentageChange(
+                  stats?.most_used_promo_percentage_change_period,
+                  stats?.period,
+                  isLoadingStats
+                )}
+              </Text>
+            </Box>
+          </SimpleGrid>
+        </Card>
+
+        {/* === Promo-Code list table === */}
+
+        <section className="text-secondary-text my-10">
+          <Box className="border !border-secondary-text/50 rounded-xl bg-white">
+            {/* Header */}
+            <Flex justify="space-between" px="md" pt="lg" wrap="wrap" gap={8}>
+              <div>
+                <Text fz={20} fw="bold" className="!text-primary-text">
+                  Promo-Code List
+                </Text>
+                <Text className="!text-secondary-text">
+                  A List of promo-code created
+                </Text>
+              </div>
+              <Button
+                variant="outline"
+                className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
+                rightSection={<HiDocumentArrowDown />}
+                onClick={handleExportPromoCodes}
+                loading={exportPromoCodesMutation?.isPending}
+                disabled={exportPromoCodesMutation?.isPending}
+              >
+                Export
+              </Button>
+            </Flex>
+
+            <Divider mt="md" mb="lg" />
+
+            <Flex
+              justify="space-between"
+              px="md"
+              mb="lg"
+              wrap="wrap"
+              gap={8}
+              align="center"
+            >
+              <Flex justify="space-between" align="center">
+                <TabSwitcher
+                  tabs={tabs}
+                  activeTab={filterBy}
+                  onChange={setFilterBy}
+                />
+              </Flex>
+              <TextInput
+                leftSection={<HiSearch />}
+                placeholder="Search"
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
+                className="!w-72 !rounded-xl shadow-md"
+              />
+              <Select
+                value={sortBy}
+                onChange={setSortBy}
+                rightSection={<IoFilterOutline />}
+                placeholder="Sort by: Show all"
+                data={[
+                  { value: "asc", label: "Oldest to Newest" },
+                  { value: "desc", label: "Newest to Oldest" },
+                ]}
+                className="!shadow-md"
+                classNames={{
+                  label: "!capitalize ",
+                  options: "text-primary-text",
+                }}
+              />
+            </Flex>
 
             <DynamicTableSection
               headers={[
-                { label: "Customer Name & ID", key: "name" },
-                { label: "Case ID", key: "id" },
-                { label: "Date Raised", key: "date" },
-                { label: "Type of Issue", key: "type" },
-                { label: "Raised Via", key: "via" },
+                { label: "Promo-code Name & ID", key: "name" },
+                { label: "Date Created", key: "date" },
+                { label: "Duration", key: "duration" },
+                { label: "Promo Value", key: "value" },
+                { label: "No. of Usage", key: "usage" },
+                { label: "Total Value Discounted", key: "total" },
                 { label: "Status", key: "status" },
-                { label: "Resolved Date", key: "resolved" },
                 { label: "", key: "action" },
               ]}
-              data={complaints}
-              loading={isLoadingComplaints}
+              data={promoCodes}
+              loading={isLoadingPromoCodes}
               emptyMessage="No promo codes found"
-              renderItems={(complaint) => [
-                complaint.customer_id,
-                complaint.uniqueID,
-                complaint?.updated_at
-                  ? format(new Date(complaint.updated_at), "MMMM d, yyyy")
-                  : "-",
-                complaint.issue_type,
-                complaint.platform,
-                complaint.platform,
-                <Badge
-                  color={complaint.status === "resolved" ? "green" : "#b54708"}
-                  radius="md"
-                  className="!capitalize !text-sm !h-[22px]"
-                  variant="light"
-                >
-                  {complaint.status}
-                </Badge>,
+              renderItems={(promoCode) => [
                 <>
-                  <Text className="!text-base !font-medium">
-                    {complaint.time_resolved
-                      ? format(
-                          new Date(complaint.time_resolved),
-                          "MMMM d, yyyy"
-                        )
-                      : " - "}
+                  <Text className="!text-base !text-primary-text !font-medium">
+                    {promoCode.name}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {complaint.time_resolved
-                      ? format(new Date(complaint.time_resolved), "h:mm a")
-                      : ""}
+                    ID: {promoCode.uniqueID}
                   </Text>
                 </>,
-
+                <span className="text-nowrap">
+                  {format(
+                    new Date(promoCode.created_at),
+                    "MMMM d, yyyy h:mm a"
+                  )}
+                </span>,
+                <>
+                  <Text>
+                    {format(new Date(promoCode.start_date), "MMM d, yyyy")} -
+                    {format(new Date(promoCode.end_date), "MMM d, yyyy")}
+                  </Text>
+                </>,
+                <>
+                  <Text className="!text-base !text-primary-text">
+                    {promoCode.type === "percentage"
+                      ? `${promoCode.type_value}%`
+                      : formatCurrency(promoCode.type_value)}
+                  </Text>
+                </>,
+                promoCode.usage_count?.toLocaleString(),
+                formatCurrency(promoCode.total_discount),
+                <CustomBadge
+                  status={
+                    promoCode.is_active === "true" ? "successful" : "failed"
+                  }
+                  label={promoCode.is_active === "true" ? "Active" : "Inactive"}
+                />,
                 <ActionIcon
-                  onClick={() => navigate(complaint.uuid)}
+                  onClick={() => navigate(promoCode.uuid)}
                   size={35}
                   className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                 >
@@ -580,10 +615,10 @@ function PromoCode() {
             {/* Pagination */}
             <TablePaginator
               currentPage={currentPage}
-              isLoading={isLoadingComplaints}
+              isLoading={isLoadingPromoCodes}
               total={total}
               pageSize={pageSize}
-              onPageChange={onPageChange}
+              onPageChange={handlePageChange}
             />
           </Box>
         </section>

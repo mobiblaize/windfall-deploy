@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Accordion,
   Box,
@@ -14,22 +15,29 @@ import {
   TextInput,
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
-import { useEffect, useState } from "react";
 import { BsPlus } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
 
 type Props = { form: UseFormReturnType<any> };
 
-function TicketPrice({ form }: Props) {
-  const [discountType, setDiscountType] = useState(form.values.discount_type);
+function TicketPriceInner({ form }: Props) {
+  // Local UI state initialized from form once
+  const [discountType, setDiscountType] = useState<string>(
+    form.values?.discount_type || "straight_line"
+  );
 
-  const handleDiscountTypeChange = (value: string) => {
-    setDiscountType(value);
-    form.setFieldValue("discount_type", value);
-  };
+  // Only update local + form value when user changes discount type
+  const handleDiscountTypeChange = useCallback(
+    (value: string) => {
+      setDiscountType(value);
+      form.setFieldValue("discount_type", value);
+    },
+    [form]
+  );
 
-  const addTier = () => {
+  // Add & remove tier handlers (stable via useCallback)
+  const addTier = useCallback(() => {
     const newTier = {
       name: "",
       number_of_entry_start: 0,
@@ -37,34 +45,45 @@ function TicketPrice({ form }: Props) {
       discount_percentage: 0,
     };
     form.insertListItem("tiers", newTier);
-  };
+  }, [form]);
 
-  const removeTier = (index: number) => {
-    form.removeListItem("tiers", index);
-  };
+  const removeTier = useCallback(
+    (index: number) => {
+      form.removeListItem("tiers", index);
+    },
+    [form]
+  );
 
-  const [expectedSales, setExpectedSales] = useState(0);
-  const [totalTickets, setTotalTickets] = useState(0);
+  // Derived values: only depend on the three form fields used
+  const prizeCost = Number(form.values?.prize_cost) || 0;
+  const markup = Number(form.values?.percentage_markup) || 0;
+  const ticketPrice = Number(form.values?.ticket_price) || 0;
+
+  // expectedSales & totalTickets are used for display; keep them in local state
+  const [expectedSales, setExpectedSales] = useState<number>(0);
+  const [totalTickets, setTotalTickets] = useState<number>(0);
 
   useEffect(() => {
-    const prizeCost = Number(form.values?.prize_cost) || 0;
-    const markup = Number(form.values?.percentage_markup) || 0;
-    const ticketPrice = Number(form.values?.ticket_price) || 0;
-
     const sales = (markup * prizeCost) / 100 + prizeCost;
     const tickets = ticketPrice > 0 ? Math.floor(sales / ticketPrice) : 0;
 
     setExpectedSales(sales);
     setTotalTickets(tickets);
 
-    // also sync it back to form so it’s part of form.values
+    // keep total_tickets in form values in sync
     form.setFieldValue("total_tickets", tickets);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    form.values?.prize_cost,
-    form.values?.percentage_markup,
-    form.values?.ticket_price,
-  ]);
+  }, [prizeCost, markup, ticketPrice]); // only re-run when these specific values change
+
+  // Memoize tiers array to avoid re-computing if unrelated parts of form change
+  const tiers = useMemo(() => form.values?.tiers || [], [form.values?.tiers]);
+
+  // Input props for fields used by this component (grab them once)
+  const prizeCostProps = form.getInputProps("prize_cost");
+  const percentageProps = form.getInputProps("percentage_markup");
+  const ticketPriceProps = form.getInputProps("ticket_price");
+  const minTicketProps = form.getInputProps("minimum_ticket_number_purchase");
+  const maxTicketProps = form.getInputProps("maximum_ticket_number_purchase");
 
   return (
     <Box>
@@ -86,7 +105,7 @@ function TicketPrice({ form }: Props) {
           placeholder="Enter cost of prize"
           type="number"
           classNames={{ input: "placeholder:text-xs" }}
-          {...form.getInputProps("prize_cost")}
+          {...prizeCostProps}
           error={form.errors.prize_cost}
         />
       </SimpleGrid>
@@ -107,7 +126,7 @@ function TicketPrice({ form }: Props) {
           placeholder="Enter value in percentage"
           classNames={{ input: "placeholder:text-xs" }}
           type="number"
-          {...form.getInputProps("percentage_markup")}
+          {...percentageProps}
           error={form.errors.percentage_markup}
         />
       </SimpleGrid>
@@ -125,7 +144,7 @@ function TicketPrice({ form }: Props) {
             </Text>
             <Text tt="capitalize" fw={500} fz={"lg"}>
               {expectedSales ? formatCurrency(expectedSales) : "---"} (
-              {form.values?.percentage_markup}%)
+              {markup}%)
             </Text>
           </Box>
         </Center>
@@ -149,7 +168,7 @@ function TicketPrice({ form }: Props) {
           placeholder="Enter value"
           classNames={{ input: "placeholder:text-xs" }}
           type="number"
-          {...form.getInputProps("ticket_price")}
+          {...ticketPriceProps}
           error={form.errors.ticket_price}
         />
       </SimpleGrid>
@@ -192,7 +211,7 @@ function TicketPrice({ form }: Props) {
             placeholder="Enter value"
             classNames={{ input: "placeholder:text-xs" }}
             type="number"
-            {...form.getInputProps("minimum_ticket_number_purchase")}
+            {...minTicketProps}
             error={form.errors.minimum_ticket_number_purchase}
           />
 
@@ -219,7 +238,7 @@ function TicketPrice({ form }: Props) {
             placeholder="Enter value"
             classNames={{ input: "placeholder:text-xs" }}
             type="number"
-            {...form.getInputProps("maximum_ticket_number_purchase")}
+            {...maxTicketProps}
             error={form.errors.maximum_ticket_number_purchase}
           />
 
@@ -262,14 +281,14 @@ function TicketPrice({ form }: Props) {
             checked={discountType === "straight_line"}
             onChange={() => handleDiscountTypeChange("straight_line")}
             label="Apply to unit price of ticket"
-            description="Discount is applied to each ticket individually For example: Ticket = ₦5,000 ; Discount = 10% ; Buyer gets each ticket for ₦4,500"
+            description="Discount is applied to each ticket individually For example: Ticket = ₦5,000 ; Discount = 10% ; Buyer gets each ticket for ₦4,500"
           />
           <Radio
             mt={"md"}
             checked={discountType === "band"}
             onChange={() => handleDiscountTypeChange("band")}
             label="Apply to Culmination of Ticket Unit"
-            description="Discount is applied after adding up the total cost. For example: 5 Tickets = ₦25,000 ; Discount = 10% ; Total after discount = ₦22,500 "
+            description="Discount is applied after adding up the total cost. For example: 5 Tickets = ₦25,000 ; Discount = 10% ; Total after discount = ₦22,500 "
           />
         </Box>
       </SimpleGrid>
@@ -287,7 +306,7 @@ function TicketPrice({ form }: Props) {
         </Box>
 
         <Box className="space-y-3">
-          {form.values.tiers.map((tier: any, index: number) => (
+          {tiers.map((tier: any, index: number) => (
             <Card key={index} withBorder p={"sm"} radius="md" bg={"#F7F7F9"}>
               <Accordion chevronIconSize={17}>
                 <Accordion.Item value={`tier-${index}`}>
@@ -388,4 +407,5 @@ function TicketPrice({ form }: Props) {
   );
 }
 
-export default TicketPrice;
+// Memoize the component to prevent unnecessary re-renders when parent changes unrelated fields
+export default React.memo(TicketPriceInner);

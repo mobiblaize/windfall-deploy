@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useCallback, useMemo } from "react";
 import {
   Accordion,
   Box,
@@ -21,9 +22,16 @@ import { notifications } from "@mantine/notifications";
 
 type Props = { form: UseFormReturnType<any> };
 
-function Prizes({ form }: Props) {
-  const addPrize = () => {
+function PrizesInner({ form }: Props) {
+  // Use memoized derived values so re-computation is cheap and explicit
+  const prizes = useMemo(() => form.values?.prizes || [], [form.values?.prizes]);
+  const isInstant = useMemo(() => !form.values?.is_scheduled, [form.values?.is_scheduled]);
+  const prefix = useMemo(() => (isInstant ? "Instant " : ""), [isInstant]);
+
+  // stable add prize — include a non-persisted _uid for stable React keys
+  const addPrize = useCallback(() => {
     const newPrize = {
+      _uid: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
       name: "",
       quantity: 1,
       prize_cost: 0,
@@ -31,31 +39,35 @@ function Prizes({ form }: Props) {
       description: "",
     };
     form.insertListItem("prizes", newPrize);
-  };
+  }, [form]);
 
-  const isInstant = !form.values.is_scheduled;
-  const prefix = isInstant ? "Instant " : "";
+  const removePrize = useCallback(
+    (index: number) => {
+      form.removeListItem("prizes", index);
+    },
+    [form]
+  );
 
-  const removePrize = (index: number) => {
-    form.removeListItem("prizes", index);
-  };
-
-  const handleFileChange = async (file: File | null, index: number) => {
-    if (file) {
+  // file handler is async — keep stable with useCallback
+  const handleFileChange = useCallback(
+    async (file: File | null, index: number) => {
+      if (!file) return;
       try {
         const base64 = await fileToBase64(file, 1);
         form.setFieldValue(`prizes.${index}.image`, base64);
       } catch (err: any) {
         notifications.show({
           title: "Upload failed",
-          message: (err as Error).message,
+          message: (err as Error).message || "Could not upload file",
           color: "red",
         });
       }
-    }
-  };
+    },
+    [form]
+  );
 
-  const canAddPrize = isInstant || form.values.prizes.length < 1;
+  // If instant: allow multiple, otherwise limit to 1 prize
+  const canAddPrize = useMemo(() => isInstant || prizes.length < 1, [isInstant, prizes.length]);
 
   return (
     <Box>
@@ -71,141 +83,112 @@ function Prizes({ form }: Props) {
         </Box>
 
         <Box className="space-y-3">
-          {form.values.prizes.map((prize: any, index: number) => (
-            <Card key={index} withBorder p="sm" radius="md" bg={"#F7F7F9"}>
-              <Accordion chevronIconSize={17} defaultValue={`prize-${index}`}>
-                <Accordion.Item value={`prize-${index}`}>
-                  <Accordion.Control>
-                    {prize.name
-                      ? `${prefix}Prize ${index + 1}: ${prize.name}`
-                      : `${prefix}Prize ${index + 1}`}
-                  </Accordion.Control>
+          {prizes.map((prize: any, index: number) => {
+            // use stable key when available, fallback to index for older records
+            const key = prize._uid || index;
+            return (
+              <Card key={key} withBorder p="sm" radius="md" bg={"#F7F7F9"}>
+                <Accordion chevronIconSize={17} defaultValue={`prize-${index}`}>
+                  <Accordion.Item value={`prize-${index}`}>
+                    <Accordion.Control>
+                      {prize.name ? `${prefix}Prize ${index + 1}: ${prize.name}` : `${prefix}Prize ${index + 1}`}
+                    </Accordion.Control>
 
-                  <Accordion.Panel>
-                    <SimpleGrid cols={1} spacing="md" mt="md">
-                      {/* Prize Name */}
-                      <TextInput
-                        label={`${prefix}Prize name`}
-                        placeholder="e.g. ₦5,000 Gift Prize"
-                        required
-                        classNames={{ label: "text-xs font-medium capitalize" }}
-                        error={form.errors[`prizes.${index}.name`]}
-                        {...form.getInputProps(`prizes.${index}.name`)}
-                      />
+                    <Accordion.Panel>
+                      <SimpleGrid cols={1} spacing="md" mt="md">
+                        <TextInput
+                          label={`${prefix}Prize name`}
+                          placeholder="e.g. ₦5,000 Gift Prize"
+                          required
+                          classNames={{ label: "text-xs font-medium capitalize" }}
+                          error={form.errors?.[`prizes.${index}.name`]}
+                          {...form.getInputProps(`prizes.${index}.name`)}
+                        />
 
-                      <TextInput
-                        label={`${prefix}Prize unit`}
-                        placeholder="e.g. 5"
-                        type="number"
-                        required
-                        description="The number of units available to be awarded to players."
-                        classNames={{ label: "text-xs font-medium capitalize" }}
-                        error={form.errors[`prizes.${index}.quantity`]}
-                        {...form.getInputProps(`prizes.${index}.quantity`)}
-                      />
+                        <TextInput
+                          label={`${prefix}Prize unit`}
+                          placeholder="e.g. 5"
+                          type="number"
+                          required
+                          description="The number of units available to be awarded to players."
+                          classNames={{ label: "text-xs font-medium capitalize" }}
+                          error={form.errors?.[`prizes.${index}.quantity`]}
+                          {...form.getInputProps(`prizes.${index}.quantity`)}
+                        />
 
-                      <TextInput
-                        label={`${prefix}Prize cost`}
-                        placeholder="e.g. 5000"
-                        type="number"
-                        required
-                        description="The total cost or value of a single prize unit."
-                        classNames={{ label: "text-xs font-medium capitalize" }}
-                        error={form.errors[`prizes.${index}.prize_cost`]}
-                        {...form.getInputProps(`prizes.${index}.prize_cost`)}
-                      />
+                        <TextInput
+                          label={`${prefix}Prize cost`}
+                          placeholder="e.g. 5000"
+                          type="number"
+                          required
+                          description="The total cost or value of a single prize unit."
+                          classNames={{ label: "text-xs font-medium capitalize" }}
+                          error={form.errors?.[`prizes.${index}.prize_cost`]}
+                          {...form.getInputProps(`prizes.${index}.prize_cost`)}
+                        />
 
-                      {/* Description */}
-                      <Textarea
-                        label="Prize description"
-                        placeholder="Optional description about this prize"
-                        autosize
-                        minRows={2}
-                        classNames={{ label: "text-xs font-medium capitalize" }}
-                        {...form.getInputProps(`prizes.${index}.description`)}
-                      />
+                        <Textarea
+                          label="Prize description"
+                          placeholder="Optional description about this prize"
+                          autosize
+                          minRows={2}
+                          classNames={{ label: "text-xs font-medium capitalize" }}
+                          {...form.getInputProps(`prizes.${index}.description`)}
+                        />
 
-                      {/* Image Upload */}
-                      <Box>
-                        <Group justify="space-between" mb={4}>
-                          <Text
-                            tt="capitalize"
-                            fz="xs"
-                            fw={500}
-                            c="var(--mantine-color-gray-8)"
-                          >
-                            {prefix}Prize image
-                            <span className="text-red-500">*</span>
-                          </Text>
-                        </Group>
+                        {/* Image Upload */}
+                        <Box>
+                          <Group justify="space-between" mb={4}>
+                            <Text tt="capitalize" fz="xs" fw={500} c="var(--mantine-color-gray-8)">
+                              {prefix}Prize image
+                              <span className="text-red-500">*</span>
+                            </Text>
+                          </Group>
 
-                        <Group justify="space-between" align="center" gap="sm">
-                          <FileButton
-                            onChange={(file) => handleFileChange(file, index)}
-                            accept="image/*"
-                          >
-                            {(props) => (
-                              <Button
-                                {...props}
-                                variant="outline"
-                                size="sm"
-                                radius="md"
-                                className="!border-[#D0D5DD] !text-[#344054]"
-                                fullWidth
+                          <Group justify="space-between" align="center" gap="sm">
+                            <FileButton onChange={(file) => handleFileChange(file, index)} accept="image/*">
+                              {(props) => (
+                                <Button {...props} variant="outline" size="sm" radius="md" className="!border-[#D0D5DD] !text-[#344054]" fullWidth>
+                                  Upload Image
+                                </Button>
+                              )}
+                            </FileButton>
+
+                            {prize.image && (
+                              <Box
+                                w={55}
+                                h={55}
+                                style={{
+                                  borderRadius: "8px",
+                                  overflow: "hidden",
+                                  flexShrink: 0,
+                                }}
                               >
-                                Upload Image
-                              </Button>
+                                <Image src={prize.image} alt={`Prize ${index + 1}`} width="100%" height="100%" fit="cover" radius={0} />
+                              </Box>
                             )}
-                          </FileButton>
+                          </Group>
 
-                          {form.values.prizes[index].image && (
-                            <Box
-                              w={55}
-                              h={55}
-                              style={{
-                                borderRadius: "8px",
-                                overflow: "hidden",
-                                flexShrink: 0,
-                              }}
-                            >
-                              <Image
-                                src={form.values.prizes[index].image}
-                                alt={`Prize ${index + 1}`}
-                                width="100%"
-                                height="100%"
-                                fit="cover"
-                                radius={0}
-                              />
-                            </Box>
-                          )}
-                        </Group>
+                          <Text fz="xs" c="var(--secondary-text)" mt={5}>
+                            Not more than 1MB
+                          </Text>
+                        </Box>
 
-                        <Text fz="xs" c="var(--secondary-text)" mt={5}>
-                          Not more than 1MB
-                        </Text>
-                      </Box>
+                        {prizes.length > 1 && (
+                          <Group justify="flex-end" mt="md">
+                            <Button className="!text-primary-red" leftSection={<FaTrash size={12} />} size="xs" variant="light" onClick={() => removePrize(index)}>
+                              Remove Prize
+                            </Button>
+                          </Group>
+                        )}
+                      </SimpleGrid>
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                </Accordion>
+              </Card>
+            );
+          })}
 
-                      {form.values.prizes.length > 1 && (
-                        <Group justify="flex-end" mt="md">
-                          <Button
-                            className="!text-primary-red"
-                            leftSection={<FaTrash size={12} />}
-                            size="xs"
-                            variant="light"
-                            onClick={() => removePrize(index)}
-                          >
-                            Remove Prize
-                          </Button>
-                        </Group>
-                      )}
-                    </SimpleGrid>
-                  </Accordion.Panel>
-                </Accordion.Item>
-              </Accordion>
-            </Card>
-          ))}
-
-          {/* ✅ Add New Prize (conditionally shown) */}
           {canAddPrize && (
             <Flex justify="end">
               <Button
@@ -236,4 +219,5 @@ function Prizes({ form }: Props) {
   );
 }
 
-export default Prizes;
+// memoize to avoid re-renders caused by parent updates unrelated to prizes
+export default React.memo(PrizesInner);

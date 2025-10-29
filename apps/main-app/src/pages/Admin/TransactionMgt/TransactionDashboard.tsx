@@ -493,7 +493,7 @@ function TransactionDashboard() {
                 ) : (
                   <>
                     <Text fw={700} fz="xl">
-                      {platformStats.mobile_transactions.successful.value.toLocaleString()}
+                      {formatCurrency(platformStats.mobile_transactions.successful.value)}
                     </Text>
                   </>
                 )}

@@ -55,7 +55,7 @@ export default function DynamicTableSection<T>({
       )}
 
       {/* Table for larger screens */}
-      {!loading && data.length > 0 && (
+      {!loading && data?.length > 0 && (
         <div className="!hidden sm:!block">
           <TableContainer headers={headers.map((h) => h.label)}>
             {data.map((item, i) => (
@@ -66,7 +66,7 @@ export default function DynamicTableSection<T>({
       )}
 
       {/* Card view for small screens */}
-      {!loading && data.length > 0 && (
+      {!loading && data?.length > 0 && (
         <div className="sm:!hidden space-y-4 p-4">
           {data.map((item, i) => {
             const content = renderItems(item, headers);

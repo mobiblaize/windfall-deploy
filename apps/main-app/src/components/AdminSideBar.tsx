@@ -2,14 +2,14 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Box } from "@mantine/core";
 import clsx from "clsx";
 import {
-  IconHome,
+  // IconHome,
   IconTicket,
   IconBolt,
   IconCalendarStats,
   IconUsers,
   IconReceipt,
   IconGift,
-  // IconTrophy,
+  IconTrophy,
   IconBell,
   IconHeadset,
   IconShare,
@@ -19,7 +19,7 @@ import {
 } from "@tabler/icons-react";
 
 const mainMenu = [
-  { name: "Dashboard", path: "/admin/dashboard", icon: IconHome },
+  // { name: "Dashboard", path: "/admin/dashboard", icon: IconHome },
   { name: "Raffle Management", path: "/admin/raffles", icon: IconTicket },
   { name: "Instant Raffle", path: "/admin/instant-raffles", icon: IconBolt },
   { name: "Draw Management", path: "/admin/draws", icon: IconCalendarStats },
@@ -30,7 +30,7 @@ const mainMenu = [
     icon: IconReceipt,
   },
   { name: "Prize Claim", path: "/admin/prize-claims", icon: IconGift },
-  // { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
+  { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
 ];
 
 const otherMenu = [

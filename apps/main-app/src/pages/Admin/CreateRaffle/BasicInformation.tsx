@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -13,18 +14,53 @@ import {
 import { DateInput, TimeInput } from "@mantine/dates";
 import type { UseFormReturnType } from "@mantine/form";
 import { FaAngleDown } from "react-icons/fa";
-import { useState } from "react";
 import "@mantine/dates/styles.css";
+import { CiCalendar } from "react-icons/ci";
 
-type Props = { form: UseFormReturnType<any>; categories: any };
+type Props = { form: UseFormReturnType<any>; categories: any[] };
 
-function BasicInformation({ form, categories }: Props) {
-  const [isScheduled, setIsScheduled] = useState(form.values.is_scheduled);
+function BasicInformationInner({ form, categories }: Props) {
+  // Initialize local state from form values once on mount to avoid reading
+  // form.values every render (which can cause extra renders/upstream effects).
+  const [isScheduled, setIsScheduled] = useState<boolean>(
+    !!form.values?.is_scheduled
+  );
+  const [allowReferral, setAllowReferral] = useState<boolean>(
+    !!form.values?.allow_referral_balance_usage
+  );
+
+  useEffect(() => {
+    setIsScheduled(!!form.values?.is_scheduled);
+  }, [form.values?.is_scheduled]);
+
+  useEffect(() => {
+    setAllowReferral(!!form.values?.allow_referral_balance_usage);
+  }, [form.values?.allow_referral_balance_usage]);
 
   const handleScheduleChange = (value: boolean) => {
     setIsScheduled(value);
     form.setFieldValue("is_scheduled", value);
   };
+
+  const handleReferralChange = (checked: boolean) => {
+    setAllowReferral(checked);
+    form.setFieldValue("allow_referral_balance_usage", checked);
+  };
+
+  // Grab input props only for fields used in this component
+  const nameProps = form.getInputProps("name");
+  const descriptionProps = form.getInputProps("description");
+  const categoryProps = form.getInputProps("category_id");
+  const startDateProps = form.getInputProps("start_date");
+  const endDateProps = form.getInputProps("end_date");
+  const startTimeProps = form.getInputProps("start_time");
+  const endTimeProps = form.getInputProps("end_time");
+  const promoProps = form.getInputProps("allow_promo_code_usage", {
+    type: "checkbox",
+  });
+  const minReferralProps = form.getInputProps("minimum_referral_balance_amount");
+  const maxReferralProps = form.getInputProps("maximum_referral_balance_amount");
+  const ctaProps = form.getInputProps("cta_text");
 
   return (
     <Box>
@@ -41,7 +77,7 @@ function BasicInformation({ form, categories }: Props) {
         <TextInput
           placeholder="Enter raffle name"
           classNames={{ input: "placeholder:text-xs" }}
-          {...form.getInputProps("name")}
+          {...nameProps}
         />
       </SimpleGrid>
 
@@ -60,7 +96,7 @@ function BasicInformation({ form, categories }: Props) {
         <TextInput
           placeholder="Enter short description"
           classNames={{ input: "placeholder:text-xs" }}
-          {...form.getInputProps("description")}
+          {...descriptionProps}
         />
       </SimpleGrid>
 
@@ -84,7 +120,7 @@ function BasicInformation({ form, categories }: Props) {
             input: "placeholder:text-xs",
             options: "text-primary-text",
           }}
-          {...form.getInputProps("category_id")}
+          {...categoryProps}
         />
       </SimpleGrid>
 
@@ -123,16 +159,18 @@ function BasicInformation({ form, categories }: Props) {
                 placeholder="Pick start date"
                 required
                 classNames={{ input: "placeholder:text-xs" }}
-                {...form.getInputProps("start_date")}
+                {...startDateProps}
                 error={form.errors.start_date}
+                rightSection={<CiCalendar />}
               />
               <DateInput
                 label="End date"
                 placeholder="Pick end date"
                 required
                 classNames={{ input: "placeholder:text-xs" }}
-                {...form.getInputProps("end_date")}
+                {...endDateProps}
                 error={form.errors.end_date}
+                rightSection={<CiCalendar />}
               />
             </SimpleGrid>
 
@@ -143,13 +181,13 @@ function BasicInformation({ form, categories }: Props) {
                 label="Start time"
                 required
                 classNames={{ input: "placeholder:text-xs" }}
-                {...form.getInputProps("start_time")}
+                {...startTimeProps}
               />
               <TimeInput
                 label="End time"
                 required
                 classNames={{ input: "placeholder:text-xs" }}
-                {...form.getInputProps("end_time")}
+                {...endTimeProps}
               />
             </SimpleGrid>
           </Card>
@@ -170,9 +208,7 @@ function BasicInformation({ form, categories }: Props) {
         </Box>
         <Checkbox
           label="Allow promo code for payment"
-          {...form.getInputProps("allow_promo_code_usage", {
-            type: "checkbox",
-          })}
+          {...promoProps}
         />
       </SimpleGrid>
 
@@ -189,14 +225,14 @@ function BasicInformation({ form, categories }: Props) {
           </Text>
         </Box>
         <Box>
+          {/* Don't spread getInputProps here to avoid tethering render cycles to form.values */}
           <Checkbox
             label="Allow referral balance for payment"
-            {...form.getInputProps("allow_referral_balance_usage", {
-              type: "checkbox",
-            })}
+            checked={allowReferral}
+            onChange={(e) => handleReferralChange(e.currentTarget.checked)}
           />
 
-          {form.values.allow_referral_balance_usage && (
+          {allowReferral && (
             <Card withBorder mt="md" radius="md" className="p-4">
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                 <TextInput
@@ -204,14 +240,14 @@ function BasicInformation({ form, categories }: Props) {
                   type="number"
                   placeholder="Enter minimum amount"
                   classNames={{ input: "placeholder:text-xs" }}
-                  {...form.getInputProps("minimum_referral_balance_amount")}
+                  {...minReferralProps}
                 />
                 <TextInput
                   label="Maximum referral balance amount"
                   type="number"
                   placeholder="Enter maximum amount"
                   classNames={{ input: "placeholder:text-xs" }}
-                  {...form.getInputProps("maximum_referral_balance_amount")}
+                  {...maxReferralProps}
                 />
               </SimpleGrid>
             </Card>
@@ -236,7 +272,7 @@ function BasicInformation({ form, categories }: Props) {
           <TextInput
             placeholder="Play with ₦ 1,000 Today!!"
             classNames={{ input: "placeholder:text-xs" }}
-            {...form.getInputProps("cta_text")}
+            {...ctaProps}
             maxLength={15}
           />
 
@@ -249,4 +285,5 @@ function BasicInformation({ form, categories }: Props) {
   );
 }
 
-export default BasicInformation;
+// memoize to prevent unnecessary re-renders when parent updates other fields
+export default React.memo(BasicInformationInner);

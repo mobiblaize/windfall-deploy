@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, SimpleGrid, Text, Divider, Button } from "@mantine/core";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Box, SimpleGrid, Text, Divider, Button, Select, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import type { UseFormReturnType } from "@mantine/form";
-import ImageCard from "./ImageCard";
 import { fileToBase64 } from "../../../utils/helper/fileToBase64";
+import ImageCard from "../CreateRaffle/ImageCard";
+import { FaAngleDown } from "react-icons/fa";
 
 type Props = { form: UseFormReturnType<any> };
 type GalleryItem = { id: string; src: string };
@@ -49,7 +56,7 @@ function MediaContentInner({ form }: Props) {
       setCardImagePreview(cardImageValue || null);
     }
     // note: we deliberately do NOT set form here (we're only reading)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.values.gallery_images, form.values.card_image]); // safe deps
 
   // Sync local galleryItems -> form but only when the pipe-string differs from cache
@@ -64,31 +71,6 @@ function MediaContentInner({ form }: Props) {
     lastSyncedGalleryRef.current = newPipe;
     // form is stable, it's fine in deps
   }, [galleryItems, form]);
-
-  // Card image upload (single)
-  const handleCardImageUpload = useCallback(
-    async (file: File) => {
-      try {
-        const base64 = await fileToBase64(file, 1); // 1MB limit
-        setCardImagePreview(base64);
-        // directly update form for card_image (no two-way loop here)
-        form.setFieldValue("card_image", base64);
-        form.clearFieldError("card_image");
-      } catch (error) {
-        notifications.show({
-          title: "Upload failed",
-          message: (error as Error).message || "Error uploading card image",
-          color: "red",
-        });
-      }
-    },
-    [form]
-  );
-
-  const removeCardImage = useCallback(() => {
-    setCardImagePreview(null);
-    form.setFieldValue("card_image", "");
-  }, [form]);
 
   // Handle gallery upload — capture input before any await
   const handleGalleryUpload = useCallback(
@@ -122,22 +104,25 @@ function MediaContentInner({ form }: Props) {
   );
 
   // Replace an existing gallery image (by index)
-  const handleReplaceGalleryImage = useCallback(async (index: number, file: File) => {
-    try {
-      const base64 = await fileToBase64(file, 1);
-      setGalleryItems((prev) => {
-        const next = prev.slice();
-        next[index] = { id: next[index]?.id ?? makeId("g-"), src: base64 };
-        return next;
-      });
-    } catch (error) {
-      notifications.show({
-        title: "Upload failed",
-        message: (error as Error).message || "Error uploading gallery image",
-        color: "red",
-      });
-    }
-  }, []);
+  const handleReplaceGalleryImage = useCallback(
+    async (index: number, file: File) => {
+      try {
+        const base64 = await fileToBase64(file, 1);
+        setGalleryItems((prev) => {
+          const next = prev.slice();
+          next[index] = { id: next[index]?.id ?? makeId("g-"), src: base64 };
+          return next;
+        });
+      } catch (error) {
+        notifications.show({
+          title: "Upload failed",
+          message: (error as Error).message || "Error uploading gallery image",
+          color: "red",
+        });
+      }
+    },
+    []
+  );
 
   // Remove a specific gallery image (by index)
   const removeGalleryImage = useCallback((index: number) => {
@@ -148,45 +133,64 @@ function MediaContentInner({ form }: Props) {
     });
   }, []);
 
-  const hasGallery = useMemo(() => galleryItems.length > 0, [galleryItems.length]);
+  const hasGallery = useMemo(
+    () => galleryItems.length > 0,
+    [galleryItems.length]
+  );
 
   return (
     <Box>
-      {/* CARD IMAGE */}
-      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing="md">
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
         <Box>
-          <Text tt="capitalize" fz="md" fw={500}>
-            Product card image
+          <Text tt="capitalize" fw={700}>
+            Claim Officer <span className="text-red-500">*</span>
           </Text>
-          <Text tt="capitalize" fw={100} fz="xs" c="var(--secondary-text)">
-            For raffle list card and explore image
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            The officer processing this claim
           </Text>
         </Box>
-
-        <ImageCard
-          src={cardImagePreview || undefined}
-          width={490}
-          height={500}
-          onUpload={(file: File) => handleCardImageUpload(file)}
-          onDelete={removeCardImage}
+        <Select
+          placeholder="Enter Ticket ID"
+          data={[]}
+          rightSection={<FaAngleDown />}
+          classNames={{
+            input: "placeholder:text-xs",
+            options: "text-primary-text",
+          }}
+          {...form.getInputProps("category_id")}
         />
       </SimpleGrid>
 
-      {form.errors.card_image && (
-        <Text fz="xs" c="red" mt={4}>
-          {form.errors.card_image}
-        </Text>
-      )}
+      <Divider my="md" />
 
-      <Divider my="lg" />
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={700}>
+            description
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Enter short description
+          </Text>
+        </Box>
+        <TextInput
+          placeholder="Enter short description"
+          classNames={{ input: "placeholder:text-xs" }}
+        />
+      </SimpleGrid>
 
-      {/* GALLERY */}
-      <Box>
-        <Text tt="capitalize" fz="md" fw={500}>
-          Gallery images
+      <Divider my="md" />
+
+      <Box
+        className="border-y border-dashed border-primary-red bg-secondary-red"
+        py={"sm"}
+        px={"md"}
+        my={"md"}
+      >
+        <Text tt="capitalize" fw={700}>
+          Claim Media
         </Text>
-        <Text tt="capitalize" fw={100} fz="xs" c="var(--secondary-text)">
-          Upload multiple images to display in the raffle gallery.
+        <Text tt="capitalize" fz={"xs"} c="var(--secondary-text)">
+          Upload media (image and video) for verification of claim by raffle winner
         </Text>
       </Box>
 
@@ -199,8 +203,13 @@ function MediaContentInner({ form }: Props) {
           style={{ display: "none" }}
           onChange={handleGalleryUpload}
         />
-        <Button size="xs" variant="outline" component="label" htmlFor="gallery-upload">
-          Add Gallery Images
+        <Button
+          size="xs"
+          variant="outline"
+          component="label"
+          htmlFor="gallery-upload"
+        >
+          Add Images
         </Button>
       </Box>
 
@@ -250,6 +259,23 @@ function MediaContentInner({ form }: Props) {
           {form.errors.gallery_images}
         </Text>
       )}
+      
+      <Divider my="md" />
+
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={700}>
+            Upload Video 
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Enter video url here.
+          </Text>
+        </Box>
+        <TextInput
+          placeholder="Enter video url"
+          classNames={{ input: "placeholder:text-xs" }}
+        />
+      </SimpleGrid>
 
       <Divider my="lg" />
     </Box>

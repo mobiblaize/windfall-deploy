@@ -3,7 +3,7 @@ import { Button } from "@mantine/core";
 import type { ButtonProps, MantineSize } from "@mantine/core";
 
 type CustomButtonProps = ButtonProps & {
-  type?: "primary" | "dark";
+  type?: "primary" | "dark" | 'green';
   fullWidth?: boolean;
   onClick?: () => void;
   size?:
@@ -33,6 +33,8 @@ export default function CustomButton({
     switch (type) {
       case "primary":
         return "!bg-primary-red";
+      case "green":
+        return "!bg-[#12B76A]";
       case "dark":
         return "!bg-black";
       default:

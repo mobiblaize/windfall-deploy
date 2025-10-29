@@ -7,6 +7,7 @@ import {
   Flex,
   Textarea,
   Box,
+  Skeleton,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import CustomButton from "../../../components/Buttons/CustomButton";
@@ -17,8 +18,8 @@ import DynamicBreadcrumbs, {
 } from "../../../components/DynamicBreadCrumbs";
 import { notifications } from "@mantine/notifications";
 import { useFetchData, usePutData } from "../../../utils/hooks/useApis";
-import { useForm } from "@mantine/form";
-import type { User } from "../UserMgt/UserMgt";
+import type { Complaints } from "./Support";
+import { format } from "date-fns";
 
 const breadCrumbs: Crumb[] = [
   { label: "Customer Support", to: "/admin/support" },
@@ -27,134 +28,76 @@ const breadCrumbs: Crumb[] = [
 
 export default function ViewComplaint() {
   const { id } = useParams<{ id: string }>();
-  const [user, setUser] = useState<User>();
+  const [comment, setComment] = useState("");
   const [resolveModalOpen, setResolveModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
-  //   const {
-  //     isError: isRoleError,
-  //     data: roleResponse,
-  //     error: roleError,
-  //   } = useFetchData(`admin/user-management/roles/all?paginate=0`);
-
   const {
-    data: userResponse,
-    isLoading: isUserLoading,
-    isError: isUserError,
-    error: userError,
-  } = useFetchData(`admin/user-management/users/show/${id}`);
+    data: complaintResponse,
+    isLoading: isComplaintLoading,
+    isError: isComplaintError,
+    error: complaintError,
+  } = useFetchData(`admin/customer-support-management/show/${id}`);
 
-  const updateUserMutation = usePutData(
-    `admin/user-management/users/update/${id}`
+  const updateComplaintMutation = usePutData(
+    `admin/customer-support-management/update/${id}`
   );
 
-  //   useEffect(() => {
-  //     if (isRoleError) {
-  //       notifications.show({
-  //         title: "Failed to fetch roles",
-  //         message:
-  //           (roleError as { message?: string })?.message || "An error occurred",
-  //         color: "red",
-  //       });
-  //     }
-  //     if (roleResponse) {
-  //       setRoles(roleResponse.data?.records);
-  //     }
-  //   }, [roleError, isRoleError, roleResponse]);
-
   useEffect(() => {
-    if (isUserError) {
+    if (isComplaintError) {
       notifications.show({
         title: "Failed to fetch User",
         message:
-          (userError as { message?: string })?.message || "An error occurred",
+          (complaintError as { message?: string })?.message ||
+          "An error occurred",
         color: "red",
       });
     }
-    if (userResponse) {
-      setUser(userResponse.data?.record);
-    }
-  }, [userError, isUserError, userResponse]);
+  }, [complaintError, isComplaintError]);
 
-  useEffect(() => {
-    if (user) {
-      form.setValues({
-        name: user.name || "",
-        email: user.email || "",
-        phone_number: user.phone_number || "",
-        role_id: user.roles?.[0]?.uuid || "",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  const complaint: Complaints | undefined = complaintResponse?.data?.support;
 
-  const form = useForm({
-    initialValues: {
-      name: "",
-      email: "",
-      phone_number: "",
-      role_id: "",
-    },
-
-    validate: {
-      name: (val) =>
-        val.trim().split(" ").length >= 2
-          ? null
-          : "Enter both firstname and lastname",
-      email: (val) => {
-        if (!/^\S+@\S+\.\S+$/.test(val)) {
-          return "Invalid email";
-        }
-        return null;
-      },
-      phone_number: (val) =>
-        val.length >= 10 ? null : "Enter a valid phone number",
-      role_id: (val) => (val ? null : "Select a Role"),
-    },
-  });
-
-  const handleSubmit = () => {
-    if (form.validate().hasErrors) return;
-    setConfirmModalOpen(true);
-  };
-
-  const updateUser = async () => {
-    if (form.validate().hasErrors) {
+  const updateComplaint = async () => {
+    if (!comment) {
       return;
     }
 
     const payload = {
-      name: form.values.name,
-      email: form.values.email,
-      phone_number: form.values.phone_number,
-      role_id: form.values.role_id,
+      staff_resolution_comment: comment,
     };
 
     try {
-      const response = await updateUserMutation.mutateAsync(payload);
+      const response = await updateComplaintMutation.mutateAsync(payload);
       notifications.show({
-        title: "User Update Successful",
-        message: response?.message || "User updated successfully",
+        title: "Complaint Update Successful",
+        message: response?.message || "Complaint updated successfully",
         color: "green",
       });
       setConfirmModalOpen(false);
       setSuccessModalOpen(true);
     } catch (error) {
       notifications.show({
-        title: "User Creation Failed",
+        title: "Complaint Update Failed",
         message: (error as { message: string })?.message || "An error occurred",
         color: "var(--color-primary-red)",
       });
     }
   };
 
-  function userDetails() {
+  function allComplaints() {
     setSuccessModalOpen(false);
-    navigate(`/admin/users/${id}`, { replace: true });
+    navigate(`/admin/support`, { replace: true });
   }
+
+  function closeResolveModal() {
+    setResolveModalOpen(false);
+    setComment("");
+  }
+
+  const isResolved = complaint?.status?.toLowerCase() === "resolved";
 
   return (
     <div>
@@ -164,34 +107,60 @@ export default function ViewComplaint() {
           <DynamicBreadcrumbs items={breadCrumbs} />
         </div>
       </Card>
+
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
         <div className="px-6 md:px-10 pt-7 pb-2">
-          <Flex mb="lg" justify="space-between">
+          <Flex mb="lg" justify="space-between" align={"self-start"}>
             <div>
-              <Title className="!text-primary-text text-2xl" order={2}>
-                Customer Name (Support ID)
-              </Title>
-              <Text className="!text-secondary-text">
-                View and manage customer support details and resolve complaints
-              </Text>
+              {isComplaintLoading ? (
+                <Skeleton height={28} width={300} radius="sm" />
+              ) : (
+                <Title className="!text-primary-text text-2xl" order={2}>
+                  {complaint?.customer?.firstname} {complaint?.customer?.lastname} (
+                  {complaint?.uniqueID})
+                </Title>
+              )}
+
+              {isComplaintLoading ? (
+                <Skeleton height={14} width={420} mt={6} radius="sm" />
+              ) : (
+                <Text className="!text-secondary-text">
+                  View and manage customer support details and resolve complaints
+                </Text>
+              )}
             </div>
-            <CustomButton
-              size="lg"
-              border={false}
-              fullWidth={false}
-              variant="default"
-              onClick={() => setResolveModalOpen(true)}
-            >
-              <span className="!font-medium">Resolve</span>
-            </CustomButton>
+
+            {/* show Resolve button only when not resolved and not loading */}
+            {(!isResolved && !isComplaintLoading) && (
+              <CustomButton
+                size="lg"
+                border={false}
+                fullWidth={false}
+                variant="default"
+                onClick={() => setResolveModalOpen(true)}
+              >
+                <span className="!font-medium">Resolve Complaint</span>
+              </CustomButton>
+            )}
+
+            {/* show skeleton where button would be while loading (keeps layout) */}
+            {!isResolved && isComplaintLoading && (
+              <Skeleton height={40} width={160} radius="sm" />
+            )}
+
+            {isResolved && !isComplaintLoading && (
+              <div className="flex items-center justify-center text-lg font-medium p-3 rounded-xl text-white bg-primary-green">
+                Resolved
+              </div>
+            )}
           </Flex>
         </div>
       </Card>
 
       <Container fluid className="!pb-10">
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+        <form>
           <Card className="!bg-white !rounded-xl !border !border-gray-200 !px-6 !pt-9 !pb-4 sm:!mx-5 md:!mx-30 lg:!mx-40 !my-10 space-y-6">
-            {/* User Name */}
+            {/* Issued raised header */}
             <Grid gutter="md" className="border-b border-[#C0C0C5] !pb-6 !mb-6">
               <Grid.Col span={12}>
                 <h3 className="font-bold text-xl text-primary-red">
@@ -202,6 +171,8 @@ export default function ViewComplaint() {
                 </p>
               </Grid.Col>
             </Grid>
+
+            {/* Customer Details */}
             <Grid gutter="md" className="border-b border-[#C0C0C5] !pb-6 !mb-6">
               <Grid.Col span={{ base: 12, md: 5 }}>
                 <h3 className="font-semibold text-lg text-gray-800">
@@ -212,11 +183,25 @@ export default function ViewComplaint() {
                 </p>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 7 }}>
-                <h3 className="font-medium text-gray-800">Adekunle, Jugunu</h3>
-                <p className="text-base text-secondary-text">ID:8003</p>
+                {isComplaintLoading ? (
+                  <div>
+                    <Skeleton height={20} width={260} radius="sm" />
+                    <Skeleton height={14} width={180} mt={8} radius="sm" />
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="font-medium text-gray-800">
+                      {complaint?.customer?.firstname} {complaint?.customer?.lastname}
+                    </h3>
+                    <p className="text-base text-secondary-text">
+                      ID: {complaint?.customer?.uniqueID}
+                    </p>
+                  </>
+                )}
               </Grid.Col>
             </Grid>
 
+            {/* Issue Details */}
             <Grid gutter="md" className="border-b border-[#C0C0C5] !pb-6 !mb-6">
               <Grid.Col span={{ base: 12, md: 5 }}>
                 <h3 className="font-semibold text-lg text-gray-800">
@@ -227,16 +212,27 @@ export default function ViewComplaint() {
                 </p>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 7 }}>
-                <h3 className="font-medium text-gray-800">
-                  Can't Find Raffle Ticket
-                </h3>
-                <p className="text-base text-secondary-text">
-                  April 11, 2025 | 11:00am W.A.T
-                </p>
+                {isComplaintLoading ? (
+                  <div>
+                    <Skeleton height={20} width={240} radius="sm" />
+                    <Skeleton height={14} width={200} mt={8} radius="sm" />
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="font-medium text-gray-800">
+                      {complaint?.issue_type}
+                    </h3>
+                    <p className="text-base text-secondary-text">
+                      {complaint?.updated_at
+                        ? format(new Date(complaint.updated_at), "MMMM d, yyyy | h:mm a")
+                        : "—"}
+                    </p>
+                  </>
+                )}
               </Grid.Col>
             </Grid>
 
-            {/* Phone Number */}
+            {/* Complaint Details */}
             <Grid gutter="md" className="border-b border-[#C0C0C5] !pb-6 !mb-6">
               <Grid.Col span={{ base: 12, md: 5 }}>
                 <h3 className="font-semibold text-lg text-gray-800">
@@ -247,62 +243,108 @@ export default function ViewComplaint() {
                 </p>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 7 }}>
-                <h3 className="font-medium text-gray-800">
-                  This is complaints that the customer would submitThis is
-                  complaints that the customer would submitThis is complaints
-                  that the customer would submitThis is complaints that the
-                  customer would submit
-                </h3>
-                <p className="text-base text-secondary-text">ID:8003</p>
+                {isComplaintLoading ? (
+                  <div>
+                    <Skeleton height={22} width={520} radius="sm" />
+                    <Skeleton height={14} width={160} mt={8} radius="sm" />
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="font-medium text-gray-800">
+                      {complaint?.customer_complaint}
+                    </h3>
+                    <p className="text-base text-secondary-text">
+                      ID: {complaint?.uniqueID}
+                    </p>
+                  </>
+                )}
               </Grid.Col>
             </Grid>
 
-            <Grid gutter="md" className="!pb-6 !mb-1 -mt-3">
-              <Grid.Col span={{ base: 12 }}>
-                {/* === DISCOUNT STRUCTURE === */}
-                <Box
-                  className="border-y border-dashed border-primary-red bg-secondary-red"
-                  px={"md"}
-                  py={"md"}
-                  my={"md"}
+            {/* Resolution details (only show after resolved & not loading) */}
+            {isResolved && !isComplaintLoading && (
+              <>
+                <Grid gutter="md" className="!pb-6 !mb-1 -mt-3">
+                  <Grid.Col span={{ base: 12 }}>
+                    <Box
+                      className="border-y border-dashed border-primary-red bg-secondary-red"
+                      px={"md"}
+                      py={"md"}
+                      my={"md"}
+                    >
+                      <Text tt="capitalize" fw={700}>
+                        Resolution Details
+                      </Text>
+                      <Text tt="capitalize" c="var(--secondary-text)">
+                        Complaints resolution details by customer support
+                        personnel
+                      </Text>
+                    </Box>
+                  </Grid.Col>
+                </Grid>
+
+                <Grid
+                  gutter="md"
+                  className="border-b border-[#C0C0C5] !pb-6 !mb-6"
                 >
-                  <Text tt="capitalize" fw={500}>
-                    Raffle Ticketing Discounting Structure
-                  </Text>
-                  <Text tt="capitalize" c="var(--secondary-text)">
-                    Define what percentage of discount is applicable at a
-                    certain number of ticket purchases.
-                  </Text>
-                </Box>
-              </Grid.Col>
-            </Grid>
+                  <Grid.Col span={{ base: 12, md: 5 }}>
+                    <h3 className="font-semibold text-lg text-gray-800">
+                      Resolved by
+                    </h3>
+                    <p className="text-base text-secondary-text">
+                      Customer complaints was resolved by ?
+                    </p>
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 7 }}>
+                    <h3 className="font-medium text-gray-800">
+                      This is complaints that the customer would submitThis is
+                      complaints that the customer would submitThis is
+                      complaints that the customer would submitThis is
+                      complaints that the customer would submit
+                    </h3>
+                    <p className="text-base text-secondary-text">ID:8003</p>
+                  </Grid.Col>
+                </Grid>
 
-            <Grid gutter="md" className="border-b border-[#C0C0C5] !pb-6 !mb-6">
-              <Grid.Col span={{ base: 12, md: 5 }}>
-                <h3 className="font-semibold text-lg text-gray-800">
-                  Complaint Details
-                </h3>
-                <p className="text-base text-secondary-text">
-                  Details of the Complaint
-                </p>
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, md: 7 }}>
-                <h3 className="font-medium text-gray-800">
-                  This is complaints that the customer would submitThis is
-                  complaints that the customer would submitThis is complaints
-                  that the customer would submitThis is complaints that the
-                  customer would submit
-                </h3>
-                <p className="text-base text-secondary-text">ID:8003</p>
-              </Grid.Col>
-            </Grid>
+                <Grid
+                  gutter="md"
+                  className="border-b border-[#C0C0C5] !pb-6 !mb-6"
+                >
+                  <Grid.Col span={{ base: 12, md: 5 }}>
+                    <h3 className="font-semibold text-lg text-gray-800">
+                      Why resolve ?
+                    </h3>
+                    <p className="text-base text-secondary-text">
+                      Why customer complaints was resolved
+                    </p>
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 7 }}>
+                    <h3 className="font-medium text-gray-800">
+                      {complaint?.staff_resolution_comment}
+                    </h3>
+                    <p className="text-base text-secondary-text">
+                      ID: {complaint?.uniqueID}
+                    </p>
+                  </Grid.Col>
+                </Grid>
+              </>
+            )}
+
+            {/* If resolved but still loading (edge case) show skeletons */}
+            {isResolved && isComplaintLoading && (
+              <div className="py-6">
+                <Skeleton height={20} width={300} radius="sm" />
+                <Skeleton height={20} width={520} mt={8} radius="sm" />
+              </div>
+            )}
           </Card>
         </form>
       </Container>
 
       <AdminAlertModal
         opened={resolveModalOpen}
-        onClose={() => setResolveModalOpen(false)}
+        onClose={closeResolveModal}
+        size="lg"
         title={<div className="!text-start">Why Resolve</div>}
         description={
           <div className="!text-start -mt-3">
@@ -317,6 +359,8 @@ export default function ViewComplaint() {
               placeholder="Provide more context as to why this resolution"
               autosize
               minRows={4}
+              value={comment}
+              onChange={(e) => setComment(e.currentTarget.value)}
               classNames={{ label: "text-xs font-medium capitalize" }}
             />
             <Text fz="xs" mt={4} c="dimmed">
@@ -325,6 +369,7 @@ export default function ViewComplaint() {
           </div>
         }
         primaryButton={{
+          disabled: !comment,
           label: "Yes, Resolve Case",
           onClick: () => {
             setResolveModalOpen(false);
@@ -333,7 +378,7 @@ export default function ViewComplaint() {
         }}
         secondaryButton={{
           label: "Close",
-          onClick: () => setResolveModalOpen(false),
+          onClick: () => closeResolveModal(),
         }}
       />
 
@@ -345,9 +390,9 @@ export default function ViewComplaint() {
         description="Are you sure you want to Resolve this complaint?"
         primaryButton={{
           label: "Yes, Resolve Case",
-          onClick: updateUser,
-          disabled: updateUserMutation.isPending,
-          loading: updateUserMutation.isPending,
+          onClick: updateComplaint,
+          disabled: updateComplaintMutation.isPending,
+          loading: updateComplaintMutation.isPending,
         }}
         secondaryButton={{
           label: "Close",
@@ -358,13 +403,13 @@ export default function ViewComplaint() {
       {/* Success Modal */}
       <AdminAlertModal
         opened={successModalOpen}
-        onClose={userDetails}
+        onClose={allComplaints}
         status="success"
-        title="Case resolved"
-        description="Case has been successfully Resolved"
+        title="Case Resolved"
+        description="Case has been successfully resolved"
         primaryButton={{
           label: "Close",
-          onClick: userDetails,
+          onClick: allComplaints,
         }}
       />
     </div>

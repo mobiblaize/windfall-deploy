@@ -149,7 +149,7 @@ export default function EditUser() {
       setSuccessModalOpen(true);
     } catch (error) {
       notifications.show({
-        title: "User Creation Failed",
+        title: "User Update Failed",
         message: (error as { message: string })?.message || "An error occurred",
         color: "var(--color-primary-red)",
       });

@@ -51,7 +51,7 @@ export default function Paginator({
       <Button
         variant="unstyled"
         loading={isLoading}
-        disabled={(currentPage === totalPages) || isLoading}
+        disabled={(currentPage >= totalPages) || isLoading}
         onClick={() => currentPage < totalPages && onPageChange?.(currentPage + 1)}
         style={sharedStyles}
       >

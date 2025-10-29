@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import type { RaffleTransaction } from "./TransactionList";
 import { useState } from "react";
 import TransactionDetails from "./TransactionDetails";
+import { formatCurrency } from "../../../utils/helper/formatCurrency";
 type TransactionTableProps = {
   transactions: RaffleTransaction[];
   isLoading: boolean;
@@ -68,7 +69,7 @@ export default function TransactionTable({
             </>,
             <>
               <Text className="!text-base !font-medium">
-                {transaction.total_amount}
+                {formatCurrency(transaction.total_amount)}
               </Text>
               <Text className="!text-secondary-text !text-sm">
                 {transaction.order_details_count}

@@ -9,7 +9,7 @@ import {
   Drawer,
   ScrollArea,
 } from "@mantine/core";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { createSearchParams, Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   IconZoomFilled,
   IconChevronDown,
@@ -27,6 +27,7 @@ import { FaUser } from "react-icons/fa";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import SideMenu from "./SideMenu";
 import { useCart } from "../utils/hooks/useCart";
+import { useState } from "react";
 
 const menuItems = [
   { name: "Home", path: "/dashboard" },
@@ -87,10 +88,26 @@ const theme = createTheme({
 });
 
 export default function Header() {
+  const [search, setSearch] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
   const [opened, { toggle, close }] = useDisclosure(false);
   const isMobile = useMediaQuery("(max-width: 1095px)");
   const { totalItemsQuantity } = useCart();
+
+  const searchGame = () => {
+    const q = search?.trim();
+    if (!q) {
+      // if input empty, navigate to plain /raffles (removes any existing search param)
+      navigate("/raffles");
+    } else {
+      navigate({
+        pathname: "/raffles",
+        search: createSearchParams({ search: q }).toString(),
+      });
+    }
+    setSearch("");
+  };
 
   return (
     <div className="bg-[#010101] text-white max-w-[100%]">
@@ -128,12 +145,21 @@ export default function Header() {
                 <MantineProvider theme={theme}>
                   <div className="flex w-full max-w-md">
                     <Input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          searchGame();
+                        }
+                      }}
                       className="!rounded-r-none flex-grow-1 text-[14px]"
                       radius="md"
                       size="md"
                       placeholder="Enter keyword to search..."
+                      aria-label="Search raffles"
                     />
-                    <ActionIcon size={"input-md"}>
+                    <ActionIcon onClick={searchGame} size={"input-md"} aria-label="Search">
                       <IconZoomFilled />
                     </ActionIcon>
                   </div>

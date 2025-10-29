@@ -381,8 +381,8 @@ function CustomerDashboard() {
 
         {/* === Complaint list table === */}
 
-        <section className="text-secondary-text my-10">
-          <Box className="border !border-secondary-text/50 rounded-xl bg-white" px={"md"}>
+        <div className="text-secondary-text my-10">
+          <Card withBorder mt={"xl"} radius={"md"} px={"md"}>
             {/* Header */}
             <Flex justify="space-between" pt="lg" wrap="wrap" gap={8}>
               <div>
@@ -453,8 +453,8 @@ function CustomerDashboard() {
             <Divider my="md" />
 
             <CustomerDistribution />
-          </Box>
-        </section>
+          </Card>
+        </div>
 
         <GameCustomers />
       </div>

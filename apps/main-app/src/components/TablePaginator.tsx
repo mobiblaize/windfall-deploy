@@ -40,7 +40,7 @@ export default function TablePaginator({
         <Button
           variant="outline"
           className="!border-secondary-text/50 hover:!bg-secondary-text/10 !text-secondary-text"
-          disabled={currentPage === totalPages || isLoading}
+          disabled={currentPage >= totalPages || isLoading}
           onClick={() =>
             currentPage < totalPages && onPageChange?.(currentPage + 1)
           }

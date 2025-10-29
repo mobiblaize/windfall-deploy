@@ -9,29 +9,28 @@ import {
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import BasicInformation from "./BasicInformation";
-import Layout from "./Layout";
-import TicketPrice from "./TicketPrice";
-import ContentMarketing from "./ContentMarketing";
-import MediaContent from "./MediaContent";
 import DynamicBreadcrumbs, {
   type Crumb,
 } from "../../../components/DynamicBreadCrumbs";
 import CustomButton from "../../../components/Buttons/CustomButton";
-import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
+import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import { useForm } from "@mantine/form";
 import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import { useNavigate } from "react-router-dom";
-import Prizes from "./Prizes";
+import Layout from "../CreateRaffle/Layout";
+import CustomerForm from "./CustomerForm";
+import ClaimInformation from "./ClaimInformation";
+import DocumentUpload from "./DocumentUpload";
+import WinnerStory from "./WinnerStory";
 
 const breadCrumbs: Crumb[] = [
-  { label: "Raffle Management", to: "/admin/raffles" },
-  { label: "Create a New Raffle", to: "/create-raffle" },
+  { label: "Prize Claim", to: "/admin/prize-claims" },
+  { label: "Claim a Prize" },
 ];
 
-function CreateLayout() {
+function CreatePrizeClaim() {
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -352,6 +351,7 @@ function CreateLayout() {
     setActive((current) => (current > 0 ? current - 1 : current));
 
   const handleSubmit = () => {
+    console.log("submitting");
 
     if (form.validate().hasErrors) {
       return;
@@ -360,9 +360,9 @@ function CreateLayout() {
     setAlertModalOpen(true);
   };
 
-  function manageRaffles() {
+  function manageClaims() {
     setSuccessModalOpen(false);
-    navigate("/admin/raffles");
+    navigate("/admin/prize-claims");
   }
 
   async function handleCreateRaffle() {
@@ -416,6 +416,7 @@ function CreateLayout() {
       is_active: String(form.values.is_active),
     };
 
+    console.log("✅ Final Payload:", payload);
 
     try {
       const response = await createMutation.mutateAsync(payload);
@@ -435,45 +436,37 @@ function CreateLayout() {
     }
   }
 
-  const gamePrefix = !form.values.is_scheduled ? "Instant " : "";
-
   const stepsLayout = useMemo(() => {
     return [
       {
-        label: "basic information",
-        description: "enter raffle basic detail below",
-        Component: BasicInformation, // component reference
+        label: "Customer Details",
+        description: "Enter customer details for prize claim",
+        Component: CustomerForm, // component reference
         props: { categories },
       },
       {
-        label: "ticket price & discount",
-        description: "set ticket price and discount",
-        Component: TicketPrice,
+        label: "Claim Information",
+        description: "Enter raffle claim verifiable details",
+        Component: ClaimInformation,
         props: {},
       },
       {
-        label: `${gamePrefix}Game Prizes`,
-        description: `Add prize to be won for this ${gamePrefix}game`,
-        Component: Prizes,
+        label: `Document upload`,
+        description: `Upload Supporting document for prize claims`,
+        Component: DocumentUpload,
         props: {},
       },
       {
-        label: "content marketing",
-        description: "Enter other content ...",
-        Component: ContentMarketing,
-        props: {},
-      },
-      {
-        label: "media content",
-        description: "Set game banner ...",
-        Component: MediaContent,
+        label: "Exclusive Winner Story",
+        description: "Enter winner's story here",
+        Component: WinnerStory,
         props: {},
       },
     ];
-  }, [categories, gamePrefix]);
+  }, [categories]);
 
   const ActiveStep = stepsLayout[active].Component;
-  const activeStepProps = stepsLayout[active].props || {};  
+  const activeStepProps = stepsLayout[active].props || {};
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)} className="pb-5">
@@ -489,27 +482,12 @@ function CreateLayout() {
           <Flex mb="lg" justify="space-between">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
-                Create a raffle
+                Claim a Prize
               </Title>
               <Text className="!text-secondary-text">
-                Create new raffle game in simple step
+                Create a prize claim process for this raffle winner / customer 
               </Text>
             </div>
-            <Flex gap={15}>
-              <CustomButton
-                border={false}
-                className="!rounded-lg"
-                size="md"
-                buttonType="submit"
-                rightSection={
-                  <div className="!inline-flex !bg-[#ff8283] p-1 w-fit rounded-md">
-                    <BsPlus className="!text-xl !text-white" />
-                  </div>
-                }
-              >
-                Create New Raffle
-              </CustomButton>
-            </Flex>
           </Flex>
         </div>
       </Card>
@@ -548,7 +526,11 @@ function CreateLayout() {
             label={stepsLayout[active].label}
             className="block"
           >
-            <ActiveStep form={form} {...activeStepProps} categories={categories} />
+            <ActiveStep
+              form={form}
+              {...activeStepProps}
+              categories={categories}
+            />
           </Layout>
         </Card>
 
@@ -569,7 +551,7 @@ function CreateLayout() {
             </Button>
           )}
 
-          {active < stepsLayout.length - 1 && (
+          {active < stepsLayout.length - 1 ? (
             <CustomButton
               size="lg"
               border={false}
@@ -578,6 +560,15 @@ function CreateLayout() {
               rightSection={<BsChevronRight />}
             >
               Continue
+            </CustomButton>
+          ) : (
+            <CustomButton
+              size="lg"
+              border={false}
+              fullWidth={false}
+              buttonType="submit"
+            >
+              Create Claim
             </CustomButton>
           )}
         </Flex>
@@ -588,20 +579,23 @@ function CreateLayout() {
         status="error"
         title={<span>Create New Raffle Game ?</span>}
         description={
-          <span>
-            Are you sure, you want to create a new raffle draw/game? Kindly note
-            that this game would go live now and customer would be able to view
-            raffle details and buy raffle ticket accordingly.
+          <span className="text-center">
+            Are you sure you want to complete and create a prize claim process
+            for this raffle winner vis-a-vis prize won in a raffle ? <br />
+            <br /> Kindly note that this implies that the designated raffle
+            prize has been issued to the customer / raffle winner. <br />
+            <br /> Additionally, changes cannot be made to this prize claim
+            process as soon as it posted hence synced into the system.
           </span>
         }
         primaryButton={{
-          label: "Yes, Create Raffle Game",
+          label: "Yes, Create and Complete Prize Claim",
           onClick: handleCreateRaffle,
           loading: createMutation.isPending,
           disabled: createMutation.isPending,
         }}
         secondaryButton={{
-          label: "No, Close",
+          label: "Close",
           onClick: () => setAlertModalOpen(false),
         }}
       />
@@ -609,17 +603,17 @@ function CreateLayout() {
       {/* Success Modal */}
       <AdminAlertModal
         opened={successModalOpen}
-        onClose={manageRaffles}
+        onClose={manageClaims}
         status="success"
-        title="Raffle Created"
-        description="Congratulation, you have successfully Created a New Raffle Game / Draw"
+        title="Prize Claim Completed"
+        description="Prize Claim has been successfully submitted"
         secondaryButton={{
           label: "Close",
-          onClick: manageRaffles,
+          onClick: manageClaims,
         }}
       />
     </form>
   );
 }
 
-export default CreateLayout;
+export default CreatePrizeClaim;
