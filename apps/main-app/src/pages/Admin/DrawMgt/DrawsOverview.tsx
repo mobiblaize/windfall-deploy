@@ -483,7 +483,7 @@ function DrawsOverview() {
               ]}
               data={complaints}
               loading={isLoadingComplaints}
-              emptyMessage="No complaints found"
+              emptyMessage="No draws found"
               renderItems={(complaint) => [
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">

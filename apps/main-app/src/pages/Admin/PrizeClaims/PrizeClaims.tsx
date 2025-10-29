@@ -481,7 +481,7 @@ function PrizeClaims() {
               ]}
               data={claims}
               loading={isLoadingComplaints}
-              emptyMessage="No complaints found"
+              emptyMessage="No claims found"
               renderItems={(claim) => [
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">

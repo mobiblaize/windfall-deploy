@@ -327,6 +327,13 @@ function App() {
                   <Route path="create" element={<CreateLayout />} />
                 </Route>
 
+                <Route path="instant-raffles">
+                  <Route index element={<RaffleManagement />} />
+                  <Route path="all" element={<RaffleList />} />
+                  <Route path=":id" element={<ViewRaffles />} />
+                  <Route path="create" element={<CreateLayout />} />
+                </Route>
+
                 {/* Customer Support */}
                 <Route path="support">
                   <Route index element={<Support />} />
