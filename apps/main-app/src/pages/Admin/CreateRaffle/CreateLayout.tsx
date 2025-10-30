@@ -20,7 +20,11 @@ import DynamicBreadcrumbs, {
 import CustomButton from "../../../components/Buttons/CustomButton";
 import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
 import { useForm } from "@mantine/form";
-import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
+import {
+  useFetchData,
+  useGetData,
+  usePostData,
+} from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +40,13 @@ function CreateLayout() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const navigate = useNavigate();
   const [active, setActive] = useState(0);
+  const [isCheckingName, setIsCheckingName] = useState(false);
+  const [lastCheckedName, setLastCheckedName] = useState<string>("");
+  const validateNameMutation = useGetData(
+    lastCheckedName
+      ? `admin/game-management/check-name-exists?name=${encodeURIComponent(lastCheckedName)}`
+      : ""
+  );
   const createMutation = usePostData("admin/game-management/games");
   const {
     data: categoriesData,
@@ -307,6 +318,31 @@ function CreateLayout() {
     },
   });
 
+  const checkNameExists = async (name: string) => {
+    setIsCheckingName(true);
+    setLastCheckedName(name);
+    try {
+      const resp = await validateNameMutation.mutateAsync();
+      // Adjust this logic depending on your actual API result shape
+      if (resp?.data?.exists) {
+        form.setFieldError("name", "Game name already exists");
+        setIsCheckingName(false);
+        return false;
+      } else {
+        return true;
+      }
+    } catch (err) {
+      console.log(err);
+
+      // Optionally handle an API error
+      form.setFieldError("name", "Failed to check name uniqueness");
+      setIsCheckingName(false);
+      return false;
+    } finally {
+      setIsCheckingName(false);
+    }
+  };
+
   // Step-wise field validation map
   const stepFieldMap: Record<number, string[]> = {
     0: [
@@ -335,13 +371,31 @@ function CreateLayout() {
     4: [],
   };
 
-  const validateStep = (stepIndex: number) => {
+  // const validateStep = (stepIndex: number) => {
+  //   const fields = stepFieldMap[stepIndex];
+  //   return !fields.map((f) => form.validateField(f).hasError).some((x) => x);
+  // };
+
+  const validateStep = async (stepIndex: number) => {
     const fields = stepFieldMap[stepIndex];
-    return !fields.map((f) => form.validateField(f).hasError).some((x) => x);
+    // Validate fields synchronously first
+    const localValid = !fields
+      .map((f) => form.validateField(f).hasError)
+      .some((x) => x);
+
+    let nameCheckValid = true;
+    if (stepIndex === 0 && localValid) {
+      // Async check for name uniqueness
+      nameCheckValid = await checkNameExists(form.values.name);
+    }
+
+    return localValid && (stepIndex !== 0 || nameCheckValid);
   };
 
-  const nextStep = () => {
-    const isStepValid = validateStep(active);
+  const nextStep = async () => {
+    setIsCheckingName(true); // show loading early
+    const isStepValid = await validateStep(active);
+    setIsCheckingName(false);
     if (!isStepValid) return;
     setActive((current) =>
       current < stepsLayout.length - 1 ? current + 1 : current
@@ -352,7 +406,6 @@ function CreateLayout() {
     setActive((current) => (current > 0 ? current - 1 : current));
 
   const handleSubmit = () => {
-
     if (form.validate().hasErrors) {
       return;
     }
@@ -416,7 +469,6 @@ function CreateLayout() {
       is_active: String(form.values.is_active),
     };
 
-
     try {
       const response = await createMutation.mutateAsync(payload);
       notifications.show({
@@ -473,7 +525,7 @@ function CreateLayout() {
   }, [categories, gamePrefix]);
 
   const ActiveStep = stepsLayout[active].Component;
-  const activeStepProps = stepsLayout[active].props || {};  
+  const activeStepProps = stepsLayout[active].props || {};
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)} className="pb-5">
@@ -548,7 +600,11 @@ function CreateLayout() {
             label={stepsLayout[active].label}
             className="block"
           >
-            <ActiveStep form={form} {...activeStepProps} categories={categories} />
+            <ActiveStep
+              form={form}
+              {...activeStepProps}
+              categories={categories}
+            />
           </Layout>
         </Card>
 
@@ -576,6 +632,8 @@ function CreateLayout() {
               fullWidth={false}
               onClick={nextStep}
               rightSection={<BsChevronRight />}
+              loading={isCheckingName}
+              disabled={isCheckingName}
             >
               Continue
             </CustomButton>
