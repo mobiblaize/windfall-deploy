@@ -409,7 +409,7 @@ function TransactionDashboard() {
                 ) : (
                   <>
                     <Text fw={700} fz="xl">
-                      {platformStats.web_transactions.successful.volume.toLocaleString()}
+                      {platformStats.web_transactions?.successful?.volume?.toLocaleString()}
                     </Text>
                   </>
                 )}
@@ -436,7 +436,7 @@ function TransactionDashboard() {
                   <>
                     <Text fw={700} fz="xl">
                       {formatCurrency(
-                        platformStats.web_transactions.successful.value
+                        platformStats.web_transactions?.successful?.value
                       )}
                     </Text>
                   </>
@@ -467,7 +467,7 @@ function TransactionDashboard() {
                 ) : (
                   <>
                     <Text fw={700} fz="xl">
-                      {platformStats.mobile_transactions.successful.volume.toLocaleString()}
+                      {platformStats.mobile_transactions?.successful?.volume?.toLocaleString()}
                     </Text>
                   </>
                 )}
@@ -493,7 +493,7 @@ function TransactionDashboard() {
                 ) : (
                   <>
                     <Text fw={700} fz="xl">
-                      {formatCurrency(platformStats.mobile_transactions.successful.value)}
+                      {formatCurrency(platformStats.mobile_transactions?.successful?.value)}
                     </Text>
                   </>
                 )}
