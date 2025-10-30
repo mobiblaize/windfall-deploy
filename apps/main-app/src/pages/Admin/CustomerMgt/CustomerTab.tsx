@@ -134,7 +134,7 @@ function CustomerTab({
       )}
 
       {/* --- Customer Acquisition Trend section --- */}
-      <Card withBorder my="lg">
+      <Card withBorder my="lg" w="100%">
         <Flex justify="space-between">
           <Text
             tt="capitalize"
@@ -149,38 +149,33 @@ function CustomerTab({
         </Flex>
         <Divider my="md" />
 
-        <div className="w-full">
-          {loading ? (
-            <Skeleton height={300} radius="md" />
-          ) : (
-            <AreaChart
-              h={300}
-              data={[
-                { month: "Jan", customers: 420 },
-                { month: "Feb", customers: 460 },
-                { month: "Mar", customers: 520 },
-                { month: "Apr", customers: 580 },
-                { month: "May", customers: 640 },
-                { month: "Jun", customers: 720 },
-                { month: "Jul", customers: 810 },
-                { month: "Aug", customers: 760 },
-                { month: "Sep", customers: 780 },
-                { month: "Oct", customers: 830 },
-                { month: "Nov", customers: 860 },
-                { month: "Dec", customers: 900 },
-              ]}
-              dataKey="month"
-              type="default"
-              series={[{ name: "customers", color: "red" }]}
-              curveType="monotone"
-              strokeWidth={2}
-              fillOpacity={0.2}
-              gridAxis="xy"
-              withLegend={false}
-              withTooltip
-            />
-          )}
-        </div>
+        <AreaChart
+          h={300}
+          w="100%"
+          data={[
+            { month: "Jan", customers: 420 },
+            { month: "Feb", customers: 460 },
+            { month: "Mar", customers: 520 },
+            { month: "Apr", customers: 580 },
+            { month: "May", customers: 640 },
+            { month: "Jun", customers: 720 },
+            { month: "Jul", customers: 810 },
+            { month: "Aug", customers: 760 },
+            { month: "Sep", customers: 780 },
+            { month: "Oct", customers: 830 },
+            { month: "Nov", customers: 860 },
+            { month: "Dec", customers: 900 },
+          ]}
+          dataKey="month"
+          type="default"
+          series={[{ name: "customers", color: "red" }]}
+          curveType="monotone"
+          strokeWidth={2}
+          fillOpacity={0.2}
+          gridAxis="xy"
+          withLegend={false}
+          withTooltip
+        />
       </Card>
     </>
   );

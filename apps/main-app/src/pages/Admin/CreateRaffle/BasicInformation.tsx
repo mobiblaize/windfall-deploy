@@ -192,7 +192,7 @@ function BasicInformationInner({ form, categories }: Props) {
                 withSeconds
                 withDropdown
                 required
-                classNames={{ input: "placeholder:text-xs" }}
+                classNames={{ input: "placeholder:text-xs", dropdown: "text-primary-text" }}
                 {...endTimeProps}
               />
             </SimpleGrid>

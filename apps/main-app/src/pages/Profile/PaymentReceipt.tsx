@@ -95,7 +95,7 @@ export default function PaymentReceipt() {
     isLoading,
     isError,
     error,
-  } = useFetchData(`customer/games/order/${id}/games?paginate=0`);
+  } = useFetchData(`customer/games/order/${id}/games`);
 
   useEffect(() => {
     setCrumbs(items);

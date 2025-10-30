@@ -19,8 +19,7 @@ import { IoFilterOutline } from "react-icons/io5";
 import TablePaginator from "../../../components/TablePaginator";
 import type { TabSwitcherTab } from "../../../components/TabSwitcher";
 import TabSwitcher from "../../../components/TabSwitcher";
-import TransactionTable from "../TransactionMgt/TransactionTable";
-import type { RaffleTransaction } from "../TransactionMgt/TransactionList";
+import CustomerTable from "./CustomerTable";
 
 const paymentStatus: TabSwitcherTab[] = [
   {
@@ -56,8 +55,18 @@ const tabs: TabSwitcherTab[] = [
   },
 ];
 
+export interface Customer {
+  uuid: string
+  customer_name: string
+  uniqueID: string
+  location: string
+  phone: string
+  total_amount_spent: string
+  number_of_games_played: number
+}
+
 function GameCustomers() {
-  const [transactions, setTransactions] = useState<RaffleTransaction[]>([]);
+  const [transactions, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string | null>("");
   const [filterBy, setFilterBy] = useState<string | null>("");
@@ -68,7 +77,7 @@ function GameCustomers() {
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
 
-  const baseUrl = `admin/transaction-management/all-transactions?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&platform=${platform || ""}&payment_status=${filterBy || ""}`;
+  const baseUrl = `admin/customer-management/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&platform=${platform || ""}&payment_status=${filterBy || ""}`;
 
   const {
     data: response,
@@ -88,7 +97,7 @@ function GameCustomers() {
       });
     }
     if (response) {
-      setTransactions(response.data?.records);
+      setCustomers(response.data?.data);
       setCurrentPage(response.data?.current_page || 1);
       setTotal(response.data?.total || 0);
       setPageSize(response.data?.per_page || 10);
@@ -207,7 +216,7 @@ function GameCustomers() {
           </Group>
         </Flex>
 
-        <TransactionTable isLoading={isLoading} transactions={transactions} />
+        <CustomerTable isLoading={isLoading} customers={transactions} />
 
         <TablePaginator
           currentPage={currentPage}

@@ -132,10 +132,9 @@ function PerformanceMonitor() {
 
   const raffles: Raffle[] = rafflesResponse?.data;
   const rafflesData = (() => {
-    if (!raffles) return [{ value: "", label: "Game: All" }];
+    if (!raffles) return [];
 
     return [
-      { value: "", label: "Game: All" },
       ...raffles.map((item) => ({
         value: item.uuid,
         label: item.name,
@@ -180,7 +179,13 @@ function PerformanceMonitor() {
         color: "red",
       });
     }
-  }, [isErrorRaffles, rafflesError]);
+
+    
+    if (rafflesResponse) {
+      setRaffleId(rafflesResponse.data?.[0]?.uuid || "");
+    }
+
+  }, [isErrorRaffles, rafflesError, rafflesResponse]);
 
   async function getTicketSalesStats() {
     if (!raffleId) return;
@@ -401,7 +406,7 @@ function PerformanceMonitor() {
         <Salestabs
           salesStats={ticketSalesStats}
           ticketStats={ticketStats}
-          loading={ticketSalesMutation.isPending}
+          loading={ticketStatsMutation.isPending}
         />
       </Card>
     </Box>

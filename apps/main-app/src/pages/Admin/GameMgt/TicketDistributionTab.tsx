@@ -168,49 +168,47 @@ function TicketDistributionTab({
           {loading ? (
             <Skeleton height={300} radius="md" />
           ) : chartData.length > 0 ? (
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="date" />
-                  <YAxis
-                    label={{
-                      value: "Tickets Sold",
-                      angle: -90,
-                      position: "insideLeft",
-                      style: { textAnchor: "middle" },
-                    }}
-                    tickCount={6}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
-                    }}
-                  />
-                  <Legend
-                    verticalAlign="bottom"
-                    align="left"
-                    iconType="circle"
-                    wrapperStyle={{ paddingTop: "16px" }}
-                  />
-                  <Bar
-                    dataKey="Tickets Sold"
-                    fill="#2196F3"
-                    radius={[4, 4, 0, 0]}
-                    name="Tickets Sold"
-                    animationDuration={800}
-                    animationEasing="ease-in-out"
-                    // Smooth hover transition like Transaction Graph
-                    className="transition-all duration-300 hover:opacity-80"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="date" />
+                <YAxis
+                  label={{
+                    value: "Tickets Sold",
+                    angle: -90,
+                    position: "insideLeft",
+                    style: { textAnchor: "middle" },
+                  }}
+                  tickCount={6}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    border: "1px solid #e5e7eb",
+                  }}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  align="left"
+                  iconType="circle"
+                  wrapperStyle={{ paddingTop: "16px" }}
+                />
+                <Bar
+                  dataKey="Tickets Sold"
+                  fill="#2196F3"
+                  radius={[4, 4, 0, 0]}
+                  name="Tickets Sold"
+                  animationDuration={800}
+                  animationEasing="ease-in-out"
+                  // Smooth hover transition like Transaction Graph
+                  className="transition-all duration-300 hover:opacity-80"
+                />
+              </BarChart>
+            </ResponsiveContainer>
           ) : (
             <Text fz="sm" c="dimmed" ta="center" py="lg">
               No ticket sales data available for the selected period.

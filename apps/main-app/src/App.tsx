@@ -257,8 +257,7 @@ function App() {
             />
             <Route path="checkout/signup" element={<CheckoutAuth />} />
 
-            <Route path="/payment-success" element={<RedirectOrderDetails />} />
-            <Route path="/payment-failed" element={<RedirectOrderDetails />} />
+            <Route path="/payment-receipt" element={<RedirectOrderDetails />} />
 
             <Route
               path="responsible-playing"

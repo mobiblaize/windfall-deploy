@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { RichTextEditor, Link } from "@mantine/tiptap";
+import { RichTextEditor } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
 import Superscript from "@tiptap/extension-superscript";
@@ -31,14 +30,13 @@ export default function TextEditor({
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline,
-      Link,
       Highlight,
       Superscript,
       SubScript,
       TextStyle,
       Color,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      // Don't add Link or Underline to avoid tiptap duplicate warnings.
     ],
     content: form.values[name] || initialContent,
     onUpdate: ({ editor }) => {
@@ -50,7 +48,7 @@ export default function TextEditor({
     if (editor && form.values[name] !== editor.getHTML()) {
       editor.commands.setContent(form.values[name] || "");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, form.values[name], name]);
 
   return (

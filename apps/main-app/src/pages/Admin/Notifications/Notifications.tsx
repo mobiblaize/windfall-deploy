@@ -176,10 +176,10 @@ export default function Notifications() {
     }
     if (notificationsResponse) {
       setCurrentPage(
-        notificationsResponse.data?.notifications?.current_page || 1
+        notificationsResponse.data?.current_page || 1
       );
-      setTotal(notificationsResponse.data?.notifications?.total || 0);
-      setPageSize(notificationsResponse.data?.notifications?.per_page || 10);
+      setTotal(notificationsResponse.data?.total || 0);
+      setPageSize(notificationsResponse.data?.per_page || 10);
     }
   }, [isError, error, notificationsResponse]);
 
@@ -221,7 +221,7 @@ export default function Notifications() {
   const extraCount = extraModules.length;
 
   const notifications: Notification[] =
-    notificationsResponse?.data?.notifications?.data ?? [];
+    notificationsResponse?.data?.data ?? [];
 
   return (
     <div>

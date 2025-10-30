@@ -228,12 +228,16 @@ function CheckoutPage() {
   };
 
   const checkout = async () => {
+    // Get the current location/origin and append the /payment-receipt route
+    const redirect_url = `${window.location.origin}/payment-receipt`;
+
     const payload = {
       platform: "web",
       payment_method: selectedPaymentMethod?.slug || "",
       payment_channel: selectedPaymentChannel || "",
       referral_balance_amount: referralAmount || "",
       promo_code: promoCode || "",
+      redirect_url,
     };
 
     if (buyNowItem) {
