@@ -11,7 +11,7 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import { DateInput, TimeInput } from "@mantine/dates";
+import { DateInput, TimePicker } from "@mantine/dates";
 import type { UseFormReturnType } from "@mantine/form";
 import { FaAngleDown } from "react-icons/fa";
 import "@mantine/dates/styles.css";
@@ -158,6 +158,7 @@ function BasicInformationInner({ form, categories }: Props) {
                 label="Start date"
                 placeholder="Pick start date"
                 required
+                minDate={new Date()}
                 classNames={{ input: "placeholder:text-xs" }}
                 {...startDateProps}
                 error={form.errors.start_date}
@@ -167,6 +168,7 @@ function BasicInformationInner({ form, categories }: Props) {
                 label="End date"
                 placeholder="Pick end date"
                 required
+                minDate={new Date()}
                 classNames={{ input: "placeholder:text-xs" }}
                 {...endDateProps}
                 error={form.errors.end_date}
@@ -177,14 +179,18 @@ function BasicInformationInner({ form, categories }: Props) {
             <Divider my="md" />
 
             <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-              <TimeInput
+              <TimePicker
                 label="Start time"
+                withSeconds
+                withDropdown
                 required
-                classNames={{ input: "placeholder:text-xs" }}
+                classNames={{ input: "placeholder:text-xs", dropdown: "text-primary-text" }}
                 {...startTimeProps}
               />
-              <TimeInput
+              <TimePicker
                 label="End time"
+                withSeconds
+                withDropdown
                 required
                 classNames={{ input: "placeholder:text-xs" }}
                 {...endTimeProps}

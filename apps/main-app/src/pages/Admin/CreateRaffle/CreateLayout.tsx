@@ -296,12 +296,12 @@ function CreateLayout() {
         }
 
         // ✅ NEW VALIDATION: min tier cannot be less than minimum_ticket_number_purchase
-        const minTierEnd = Math.min(
-          ...tiers.map((t) => Number(t.number_of_entry_end))
+        const minTierStart = Math.min(
+          ...tiers.map((t) => Number(t.number_of_entry_start))
         );
 
-        if (minTierEnd > Number(values.minimum_ticket_number_purchase)) {
-          return `The lowest tier range (${minTierEnd}) cannot be less than the minimum ticket number per purchase (${values.minimum_ticket_number_purchase}).`;
+        if (minTierStart < Number(values.minimum_ticket_number_purchase)) {
+          return `The lowest tier range (${minTierStart}) cannot be less than the minimum ticket number per purchase (${values.minimum_ticket_number_purchase}).`;
         }
 
         // ✅ NEW VALIDATION: max tier cannot exceed maximum_ticket_number_purchase
@@ -331,10 +331,7 @@ function CreateLayout() {
       } else {
         return true;
       }
-    } catch (err) {
-      console.log(err);
-
-      // Optionally handle an API error
+    } catch {
       form.setFieldError("name", "Failed to check name uniqueness");
       setIsCheckingName(false);
       return false;
@@ -405,8 +402,33 @@ function CreateLayout() {
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
 
-  const handleSubmit = () => {
-    if (form.validate().hasErrors) {
+  // REWRITE: Make handleSubmit async, check name uniqueness, show notification on errors.
+  const handleSubmit = async () => {
+    // Run all validation, plus name uniqueness
+
+    const result = form.validate();
+
+    let hasErrors = result.hasErrors;
+
+    let nameValid = true;
+
+    if (!hasErrors) {
+      // Still check the name uniqueness for final
+      setIsCheckingName(true);
+      nameValid = await checkNameExists(form.values.name);
+      setIsCheckingName(false);
+      if (!nameValid) {
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      notifications.show({
+        title: "Form Error",
+        message:
+          "Some fields are invalid or missing. Please check the form for errors.",
+        color: "var(--color-primary-red)",
+      });
       return;
     }
 
@@ -553,6 +575,8 @@ function CreateLayout() {
                 className="!rounded-lg"
                 size="md"
                 buttonType="submit"
+                loading={isCheckingName}
+                disabled={isCheckingName}
                 rightSection={
                   <div className="!inline-flex !bg-[#ff8283] p-1 w-fit rounded-md">
                     <BsPlus className="!text-xl !text-white" />
