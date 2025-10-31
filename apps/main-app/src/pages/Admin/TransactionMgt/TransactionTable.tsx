@@ -31,9 +31,9 @@ export default function TransactionTable({
           { label: "Customer Name & ID", key: "customer" },
           { label: "Transaction ID", key: "transaction" },
           { label: "Purchase Source", key: "platform" },
-          { label: "Ticket Price & Number", key: "price" },
+          { label: "No. of Games", key: "count" },
+          { label: "Amount Paid & Ticket No", key: "amount" },
           { label: "Payment Method", key: "method" },
-          { label: "Number of Ticket", key: "ticket" },
           { label: "Payment Status", key: "status" },
           { label: "", key: "action" },
         ]}
@@ -52,8 +52,8 @@ export default function TransactionTable({
               </Text>
             </>,
             <>
-              <Text className="!text-base !font-medium">
-                {transaction.transaction_id || '-'}
+              <Text className="!text-base !font-medium !text-nowrap">
+                {transaction.uniqueID || '-'}
               </Text>
               <Text className="!text-secondary-text !text-sm">
                 {transaction.created_at
@@ -69,10 +69,15 @@ export default function TransactionTable({
             </>,
             <>
               <Text className="!text-base !font-medium">
-                {formatCurrency(transaction.total_amount)}
+                {transaction.order_details_count}
+              </Text>
+            </>,
+            <>
+              <Text className="!text-base !font-medium">
+                {formatCurrency(transaction.paid_amount)}
               </Text>
               <Text className="!text-secondary-text !text-sm">
-                {transaction.order_details_count}
+                {transaction.reference}
               </Text>
             </>,
 
@@ -84,7 +89,6 @@ export default function TransactionTable({
                 {transaction.payment_channel}
               </Text>
             </>,
-            transaction?.tickets_count,
             <p
               className={`py-[2px] px-2 rounded-xl inline-block font-medium !capitalize ${
                 transaction.payment_status?.toLowerCase() === "successful"

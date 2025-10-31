@@ -30,6 +30,7 @@ export default function CustomerTable({
           { label: "Customer Name & ID", key: "customer" },
           { label: "Location (L.G.A)", key: "transaction" },
           { label: "Phone", key: "phone" },
+          { label: "Registration Platform", key: "platform" },
           { label: "Total No. of Games Played", key: "games" },
           { label: "Total Amount Spent", key: "amount" },
           { label: "", key: "action" },
@@ -54,7 +55,11 @@ export default function CustomerTable({
             <Text className="!text-base !font-medium !capitalize">
               {customer.phone || "-"}
             </Text>,
-            <Text className="!text-secondary-text !text-sm">
+
+            <Text className="!text-base !font-medium !capitalize">
+              {customer.platform || "-"}
+            </Text>,
+            <Text className="!text-secondary-text">
               {customer.number_of_games_played}
             </Text>,
             <Text className="!text-base !font-medium">

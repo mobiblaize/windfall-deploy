@@ -33,7 +33,7 @@ export default function TransactionDetails({
   if (!transaction) return null;
 
   const fields = [
-    { label: "Transaction ID", value: transaction.transaction_id },
+    { label: "Transaction ID", value: transaction.uniqueID },
     {
       label: "Purchase Date & Time",
       value: transaction.created_at

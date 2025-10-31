@@ -214,6 +214,11 @@ export default function Reports() {
                 {...form.getInputProps("start_date")}
                 error={form.errors.start_date}
                 rightSection={<CiCalendar />}
+                popoverProps={{
+                  classNames: {
+                    dropdown: "!text-primary-text",
+                  },
+                }}
               />
             </div>
 
@@ -226,6 +231,11 @@ export default function Reports() {
                 {...form.getInputProps("end_date")}
                 error={form.errors.end_date}
                 rightSection={<CiCalendar />}
+                popoverProps={{
+                  classNames: {
+                    dropdown: "!text-primary-text",
+                  },
+                }}
               />
             </div>
           </>

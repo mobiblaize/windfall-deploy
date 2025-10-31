@@ -6,6 +6,7 @@ import {
   Text,
   Box,
   Group,
+  Skeleton,
 } from "@mantine/core";
 import { useFetchData } from "../../../utils/hooks/useApis";
 import { useEffect, useState } from "react";
@@ -14,21 +15,22 @@ import { DateInput } from "@mantine/dates";
 import { IoClose } from "react-icons/io5";
 import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
-import { useNavigate } from "react-router-dom";
 import { PiQuestionThin } from "react-icons/pi";
 import { AiFillExclamationCircle } from "react-icons/ai";
-import CustomButton from "../../../components/Buttons/CustomButton";
-import { BsPlus } from "react-icons/bs";
 import CustomerDistribution from "./CustomerDistribution";
 import GameCustomers from "./GameCustomers";
+import EmptyState from "../../../components/EmptyState";
 
-interface SupportStats {
-  total: number;
-  pending: number;
-  resolved: number;
-  last_period_days_total: number;
-  last_period_days_pending: number;
-  last_period_days_resolved: number;
+interface CustomerStats {
+  total_customers: number;
+  total_customers_percentage_increase: number;
+  new_customers: number;
+  new_customers_percentage_increase: number;
+  ticket_stats_last_7_days_count: number;
+  returning_ticket_buyers_percentage_change: number;
+  returning_ticket_buyers: number;
+  average_tickets_per_customer: number;
+  ticket_revenue: string;
   period: string;
 }
 
@@ -36,15 +38,13 @@ function CustomerDashboard() {
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
 
-  const navigate = useNavigate();
-
   const {
     data: statsResponse,
-    // isLoading: isLoadingStats,
+    isLoading: isLoadingStats,
     isError: isErrorStats,
     error: statsError,
   } = useFetchData(
-    `admin/customer-support-management/stats?start_date=${startDate}&end_date=${endDate}`
+    `admin/customer-management/overview-stats?start_date=${startDate}&end_date=${endDate}`
   );
 
   useEffect(() => {
@@ -58,10 +58,7 @@ function CustomerDashboard() {
     }
   }, [statsError, isErrorStats]);
 
-  const supportStats: SupportStats = statsResponse?.data;
-
-  console.log(supportStats);
-  
+  const customerStats: CustomerStats = statsResponse?.data;
 
   return (
     <>
@@ -89,135 +86,6 @@ function CustomerDashboard() {
               gap={8}
               align="center"
             >
-              <CustomButton
-                border={false}
-                className="!rounded-lg"
-                size="sm"
-                onClick={() => navigate("create")}
-                rightSection={
-                  <div className="!inline-flex !bg-[#ff8283] p-1 w-fit rounded-md">
-                    <BsPlus className=" !text-white" />
-                  </div>
-                }
-              >
-                Create New
-              </CustomButton>
-            </Flex>
-          </Flex>
-          <Divider my="md" />
-
-          <Box mb={"lg"}>
-            <Text
-              tt={"capitalize"}
-              fz={"sm"}
-              className="!text-secondary-text !flex !items-center !gap-x-2"
-            >
-              Total Number of Customer{" "}
-              <span>
-                <PiQuestionThin />
-              </span>
-            </Text>
-            <Text className="!text-primary-green" fz={32} fw={600} mb="xs">
-              {(2000000)?.toLocaleString()}
-            </Text>
-            <Text
-              tt="capitalize"
-              fz="sm"
-              fw={600}
-              className="!text-secondary-text !item-center !flex !gap-2"
-              mb={5}
-            >
-              <AiFillExclamationCircle />
-              <span className="!text-primary-green">22.4%</span> increase over
-              the last days
-            </Text>
-          </Box>
-          <Divider my="sm" />
-          <SimpleGrid
-            className="text-secondary-text"
-            my="lg"
-            cols={{ base: 1, xs: 2, sm: 3 }}
-            spacing={{ base: 10, sm: "xl" }}
-            verticalSpacing={{ base: "lg", sm: "xl" }}
-            mt="md"
-          >
-            <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
-              <Text
-                tt={"capitalize"}
-                fz={"sm"}
-                className=" !flex !items-center !gap-x-2"
-              >
-                Total New Customers
-              </Text>
-              <Text fw={700} className="!text-primary-text" fz={28}>
-                5,000
-              </Text>
-              <Text tt="capitalize" fz="sm">
-                <span className="!text-primary-green">22.4%</span> increase in
-                last 3 days
-              </Text>
-            </Box>
-            <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
-              <Text
-                tt={"capitalize"}
-                fz={"sm"}
-                className=" !flex !items-center !gap-x-2"
-              >
-                Total Returning Buyers{" "}
-                <span>
-                  <PiQuestionThin />
-                </span>
-              </Text>
-              <Text
-                fw={700}
-                className="!text-primary-text"
-                fz={22}
-                tt="capitalize"
-              >
-                increase in last 3 days
-              </Text>
-              <Text tt="capitalize" fz="sm">
-                <span className="!text-primary-green">22.4%</span> ticket sales
-                across channel
-              </Text>
-            </Box>
-            <Box className="sm:!border-b-0  !border-secondary-text/40 py-3 sm:py-0">
-              <Text
-                tt={"capitalize"}
-                fz={"sm"}
-                className=" !flex !items-center !gap-x-2"
-              >
-                Average Ticket Unit per Customer
-                <span>
-                  <PiQuestionThin />
-                </span>
-              </Text>
-              <Text fw={700} className="!text-primary-text" fz={22}>
-                2 Tickets Unit
-              </Text>
-              <Text tt="capitalize" fz="sm">
-                <span className="!text-primary-green"> + 0.4 Ticket</span>{" "}
-                increase in last 3 days
-              </Text>
-            </Box>
-          </SimpleGrid>
-        </Card>
-
-        {/* === Complaint list table === */}
-
-        <div className="text-secondary-text my-10">
-          <Card withBorder mt={"xl"} radius={"md"} px={"md"}>
-            {/* Header */}
-            <Flex justify="space-between" pt="lg" wrap="wrap" gap={8}>
-              <div>
-                <Text fz={20} fw="bold" className="!text-primary-text">
-                  Customer Distribution by Channel
-                </Text>
-                <Text className="!text-secondary-text">
-                  Distribution of customer Purchase by Channels
-                </Text>
-              </div>
-
               <Group>
                 <DateInput
                   placeholder="Start Date"
@@ -272,13 +140,151 @@ function CustomerDashboard() {
                 />
               </Group>
             </Flex>
-            
-            
-            <Divider my="md" />
+          </Flex>
+          <Divider my="md" />
 
-            <CustomerDistribution />
-          </Card>
-        </div>
+          {isLoadingStats ? (
+            <>
+              <Box mb={"lg"}>
+                <Skeleton height={16} width={240} mb={8} />
+                <Skeleton height={40} width={180} />
+              </Box>
+              <Divider my="sm" />
+              <SimpleGrid
+                className="text-secondary-text"
+                my="lg"
+                cols={{ base: 1, xs: 2, sm: 3 }}
+                spacing={{ base: 10, sm: "xl" }}
+                verticalSpacing={{ base: "lg", sm: "xl" }}
+                mt="md"
+              >
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Box key={i} className="py-3 sm:py-0">
+                    <Skeleton height={16} width={200} mb={8} />
+                    <Skeleton height={32} width={120} mb={6} />
+                    <Skeleton height={16} width={220} />
+                  </Box>
+                ))}
+              </SimpleGrid>
+            </>
+          ) : !customerStats ? (
+            <EmptyState
+              title="No Customer Stats"
+              description="No customer overview data found for the selected period"
+              format="secondary"
+              fullWidth={true}
+            />
+          ) : (
+            <>
+              <Box mb={"lg"}>
+                <Text
+                  tt={"capitalize"}
+                  fz={"sm"}
+                  className="!text-secondary-text !flex !items-center !gap-x-2"
+                >
+                  Total Number of Customer {" "}
+                  <span>
+                    <PiQuestionThin />
+                  </span>
+                </Text>
+                <Text className="!text-primary-green" fz={32} fw={600} mb="xs">
+                  {customerStats?.total_customers?.toLocaleString()}
+                </Text>
+                <Text
+                  tt="capitalize"
+                  fz="sm"
+                  fw={600}
+                  className="!text-secondary-text !item-center !flex !gap-2"
+                  mb={5}
+                >
+                  <AiFillExclamationCircle />
+                  <span className="!text-primary-green">
+                    +{customerStats?.total_customers_percentage_increase}%
+                  </span>{" "}
+                  increase over the last {customerStats?.period}
+                </Text>
+              </Box>
+              <Divider my="sm" />
+              <SimpleGrid
+                className="text-secondary-text"
+                my="lg"
+                cols={{ base: 1, xs: 2, sm: 3 }}
+                spacing={{ base: 10, sm: "xl" }}
+                verticalSpacing={{ base: "lg", sm: "xl" }}
+                mt="md"
+              >
+                <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
+                  <Text
+                    tt={"capitalize"}
+                    fz={"sm"}
+                    className=" !flex !items-center !gap-x-2"
+                  >
+                    Total New Customers
+                  </Text>
+                  <Text fw={700} className="!text-primary-text" fz={28}>
+                    {customerStats?.new_customers?.toLocaleString()}
+                  </Text>
+                  <Text tt="capitalize" fz="sm">
+                    <span className="!text-primary-green">
+                      +{customerStats?.new_customers_percentage_increase}%
+                    </span>{" "}
+                    increase in last {customerStats?.period}
+                  </Text>
+                </Box>
+                <Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
+                  <Text
+                    tt={"capitalize"}
+                    fz={"sm"}
+                    className=" !flex !items-center !gap-x-2"
+                  >
+                    Total Returning Buyers {" "}
+                    <span>
+                      <PiQuestionThin />
+                    </span>
+                  </Text>
+                  <Text
+                    fw={700}
+                    className="!text-primary-text"
+                    fz={22}
+                    tt="capitalize"
+                  >
+                    {customerStats?.returning_ticket_buyers?.toLocaleString()}
+                  </Text>
+                  <Text tt="capitalize" fz="sm">
+                    <span className="!text-primary-green">
+                      +{customerStats?.returning_ticket_buyers_percentage_change}%
+                    </span>{" "}
+                    increase in last 7 days
+                  </Text>
+                </Box>
+                <Box className="sm:!border-b-0  !border-secondary-text/40 py-3 sm:py-0">
+                  <Text
+                    tt={"capitalize"}
+                    fz={"sm"}
+                    className=" !flex !items-center !gap-x-2"
+                  >
+                    Average Ticket Unit per Customer
+                    <span>
+                      <PiQuestionThin />
+                    </span>
+                  </Text>
+                  <Text fw={700} className="!text-primary-text" fz={22}>
+                    {customerStats?.average_tickets_per_customer?.toLocaleString()} {" "}
+                    Tickets Unit
+                  </Text>
+                  <Text tt="capitalize" fz="sm">
+                    <span className="!text-primary-green"> {" "}
+                      + {customerStats?.ticket_stats_last_7_days_count} Ticket
+                    </span>{" "}
+                    in last 7 days
+                  </Text>
+                </Box>
+              </SimpleGrid>
+            </>
+          )}
+        </Card>
+
+        <CustomerDistribution />
 
         <GameCustomers />
       </div>

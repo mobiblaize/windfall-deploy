@@ -163,6 +163,11 @@ function BasicInformationInner({ form, categories }: Props) {
                 {...startDateProps}
                 error={form.errors.start_date}
                 rightSection={<CiCalendar />}
+                popoverProps={{
+                  classNames: {
+                    dropdown: "!text-primary-text",
+                  },
+                }}
               />
               <DateInput
                 label="End date"
@@ -173,6 +178,11 @@ function BasicInformationInner({ form, categories }: Props) {
                 {...endDateProps}
                 error={form.errors.end_date}
                 rightSection={<CiCalendar />}
+                popoverProps={{
+                  classNames: {
+                    dropdown: "!text-primary-text",
+                  },
+                }}
               />
             </SimpleGrid>
 

@@ -2,28 +2,41 @@ import {
   Box,
   SimpleGrid,
   Stack,
+  Text,
+  Skeleton,
   Card,
   Flex,
   Divider,
-  Text,
-  Skeleton,
 } from "@mantine/core";
 import { PiQuestionThin } from "react-icons/pi";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
 import type {
-  Last30DaysPlatformBreakdown,
   TicketStats,
 } from "../GameMgt/PerformanceMonitor";
 import { AreaChart } from "@mantine/charts";
+
+
+type ChannelBreakdown = {
+  platform: string;
+  total_revenue: number;
+  tickets_sold: number;
+  percentage_increase?: number;
+};
+
+type TrendPoint = { date: string; registrations: number };
 
 function CustomerTab({
   breakdowns = [],
   loading,
   ticketStats = [],
+  acquisitionTrend = [],
+  acquisitionTrendLoading,
 }: {
-  breakdowns?: Last30DaysPlatformBreakdown[];
+  breakdowns?: ChannelBreakdown[];
   loading?: boolean;
   ticketStats?: TicketStats[];
+  acquisitionTrend?: TrendPoint[];
+  acquisitionTrendLoading?: boolean;
 }) {
   const totalRevenue = breakdowns.reduce(
     (sum, item) => sum + (item.total_revenue || 0),
@@ -117,8 +130,7 @@ function CustomerTab({
                         fz="xs"
                         className="!text-secondary-text"
                       >
-                        {item.tickets_sold} tickets sold in the last{" "}
-                        {item.days_count} days
+                        {item.tickets_sold} tickets sold
                       </Text>
                     </Stack>
                   ))}
@@ -149,33 +161,28 @@ function CustomerTab({
         </Flex>
         <Divider my="md" />
 
-        <AreaChart
-          h={300}
-          w="100%"
-          data={[
-            { month: "Jan", customers: 420 },
-            { month: "Feb", customers: 460 },
-            { month: "Mar", customers: 520 },
-            { month: "Apr", customers: 580 },
-            { month: "May", customers: 640 },
-            { month: "Jun", customers: 720 },
-            { month: "Jul", customers: 810 },
-            { month: "Aug", customers: 760 },
-            { month: "Sep", customers: 780 },
-            { month: "Oct", customers: 830 },
-            { month: "Nov", customers: 860 },
-            { month: "Dec", customers: 900 },
-          ]}
-          dataKey="month"
-          type="default"
-          series={[{ name: "customers", color: "red" }]}
-          curveType="monotone"
-          strokeWidth={2}
-          fillOpacity={0.2}
-          gridAxis="xy"
-          withLegend={false}
-          withTooltip
-        />
+        {acquisitionTrendLoading ? (
+          <Skeleton height={300} radius="md" />
+        ) : acquisitionTrend && acquisitionTrend.length > 0 ? (
+          <AreaChart
+            h={300}
+            w="100%"
+            data={acquisitionTrend}
+            dataKey="date"
+            type="default"
+            series={[{ name: "registrations", color: "red" }]}
+            curveType="monotone"
+            strokeWidth={2}
+            fillOpacity={0.2}
+            gridAxis="xy"
+            withLegend={false}
+            withTooltip
+          />
+        ) : (
+          <Text fz="sm" c="dimmed" ta="center" py="lg">
+            No acquisition data for the selected period.
+          </Text>
+        )}
       </Card>
     </>
   );

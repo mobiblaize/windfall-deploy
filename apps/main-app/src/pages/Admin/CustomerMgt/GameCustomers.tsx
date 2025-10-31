@@ -21,25 +21,6 @@ import type { TabSwitcherTab } from "../../../components/TabSwitcher";
 import TabSwitcher from "../../../components/TabSwitcher";
 import CustomerTable from "./CustomerTable";
 
-const paymentStatus: TabSwitcherTab[] = [
-  {
-    label: "Filter by: All",
-    value: "",
-  },
-  {
-    label: "Successful",
-    value: "successful",
-  },
-  {
-    label: "Pending",
-    value: "pending",
-  },
-  {
-    label: "Failed",
-    value: "failed",
-  },
-];
-
 const tabs: TabSwitcherTab[] = [
   {
     label: "Show All",
@@ -61,6 +42,7 @@ export interface Customer {
   uniqueID: string
   location: string
   phone: string
+  platform: string
   total_amount_spent: string
   number_of_games_played: number
 }
@@ -70,14 +52,13 @@ function GameCustomers() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string | null>("");
   const [filterBy, setFilterBy] = useState<string | null>("");
-  const [platform, setPlatform] = useState<string>("");
   const debouncedSearch = useDebounce(search, 500);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
 
-  const baseUrl = `admin/customer-management/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&platform=${platform || ""}&payment_status=${filterBy || ""}`;
+  const baseUrl = `admin/customer-management/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&payment_status=${filterBy || ""}`;
 
   const {
     data: response,
@@ -145,10 +126,10 @@ function GameCustomers() {
         >
           <Box>
             <Text tt="capitalize" fz={"lg"} fw={600}>
-              Game Customer List
+              Customer List
             </Text>
             <Text className="!text-secondary-text !text-xs !capitalize">
-              Show customer across purchase channel.
+              Show customers across purchase channels.
             </Text>
           </Box>
           <Button
@@ -174,8 +155,8 @@ function GameCustomers() {
           <Flex justify="space-between" align="center">
             <TabSwitcher
               tabs={tabs}
-              activeTab={platform}
-              onChange={setPlatform}
+              activeTab={filterBy || ""}
+              onChange={setFilterBy}
             />
           </Flex>
           <TextInput
@@ -195,18 +176,6 @@ function GameCustomers() {
                 { value: "asc", label: "Oldest to Newest" },
                 { value: "desc", label: "Newest to Oldest" },
               ]}
-              className="!shadow-md"
-              classNames={{
-                label: "!capitalize ",
-                options: "text-primary-text",
-              }}
-            />
-            <Select
-              value={filterBy}
-              onChange={setFilterBy}
-              rightSection={<IoFilterOutline />}
-              placeholder="Filter by: Show all"
-              data={paymentStatus}
               className="!shadow-md"
               classNames={{
                 label: "!capitalize ",
