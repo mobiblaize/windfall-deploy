@@ -117,7 +117,7 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
       withBorder
       className={`rounded-2xl transition bg-white `}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-2 flex-wrap">
         <div className="!text-secondary-text">
           <Text className="!font-medium !text-lg !text-primary-text">
             {/* {notification.type}{" "} */}
@@ -143,7 +143,7 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
           {!isRead && (
             <Menu withinPortal position="bottom-end" shadow="sm">
               <Menu.Target>
-                <Button size="xs" variant="subtle" className="!px-2 !py-1">
+                <Button loading={isMarking} disabled={isMarking} size="xs" variant="subtle" className="!px-2 !py-1">
                   •••
                 </Button>
               </Menu.Target>
@@ -181,6 +181,7 @@ export default function Notifications() {
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const params = {
     paginate: 1,
@@ -198,9 +199,9 @@ export default function Notifications() {
     error,
   } = useGetNotifications(params);
 
-  // Fetch notifications on mount
+  // Fetch notifications on mount and on filter changes
   useEffect(() => {
-    notificationsMutate(); // triggers the API call
+    notificationsMutate();
   }, [notificationsMutate, filterPage, activeTab, status, startDate, endDate]);
 
   useEffect(() => {
@@ -218,6 +219,8 @@ export default function Notifications() {
       );
       setTotal(notificationsResponse.data?.total || 0);
       setPageSize(notificationsResponse.data?.per_page || 10);
+      // Initialize/refresh local notifications list
+      setNotifications(notificationsResponse.data?.data ?? []);
     }
   }, [isError, error, notificationsResponse]);
 
@@ -257,9 +260,6 @@ export default function Notifications() {
   const firstModules = modules.slice(0, VISIBLE_LIMIT);
   const extraModules = modules.slice(VISIBLE_LIMIT);
   const extraCount = extraModules.length;
-
-  const notifications: Notification[] =
-    notificationsResponse?.data?.data ?? [];
 
   return (
     <div>
@@ -443,7 +443,16 @@ export default function Notifications() {
                         <NotificationCard
                           key={notification.id}
                           notification={notification}
-                          onRead={() => notificationsMutate()}
+                          onRead={(id) => {
+                            setNotifications((prev) =>
+                              prev.map((n) => {
+                                const candidateId = (n as unknown as { uuid?: string }).uuid || n.id;
+                                return candidateId === id
+                                  ? { ...n, read_at: new Date().toISOString() }
+                                  : n;
+                              })
+                            );
+                          }}
                         />
                       ))}
                     </div>
