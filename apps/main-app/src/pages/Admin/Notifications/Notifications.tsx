@@ -26,6 +26,7 @@ import { FaAngleDown } from "react-icons/fa";
 import { CiCalendar } from "react-icons/ci";
 import { useGetNotifications } from "../../../utils/api/Admin/notifications";
 import { IoClose, IoCheckmark } from "react-icons/io5";
+import { useGetData } from "../../../utils/hooks/useApis";
 
 export interface Role {
   uuid: string;
@@ -66,6 +67,7 @@ export interface UpdatedBy {
 
 type NotificationCardProps = {
   notification: Notification;
+  onRead?: (notificationId: string) => void;
 };
 
 const statusOptions = [
@@ -83,8 +85,31 @@ const statusOptions = [
   },
 ];
 
-function NotificationCard({ notification }: NotificationCardProps) {
+function NotificationCard({ notification, onRead }: NotificationCardProps) {
   const isRead = !!notification.read_at;
+  const targetId = (notification as unknown as { uuid?: string }).uuid || notification.id;
+  const {
+    mutateAsync: markAsRead,
+    isPending: isMarking,
+  } = useGetData(
+    `admin/notifications/${targetId}/read`
+  );
+
+  const handleMarkAsRead = async () => {
+    try {
+      const resp = await markAsRead();
+      if (resp) {
+        onRead?.(targetId);
+      }
+    } catch (e) {
+      mantineNotifications.show({
+        title: "Failed to mark as read",
+        message: (e as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+    }
+  };
+
   return (
     <Card
       radius="lg"
@@ -110,10 +135,26 @@ function NotificationCard({ notification }: NotificationCardProps) {
           </Text>
         </div>
 
-        <CustomBadge
-          status={isRead ? "successful" : "pending"}
-          label={isRead ? "Read" : "Unread"}
-        />
+        <div className="flex items-center gap-2">
+          <CustomBadge
+            status={isRead ? "successful" : "pending"}
+            label={isRead ? "Read" : "Unread"}
+          />
+          {!isRead && (
+            <Menu withinPortal position="bottom-end" shadow="sm">
+              <Menu.Target>
+                <Button size="xs" variant="subtle" className="!px-2 !py-1">
+                  •••
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item onClick={handleMarkAsRead} disabled={isMarking}>
+                  {isMarking ? "Marking..." : "Mark as read"}
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          )}
+        </div>
       </div>
 
       {/* Description */}
@@ -402,6 +443,7 @@ export default function Notifications() {
                         <NotificationCard
                           key={notification.id}
                           notification={notification}
+                          onRead={() => notificationsMutate()}
                         />
                       ))}
                     </div>
