@@ -13,7 +13,8 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     if (!isAuthenticated() || !isAdmin()) {
       storeRedirectInfo();
     }
-  }, [isAuthenticated, isAdmin, storeRedirectInfo]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!isAuthenticated() || !isAdmin()) {
     return <Navigate to="/admin/login" />;
