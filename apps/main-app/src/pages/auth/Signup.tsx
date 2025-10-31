@@ -20,13 +20,14 @@ import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
 import "@mantine/dates/styles.css";
 import { useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import OtpModal from "../Profile/settings/AccountSecurity/OtpModal";
 import AlertModal from "../../components/Modals/AlertModal";
 import { IconCheck } from "@tabler/icons-react";
 import { useSessionStorage } from "../../utils/hooks/useStorage";
 import maskEmail from "../../utils/helper/MaskEmail";
 import type { UserCart } from "../checkout/Cart";
+import { useAuth } from "../../utils/hooks/useAuth";
 
 const otpTime = 300; // 5 minutes in seconds
 
@@ -51,14 +52,21 @@ export interface NewUser {
   referral_link: string;
 }
 
-function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | null, returnUrl?: string, transferCart?: () => void}) {
+function Signup({
+  cart = null,
+  transferCart,
+}: {
+  cart?: UserCart | null;
+  returnUrl?: string;
+  transferCart?: () => void;
+}) {
   const [timeLeft, setTimeLeft] = useState(otpTime); // 15 minutes
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [emailVerifed, setEmailVerified] = useState(false);
   const [maskedEmail, setMaskedEmail] = useState("");
   const { updateUser } = useSessionStorage();
-  const navigate = useNavigate();
+  const { handleLoginRedirect } = useAuth();
   const location = useLocation();
 
   const registerMutation = usePostData("customer/auth/signup_only");
@@ -105,7 +113,7 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
 
   function closeSuccessModal() {
     setSuccessModalOpen(false);
-    navigate(returnUrl ? returnUrl: "/dashboard");
+    handleLoginRedirect("/dashboard");
   }
 
   async function login() {
@@ -303,45 +311,44 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
     <div className="text-primary-text mt-16 mb-32">
       <Container px={0} size={560} className="!mx-3 sm:!mx-auto">
         {cart && (
-          <>
-            <Text className="!text-2xl !font-semibold">
-              Checkout{" "}
-              <span className="text-primary-red">
-                ({cart?.cart.summary.total_quantity})
-              </span>
-            </Text>
-            <Text className="!text-secondary-text">
-              Buy Raffle ticket in very simple step and stand a chance to win
-              big!!!
-            </Text>
-            <Card
-              my="lg"
-              withBorder
-              className="!border !border-primary-red !bg-secondary-red !py-5"
-            >
-              <div className="flex gap-3 items-center">
-                <FaUser
-                  size={32}
-                  className="text-primary-red text-2xl p-1 rounded-full bg-secondary-red/70"
-                />
-                <Text className="!text-secondary-text !tracking-wide">
-                  No Account Detected. Do you have Windfall Account ?{" "}
-                  <NavLink to="/login">
-                    <span className="text-primary-red underline font-bold">Log in</span>
-                  </NavLink>
-                </Text>
-              </div>
-            </Card>
-          </>
+          <Text className="!text-2xl !font-semibold">
+            Checkout{" "}
+            <span className="text-primary-red">
+              ({cart?.cart.summary.total_quantity})
+            </span>
+          </Text>
         )}
+
         {!cart && (
-          <div className="mb-5">
-            <Text className="!text-2xl !font-semibold">
-              <span className="text-primary-red">Sign Up</span>
-            </Text>
-            <Text className="!text-secondary-text">Sign Up in easy steps</Text>
-          </div>
+          <Text className="!text-2xl !font-semibold">
+            <span className="text-primary-red">Sign Up</span>
+          </Text>
         )}
+        <Text className="!text-secondary-text">
+          Buy Raffle ticket in very simple step and stand a chance to win big!!!
+        </Text>
+        <Card
+          my="lg"
+          withBorder
+          className="!border !border-primary-red !bg-secondary-red !py-5"
+        >
+          <div className="flex gap-3 items-center">
+            <FaUser
+              size={32}
+              className="text-primary-red text-2xl p-1 rounded-full bg-secondary-red/70"
+            />
+            <Text className="!text-secondary-text !tracking-wide">
+              {cart
+                ? "No Account Detected. Do you have Windfall Account ?"
+                : "Already have a windfall account ?"}{" "}
+              <NavLink to="/login">
+                <span className="text-primary-red underline font-bold">
+                  Log in
+                </span>
+              </NavLink>
+            </Text>
+          </div>
+        </Card>
 
         <Card withBorder>
           <Card.Section mx="xs" my="xs">
@@ -462,10 +469,13 @@ function Signup({ cart = null, returnUrl, transferCart }: {cart?: UserCart | nul
                   {...form.getInputProps("lga")}
                 />
                 <Select
-                  data={[ {
-                    label: 'Select a landmark',
-                    value: ''
-                  }, ...lgas]}
+                  data={[
+                    {
+                      label: "Select a landmark",
+                      value: "",
+                    },
+                    ...lgas,
+                  ]}
                   label="Landmark"
                   placeholder="Select a landmark"
                   withAsterisk

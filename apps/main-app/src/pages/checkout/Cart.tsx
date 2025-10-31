@@ -61,7 +61,7 @@ export interface Summary {
 
 function Cart() {
   const { cart, cartLoading, cartError, isCartError, updateItemToCart, removeItemFromCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, storeRedirectInfo } = useAuth();
 
   useEffect(() => {
     if (isCartError) {
@@ -117,6 +117,9 @@ function Cart() {
 
   function toCheckout() {
     if (!isAuthenticated()) {
+      storeRedirectInfo({
+        redirectPage: "/checkout",
+      });
       navigate("/checkout/signup");
     } 
     else {

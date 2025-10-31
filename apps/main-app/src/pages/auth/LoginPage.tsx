@@ -35,7 +35,6 @@ function LoginPage() {
   const loginMutation = usePostData("customer/auth/login");
   const { handleLoginRedirect } = useAuth();
   const { transferCart } = useCart();
-  
 
   const form = useForm({
     mode: "uncontrolled",
@@ -45,8 +44,7 @@ function LoginPage() {
     },
 
     validate: {
-      email: (value) =>
-        isNotEmpty("Email / Phone Number is required")(value) ,
+      email: (value) => isNotEmpty("Email / Phone Number is required")(value),
       password: isNotEmpty("Password is required"),
     },
   });
@@ -109,7 +107,11 @@ function LoginPage() {
           <form onSubmit={form.onSubmit(handleSubmit)}>
             {/* error from api */}
             {loginMutation.isError && (
-              <Alert color="var(--color-primary-red)" title="Login Failed" className="!mb-5">
+              <Alert
+                color="var(--color-primary-red)"
+                title="Login Failed"
+                className="!mb-5"
+              >
                 <Text>{loginMutation.error.message}</Text>
               </Alert>
             )}
@@ -146,8 +148,7 @@ function LoginPage() {
                 </Text>
               </Flex>
             </Stack>
-            <Flex justify="flex-end" className="!mt-7 !mb-3">
-              {/* <LoggedinModal /> */}
+            <Flex justify="space-between" direction={"row-reverse"} align={"flex-end"} className="!mt-7 !mb-3" gap={10} wrap={"wrap"}>
               <CustomButton
                 buttonType="submit"
                 disabled={loginMutation.isPending}
@@ -155,6 +156,14 @@ function LoginPage() {
               >
                 {loginMutation.isPending ? "Logging in..." : "Login"}
               </CustomButton>
+              <Text className="!text-secondary-text !tracking-wide">
+                Don't have an account ?{" "}
+                <NavLink to="/register">
+                  <span className="text-primary-red underline font-medium">
+                    Sign Up
+                  </span>
+                </NavLink>
+              </Text>
             </Flex>
           </form>
         </Card>

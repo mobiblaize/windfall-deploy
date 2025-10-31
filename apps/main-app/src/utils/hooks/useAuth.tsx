@@ -1,6 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionStorage } from "./useStorage";
 
+interface redirectInfo {
+  redirectPage: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pageDetails?: any;
+  userType?: 'admin' | 'user' | null;
+}
+
 export const useAuth = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,7 +38,19 @@ export const useAuth = () => {
     clearUser();
   };
 
-  const storeRedirectInfo = () => {
+  const storeRedirectInfo = (redirectInfo?: redirectInfo) => {
+    if (redirectInfo) {
+      if (redirectInfo.redirectPage) {
+        localStorage.setItem("redirectPage", redirectInfo.redirectPage);
+      }
+      if (redirectInfo.userType) {
+        localStorage.setItem("redirectUser", redirectInfo.userType);
+      }
+      if (redirectInfo.pageDetails) {
+        localStorage.setItem("pageDetails", JSON.stringify(redirectInfo.pageDetails));
+      }
+      return;
+    }
     if (!isAuthenticated()) {
       // Store current page and details for redirect after login
       localStorage.setItem("redirectPage", location.pathname);

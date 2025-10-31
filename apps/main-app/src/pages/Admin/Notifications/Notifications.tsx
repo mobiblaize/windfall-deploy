@@ -42,6 +42,7 @@ export interface Role {
 
 export interface Notification {
   id: string;
+  title: string;
   type: string;
   message: string;
   draw_id: string;
@@ -86,21 +87,17 @@ function NotificationCard({ notification }: NotificationCardProps) {
   const isRead = !!notification.read_at;
   return (
     <Card
-      shadow="sm"
       radius="lg"
       padding="lg"
-      className={`rounded-2xl border transition ${
-        isRead
-          ? "border-gray-200 bg-white"
-          : "border-gray-200 bg-gray-50 opacity-70"
-      }`}
+      withBorder
+      className={`rounded-2xl transition bg-white `}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="!text-secondary-text">
-          <Text className="!font-medium !text-lg">
+          <Text className="!font-medium !text-lg !text-primary-text">
             {/* {notification.type}{" "} */}
-            <span className="!text-primary-text text-wrap break-all">
-              {notification.type}
+            <span className="text-wrap break-all">
+              {notification.title}
             </span>
           </Text>
           <Text className="!text-base">
