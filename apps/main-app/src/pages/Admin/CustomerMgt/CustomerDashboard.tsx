@@ -5,7 +5,6 @@ import {
   SimpleGrid,
   Text,
   Box,
-  Group,
   Skeleton,
 } from "@mantine/core";
 import { useFetchData } from "../../../utils/hooks/useApis";
@@ -86,59 +85,57 @@ function CustomerDashboard() {
               gap={8}
               align="center"
             >
-              <Group>
-                <DateInput
-                  placeholder="Start Date"
-                  withAsterisk
-                  valueFormat="DD/MM/YYYY"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e)}
-                  classNames={{
-                    label: "!capitalize",
-                  }}
-                  popoverProps={{
-                    classNames: {
-                      dropdown: "!text-primary-text",
-                    },
-                  }}
-                  rightSection={
-                    startDate ? (
-                      <IoClose
-                        className="cursor-pointer text-gray-500 hover:text-red-500"
-                        onClick={() => setStartDate("")}
-                      />
-                    ) : (
-                      <CiCalendar />
-                    )
-                  }
-                />
+              <DateInput
+                placeholder="Start Date"
+                withAsterisk
+                valueFormat="DD/MM/YYYY"
+                value={startDate}
+                onChange={(e) => setStartDate(e)}
+                classNames={{
+                  label: "!capitalize",
+                }}
+                popoverProps={{
+                  classNames: {
+                    dropdown: "!text-primary-text",
+                  },
+                }}
+                rightSection={
+                  startDate ? (
+                    <IoClose
+                      className="cursor-pointer text-gray-500 hover:text-red-500"
+                      onClick={() => setStartDate("")}
+                    />
+                  ) : (
+                    <CiCalendar />
+                  )
+                }
+              />
 
-                <DateInput
-                  placeholder="End Date"
-                  withAsterisk
-                  rightSection={
-                    endDate ? (
-                      <IoClose
-                        className="cursor-pointer text-gray-500 hover:text-red-500"
-                        onClick={() => setEndDate("")}
-                      />
-                    ) : (
-                      <CiCalendar />
-                    )
-                  }
-                  valueFormat="DD/MM/YYYY"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e)}
-                  classNames={{
-                    label: "!capitalize",
-                  }}
-                  popoverProps={{
-                    classNames: {
-                      dropdown: "!text-primary-text",
-                    },
-                  }}
-                />
-              </Group>
+              <DateInput
+                placeholder="End Date"
+                withAsterisk
+                rightSection={
+                  endDate ? (
+                    <IoClose
+                      className="cursor-pointer text-gray-500 hover:text-red-500"
+                      onClick={() => setEndDate("")}
+                    />
+                  ) : (
+                    <CiCalendar />
+                  )
+                }
+                valueFormat="DD/MM/YYYY"
+                value={endDate}
+                onChange={(e) => setEndDate(e)}
+                classNames={{
+                  label: "!capitalize",
+                }}
+                popoverProps={{
+                  classNames: {
+                    dropdown: "!text-primary-text",
+                  },
+                }}
+              />
             </Flex>
           </Flex>
           <Divider my="md" />
@@ -182,7 +179,7 @@ function CustomerDashboard() {
                   fz={"sm"}
                   className="!text-secondary-text !flex !items-center !gap-x-2"
                 >
-                  Total Number of Customer {" "}
+                  Total Number of Customer{" "}
                   <span>
                     <PiQuestionThin />
                   </span>
@@ -237,7 +234,7 @@ function CustomerDashboard() {
                     fz={"sm"}
                     className=" !flex !items-center !gap-x-2"
                   >
-                    Total Returning Buyers {" "}
+                    Total Returning Buyers{" "}
                     <span>
                       <PiQuestionThin />
                     </span>
@@ -252,7 +249,9 @@ function CustomerDashboard() {
                   </Text>
                   <Text tt="capitalize" fz="sm">
                     <span className="!text-primary-green">
-                      +{customerStats?.returning_ticket_buyers_percentage_change}%
+                      +
+                      {customerStats?.returning_ticket_buyers_percentage_change}
+                      %
                     </span>{" "}
                     increase in last 7 days
                   </Text>
@@ -269,11 +268,12 @@ function CustomerDashboard() {
                     </span>
                   </Text>
                   <Text fw={700} className="!text-primary-text" fz={22}>
-                    {customerStats?.average_tickets_per_customer?.toLocaleString()} {" "}
+                    {customerStats?.average_tickets_per_customer?.toLocaleString()}{" "}
                     Tickets Unit
                   </Text>
                   <Text tt="capitalize" fz="sm">
-                    <span className="!text-primary-green"> {" "}
+                    <span className="!text-primary-green">
+                      {" "}
                       + {customerStats?.ticket_stats_last_7_days_count} Ticket
                     </span>{" "}
                     in last 7 days

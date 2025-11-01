@@ -14,8 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     if (!isAuthenticated()) {
       storeRedirectInfo();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthenticated, storeRedirectInfo]);
 
   if (!isAuthenticated()) {
     return <Navigate to="/login" />;

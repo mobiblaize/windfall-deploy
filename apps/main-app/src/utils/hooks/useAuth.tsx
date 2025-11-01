@@ -33,9 +33,12 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    const isAdminUser = isAdmin();
+    const isAdminUser = isAdmin();    
     navigate(isAdminUser ? "/admin/login" : "/login");
     clearUser();
+    setTimeout(() => {
+      clearStoredRedirect();
+    }, 100);
   };
 
   const storeRedirectInfo = (redirectInfo?: redirectInfo) => {
@@ -81,6 +84,12 @@ export const useAuth = () => {
       userType: userType
     };
   };
+
+  const clearStoredRedirect = () => {
+    localStorage.removeItem("redirectPage");
+    localStorage.removeItem("pageDetails");
+    localStorage.removeItem("redirectUser");
+  }
 
   const handleLoginRedirect = (defaultRedirect: string) => {
     const { page, details, userType } = getStoredRedirect();

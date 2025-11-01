@@ -45,6 +45,7 @@ import { format } from "date-fns";
 import TablePaginator from "../../../components/TablePaginator";
 import LoadingState from "../../../components/LoadingState";
 import EmptySection from "../../../components/EmptySection";
+import EmptyState from "../../../components/EmptyState";
 
 const breadCrumbs: Crumb[] = [
   { label: "Role Management", to: "/admin/roles" },
@@ -254,7 +255,7 @@ export default function RoleDetails() {
                   <Skeleton height={35} width="100%" />
                 ) : (
                   <Title className="!text-primary-text text-2xl" order={2}>
-                    {role?.display_name}
+                    {role?.display_name || "-"}
                   </Title>
                 )}
               <Text className="!text-secondary-text">
@@ -317,7 +318,7 @@ export default function RoleDetails() {
                   : "!bg-[#FAFAFB] !border-[#ABABAB] !text-[#ABABAB]"
               }`}
             >
-              {role?.display_name.substring(0, 2)}
+              {role?.display_name?.substring(0, 2) || "-"}
             </span>
             <Text className="!font-semibold !text-base !text-primary-text">
               Basic Details
@@ -326,82 +327,94 @@ export default function RoleDetails() {
 
           <Divider c="#EFEEF2" className="mb-6" />
 
-          {/* Details Grid */}
-          <Grid gutter="xl">
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">Role Name</Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {role?.display_name}
-                </Text>
-              )}
-            </Grid.Col>
+          {/* Empty state for missing role */}
+          {!isLoading && !role ? (
+            <EmptyState
+              title="No Role Details"
+              description="We couldn't find details for this role."
+              format="secondary"
+              fullWidth={true}
+            />
+          ) : (
+            <>
+              {/* Details Grid */}
+              <Grid gutter="xl">
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Text className="!text-sm !text-secondary-text">Role Name</Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {role?.display_name || "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
 
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 3 }}
-              className="md:border-l md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">
-                Number of Users
-              </Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {role?.user_count}
-                </Text>
-              )}
-            </Grid.Col>
-
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 3 }}
-              className="mantine-md:border-l mantine-md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">
-                Date Created
-              </Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {role?.created_at
-                    ? format(new Date(role.created_at), "MMMM d, yyyy")
-                    : "-"}
-                </Text>
-              )}
-            </Grid.Col>
-
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 3 }}
-              className="md:border-l md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">Created by</Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {role?.updated_by?.name}
-                </Text>
-              )}
-            </Grid.Col>
-
-            <Grid.Col span={{ base: 12 }} className="pt-4">
-              <div className="md:pt-4 md:border-t md:border-gray-200">
-                <Text className="!text-sm !text-secondary-text">
-                  Description
-                </Text>
-                {isLoading ? (
-                  <Skeleton height={16} width="80%" />
-                ) : (
-                  <Text className="!font-medium break-words !text-[#575757]">
-                    {role?.description}
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 3 }}
+                  className="md:border-l md:border-gray-200"
+                >
+                  <Text className="!text-sm !text-secondary-text">
+                    Number of Users
                   </Text>
-                )}
-              </div>
-            </Grid.Col>
-          </Grid>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {role?.user_count ?? "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
+
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 3 }}
+                  className="mantine-md:border-l mantine-md:border-gray-200"
+                >
+                  <Text className="!text-sm !text-secondary-text">
+                    Date Created
+                  </Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {role?.created_at
+                        ? format(new Date(role.created_at), "MMMM d, yyyy")
+                        : "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
+
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 3 }}
+                  className="md:border-l md:border-gray-200"
+                >
+                  <Text className="!text-sm !text-secondary-text">Created by</Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {role?.updated_by?.name || "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
+
+                <Grid.Col span={{ base: 12 }} className="pt-4">
+                  <div className="md:pt-4 md:border-t md:border-gray-200">
+                    <Text className="!text-sm !text-secondary-text">
+                      Description
+                    </Text>
+                    {isLoading ? (
+                      <Skeleton height={16} width="80%" />
+                    ) : (
+                      <Text className="!font-medium break-words !text-[#575757]">
+                        {role?.description || "-"}
+                      </Text>
+                    )}
+                  </div>
+                </Grid.Col>
+              </Grid>
+            </>
+          )}
         </Card>
 
         {/* Users Section */}

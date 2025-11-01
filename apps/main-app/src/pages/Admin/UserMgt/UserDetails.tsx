@@ -40,6 +40,7 @@ import { useDebounce } from "../../../utils/hooks/useDebounce";
 import TablePaginator from "../../../components/TablePaginator";
 import { format } from "date-fns";
 import DynamicTableSection from "../../../components/DynamicTableSection";
+import EmptyState from "../../../components/EmptyState";
 
 const breadCrumbs: Crumb[] = [
   { label: "User Management", to: "/admin/users" },
@@ -268,7 +269,7 @@ export default function UserDetails() {
                 <Skeleton height={35} width="100%" />
               ) : (
                 <Title className="!text-primary-text text-2xl" order={2}>
-                  {user?.name}
+                  {user?.name || "-"}
                 </Title>
               )}
 
@@ -341,113 +342,124 @@ export default function UserDetails() {
 
           <Divider c="#EFEEF2" className="mb-6" />
 
-          {/* Details Grid */}
-          <Grid gutter="xl">
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">Username</Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {user?.name}
-                </Text>
-              )}
-            </Grid.Col>
+          {!isLoading && !user ? (
+            <EmptyState
+              title="No User Details"
+              description="We couldn't find details for this user."
+              format="secondary"
+              fullWidth={true}
+            />
+          ) : (
+            <>
+              {/* Details Grid */}
+              <Grid gutter="xl">
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Text className="!text-sm !text-secondary-text">Username</Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {user?.name || "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
 
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 3 }}
-              className="md:border-l md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">Role</Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {user?.roles?.map((role) => role.display_name).join(", ")}
-                </Text>
-              )}
-            </Grid.Col>
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 3 }}
+                  className="md:border-l md:border-gray-200"
+                >
+                  <Text className="!text-sm !text-secondary-text">Role</Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {user?.roles?.map((role) => role.display_name).join(", ") || "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
 
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 3 }}
-              className="mantine-md:border-l mantine-md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">Email</Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {user?.email}
-                </Text>
-              )}
-            </Grid.Col>
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 3 }}
+                  className="mantine-md:border-l mantine-md:border-gray-200"
+                >
+                  <Text className="!text-sm !text-secondary-text">Email</Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {user?.email || "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
 
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 3 }}
-              className="md:border-l md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">
-                Phone Number
-              </Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {user?.phone_number}
-                </Text>
-              )}
-            </Grid.Col>
-          </Grid>
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 3 }}
+                  className="md:border-l md:border-gray-200"
+                >
+                  <Text className="!text-sm !text-secondary-text">
+                    Phone Number
+                  </Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {user?.phone_number || "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
+              </Grid>
 
-          <Grid
-            gutter="xl"
-            className="md:mt-8 mb-4 pt-8 md:!border-t md:!border-gray-200"
-          >
-            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-              <Text className="!text-sm !text-secondary-text">
-                Date Created
-              </Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {user?.created_at
-                    ? format(new Date(user.created_at), "MMMM d, yyyy")
-                    : "-"}
-                </Text>
-              )}
-            </Grid.Col>
+              <Grid
+                gutter="xl"
+                className="md:mt-8 mb-4 pt-8 md:!border-t md:!border-gray-200"
+              >
+                <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+                  <Text className="!text-sm !text-secondary-text">
+                    Date Created
+                  </Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {user?.created_at
+                        ? format(new Date(user.created_at), "MMMM d, yyyy")
+                        : "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
 
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 3 }}
-              className="md:border-l md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">Created by</Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {user?.updated_by}
-                </Text>
-              )}
-            </Grid.Col>
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 3 }}
+                  className="md:border-l md:border-gray-200"
+                >
+                  <Text className="!text-sm !text-secondary-text">Created by</Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {user?.updated_by || "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
 
-            <Grid.Col
-              span={{ base: 12, sm: 6, md: 6 }}
-              className="md:border-l md:border-gray-200"
-            >
-              <Text className="!text-sm !text-secondary-text">Last Active</Text>
-              {isLoading ? (
-                <Skeleton height={16} width="80%" />
-              ) : (
-                <Text className="!font-medium break-words !text-[#575757]">
-                  {user?.created_at
-                    ? format(new Date(user.last_login), "MMMM d, yyyy h:mm a")
-                    : "-"}
-                </Text>
-              )}
-            </Grid.Col>
-          </Grid>
+                <Grid.Col
+                  span={{ base: 12, sm: 6, md: 6 }}
+                  className="md:border-l md:border-gray-200"
+                >
+                  <Text className="!text-sm !text-secondary-text">Last Active</Text>
+                  {isLoading ? (
+                    <Skeleton height={16} width="80%" />
+                  ) : (
+                    <Text className="!font-medium break-words !text-[#575757]">
+                      {user?.last_login
+                        ? format(new Date(user.last_login), "MMMM d, yyyy h:mm a")
+                        : "-"}
+                    </Text>
+                  )}
+                </Grid.Col>
+              </Grid>
+            </>
+          )}
         </Card>
 
         <section className="text-secondary-text">
