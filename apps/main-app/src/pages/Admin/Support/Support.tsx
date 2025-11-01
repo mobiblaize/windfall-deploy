@@ -470,7 +470,7 @@ function Support() {
                     {complaint.customer?.firstname} {complaint.customer?.lastname}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {complaint.uniqueID}
+                    {complaint.customer?.uniqueID}
                   </Text>
                 </>,
                 complaint.uniqueID,
