@@ -8,6 +8,7 @@ import {
   Flex,
   Avatar,
   Group,
+  Loader,
 } from "@mantine/core";
 import { format } from "date-fns";
 import type { RaffleTransaction } from "./TransactionList";
@@ -15,13 +16,63 @@ import CustomButton from "../../../components/Buttons/CustomButton";
 import { GoArrowUpRight } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useFetchData } from "../../../utils/hooks/useApis";
+import { notifications } from "@mantine/notifications";
+import { IoInformationCircleOutline, IoWarningOutline } from "react-icons/io5";
 
 type TransactionModalProps = {
   opened: boolean;
   onClose: () => void;
   transaction: RaffleTransaction | null;
 };
+
+// API Response Types
+interface DrawInfo {
+  has_completed_draws: boolean;
+  completed_draws: unknown[];
+  is_winner_in_any_draw: boolean;
+  winning_draws: unknown[];
+}
+
+interface Ticket {
+  ticket_number: string;
+  validation_number: string;
+  status: string;
+  is_winner: number;
+  draw_info: DrawInfo;
+  game_name?: string; // Will be added when merging
+}
+
+interface Game {
+  uuid: string;
+  name: string;
+  uniqueID: string;
+  ticket_price: number;
+  description: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+}
+
+interface OrderDetail {
+  uuid: string;
+  quantity: number;
+  unit_amount: number;
+  total_amount: number;
+  paid_amount: number;
+  discount_amount: number;
+}
+
+interface GameWithTickets {
+  order_detail: OrderDetail;
+  game: Game;
+  tickets_count_on_page: number;
+  winning_tickets_on_page: number;
+  tickets: Ticket[];
+}
+
+
 
 export default function TransactionDetails({
   opened,
@@ -30,6 +81,69 @@ export default function TransactionDetails({
 }: TransactionModalProps) {
   const navigate = useNavigate();
   const [ticketsOpen, setTicketsOpen] = useState(false);
+  
+  // Fetch tickets for the transaction
+  const {
+    data: ticketsResponse,
+    isLoading: isLoadingTickets,
+    isError: isTicketsError,
+    error: ticketsError,
+  } = useFetchData(
+    transaction?.uuid
+      ? `admin/transaction-management/transaction-with-tickets/${transaction.uuid}`
+      : null,
+    undefined,
+    opened && !!transaction?.uuid
+  );
+
+  // Merge all tickets from all games with game names
+  const allTickets = useMemo(() => {
+    if (!ticketsResponse?.data?.games_with_tickets) return [];
+    return ticketsResponse.data.games_with_tickets.flatMap(
+      (gameWithTickets: GameWithTickets) => 
+        (gameWithTickets.tickets || []).map((ticket: Ticket) => ({
+          ...ticket,
+          game_name: gameWithTickets.game.name,
+        }))
+    );
+  }, [ticketsResponse]);
+
+  // Helper function to get status icon
+  const getStatusIcon = (status: string) => {
+    // Based on design: most items show warning icon, some show info icon
+    if (status === "won") {
+      return null; // Won status might not need an icon
+    } else if (status === "lost" || status === "pending") {
+      // Show warning triangle for lost/pending (like items 1-4 in design)
+      return (
+        <IoWarningOutline 
+          className="text-primary-red" 
+          size={20}
+        />
+      );
+    } else {
+      // For other statuses or variation (like item 5 in design)
+      return (
+        <IoInformationCircleOutline 
+          className="text-[#F59E0B]" 
+          size={20}
+        />
+      );
+    }
+  };
+
+  // Handle tickets fetch errors
+  useEffect(() => {
+    if (isTicketsError && opened) {
+      notifications.show({
+        title: "Failed to fetch tickets",
+        message:
+          (ticketsError as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+    }
+  }, [isTicketsError, ticketsError, opened]);
+
   if (!transaction) return null;
 
   const fields = [
@@ -107,7 +221,7 @@ export default function TransactionDetails({
           />
           <div>
             <Text className="!font-medium !capitalize !text-primary-text !text-base">
-              {transaction.customer.firstname} {transaction.customer.firstname}
+              {transaction.customer.firstname} {transaction.customer.lastname}
             </Text>
             <Text className="!text-secondary-text !text-sm">
               ID: {transaction.customer.uniqueID} |{" "}
@@ -157,9 +271,15 @@ export default function TransactionDetails({
             Game Ticket
           </Text>
           <Group>
-            <Text tt="capitalize" className="!text-primary-red" fw={600}>
-              {transaction.tickets_count?.toLocaleString()}
-            </Text>
+            {isLoadingTickets ? (
+              <Loader size="sm" color="var(--color-primary-red)" />
+            ) : (
+              <Text tt="capitalize" className="!text-primary-red" fw={600}>
+                {allTickets.length > 0
+                  ? allTickets.length.toLocaleString()
+                  : transaction.tickets_count?.toLocaleString() || "0"}
+              </Text>
+            )}
             <span>
               {ticketsOpen ? (
                 <IconChevronUp size={20} className="text-primary-red" />
@@ -172,28 +292,43 @@ export default function TransactionDetails({
 
         {ticketsOpen && (
           <>
-            {transaction.games.map((game, index) => (
+            {isLoadingTickets ? (
               <Flex
-                justify={"space-between"}
-                className="!cursor-pointer"
-                mt={"sm"}
-                gap={10}
+                justify="center"
+                align="center"
+                mt="md"
+                py="md"
               >
-                <Text tt="capitalize" className="!text-secondary-text">
-                  {index + 1}. {game.name}
-                </Text>
-                <Text tt="capitalize" className="!text-secondary-text">
-                  {game.uniqueID}
-                </Text>
+                <Loader size="md" color="var(--color-primary-red)" />
               </Flex>
-            ))}
-
-            {!transaction.games.length && (
+            ) : allTickets.length > 0 ? (
+              <Box mt="md" className="space-y-3">
+                {allTickets.map((ticket: Ticket, index: number) => (
+                  <Flex
+                    key={`${ticket.ticket_number}-${index}`}
+                    justify="space-between"
+                    align="center"
+                    className="!border-b !border-secondary-text/20 pb-3 last:!border-b-0"
+                    gap={10}
+                  >
+                    <Flex align="center" gap={8} flex={1}>
+                      {getStatusIcon(ticket.status)}
+                      <Text className="!text-secondary-text !text-sm">
+                        {index + 1}. {ticket.game_name || "Game Entry"}
+                      </Text>
+                    </Flex>
+                    <Text className="!text-secondary-text !text-sm !text-right">
+                      {ticket.ticket_number}
+                    </Text>
+                  </Flex>
+                ))}
+              </Box>
+            ) : (
               <Flex
-                justify={"center"}
-                className="!cursor-pointer"
-                mt={"sm"}
-                gap={10}
+                justify="center"
+                align="center"
+                mt="md"
+                py="md"
               >
                 <Text tt="capitalize" className="!text-secondary-text">
                   No Tickets Found

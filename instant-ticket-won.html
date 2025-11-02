@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Ticket</title>
+    <!-- 
+        Color Reference:
+        - Primary Green: #039855 (for won status)
+        - Secondary Green: #ECFDF3 (for won status background)
+        - Primary Red: #ff2f31 (for lost status)
+        - Secondary Red: #FFF7F7 (for lost status background)
+        - Secondary Text: #818181
+        - Primary Text: #2D2D2D
+        - Container BG: #F5F5F5
+        - Instant Badge BG: #E0F2FE
+        - Instant Badge Text: #026AA2
+        
+        To change status from "won" to "lost":
+        1. Change .ticket-card class to .ticket-card lost
+        2. Update border colors to #ff2f31
+        3. Update background colors accordingly
+        4. Update text colors to red variants
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'League Spartan', sans-serif;
+            background-color: #F5F5F5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Ticket Container */
+        .ticket-container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticket-card {
+            position: relative;
+            background-color: #F6FEF9;
+            border: 1px dashed #039855;
+            padding: 48px;
+            width: 100%;
+        }
+
+        /* Left side cut-outs */
+        .cutout-large-top-left,
+        .cutout-large-bottom-left {
+            position: absolute;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            background-color: #F5F5F5;
+            border: 1px dashed #039855;
+            border-radius: 50%;
+        }
+
+        .cutout-large-top-left {
+            top: 0;
+            transform: translate(-50%, -50%);
+        }
+
+        .cutout-large-bottom-left {
+            bottom: 0;
+            transform: translate(-50%, 50%);
+        }
+
+        /* Left side small perforations */
+        .perforation-left {
+            position: absolute;
+            left: 0;
+            width: 16px;
+            height: 16px;
+            background-color: #F5F5F5;
+            border: 1px dashed #039855;
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+
+        .perforation-left-1 {
+            top: 50%;
+            transform: translate(-50%, calc(-50% - 27px));
+        }
+
+        .perforation-left-2 {
+            top: 50%;
+            transform: translate(-50%, calc(-50% - 9px));
+        }
+
+        .perforation-left-3 {
+            top: 50%;
+            transform: translate(-50%, calc(-50% + 9px));
+        }
+
+        .perforation-left-4 {
+            top: 50%;
+            transform: translate(-50%, calc(-50% + 27px));
+        }
+
+        /* Right side cut-outs */
+        .cutout-large-top-right,
+        .cutout-large-bottom-right {
+            position: absolute;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background-color: #F5F5F5;
+            border: 1px dashed #039855;
+            border-radius: 50%;
+        }
+
+        .cutout-large-top-right {
+            top: 0;
+            transform: translate(50%, -50%);
+        }
+
+        .cutout-large-bottom-right {
+            bottom: 0;
+            transform: translate(50%, 50%);
+        }
+
+        /* Right side small perforations */
+        .perforation-right {
+            position: absolute;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            background-color: #F5F5F5;
+            border: 1px dashed #039855;
+            border-radius: 50%;
+            transform: translateX(50%);
+        }
+
+        .perforation-right-1 {
+            top: 50%;
+            transform: translate(50%, calc(-50% - 27px));
+        }
+
+        .perforation-right-2 {
+            top: 50%;
+            transform: translate(50%, calc(-50% - 9px));
+        }
+
+        .perforation-right-3 {
+            top: 50%;
+            transform: translate(50%, calc(-50% + 9px));
+        }
+
+        .perforation-right-4 {
+            top: 50%;
+            transform: translate(50%, calc(-50% + 27px));
+        }
+
+        /* Content */
+        .ticket-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .game-info h2 {
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 1.4;
+            color: #2D2D2D;
+            margin-bottom: 4px;
+        }
+
+        .game-info p {
+            color: #818181;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Instant Badge */
+        .instant-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: #E0F2FE;
+            color: #026AA2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            height: 25px;
+            text-transform: capitalize;
+        }
+
+        .instant-badge span {
+            margin-right: 4px;
+        }
+
+        .instant-badge svg {
+            width: 12px;
+            height: 12px;
+            font-weight: bold;
+        }
+
+        /* Ticket Number Box */
+        .ticket-number-box {
+            background-color: #ffffff;
+            padding: 8px 0;
+            border-radius: 8px;
+            border: 1px dashed #039855;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .ticket-number-box p {
+            font-size: 14px;
+            color: #818181;
+            margin-bottom: 5px;
+        }
+
+        .ticket-number-box h3 {
+            font-weight: 700;
+            font-size: 20px;
+            color: #039855;
+            margin: 0;
+        }
+
+        /* Status Button */
+        .status-button-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .status-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px dashed #039855;
+            background-color: #ECFDF3;
+            color: #039855;
+            border-radius: 16px;
+            height: 32px;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            font-family: 'League Spartan', sans-serif;
+        }
+
+        .status-button:focus {
+            outline: none;
+        }
+
+        .status-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Lost Status Styles (uncomment to use) */
+        /*
+        .ticket-card.lost {
+            background-color: #ffffff;
+            border-color: #ff2f31;
+        }
+
+        .ticket-card.lost .cutout-large-top-left,
+        .ticket-card.lost .cutout-large-bottom-left,
+        .ticket-card.lost .cutout-large-top-right,
+        .ticket-card.lost .cutout-large-bottom-right,
+        .ticket-card.lost .perforation-left,
+        .ticket-card.lost .perforation-right {
+            border-color: #ff2f31;
+        }
+
+        .ticket-card.lost .ticket-number-box {
+            background-color: #FFF7F7;
+            border-color: #ff2f31;
+        }
+
+        .ticket-card.lost .ticket-number-box h3 {
+            color: #ff2f31;
+        }
+
+        .ticket-card.lost .status-button {
+            border-color: #ff2f31;
+            background-color: #FFF7F7;
+            color: #ff2f31;
+        }
+        */
+    </style>
+</head>
+<body>
+    <div class="ticket-container">
+        <div class="ticket-card">
+            <!-- Left side cut-outs -->
+            <div class="cutout-large-top-left"></div>
+            <div class="cutout-large-bottom-left"></div>
+            <div class="perforation-left perforation-left-1"></div>
+            <div class="perforation-left perforation-left-2"></div>
+            <div class="perforation-left perforation-left-3"></div>
+            <div class="perforation-left perforation-left-4"></div>
+
+            <!-- Right side cut-outs -->
+            <div class="cutout-large-top-right"></div>
+            <div class="cutout-large-bottom-right"></div>
+            <div class="perforation-right perforation-right-1"></div>
+            <div class="perforation-right perforation-right-2"></div>
+            <div class="perforation-right perforation-right-3"></div>
+            <div class="perforation-right perforation-right-4"></div>
+
+            <!-- Ticket Content -->
+            <div class="ticket-content">
+                <div class="ticket-header">
+                    <div class="game-info">
+                        <h2>Mega Cash Raffle</h2>
+                        <p>Win amazing cash prizes with every ticket purchase</p>
+                    </div>
+                    <div class="instant-badge">
+                        <span>Instant Game</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="ticket-number-box">
+                    <p>Ticket Number</p>
+                    <h3>T-123456789</h3>
+                </div>
+
+                <div class="status-button-container">
+                    <button class="status-button">
+                        won
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px; flex-shrink: 0;">
+                            <path d="M2.25 6a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V6Zm3.75 1.5v9a.75.75 0 0 0 0-1.5V7.5Zm9 0v9a.75.75 0 0 0 0-1.5V7.5Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

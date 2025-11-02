@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction Receipt</title>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'League Spartan', Arial, sans-serif;
+            background-color: #F5F5F5;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .receipt-card {
+            background-color: #ffffff;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 24px 16px;
+            text-align: center;
+        }
+        .logo-title {
+            font-size: 40px;
+            line-height: 40px;
+            font-weight: 700;
+        }
+        .logo-windfall {
+            color: #2D2D2D;
+        }
+        .logo-raffle {
+            color: #ff2f31;
+        }
+        .logo-tagline {
+            font-size: 14px;
+            color: #2D2D2D;
+            text-align: right;
+            margin-top: 4px;
+        }
+        .receipt-row {
+            padding: 24px 0;
+            text-transform: capitalize;
+            font-size: 18px;
+            color: #2D2D2D;
+            overflow: hidden;
+        }
+        .receipt-label {
+            float: left;
+        }
+        .receipt-value {
+            float: right;
+        }
+        .receipt-divider {
+            border: none;
+            border-top: 1px solid #E5E7EB;
+            margin: 0;
+            clear: both;
+        }
+        .transaction-amount-box {
+            border: 1px dashed #FD6F8E;
+            border-radius: 6px;
+            background-color: #FFF7F7;
+            padding: 20px;
+            text-align: center;
+            margin-top: 24px;
+        }
+        .transaction-amount-label {
+            font-size: 14px;
+            color: #2D2D2D;
+            margin-bottom: 8px;
+        }
+        .transaction-amount-value {
+            color: #FF2F31;
+            font-size: 30px;
+            font-weight: 800;
+        }
+        .status-success {
+            color: #06B280;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="receipt-card">
+            <div style="text-align: center; margin-bottom: 16px;">
+                <div class="logo-title">
+                    <span class="logo-windfall">Windfall</span><span class="logo-raffle">Raffle</span>
+                </div>
+                <p class="logo-tagline">Live in - Rent out - Sell up</p>
+            </div>
+
+            <div class="receipt-row">
+                <span class="receipt-label">transaction date</span>
+                <span class="receipt-value">April 11, 2025</span>
+            </div>
+            <hr class="receipt-divider" />
+
+            <div class="receipt-row">
+                <span class="receipt-label">transaction time</span>
+                <span class="receipt-value">11:00 am W.A.T</span>
+            </div>
+            <hr class="receipt-divider" />
+
+            <div class="receipt-row">
+                <span class="receipt-label">paid via</span>
+                <span class="receipt-value">visa *948#</span>
+            </div>
+            <hr class="receipt-divider" />
+
+            <div class="receipt-row">
+                <span class="receipt-label">payment processor</span>
+                <span class="receipt-value">payStack</span>
+            </div>
+            <hr class="receipt-divider" />
+
+            <div class="receipt-row">
+                <span class="receipt-label">transaction id</span>
+                <span class="receipt-value">AS#78979087</span>
+            </div>
+            <hr class="receipt-divider" />
+
+            <div class="receipt-row">
+                <span class="receipt-label">payment status</span>
+                <span class="receipt-value status-success">Successful</span>
+            </div>
+            <hr class="receipt-divider" />
+
+            <div class="transaction-amount-box">
+                <div class="transaction-amount-label">Transaction Amount</div>
+                <div class="transaction-amount-value">₦ 10,000</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

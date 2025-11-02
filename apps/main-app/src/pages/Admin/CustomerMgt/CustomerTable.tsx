@@ -1,10 +1,10 @@
 import { ActionIcon, Text } from "@mantine/core";
 import { GoArrowUpRight } from "react-icons/go";
 import DynamicTableSection from "../../../components/DynamicTableSection";
-import { useState } from "react";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
 import type { Customer } from "./GameCustomers";
-import CustomerModal from "./CustomerModal";
+import { useNavigate } from "react-router-dom";
+
 type CustomerTableProps = {
   customers: Customer[];
   isLoading: boolean;
@@ -14,13 +14,10 @@ export default function CustomerTable({
   isLoading,
   customers,
 }: CustomerTableProps) {
-  const [selectedCustomer, setSelectedCustomer] =
-    useState<Customer | null>(null);
-  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
+  const navigate = useNavigate();
 
-  function showCustomer(transaction: Customer) {
-    setSelectedCustomer(transaction);
-    setTransactionModalOpen(true);
+  function goToCustomerDetail(customer: Customer) {
+    navigate(`/admin/customers/${customer.uuid}`);
   }
 
   return (
@@ -66,7 +63,7 @@ export default function CustomerTable({
               {formatCurrency(customer.total_amount_spent)}
             </Text>,
             <ActionIcon
-              onClick={() => showCustomer(customer)}
+              onClick={() => goToCustomerDetail(customer)}
               size={35}
               className="!bg-[#FFD5D6] !text-primary-red !text-xl"
             >
@@ -74,11 +71,6 @@ export default function CustomerTable({
             </ActionIcon>,
           ];
         }}
-      />
-      <CustomerModal
-        opened={transactionModalOpen}
-        onClose={() => setTransactionModalOpen(false)}
-        customer={selectedCustomer}
       />
     </>
   );
