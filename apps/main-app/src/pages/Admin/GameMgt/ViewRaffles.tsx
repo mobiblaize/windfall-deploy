@@ -14,7 +14,6 @@ import GamedrawTab from "./GamedrawTab";
 import CustomBadge from "../../../components/CustomBadge";
 import { DatePickerInput } from "@mantine/dates";
 import { CiCalendar } from "react-icons/ci";
-import { FaEdit, FaPlay, FaCopy, FaEye } from "react-icons/fa";
 import "@mantine/dates/styles.css";
 import { useFetchData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
@@ -100,31 +99,6 @@ function ViewRaffles() {
     navigate(drawPath);
   }, [id, navigate]);
 
-  // Handle duplicate raffle action
-  const handleDuplicateRaffle = useCallback(() => {
-    if (!id) return;
-    const createPath = isInstantRaffleRoute 
-      ? `/admin/instant-raffles/create?duplicate=${id}`
-      : `/admin/raffles/create?duplicate=${id}`;
-    navigate(createPath);
-    notifications.show({
-      title: "Duplicating Raffle",
-      message: "You will be redirected to create a new raffle based on this one",
-      color: "blue",
-    });
-  }, [id, isInstantRaffleRoute, navigate]);
-
-  // Handle view details action
-  const handleViewDetails = useCallback(() => {
-    // Scroll to details section or switch to a details tab
-    const detailsTab = "performance monitor";
-    setTabs(detailsTab);
-    const params = new URLSearchParams(window.location.search);
-    params.set("view", detailsTab);
-    navigate(`?${params.toString()}`, { replace: true });
-    // Scroll to top of page
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [navigate, setTabs]);
 
   // Memoize action items based on raffle data
   const actionItems = useMemo<ActionItem[]>(() => {
@@ -140,23 +114,11 @@ function ViewRaffles() {
       id: "edit-raffle",
       label: "edit raffle",
       description: isLive 
-        ? "edit raffle details and settings (live game)" 
-        : "edit raffle details and settings",
+        ? "Live game edit is limited" 
+        : "Edit raffle details and settings",
       onClick: handleEditRaffle,
       disabled: isLoadingRaffle || !raffle,
-      icon: <FaEdit size={14} />,
       color: "default",
-    });
-
-    // View Details / Performance Monitor
-    items.push({
-      id: "view-details",
-      label: "view details",
-      description: "view performance metrics and analytics",
-      onClick: handleViewDetails,
-      disabled: isLoadingRaffle || !raffle,
-      icon: <FaEye size={14} />,
-      color: "blue",
     });
 
     // Start a Draw action - only for scheduled raffles (not instant games)
@@ -164,37 +126,16 @@ function ViewRaffles() {
       items.push({
         id: "start-draw",
         label: "start a draw",
-        description: "create and manage draws for this scheduled game",
+        description: "Start a draw for this game",
         onClick: handleStartDraw,
         disabled: isLoadingRaffle || !raffle || isEnded,
-        icon: <FaPlay size={14} />,
         color: "green",
         divider: true, // Add divider before this action
       });
     }
 
-    // Duplicate Raffle action
-    items.push({
-      id: "duplicate-raffle",
-      label: "duplicate raffle",
-      description: "create a new raffle based on this one",
-      onClick: handleDuplicateRaffle,
-      disabled: isLoadingRaffle || !raffle,
-      icon: <FaCopy size={14} />,
-      color: "default",
-      divider: true, // Add divider before this action
-    });
-
     return items;
-  }, [
-    id, 
-    raffle, 
-    isLoadingRaffle, 
-    handleEditRaffle,
-    handleStartDraw,
-    handleDuplicateRaffle,
-    handleViewDetails,
-  ]);
+  }, [id, raffle, isLoadingRaffle, handleEditRaffle, handleStartDraw]);
 
   // Helper function to get status badge info
   const getStatusInfo = () => {
