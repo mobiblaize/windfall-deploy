@@ -1,8 +1,9 @@
-import { Menu, Button, Text, Box } from "@mantine/core";
-import { FaAngleDown, FaRegCircleDot } from "react-icons/fa6";
+import { Menu, Button } from "@mantine/core";
+import { FaRegCircleDot } from "react-icons/fa6";
 import { IoFilterOutline } from "react-icons/io5";
 
-type Props = { items: any[] };
+type Props = { items: string[] };
+
 export function FilterMenu({ items }: Props) {
 	return (
 		<Menu
@@ -25,16 +26,12 @@ export function FilterMenu({ items }: Props) {
 			</Menu.Target>
 			<Menu.Dropdown>
 				<Menu.Label className="!flex items-center gap-2">
-					{" "}
 					<FaRegCircleDot className="text-primary-red" />
 					show all
 				</Menu.Label>
-				{items?.map((item) => (
-					<Menu.Item className="!capitalize">{item}</Menu.Item>
+				{items?.map((item, idx) => (
+					<Menu.Item className="!capitalize" key={idx}>{item}</Menu.Item>
 				))}
-				{/* <Menu.Item className="!capitalize">live games</Menu.Item>
-					<Menu.Item className="!capitalize">draw completed</Menu.Item>
-					<Menu.Item className="!capitalize">upcoming games</Menu.Item> */}
 			</Menu.Dropdown>
 		</Menu>
 	);
@@ -62,15 +59,12 @@ export const SortMenu = ({ items }: Props) => {
 			</Menu.Target>
 			<Menu.Dropdown>
 				<Menu.Label className="!flex items-center gap-2">
-					{" "}
 					<FaRegCircleDot className="text-primary-red" />
 					show all
 				</Menu.Label>
-				{items?.map((item) => (
-					<Menu.Item className="!capitalize">{item}</Menu.Item>
+				{items?.map((item, idx) => (
+					<Menu.Item className="!capitalize" key={idx}>{item}</Menu.Item>
 				))}
-				{/* <Menu.Item className="!capitalize">draw pending</Menu.Item>
-				<Menu.Item className="!capitalize">draw completed</Menu.Item> */}
 			</Menu.Dropdown>
 		</Menu>
 	);

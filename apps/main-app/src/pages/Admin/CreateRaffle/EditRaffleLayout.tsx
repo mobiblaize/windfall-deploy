@@ -6,7 +6,6 @@ import {
   Stepper,
   Text,
   Title,
-  LoadingOverlay,
 } from "@mantine/core";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { FaCheck } from "react-icons/fa";
@@ -31,11 +30,8 @@ import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import { useNavigate, useParams } from "react-router-dom";
 import Prizes from "./Prizes";
 import type { Raffle } from "../GameMgt/RaffleList";
-
-const breadCrumbs: Crumb[] = [
-  { label: "Raffle Management", to: "/admin/raffles" },
-  { label: "Edit Raffle", to: "" },
-];
+import LoadingState from "../../../components/LoadingState";
+import EmptyState from "../../../components/EmptyState";
 
 function EditRaffleLayout() {
   const { id } = useParams<{ id: string }>();
@@ -664,21 +660,29 @@ function EditRaffleLayout() {
     () => stepsLayout[active].props || {},
     [stepsLayout, active]
   );
+  
+  const breadCrumbs: Crumb[] = [
+    { label: "Raffle Management", to: "/admin/raffles" },
+    { label: `Edit ${raffleData?.data?.name ?? "Raffle"}`, to: "" },
+  ];
 
   if (!id) {
     return (
-      <div className="p-10 text-center">
-        <Text size="lg" c="red">
-          Invalid raffle ID
-        </Text>
+      <div className="!w-full !mx-auto !px  -10">
+        <EmptyState
+          title="Raffle not found"
+          description="Failed to fetch raffle details."
+          format="secondary"
+          fullWidth={true}
+          redirectLink="/admin/raffles/all"
+          btnText="Raffle List"
+        />
       </div>
     );
   }
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)} className="pb-5">
-      <LoadingOverlay visible={isInitialLoading || isRaffleLoading} />
-
       {/* Breadcrumb */}
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
         <div className="px-6 md:px-10 py-1">
@@ -691,101 +695,112 @@ function EditRaffleLayout() {
           <Flex mb="lg" justify="space-between">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
-                Edit Raffle
+                Edit {raffleData?.data?.name ?? "Raffle"}
               </Title>
               <Text className="!text-secondary-text">
-                Update raffle game details
+                Edit raffle game details in simple steps.
               </Text>
             </div>
-            <Flex gap={15}>
-              <CustomButton
-                border={false}
-                className="!rounded-lg"
-                size="md"
-                buttonType="submit"
-                loading={isCheckingName}
-                disabled={isCheckingName || isInitialLoading}
-              >
-                Update Raffle
-              </CustomButton>
-            </Flex>
+            {!(isInitialLoading || isRaffleLoading) && (
+              <Flex gap={15}>
+                <CustomButton
+                  border={false}
+                  className="!rounded-lg"
+                  size="md"
+                  buttonType="submit"
+                  loading={isCheckingName}
+                  disabled={isCheckingName || isInitialLoading}
+                >
+                  Update Raffle
+                </CustomButton>
+              </Flex>
+            )}
           </Flex>
         </div>
       </Card>
 
-      <Container
-        className="text-primary-text !mx-auto w-full md:w-2/3 lg:w-[70%]"
-        mt="lg"
-      >
-        <Stepper
-          allowNextStepsSelect={false}
-          active={active}
-          onStepClick={setActive}
-          className="capitalize"
-          size="xs"
-          icon={<FaCheck className="text-secondary-red" />}
-          styles={{
-            stepBody: { display: "none" },
-            step: { padding: 0 },
-            stepIcon: { color: "white" },
-            separator: { marginLeft: -2, marginRight: -2, height: 4 },
-          }}
-        >
-          {stepsLayout.map((step) => (
-            <Stepper.Step
-              key={step.label}
-              label={step.label}
-              allowStepClick={false}
-            />
-          ))}
-        </Stepper>
-
-        <Card withBorder mt="xl" radius="md">
-          <Layout
-            description={stepsLayout[active].description}
-            label={stepsLayout[active].label}
-            className="block"
+      {isInitialLoading || isRaffleLoading ? (
+        <LoadingState
+          title="Loading Raffle Details"
+          description="Fetching raffle information..."
+        />
+      ) : (
+        <>
+          <Container
+            className="text-primary-text !mx-auto w-full md:w-2/3 lg:w-[70%]"
+            mt="lg"
           >
-            <ActiveStep
-              form={form}
-              {...activeStepProps}
-              categories={categories}
-            />
-          </Layout>
-        </Card>
-
-        {/* Footer Buttons */}
-        <Flex
-          justify="flex-end"
-          gap={20}
-          className="!bg-white !rounded-xl !border !border-gray-200 !p-6 mt-10 !mb-10"
-        >
-          {active > 0 && (
-            <Button
-              size="lg"
-              onClick={prevStep}
-              variant="default"
-              leftSection={<BsChevronLeft />}
+            <Stepper
+              allowNextStepsSelect={false}
+              active={active}
+              onStepClick={setActive}
+              className="capitalize"
+              size="xs"
+              icon={<FaCheck className="text-secondary-red" />}
+              styles={{
+                stepBody: { display: "none" },
+                step: { padding: 0 },
+                stepIcon: { color: "white" },
+                separator: { marginLeft: -2, marginRight: -2, height: 4 },
+              }}
             >
-              Back
-            </Button>
-          )}
+              {stepsLayout.map((step) => (
+                <Stepper.Step
+                  key={step.label}
+                  label={step.label}
+                  allowStepClick={false}
+                />
+              ))}
+            </Stepper>
 
-          {active < stepsLayout.length - 1 && (
-            <CustomButton
-              size="lg"
-              border={false}
-              fullWidth={false}
-              onClick={nextStep}
-              rightSection={<BsChevronRight />}
-              loading={isCheckingName}
-              disabled={isCheckingName || isInitialLoading}
+            <Card withBorder mt="xl" radius="md">
+              <Layout
+                description={stepsLayout[active].description}
+                label={stepsLayout[active].label}
+                className="block"
+              >
+                <ActiveStep
+                  form={form}
+                  {...activeStepProps}
+                  categories={categories}
+                />
+              </Layout>
+            </Card>
+
+            {/* Footer Buttons */}
+            <Flex
+              justify="flex-end"
+              gap={20}
+              className="!bg-white !rounded-xl !border !border-gray-200 !p-6 mt-10 !mb-10"
             >
-              Continue
-            </CustomButton>
-          )}
-        </Flex>
-      </Container>
+              {active > 0 && (
+                <Button
+                  size="lg"
+                  onClick={prevStep}
+                  variant="default"
+                  leftSection={<BsChevronLeft />}
+                >
+                  Back
+                </Button>
+              )}
+
+              {active < stepsLayout.length - 1 && (
+                <CustomButton
+                  size="lg"
+                  border={false}
+                  fullWidth={false}
+                  onClick={nextStep}
+                  rightSection={<BsChevronRight />}
+                  loading={isCheckingName}
+                  disabled={isCheckingName || isInitialLoading}
+                >
+                  Continue
+                </CustomButton>
+              )}
+            </Flex>
+          </Container>
+        </>
+      )}
 
       <AdminAlertModal
         opened={alertModalOpen}

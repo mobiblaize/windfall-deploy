@@ -45,6 +45,7 @@ export interface Raffle {
   discount_percentage: string
   is_scheduled: string
   instant_game: string
+  total_tickets_sold: number
   start_date: string
   end_date: string
   start_time: string
