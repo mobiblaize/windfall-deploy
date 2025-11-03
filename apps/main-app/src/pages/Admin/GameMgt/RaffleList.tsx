@@ -37,6 +37,7 @@ export interface Raffle {
   percentage_markup: string;
   ticket_price: string;
   total_tickets: number;
+  total_tickets_sold: number;
   available_tickets: number;
   minimum_ticket_number_purchase: number;
   maximum_ticket_number_purchase: number;

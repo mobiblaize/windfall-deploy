@@ -263,13 +263,10 @@ export default function ViewDraw() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg text-gray-800">
-                      Instructional Context Heading
+                      Confirm Game Details Before Starting
                     </h3>
                     <p className="text-base text-secondary-text">
-                      This a sub-text that tell us what the heading of the
-                      instruction is. My MTN line is stupid, hence no service,
-                      hence can't use GPT to generate the content here, But you
-                      get the drift right ?
+                      Review the raffle title, ticket price, draw date, and all related configurations to ensure they are correct. Once the draw starts, these details can't be edited.
                     </p>
                   </div>
                 </Flex>
@@ -283,13 +280,10 @@ export default function ViewDraw() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg text-gray-800">
-                      Instructional Context Heading
+                      Ensure Supervisory Presence
                     </h3>
                     <p className="text-base text-secondary-text">
-                      This a sub-text that tell us what the heading of the
-                      instruction is. My MTN line is stupid, hence no service,
-                      hence can't use GPT to generate the content here, But you
-                      get the drift right ?
+                      The draw process should only begin when an authorized personnel or auditor is present to monitor transparency and compliance.
                     </p>
                   </div>
                 </Flex>

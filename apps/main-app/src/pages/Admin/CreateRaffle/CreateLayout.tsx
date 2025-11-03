@@ -261,20 +261,21 @@ function CreateLayout() {
 
         for (let i = 0; i < tiers.length; i++) {
           const tier = tiers[i];
-          if (!tier.name?.trim()) return `Tier ${i + 1}: Name is required`;
+          if (!tier.name?.trim()) 
+            return `Discount Tier ${i + 1}: Please provide a name for this tier`;
           if (Number(tier.discount_percentage) <= 0)
-            return `Tier ${i + 1}: Discount percentage must be greater than zero`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Discount percentage must be greater than 0%`;
           if (Number(tier.discount_percentage) > 100)
-            return `Tier ${i + 1}: Discount percentage cannot be more than 100%`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Discount percentage cannot exceed 100%`;
           if (Number(tier.number_of_entry_start) <= 0)
-            return `Tier ${i + 1}: Minimum ticket range must be greater than zero`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Minimum ticket range must start from at least 1`;
           if (Number(tier.number_of_entry_end) <= 0)
-            return `Tier ${i + 1}: Maximum ticket range must be greater than zero`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Maximum ticket range must be greater than 0`;
           if (
             Number(tier.number_of_entry_start) >=
             Number(tier.number_of_entry_end)
           )
-            return `Tier ${i + 1}: Minimum ticket range cannot be equal to or greater than maximum range`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Minimum range (${tier.number_of_entry_start}) must be less than maximum range (${tier.number_of_entry_end})`;
         }
 
         const sorted = [...tiers].sort(
@@ -289,9 +290,7 @@ function CreateLayout() {
             Number(current.number_of_entry_end) >=
             Number(next.number_of_entry_start)
           ) {
-            return `Tier ranges overlap between "${
-              current.name || `Tier ${i + 1}`
-            }" and "${next.name || `Tier ${i + 2}`}"`;
+            return `Discount tier ranges overlap: "${current.name}" (${current.number_of_entry_start}-${current.number_of_entry_end}) overlaps with "${next.name}" (${next.number_of_entry_start}-${next.number_of_entry_end}). Please ensure each tier has a unique, non-overlapping range.`;
           }
         }
 
@@ -301,7 +300,7 @@ function CreateLayout() {
         );
 
         if (minTierStart < Number(values.minimum_ticket_number_purchase)) {
-          return `The lowest tier range (${minTierStart}) cannot be less than the minimum ticket number per purchase (${values.minimum_ticket_number_purchase}).`;
+          return `Discount tier validation error: The lowest tier's starting range (${minTierStart}) cannot be less than the minimum tickets per purchase setting (${values.minimum_ticket_number_purchase}). Please adjust your tier ranges or minimum purchase settings.`;
         }
 
         // ✅ NEW VALIDATION: max tier cannot exceed maximum_ticket_number_purchase
@@ -310,7 +309,7 @@ function CreateLayout() {
         );
 
         if (maxTierEnd > Number(values.maximum_ticket_number_purchase)) {
-          return `The highest tier range (${maxTierEnd}) cannot exceed the maximum ticket number per purchase (${values.maximum_ticket_number_purchase}).`;
+          return `Discount tier validation error: The highest tier's ending range (${maxTierEnd}) exceeds the maximum tickets per purchase setting (${values.maximum_ticket_number_purchase}). Please adjust your tier ranges or maximum purchase settings.`;
         }
 
         return null;
@@ -365,7 +364,7 @@ function CreateLayout() {
     ],
     2: ["prizes"],
     3: ["competition_details", "sponsorship_details"],
-    4: [],
+    4: ["card_image", "gallery_images"],
   };
 
   // const validateStep = (stepIndex: number) => {

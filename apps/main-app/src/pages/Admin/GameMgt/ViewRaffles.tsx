@@ -1,5 +1,4 @@
 import { Button, Card, Flex, Skeleton, Tabs, Text, Title } from "@mantine/core";
-import StatusBadge from "../../../components/StatusBadge";
 import { FaCalendarAlt } from "react-icons/fa";
 import { TakeAction } from "../../../components/FilterMenu";
 import DynamicBreadcrumbs, {
@@ -13,6 +12,7 @@ import CustomerList from "./CustomerList";
 import PerformanceMonitor from "./PerformanceMonitor";
 import WinnerTab from "./WinnerTab";
 import GamedrawTab from "./GamedrawTab";
+import CustomBadge from "../../../components/CustomBadge";
 
 function ViewRaffles() {
   const [raffle] = useState<Raffle>();
@@ -85,7 +85,7 @@ function ViewRaffles() {
               </div>
 
               <Flex align="center" wrap="wrap" gap={20} justify="end">
-                <StatusBadge status="live" />
+                <CustomBadge status="successful" label="Live" />
                 <Button
                   variant="outline"
                   className="!text-secondary-text !border-secondary-text !py-2 scale-90 sm:scale-100"
@@ -126,21 +126,21 @@ function ViewRaffles() {
           </Flex>
         </div>
 
-          <Tabs.Panel value="transactional list">
-            <RaffleTransactionalList />
-          </Tabs.Panel>
-          <Tabs.Panel value="customer list">
-            <CustomerList />
-          </Tabs.Panel>
-          <Tabs.Panel value="performance monitor">
-            <PerformanceMonitor />
-          </Tabs.Panel>
-          <Tabs.Panel value="winner">
-            <WinnerTab />
-          </Tabs.Panel>
-          <Tabs.Panel value="game draw">
-            <GamedrawTab />
-          </Tabs.Panel>
+        <Tabs.Panel value="transactional list">
+          <RaffleTransactionalList />
+        </Tabs.Panel>
+        <Tabs.Panel value="customer list">
+          <CustomerList />
+        </Tabs.Panel>
+        <Tabs.Panel value="performance monitor">
+          <PerformanceMonitor />
+        </Tabs.Panel>
+        <Tabs.Panel value="winner">
+          <WinnerTab />
+        </Tabs.Panel>
+        <Tabs.Panel value="game draw">
+          <GamedrawTab />
+        </Tabs.Panel>
       </div>
     </Tabs>
   );

@@ -32,66 +32,48 @@ import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { GoArrowUpRight } from "react-icons/go";
 import CustomBadge from "../../../components/CustomBadge";
-import type { User } from "../UserMgt/UserMgt";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import { BsPlus } from "react-icons/bs";
 
-interface SupportStats {
+interface PrizeClaimStats {
   total: number;
-  pending: number;
-  resolved: number;
-  last_period_days_total: number;
-  last_period_days_pending: number;
-  last_period_days_resolved: number;
-  period: Period;
+  claimed: number;
+  claimedInLast7days: number;
+  unclaimed: number;
+  unclaimedInLast7days: number;
+  nullified: number;
+  announced: number;
+  unannounced: number;
+  period_in_days: string;
 }
 
-export interface Period {
-  days: number;
-  start_date: string;
-  end_date: string;
-}
-
-type StatsCard = {
+type PrizeClaimStatsCard = {
   title: string;
   value: number;
-  slug: "pending" | "resolved";
-  added: "last_period_days_pending" | "last_period_days_resolved";
+  slug: "claimed" | "unclaimed";
+  added: "claimedInLast7days" | "unclaimedInLast7days";
   className: string;
   color: string;
-  period: string | number;
+  period: string;
 };
 
 export interface PrizeClaim {
   uuid: string;
-  uniqueID: string;
-  issue_type: string;
-  platform: string;
-  customer: Customer;
-  customer_id: string;
-  customer_complaint: string;
-  other_information: string;
-  created_by: string;
-  staff_created_comment: string;
-  resolved_by: User;
-  time_resolved: string;
-  staff_resolution_comment: string;
+  game_name: string;
+  game_category: string;
+  draw_index: string;
+  prize_won: string;
+  announce_status: string;
   status: string;
-  updated_at: string;
+  won_at: string;
+  customer: PrizeClaimCustomer;
 }
 
-export interface Customer {
+export interface PrizeClaimCustomer {
   uuid: string;
   firstname: string;
   lastname: string;
-  uniqueID: string;
-  avatar: string;
-  email: string;
-  phone_number: string;
-  landmark?: string;
-  lga?: string;
-  area?: string;
-  referral_link: string;
+  avatar: string | null;
 }
 
 export interface Link {
@@ -100,30 +82,30 @@ export interface Link {
   active: boolean;
 }
 
-const cards: StatsCard[] = [
+const prizeClaimCards: PrizeClaimStatsCard[] = [
   {
     title: "Total Prize Claimed",
     value: 0,
-    slug: "resolved",
-    added: "last_period_days_resolved",
+    slug: "claimed",
+    added: "claimedInLast7days",
     className:
       "!bg-secondary-green !text-primary-green/50 !border-primary-green/50",
     color: "!text-primary-green",
-    period: 3,
+    period: "7 days",
   },
   {
     title: "Pending Prize to be Claimed",
     value: 0,
-    slug: "pending",
-    added: "last_period_days_pending",
+    slug: "unclaimed",
+    added: "unclaimedInLast7days",
     className:
       "!bg-primary-warning/10 !text-primary-warning/50 !border-primary-warning/50 ",
     color: "!text-primary-warning",
-    period: 3,
+    period: "7 days",
   },
 ];
 
-const tabs: TabSwitcherTab[] = [
+const prizeClaimTabs: TabSwitcherTab[] = [
   {
     label: "Show All",
     value: "",
@@ -139,12 +121,12 @@ const tabs: TabSwitcherTab[] = [
 ];
 
 function PrizeClaims() {
-  const [claims, setClaims] = useState<PrizeClaim[]>([]);
+  const [prizeClaims, setPrizeClaims] = useState<PrizeClaim[]>([]);
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string | null>("");
-  const [filterBy, setFilterBy] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
   const debouncedSearch = useDebounce(search, 500);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [filterPage, setFilterPage] = useState<number>(1);
@@ -154,31 +136,31 @@ function PrizeClaims() {
   const navigate = useNavigate();
 
   const {
-    data: statsResponse,
+    data: prizeClaimsStatsResponse,
     isLoading: isLoadingStats,
     isError: isErrorStats,
     error: statsError,
   } = useFetchData(
-    `admin/customer-support-management/stats?start_date=${startDate}&end_date=${endDate}`
+    `admin/prize-claim-management/stats?start_date=${startDate}&end_date=${endDate}`
   );
 
   const {
-    data: complaintsResponse,
-    isLoading: isLoadingComplaints,
-    isError: isErrorComplaints,
-    error: complaintsError,
+    data: prizeClaimsResponse,
+    isLoading: isLoadingPrizeClaims,
+    isError: isErrorPrizeClaims,
+    error: prizeClaimsError,
   } = useFetchData(
-    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
+    `admin/prize-claim-management/all?search=${debouncedSearch}&limit=${pageSize || 10}&sort_by=${sortBy || "DESC"}&status=${statusFilter || ""}&start_date=${startDate}&end_date=${endDate}&export=0&paginate=1&page=${filterPage}`
   );
 
-  const exportComplaintsMutation = useGetExportData(
-    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
+  const exportPrizeClaimsMutation = useGetExportData(
+    `admin/prize-claim-management/all?search=${debouncedSearch}&limit=${pageSize || 10}&sort_by=${sortBy || "DESC"}&status=${statusFilter || ""}&start_date=${startDate}&end_date=${endDate}&export=1&paginate=1&page=${filterPage}`
   );
 
   useEffect(() => {
     if (isErrorStats) {
       notifications.show({
-        title: "Failed to fetch support stats",
+        title: "Failed to fetch prize claim stats",
         message:
           (statsError as { message?: string })?.message || "An error occurred",
         color: "red",
@@ -187,33 +169,33 @@ function PrizeClaims() {
   }, [statsError, isErrorStats]);
 
   useEffect(() => {
-    if (isErrorComplaints) {
+    if (isErrorPrizeClaims) {
       notifications.show({
-        title: "Failed to fetch complaints",
+        title: "Failed to fetch prize claims",
         message:
-          (complaintsError as { message?: string })?.message ||
+          (prizeClaimsError as { message?: string })?.message ||
           "An error occurred",
         color: "red",
       });
     }
 
-    if (complaintsResponse) {
-      setClaims(complaintsResponse.data?.records?.data);
-      setCurrentPage(complaintsResponse.data?.records?.current_page || 1);
-      setTotal(complaintsResponse.data?.records?.total || 0);
-      setPageSize(complaintsResponse.data?.records?.per_page || 10);
+    if (prizeClaimsResponse) {
+      setPrizeClaims(prizeClaimsResponse.data?.records?.data);
+      setCurrentPage(prizeClaimsResponse.data?.records?.current_page || 1);
+      setTotal(prizeClaimsResponse.data?.records?.total || 0);
+      setPageSize(prizeClaimsResponse.data?.records?.per_page || 10);
     }
-  }, [complaintsError, isErrorComplaints, complaintsResponse]);
+  }, [prizeClaimsError, isErrorPrizeClaims, prizeClaimsResponse]);
 
-  const handleExport = () => {
-    exportComplaintsMutation.mutate(undefined, {
+  const handleExportPrizeClaims = () => {
+    exportPrizeClaimsMutation.mutate(undefined, {
       onSuccess: (data) => {
         const url = window.URL.createObjectURL(new Blob([data]));
         const a = document.createElement("a");
         a.href = url;
-        a.download = `customer_complaints_export_${new Date()
+        a.download = `prize_claims_export_${new Date()
           .toISOString()
-          .slice(0, 10)}.xlsx`; // adjust extension if CSV/PDF
+          .slice(0, 10)}.xlsx`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -242,7 +224,7 @@ function PrizeClaims() {
   useEffect(() => {
     if (isErrorStats) {
       notifications.show({
-        title: "Failed to Load Raffle Stats",
+        title: "Failed to Load Prize Claim Stats",
         message:
           (statsError as { message?: string })?.message || "An error occurred",
         color: "red",
@@ -250,7 +232,7 @@ function PrizeClaims() {
     }
   }, [statsError, isErrorStats]);
 
-  const supportStats: SupportStats = statsResponse?.data;
+  const prizeClaimStats: PrizeClaimStats = prizeClaimsStatsResponse?.data;
 
   return (
     <>
@@ -264,10 +246,10 @@ function PrizeClaims() {
           >
             <div>
               <Text tt={"capitalize"} fz={"lg"} fw={600}>
-                Claim Overview
+                Prize Claim Overview
               </Text>
               <Text className="!text-secondary-text !text-sm">
-                An snapshot of support prize claim by customer
+                A snapshot of all customer prize claim activity
               </Text>
             </div>
             <Flex
@@ -333,7 +315,7 @@ function PrizeClaims() {
           </Flex>
           <Divider my="md" />
 
-          {/* === Skeleton for total games === */}
+          {/* === Skeleton for total prize claims === */}
           <section>
             <div>
               <Text tt={"capitalize"} className="!text-secondary-text !text-sm">
@@ -347,7 +329,7 @@ function PrizeClaims() {
                   fz={32}
                   className="!text-primary-red !font-semibold"
                 >
-                  {supportStats?.total ?? 0}
+                  {prizeClaimStats?.total ?? 0}
                 </Text>
               )}
             </div>
@@ -368,14 +350,14 @@ function PrizeClaims() {
                       </Stack>
                     </Card>
                   ))
-                : cards.map((item) => (
-                    <GridCard
+                : prizeClaimCards.map((item) => (
+                    <PrizeClaimGridCard
                       key={item.slug}
                       {...{
                         ...item,
-                        value: supportStats?.[item.slug],
-                        period: supportStats?.period?.days,
-                        added: supportStats?.[item.added],
+                        value: prizeClaimStats?.[item.slug],
+                        period: prizeClaimStats?.period_in_days,
+                        added: prizeClaimStats?.[item.added],
                       }}
                     />
                   ))}
@@ -383,7 +365,7 @@ function PrizeClaims() {
           </section>
         </Card>
 
-        {/* === Complaint list table === */}
+        {/* === Prize Claim Table List === */}
 
         <section className="text-primary-text my-10">
           <Card withBorder mt={"xl"} radius={"md"} p={0}>
@@ -394,7 +376,7 @@ function PrizeClaims() {
                   Prize Claim List
                 </Text>
                 <Text className="!text-secondary-text">
-                  Track and manage prize claim on the system
+                  Track and manage prize claims on the system
                 </Text>
               </div>
               <Group>
@@ -415,9 +397,9 @@ function PrizeClaims() {
                   variant="outline"
                   className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
                   rightSection={<HiDocumentArrowDown />}
-                  onClick={handleExport}
-                  loading={exportComplaintsMutation?.isPending}
-                  disabled={exportComplaintsMutation?.isPending}
+                  onClick={handleExportPrizeClaims}
+                  loading={exportPrizeClaimsMutation?.isPending}
+                  disabled={exportPrizeClaimsMutation?.isPending}
                   size="sm"
                 >
                   Export
@@ -437,9 +419,9 @@ function PrizeClaims() {
             >
               <Flex justify="space-between" align="center">
                 <TabSwitcher
-                  tabs={tabs}
-                  activeTab={filterBy}
-                  onChange={setFilterBy}
+                  tabs={prizeClaimTabs}
+                  activeTab={statusFilter}
+                  onChange={setStatusFilter}
                 />
               </Flex>
               <TextInput
@@ -470,52 +452,37 @@ function PrizeClaims() {
 
             <DynamicTableSection
               headers={[
-                { label: "Customer Name & ID", key: "name" },
-                { label: "Case ID", key: "id" },
-                { label: "Date Raised", key: "date" },
-                { label: "Type of Issue", key: "type" },
-                { label: "Raised Via", key: "via" },
+                { label: "Customer Name", key: "name" },
+                { label: "Game Name", key: "game" },
+                { label: "Game Category", key: "category" },
+                { label: "Draw Index", key: "draw" },
+                { label: "Prize Won", key: "prize" },
+                { label: "Won At", key: "wonAt" },
                 { label: "Status", key: "status" },
-                { label: "Resolved Date", key: "resolved" },
                 { label: "", key: "action" },
               ]}
-              data={claims}
-              loading={isLoadingComplaints}
-              emptyMessage="No claims found"
+              data={prizeClaims}
+              loading={isLoadingPrizeClaims}
+              emptyMessage="No prize claims found"
               renderItems={(claim) => [
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
                     {claim.customer?.firstname} {claim.customer?.lastname}
                   </Text>
-                  <Text className="!text-secondary-text !text-sm">
-                    {claim.uniqueID}
-                  </Text>
                 </>,
-                claim.uniqueID,
-                claim?.updated_at
-                  ? format(new Date(claim.updated_at), "MMMM d, yyyy")
+                claim.game_name,
+                claim.game_category,
+                claim.draw_index,
+                claim.prize_won,
+                claim?.won_at
+                  ? format(new Date(claim.won_at), "MMMM d, yyyy h:mm a")
                   : "-",
-                claim.issue_type,
-                claim.platform,
-
                 <CustomBadge
                   status={
-                    claim.status === "resolved" ? "successful" : "pending"
+                    claim.status === "claimed" ? "successful" : "pending"
                   }
                   label={claim.status}
                 />,
-                <>
-                  <Text className="!text-base !text-primary-text !font-medium">
-                    {claim.time_resolved
-                      ? format(new Date(claim.time_resolved), "MMMM d, yyyy")
-                      : " - "}
-                  </Text>
-                  <Text className="!text-secondary-text !text-sm">
-                    {claim.time_resolved
-                      ? format(new Date(claim.time_resolved), "h:mm a")
-                      : ""}
-                  </Text>
-                </>,
 
                 <ActionIcon
                   onClick={() => navigate(claim.uuid)}
@@ -530,7 +497,7 @@ function PrizeClaims() {
             {/* Pagination */}
             <TablePaginator
               currentPage={currentPage}
-              isLoading={isLoadingComplaints}
+              isLoading={isLoadingPrizeClaims}
               total={total}
               pageSize={pageSize}
               onPageChange={onPageChange}
@@ -544,18 +511,18 @@ function PrizeClaims() {
 
 export default PrizeClaims;
 
-type GridCardProps = Omit<StatsCard, "added"> & {
+type PrizeClaimGridCardProps = Omit<PrizeClaimStatsCard, "added"> & {
   added?: number;
 };
 
-function GridCard({
+function PrizeClaimGridCard({
   title,
   value,
   added,
   className,
   color,
   period,
-}: GridCardProps) {
+}: PrizeClaimGridCardProps) {
   return (
     <Card radius={"md"} className={`border ${className}`}>
       <Stack gap={"xs"}>
@@ -575,7 +542,7 @@ function GridCard({
           <span className={` ${color}`}>
             {Number(added || 0) > 0 ? "+" + added : 0}
           </span>{" "}
-          Added in last {period ?? 0} days
+          Added in last {period ?? "7 days"}
         </Text>
       </Stack>
     </Card>

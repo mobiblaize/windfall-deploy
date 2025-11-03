@@ -156,11 +156,16 @@ function MediaContentInner({ form }: Props) {
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing="md">
         <Box>
           <Text tt="capitalize" fz="md" fw={500}>
-            Product card image
+            Product card image <span style={{ color: "red" }}>*</span>
           </Text>
           <Text tt="capitalize" fw={100} fz="xs" c="var(--secondary-text)">
             For raffle list card and explore image
           </Text>
+          {form.errors.card_image && (
+            <Text fz="sm" c="red" mt="xs" fw={500}>
+              {form.errors.card_image}
+            </Text>
+          )}
         </Box>
 
         <ImageCard
@@ -172,22 +177,21 @@ function MediaContentInner({ form }: Props) {
         />
       </SimpleGrid>
 
-      {form.errors.card_image && (
-        <Text fz="xs" c="red" mt={4}>
-          {form.errors.card_image}
-        </Text>
-      )}
-
       <Divider my="lg" />
 
       {/* GALLERY */}
       <Box>
         <Text tt="capitalize" fz="md" fw={500}>
-          Gallery images
+          Gallery images <span style={{ color: "red" }}>*</span>
         </Text>
         <Text tt="capitalize" fw={100} fz="xs" c="var(--secondary-text)">
           Upload multiple images to display in the raffle gallery.
         </Text>
+        {form.errors.gallery_images && (
+          <Text fz="sm" c="red" mt="xs" fw={500}>
+            {form.errors.gallery_images}
+          </Text>
+        )}
       </Box>
 
       <Box mt="md">
@@ -243,12 +247,6 @@ function MediaContentInner({ form }: Props) {
             }}
           />
         </SimpleGrid>
-      )}
-
-      {form.errors.gallery_images && (
-        <Text fz="xs" c="red" mt={4}>
-          {form.errors.gallery_images}
-        </Text>
       )}
 
       <Divider my="lg" />

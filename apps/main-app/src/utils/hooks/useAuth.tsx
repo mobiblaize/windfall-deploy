@@ -69,13 +69,13 @@ export const useAuth = () => {
   const getStoredRedirect = (clearData = true) => {
     const redirectPage = localStorage.getItem("redirectPage");
     const pageDetails = localStorage.getItem("pageDetails");
-    const userType = localStorage.getItem("redirectUser");
+    const userType = localStorage.getItem("user_type");
 
     // Clear stored redirect info
     if (redirectPage || clearData || userType) {
       localStorage.removeItem("redirectPage");
       localStorage.removeItem("pageDetails");
-      localStorage.removeItem("redirectUser");
+      localStorage.removeItem("user_type");
     }
 
     return {
@@ -88,7 +88,7 @@ export const useAuth = () => {
   const clearStoredRedirect = () => {
     localStorage.removeItem("redirectPage");
     localStorage.removeItem("pageDetails");
-    localStorage.removeItem("redirectUser");
+    localStorage.removeItem("user_type");
   }
 
   const handleLoginRedirect = (defaultRedirect: string) => {

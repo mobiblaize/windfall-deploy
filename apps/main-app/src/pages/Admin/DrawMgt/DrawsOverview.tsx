@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { BiSolidBell } from "react-icons/bi";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { notifications } from "@mantine/notifications";
 import { DateInput } from "@mantine/dates";
 import { IoClose, IoFilterOutline } from "react-icons/io5";
@@ -33,66 +33,53 @@ import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { GoArrowUpRight } from "react-icons/go";
 import CustomBadge from "../../../components/CustomBadge";
-import type { User } from "../UserMgt/UserMgt";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import RenderSkeletonText from "../../../components/RenderSkeletonText";
+import type { Raffle } from "../GameMgt/RaffleList";
+import type { Customer } from "../CustomerMgt/GameCustomers";
+import { formatCurrency } from "../../../utils/helper/formatCurrency";
 
-interface SupportStats {
-  total: number;
-  pending: number;
-  resolved: number;
-  last_period_days_total: number;
-  last_period_days_pending: number;
-  last_period_days_resolved: number;
-  period: Period;
+interface DrawStats {
+  total_draws: number;
+  total_draw_lines: number;
+  games_eligible_today: number;
+  games_eligible_next_7_days: number;
+  games_eligible_next_14_days: number;
+  winners_last_7_days: number;
+  winners_last_14_days: number;
+  winners_last_1_month: number;
+  winners_announced_last_7_days: number;
 }
 
-export interface Period {
-  days: number;
-  start_date: string;
-  end_date: string;
-}
-
-type StatsCard = {
+type DrawStatsCard = {
   title: string;
   value: number;
-  slug: "pending" | "resolved";
-  added: "last_period_days_pending" | "last_period_days_resolved";
+  slug: keyof DrawStats;
   className: string;
   color: string;
-  period: string | number;
+  subtitle?: string;
 };
 
-export interface Complaints {
+export interface DrawRecord {
   uuid: string;
-  uniqueID: string;
-  issue_type: string;
-  platform: string;
-  customer: Customer;
-  customer_id: string;
-  customer_complaint: string;
-  other_information: string;
-  created_by: string;
-  staff_created_comment: string;
-  resolved_by: User;
-  time_resolved: string;
-  staff_resolution_comment: string;
   status: string;
-  updated_at: string;
-}
-
-export interface Customer {
-  uuid: string;
-  firstname: string;
-  lastname: string;
-  uniqueID: string;
-  avatar: string;
-  email: string;
-  phone_number: string;
-  landmark?: string;
-  lga?: string;
-  area?: string;
-  referral_link: string;
+  draw_at: string | null;
+  game: Raffle;
+  prize: {
+    uuid: string;
+    name: string;
+  };
+  winner: {
+    uuid: string;
+    customer?: Customer;
+  } | null;
+  metrics: {
+    total_ticket_paid_amount: string;
+    tickets_left: number;
+    tickets_sold: number;
+    unique_players: number;
+    potential_winner: number;
+  };
 }
 
 export interface Link {
@@ -101,46 +88,48 @@ export interface Link {
   active: boolean;
 }
 
-const cards: StatsCard[] = [
+const drawStatsCards: DrawStatsCard[] = [
   {
-    title: "Resolved Issues",
+    title: "Total Draw Lines",
     value: 0,
-    slug: "resolved",
-    added: "last_period_days_resolved",
+    slug: "total_draw_lines",
     className:
       "!bg-secondary-green !text-primary-green/50 !border-primary-green/50",
     color: "!text-primary-green",
-    period: 3,
+    subtitle: "Total number of draw lines in the system",
   },
   {
-    title: "Pending Issues",
+    title: "Games Eligible Today",
     value: 0,
-    slug: "pending",
-    added: "last_period_days_pending",
+    slug: "games_eligible_today",
     className:
       "!bg-primary-warning/10 !text-primary-warning/50 !border-primary-warning/50 ",
     color: "!text-primary-warning",
-    period: 3,
+    subtitle: "Games available for draws today",
   },
 ];
 
-const tabs: TabSwitcherTab[] = [
+const drawTabs: TabSwitcherTab[] = [
   {
     label: "Show All",
     value: "",
   },
   {
-    label: "Web",
-    value: "web",
+    label: "Open",
+    value: "open",
   },
   {
-    label: "Mobile App",
-    value: "mobile",
+    label: "Pending",
+    value: "closed",
+  },
+  {
+    label: "Closed",
+    value: "closed",
   },
 ];
 
 function DrawsOverview() {
-  const [complaints, setComplaints] = useState<Complaints[]>([]);
+  const [draws, setDraws] = useState<DrawRecord[]>([]);
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
   const [search, setSearch] = useState("");
@@ -154,65 +143,127 @@ function DrawsOverview() {
 
   const navigate = useNavigate();
 
-  const {
-    data: statsResponse,
-    isLoading: isLoadingStats,
-    isError: isErrorStats,
-    error: statsError,
-  } = useFetchData(
-    `admin/customer-support-management/stats?start_date=${startDate}&end_date=${endDate}`
-  );
-
-  const {
-    data: complaintsResponse,
-    isLoading: isLoadingComplaints,
-    isError: isErrorComplaints,
-    error: complaintsError,
-  } = useFetchData(
-    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
-  );
-
-  const exportComplaintsMutation = useGetExportData(
-    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
-  );
-
-  useEffect(() => {
-    if (isErrorStats) {
-      notifications.show({
-        title: "Failed to fetch support stats",
-        message:
-          (statsError as { message?: string })?.message || "An error occurred",
-        color: "red",
-      });
+  // Format dates for API (YYYY-MM-DD from DD/MM/YYYY)
+  const formatDateForAPI = (dateString: string | null): string => {
+    if (!dateString) return "";
+    // Parse DD/MM/YYYY to Date, then format as YYYY-MM-DD
+    const parts = dateString.split("/");
+    if (parts.length === 3) {
+      const day = parts[0];
+      const month = parts[1];
+      const year = parts[2];
+      return `${year}-${month}-${day}`;
     }
-  }, [statsError, isErrorStats]);
+    return "";
+  };
+
+  const startDateParam = formatDateForAPI(startDate);
+  const endDateParam = formatDateForAPI(endDate);
+
+  // Build stats API URL - only include date params if they have values
+  const statsUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    if (startDateParam) params.append("start_date", startDateParam);
+    if (endDateParam) params.append("end_date", endDateParam);
+    return `admin/draw-management/stats${params.toString() ? `?${params.toString()}` : ""}`;
+  }, [startDateParam, endDateParam]);
+
+  const {
+    data: drawStatsResponse,
+    isLoading: isLoadingDrawStats,
+    isError: isErrorDrawStats,
+    error: drawStatsError,
+  } = useFetchData(statsUrl);
+
+  // Build draws API URL with pagination
+  const drawsUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.append("search", debouncedSearch);
+    params.append("limit", "10");
+    if (sortBy) params.append("sort_by", sortBy);
+    if (filterBy) params.append("filter_by", filterBy);
+    if (startDateParam) params.append("start_date", startDateParam);
+    if (endDateParam) params.append("end_date", endDateParam);
+    params.append("paginate", "1");
+    params.append("page", filterPage.toString());
+    params.append("export", "0");
+    return `admin/draw-management/all-draw-lines?${params.toString()}`;
+  }, [
+    debouncedSearch,
+    sortBy,
+    filterBy,
+    startDateParam,
+    endDateParam,
+    filterPage,
+  ]);
+
+  const {
+    data: drawsResponse,
+    isLoading: isLoadingDraws,
+    isError: isErrorDraws,
+    error: drawsError,
+  } = useFetchData(drawsUrl);
+
+  // Build export API URL (no pagination, all records)
+  const exportUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.append("search", debouncedSearch);
+    params.append("limit", "10");
+    if (sortBy) params.append("sort_by", sortBy);
+    if (filterBy) params.append("filter_by", filterBy);
+    if (startDateParam) params.append("start_date", startDateParam);
+    if (endDateParam) params.append("end_date", endDateParam);
+    params.append("paginate", "0");
+    params.append("export", "1");
+    return `admin/draw-management/all-draw-lines?${params.toString()}`;
+  }, [debouncedSearch, sortBy, filterBy, startDateParam, endDateParam]);
+
+  const exportDrawsMutation = useGetExportData(exportUrl);
 
   useEffect(() => {
-    if (isErrorComplaints) {
+    if (isErrorDrawStats) {
       notifications.show({
-        title: "Failed to fetch complaints",
+        title: "Failed to fetch draw stats",
         message:
-          (complaintsError as { message?: string })?.message ||
+          (drawStatsError as { message?: string })?.message ||
           "An error occurred",
         color: "red",
       });
     }
+  }, [drawStatsError, isErrorDrawStats]);
 
-    if (complaintsResponse) {
-      setComplaints(complaintsResponse.data?.records?.data);
-      setCurrentPage(complaintsResponse.data?.records?.current_page || 1);
-      setTotal(complaintsResponse.data?.records?.total || 0);
-      setPageSize(complaintsResponse.data?.records?.per_page || 10);
+  useEffect(() => {
+    if (isErrorDraws) {
+      notifications.show({
+        title: "Failed to fetch draws",
+        message:
+          (drawsError as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+      setDraws([]);
+      setTotal(0);
     }
-  }, [complaintsError, isErrorComplaints, complaintsResponse]);
+
+    if (drawsResponse) {
+      setDraws(drawsResponse.data?.records?.data || []);
+      console.log(drawsResponse.data);
+      // Handle pagination metadata - check both possible response structures
+      const paginationData = drawsResponse.data;
+      setCurrentPage(paginationData?.records?.current_page || filterPage || 1);
+      setTotal(paginationData?.records?.total || paginationData?.total || 0);
+      setPageSize(
+        paginationData?.records?.per_page || paginationData?.per_page || 10
+      );
+    }
+  }, [drawsError, isErrorDraws, drawsResponse, filterPage]);
 
   const handleExport = () => {
-    exportComplaintsMutation.mutate(undefined, {
+    exportDrawsMutation.mutate(undefined, {
       onSuccess: (data) => {
         const url = window.URL.createObjectURL(new Blob([data]));
         const a = document.createElement("a");
         a.href = url;
-        a.download = `customer_complaints_export_${new Date()
+        a.download = `draws_export_${new Date()
           .toISOString()
           .slice(0, 10)}.xlsx`; // adjust extension if CSV/PDF
         document.body.appendChild(a);
@@ -240,18 +291,7 @@ function DrawsOverview() {
     setFilterPage(page);
   }
 
-  useEffect(() => {
-    if (isErrorStats) {
-      notifications.show({
-        title: "Failed to Load Raffle Stats",
-        message:
-          (statsError as { message?: string })?.message || "An error occurred",
-        color: "red",
-      });
-    }
-  }, [statsError, isErrorStats]);
-
-  const supportStats: SupportStats = statsResponse?.data;
+  const drawStats: DrawStats = drawStatsResponse?.data;
 
   return (
     <>
@@ -334,13 +374,13 @@ function DrawsOverview() {
           </Flex>
           <Divider my="md" />
 
-          {/* === Skeleton for total games === */}
+          {/* === Skeleton for total draws === */}
           <section>
             <div className="mb-5">
               <Text tt={"capitalize"} className="!text-secondary-text !text-sm">
                 Total Number of Draws
               </Text>
-              {isLoadingStats ? (
+              {isLoadingDrawStats ? (
                 <Box className="space-y-5">
                   <RenderSkeletonText height={24} width="30%" />
                   <RenderSkeletonText height={10} width="50%" />
@@ -352,7 +392,7 @@ function DrawsOverview() {
                     fz={32}
                     className="!text-primary-red !font-semibold"
                   >
-                    {supportStats?.total ?? 0}
+                    {drawStats?.total_draws ?? 0}
                   </Text>
 
                   <Text
@@ -363,8 +403,10 @@ function DrawsOverview() {
                     mb={5}
                   >
                     <AiFillExclamationCircle />
-                    <span className="!text-primary-green">22.4%</span> increase
-                    over the last days
+                    <span className="!text-primary-green">
+                      {drawStats?.total_draw_lines ?? 0}
+                    </span>{" "}
+                    total draw lines
                   </Text>
                 </>
               )}
@@ -376,7 +418,7 @@ function DrawsOverview() {
               spacing={{ base: 10, sm: "xl" }}
               verticalSpacing={{ base: "md", sm: "xl" }}
             >
-              {isLoadingStats
+              {isLoadingDrawStats
                 ? Array.from({ length: 2 }).map((_, i) => (
                     <Card key={i} radius="md" withBorder>
                       <Stack gap="xs">
@@ -386,14 +428,12 @@ function DrawsOverview() {
                       </Stack>
                     </Card>
                   ))
-                : cards.map((item) => (
-                    <GridCard
+                : drawStatsCards.map((item) => (
+                    <DrawGridCard
                       key={item.slug}
                       {...{
                         ...item,
-                        value: supportStats?.[item.slug],
-                        period: supportStats?.period?.days,
-                        added: supportStats?.[item.added],
+                        value: drawStats?.[item.slug] ?? 0,
                       }}
                     />
                   ))}
@@ -401,7 +441,7 @@ function DrawsOverview() {
           </section>
         </Card>
 
-        {/* === Complaint list table === */}
+        {/* === Draws list table === */}
 
         <section className="text-primary-text my-10">
           <Card withBorder mt={"xl"} radius={"md"} p={0}>
@@ -420,8 +460,8 @@ function DrawsOverview() {
                 className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
                 rightSection={<HiDocumentArrowDown />}
                 onClick={handleExport}
-                loading={exportComplaintsMutation?.isPending}
-                disabled={exportComplaintsMutation?.isPending}
+                loading={exportDrawsMutation?.isPending}
+                disabled={exportDrawsMutation?.isPending}
               >
                 Export
               </Button>
@@ -439,7 +479,7 @@ function DrawsOverview() {
             >
               <Flex justify="space-between" align="center">
                 <TabSwitcher
-                  tabs={tabs}
+                  tabs={drawTabs}
                   activeTab={filterBy}
                   onChange={setFilterBy}
                 />
@@ -472,59 +512,93 @@ function DrawsOverview() {
 
             <DynamicTableSection
               headers={[
-                { label: "Customer Name & ID", key: "name" },
-                { label: "Case ID", key: "id" },
-                { label: "Date Raised", key: "date" },
-                { label: "Type of Issue", key: "type" },
-                { label: "Raised Via", key: "via" },
-                { label: "Status", key: "status" },
-                { label: "Resolved Date", key: "resolved" },
+                { label: "Game Name", key: "game" },
+                { label: "Projected Ticket Unit", key: "unit" },
+                { label: "Ticket Sold", key: "sold" },
+                { label: "Draw Date", key: "draw_date" },
+                { label: "Draw status", key: "draw_status" },
+                { label: "Draw winner", key: "draw_winner" },
+                { label: "Conducted By", key: "conducted_by" },
                 { label: "", key: "action" },
               ]}
-              data={complaints}
-              loading={isLoadingComplaints}
+              data={draws}
+              loading={isLoadingDraws}
               emptyMessage="No draws found"
-              renderItems={(complaint) => [
+              renderItems={(draw) => [
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
-                    {complaint.customer?.firstname}{" "}
-                    {complaint.customer?.lastname}
+                    {draw.game?.name || "-"}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {complaint.uniqueID}
+                    {draw.game.uniqueID}
                   </Text>
                 </>,
-                complaint.uniqueID,
-                complaint?.updated_at
-                  ? format(new Date(complaint.updated_at), "MMMM d, yyyy")
-                  : "-",
-                complaint.issue_type,
-                complaint.platform,
-
-                <CustomBadge
-                  status={
-                    complaint.status === "resolved" ? "successful" : "pending"
-                  }
-                  label={complaint.status}
-                />,
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
-                    {complaint.time_resolved
-                      ? format(
-                          new Date(complaint.time_resolved),
-                          "MMMM d, yyyy"
-                        )
-                      : " - "}
+                    {draw.game?.total_tickets?.toLocaleString() || "-"}
+                  </Text>
+                </>,
+                <>
+                  <Text className="!text-base !text-primary-text !font-medium">
+                    {formatCurrency(draw.metrics?.total_ticket_paid_amount) ||
+                      "-"}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {complaint.time_resolved
-                      ? format(new Date(complaint.time_resolved), "h:mm a")
+                    Unit: {draw.game?.total_tickets_sold?.toLocaleString() || "-"}
+                  </Text>
+                </>,
+                <>
+                  <Text className="!text-base !text-primary-text !font-medium">
+                    {draw.draw_at
+                      ? format(new Date(draw.draw_at), "MMMM d, yyyy")
+                      : "-"}
+                  </Text>
+                  <Text className="!text-secondary-text !text-sm">
+                    {draw.draw_at
+                      ? format(new Date(draw.draw_at), "h:mm a")
                       : ""}
                   </Text>
                 </>,
-
+                <CustomBadge
+                  status={
+                    draw.status === "closed"
+                      ? "successful"
+                      : draw.status === "pending"
+                        ? "active"
+                        : "pending"
+                  }
+                  label={draw.status}
+                />,
+                <>
+                  {draw.winner?.customer ? (
+                    <>
+                      <Text className="!text-base !text-primary-text !font-medium">
+                        {draw.winner?.customer?.customer_name}
+                      </Text>
+                      <Text className="!text-secondary-text !text-sm">
+                        {draw.winner?.customer?.uniqueID}
+                      </Text>
+                    </>
+                  ) : (
+                    "N/A"
+                  )}
+                </>,
+                <>
+                  {draw.winner?.customer ? (
+                    <>
+                      <Text className="!text-base !text-primary-text !font-medium">
+                        {draw.winner?.customer?.customer_name}
+                      </Text>
+                      <Text className="!text-secondary-text !text-sm">
+                        {draw.winner?.customer?.uniqueID}
+                      </Text>
+                    </>
+                  ) : (
+                    "-"
+                  )}
+                </>,
                 <ActionIcon
-                  onClick={() => navigate(complaint.uuid)}
+                  onClick={() => navigate(draw.uuid)}
                   size={35}
                   className="!bg-[#FFD5D6] !text-primary-red !text-xl"
                 >
@@ -536,7 +610,7 @@ function DrawsOverview() {
             {/* Pagination */}
             <TablePaginator
               currentPage={currentPage}
-              isLoading={isLoadingComplaints}
+              isLoading={isLoadingDraws}
               total={total}
               pageSize={pageSize}
               onPageChange={onPageChange}
@@ -550,18 +624,15 @@ function DrawsOverview() {
 
 export default DrawsOverview;
 
-type GridCardProps = Omit<StatsCard, "added"> & {
-  added?: number;
-};
+type DrawGridCardProps = DrawStatsCard;
 
-function GridCard({
+function DrawGridCard({
   title,
   value,
-  added,
   className,
   color,
-  period,
-}: GridCardProps) {
+  subtitle,
+}: DrawGridCardProps) {
   return (
     <Card radius={"md"} className={`border ${className}`}>
       <Stack gap={"xs"}>
@@ -574,15 +645,14 @@ function GridCard({
         <Text fw={500} fz={32} className={`!font-semibold ${color}`}>
           {value ?? 0}
         </Text>
-        <Text
-          tt="capitalize"
-          className="!text-primary-text !capitalize !text-sm"
-        >
-          <span className={` ${color}`}>
-            {Number(added || 0) > 0 ? "+" + added : 0}
-          </span>{" "}
-          Added in last {period ?? 0} days
-        </Text>
+        {subtitle && (
+          <Text
+            tt="capitalize"
+            className="!text-secondary-text !capitalize !text-sm"
+          >
+            {subtitle}
+          </Text>
+        )}
       </Stack>
     </Card>
   );
