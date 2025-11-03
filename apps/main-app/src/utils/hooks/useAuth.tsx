@@ -69,15 +69,13 @@ export const useAuth = () => {
   const getStoredRedirect = (clearData = true) => {
     const redirectPage = localStorage.getItem("redirectPage");
     const pageDetails = localStorage.getItem("pageDetails");
-    const userType = localStorage.getItem("user_type");
 
     // Clear stored redirect info
     if (redirectPage || clearData) clearStoredRedirect()
 
     return {
       page: redirectPage,
-      details: pageDetails ? JSON.parse(pageDetails) : null,
-      userType: userType
+      details: pageDetails ? JSON.parse(pageDetails) : null
     };
   };
 
@@ -87,11 +85,11 @@ export const useAuth = () => {
   }
 
   const handleLoginRedirect = (defaultRedirect: string) => {
-    const { page, details, userType } = getStoredRedirect();
+    const { page, details } = getStoredRedirect();
     
     // If a redirect page was stored, use it; otherwise use default
     let redirectPage = page;
-    if (userType === 'admin' && !redirectPage?.toLowerCase()?.startsWith('/admin')) {
+    if (getUserType() === 'admin' && !redirectPage?.toLowerCase()?.startsWith('/admin')) {
       redirectPage = null;
     }
 

@@ -36,8 +36,8 @@ import CustomBadge from "../../../components/CustomBadge";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import RenderSkeletonText from "../../../components/RenderSkeletonText";
 import type { Raffle } from "../GameMgt/RaffleList";
-import type { Customer } from "../CustomerMgt/GameCustomers";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
+import type { User } from "../UserMgt/UserMgt";
 
 interface DrawStats {
   total_draws: number;
@@ -69,10 +69,7 @@ export interface DrawRecord {
     uuid: string;
     name: string;
   };
-  winner: {
-    uuid: string;
-    customer?: Customer;
-  } | null;
+  winner: DrawWinner;
   metrics: {
     total_ticket_paid_amount: string;
     tickets_left: number;
@@ -82,6 +79,28 @@ export interface DrawRecord {
   };
 }
 
+export interface DrawWinner {
+  uuid: string
+  prize_name: string
+  status: string
+  won_at: string
+  announce_status: string
+  ticket: string;
+  customer: DrawCustomer
+  initiated_by: User
+}
+
+export interface DrawCustomer {
+  uuid: string
+  firstname: string
+  lastname: string
+  uniqueID: string
+  email: string
+  phone: string
+  avatar: string
+}
+
+
 export interface Link {
   url?: string;
   label: string;
@@ -90,22 +109,22 @@ export interface Link {
 
 const drawStatsCards: DrawStatsCard[] = [
   {
-    title: "Total Draw Lines",
+    title: "Completed Draws",
     value: 0,
     slug: "total_draw_lines",
     className:
       "!bg-secondary-green !text-primary-green/50 !border-primary-green/50",
     color: "!text-primary-green",
-    subtitle: "Total number of draw lines in the system",
+    subtitle: "3 added in the last 3 days",
   },
   {
-    title: "Games Eligible Today",
+    title: "Pending Draws",
     value: 0,
     slug: "games_eligible_today",
     className:
       "!bg-primary-warning/10 !text-primary-warning/50 !border-primary-warning/50 ",
     color: "!text-primary-warning",
-    subtitle: "Games available for draws today",
+    subtitle: "3 added in the last 3 days",
   },
 ];
 
@@ -406,7 +425,7 @@ function DrawsOverview() {
                     <span className="!text-primary-green">
                       {drawStats?.total_draw_lines ?? 0}
                     </span>{" "}
-                    total draw lines
+                    total draws over the last 7 days
                   </Text>
                 </>
               )}
@@ -483,7 +502,7 @@ function DrawsOverview() {
                   activeTab={filterBy}
                   onChange={setFilterBy}
                 />
-              </Flex>
+              </Flex> 
               <TextInput
                 leftSection={<HiSearch />}
                 placeholder="Search"
@@ -572,8 +591,8 @@ function DrawsOverview() {
                 <>
                   {draw.winner?.customer ? (
                     <>
-                      <Text className="!text-base !text-primary-text !font-medium">
-                        {draw.winner?.customer?.customer_name}
+                      <Text className="!text-base !text-primary-text !font-medium !text-nowrap">
+                        {draw.winner?.customer?.firstname} {draw.winner?.customer?.lastname}
                       </Text>
                       <Text className="!text-secondary-text !text-sm">
                         {draw.winner?.customer?.uniqueID}
@@ -584,13 +603,13 @@ function DrawsOverview() {
                   )}
                 </>,
                 <>
-                  {draw.winner?.customer ? (
+                  {draw.winner?.initiated_by ? (
                     <>
                       <Text className="!text-base !text-primary-text !font-medium">
-                        {draw.winner?.customer?.customer_name}
+                        {draw.winner?.initiated_by?.name}
                       </Text>
                       <Text className="!text-secondary-text !text-sm">
-                        {draw.winner?.customer?.uniqueID}
+                        {draw.winner?.initiated_by?.uniqueID}
                       </Text>
                     </>
                   ) : (

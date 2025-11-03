@@ -164,7 +164,20 @@ function PrizesInner({ form }: Props) {
                                   flexShrink: 0,
                                 }}
                               >
-                                <Image src={prize.image} alt={`Prize ${index + 1}`} width="100%" height="100%" fit="cover" radius={0} />
+                                <Image 
+                                  src={prize.image} 
+                                  alt={`Prize ${index + 1}`} 
+                                  w="100%" 
+                                  h="100%" 
+                                  fit="cover" 
+                                  radius={0}
+                                  style={{ 
+                                    objectFit: 'cover',
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'block'
+                                  }}
+                                />
                               </Box>
                             )}
                           </Group>

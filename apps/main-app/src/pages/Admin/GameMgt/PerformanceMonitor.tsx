@@ -94,29 +94,50 @@ export interface TicketStats {
   total: number;
 }
 
-function PerformanceMonitor() {
+interface PerformanceMonitorProps {
+  raffleId?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+function PerformanceMonitor({
+  raffleId: propRaffleId,
+  startDate: propStartDate = "",
+  endDate: propEndDate = "",
+}: PerformanceMonitorProps) {
   const navigate = useNavigate();
   const [ticketSalesStats, setTicketSalesStats] = useState<TicketSalesStats>();
   const [ticketStats, setTicketStats] = useState<TicketStats[]>([]);
   const [ticketPerformance, setTicketPerformance] =
     useState<TicketPerformance>();
-  const [raffleId, setRaffleId] = useState<string | null>("");
+  const [localRaffleId, setLocalRaffleId] = useState<string | null>("");
   const [categoryId, setCategoryId] = useState<string | null>("");
-  const [startDate, setStartDate] = useState<string | null>("");
-  const [endDate, setEndDate] = useState<string | null>("");
+  const [localStartDate, setLocalStartDate] = useState<string | null>("");
+  const [localEndDate, setLocalEndDate] = useState<string | null>("");
+
+  // Use prop values if provided, otherwise use local state
+  const raffleId = propRaffleId || localRaffleId;
+  const startDate = propRaffleId ? propStartDate : localStartDate;
+  const endDate = propRaffleId ? propEndDate : localEndDate;
+  const isEmbedded = !!propRaffleId; // Check if component is embedded in parent with raffleId
+  // Only fetch raffles and categories if not embedded (no raffleId prop)
   const {
     data: rafflesResponse,
     isError: isErrorRaffles,
     error: rafflesError,
   } = useFetchData(
-    `admin/game-management/game-list/all?paginate=0&limit=10&page=1`
+    !isEmbedded
+      ? `admin/game-management/game-list/all?paginate=0&limit=10&page=1`
+      : null
   );
   const {
     data: categoriesResponse,
     isError: isErrorCategories,
     error: categoriesError,
   } = useFetchData(
-    `admin/game-management/category/all?paginate=0&limit=10&page=1`
+    !isEmbedded
+      ? `admin/game-management/category/all?paginate=0&limit=10&page=1`
+      : null
   );
 
   const ticketSalesMutation = useGetData(
@@ -158,7 +179,7 @@ function PerformanceMonitor() {
   })();
 
   useEffect(() => {
-    if (isErrorCategories) {
+    if (isErrorCategories && !isEmbedded) {
       notifications.show({
         title: "Failed to fetch raffle categories",
         message:
@@ -167,10 +188,10 @@ function PerformanceMonitor() {
         color: "red",
       });
     }
-  }, [isErrorCategories, categoriesError]);
+  }, [isErrorCategories, categoriesError, isEmbedded]);
 
   useEffect(() => {
-    if (isErrorRaffles) {
+    if (isErrorRaffles && !isEmbedded) {
       notifications.show({
         title: "Failed to fetch raffles",
         message:
@@ -181,11 +202,11 @@ function PerformanceMonitor() {
     }
 
     
-    if (rafflesResponse) {
-      setRaffleId(rafflesResponse.data?.[0]?.uuid || "");
+    if (rafflesResponse && !isEmbedded) {
+      setLocalRaffleId(rafflesResponse.data?.[0]?.uuid || "");
     }
 
-  }, [isErrorRaffles, rafflesError, rafflesResponse]);
+  }, [isErrorRaffles, rafflesError, rafflesResponse, isEmbedded]);
 
   async function getTicketSalesStats() {
     if (!raffleId) return;
@@ -237,102 +258,104 @@ function PerformanceMonitor() {
   return (
     <Box className="!text-primary-text !px-6 md:!px-10 !pb-10 !mt-10">
       <Card withBorder radius={"md"}>
-        <Flex
-          align={{ base: "start", md: "center" }}
-          justify={{ base: "start", sm: "space-between" }}
-          gap={{ base: "sm", sm: "lg" }}
-          direction={{ base: "column", md: "row" }}
-        >
-          <Box>
-            <Text
-              fz={"lg"}
-              fw={600}
-              tt={"capitalize"}
-              className="!text-primary-green"
-            >
-              Live games:{" "}
-              <span className="text-primary-text">performance monitor</span>
-            </Text>
-          </Box>
-          <Flex gap={{ base: "sm", sm: "md" }}>
-            <Select
-              value={categoryId}
-              onChange={setCategoryId}
-              rightSection={<FaAngleDown />}
-              placeholder="Game Category: "
-              data={categoriesData}
-              className="!shadow-md"
-              classNames={{
-                label: "!capitalize ",
-                options: "text-primary-text",
-              }}
-            />
-            <Select
-              value={raffleId}
-              onChange={setRaffleId}
-              rightSection={<FaAngleDown />}
-              placeholder="Game: "
-              data={rafflesData}
-              className="!shadow-md"
-              classNames={{
-                label: "!capitalize ",
-                options: "text-primary-text",
-              }}
-            />
-            <DateInput
-              placeholder="Start Date"
-              withAsterisk
-              valueFormat="DD/MM/YYYY"
-              value={startDate}
-              onChange={(e) => setStartDate(e)}
-              classNames={{
-                label: "!capitalize",
-              }}
-              popoverProps={{
-                classNames: {
-                  dropdown: "!text-primary-text",
-                },
-              }}
-              rightSection={
-                startDate ? (
-                  <IoClose
-                    className="cursor-pointer text-gray-500 hover:text-red-500"
-                    onClick={() => setStartDate("")}
-                  />
-                ) : (
-                  <CiCalendar />
-                )
-              }
-            />
+        {!isEmbedded && (
+          <Flex
+            align={{ base: "start", md: "center" }}
+            justify={{ base: "start", sm: "space-between" }}
+            gap={{ base: "sm", sm: "lg" }}
+            direction={{ base: "column", md: "row" }}
+          >
+            <Box>
+              <Text
+                fz={"lg"}
+                fw={600}
+                tt={"capitalize"}
+                className="!text-primary-green"
+              >
+                Live games:{" "}
+                <span className="text-primary-text">performance monitor</span>
+              </Text>
+            </Box>
+            <Flex gap={{ base: "sm", sm: "md" }}>
+              <Select
+                value={categoryId}
+                onChange={setCategoryId}
+                rightSection={<FaAngleDown />}
+                placeholder="Game Category: "
+                data={categoriesData}
+                className="!shadow-md"
+                classNames={{
+                  label: "!capitalize ",
+                  options: "text-primary-text",
+                }}
+              />
+              <Select
+                value={localRaffleId}
+                onChange={setLocalRaffleId}
+                rightSection={<FaAngleDown />}
+                placeholder="Game: "
+                data={rafflesData}
+                className="!shadow-md"
+                classNames={{
+                  label: "!capitalize ",
+                  options: "text-primary-text",
+                }}
+              />
+              <DateInput
+                placeholder="Start Date"
+                withAsterisk
+                valueFormat="DD/MM/YYYY"
+                value={localStartDate}
+                onChange={(e) => setLocalStartDate(e)}
+                classNames={{
+                  label: "!capitalize",
+                }}
+                popoverProps={{
+                  classNames: {
+                    dropdown: "!text-primary-text",
+                  },
+                }}
+                rightSection={
+                  localStartDate ? (
+                    <IoClose
+                      className="cursor-pointer text-gray-500 hover:text-red-500"
+                      onClick={() => setLocalStartDate("")}
+                    />
+                  ) : (
+                    <CiCalendar />
+                  )
+                }
+              />
 
-            <DateInput
-              placeholder="End Date"
-              withAsterisk
-              rightSection={
-                endDate ? (
-                  <IoClose
-                    className="cursor-pointer text-gray-500 hover:text-red-500"
-                    onClick={() => setEndDate("")}
-                  />
-                ) : (
-                  <CiCalendar />
-                )
-              }
-              valueFormat="DD/MM/YYYY"
-              value={endDate}
-              onChange={(e) => setEndDate(e)}
-              classNames={{
-                label: "!capitalize",
-              }}
-              popoverProps={{
-                classNames: {
-                  dropdown: "!text-primary-text",
-                },
-              }}
-            />
+              <DateInput
+                placeholder="End Date"
+                withAsterisk
+                rightSection={
+                  localEndDate ? (
+                    <IoClose
+                      className="cursor-pointer text-gray-500 hover:text-red-500"
+                      onClick={() => setLocalEndDate("")}
+                    />
+                  ) : (
+                    <CiCalendar />
+                  )
+                }
+                valueFormat="DD/MM/YYYY"
+                value={localEndDate}
+                onChange={(e) => setLocalEndDate(e)}
+                classNames={{
+                  label: "!capitalize",
+                }}
+                popoverProps={{
+                  classNames: {
+                    dropdown: "!text-primary-text",
+                  },
+                }}
+              />
+            </Flex>
           </Flex>
-        </Flex>
-        <Divider my="lg" />
+        )}
+        {!isEmbedded && <Divider my="lg" />}
         <Flex
           justify={{ base: "start", xs: "space-between" }}
           direction={{ base: "column", xs: "row" }}
@@ -351,7 +374,7 @@ function PerformanceMonitor() {
               an overview of the live draw financial performance
             </Text>
           </Box>
-          {raffleId && (
+          {localRaffleId && (
             <Button
               tt={"capitalize"}
               rightSection={<RiArrowRightUpLine size={16} />}

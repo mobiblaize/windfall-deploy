@@ -10,9 +10,6 @@ import {
 } from "@mantine/core";
 import { PiQuestionThin } from "react-icons/pi";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
-import type {
-  TicketStats,
-} from "../GameMgt/PerformanceMonitor";
 import { AreaChart } from "@mantine/charts";
 
 
@@ -28,13 +25,11 @@ type TrendPoint = { date: string; registrations: number };
 function CustomerTab({
   breakdowns = [],
   loading,
-  ticketStats = [],
   acquisitionTrend = [],
   acquisitionTrendLoading,
 }: {
   breakdowns?: ChannelBreakdown[];
   loading?: boolean;
-  ticketStats?: TicketStats[];
   acquisitionTrend?: TrendPoint[];
   acquisitionTrendLoading?: boolean;
 }) {
@@ -42,8 +37,6 @@ function CustomerTab({
     (sum, item) => sum + (item.total_revenue || 0),
     0
   );
-
-  console.log(ticketStats);
   
 
   return (

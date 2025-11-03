@@ -106,8 +106,11 @@ const RaffleManagement = lazy(
 );
 const RaffleList = lazy(() => import("./pages/Admin/GameMgt/RaffleList"));
 const ViewRaffles = lazy(() => import("./pages/Admin/GameMgt/ViewRaffles"));
-const CreateLayout = lazy(
-  () => import("./pages/Admin/CreateRaffle/CreateLayout")
+const CreateRaffleLayout = lazy(
+  () => import("./pages/Admin/CreateRaffle/CreateRaffleLayout")
+);
+const EditRaffleLayout = lazy(
+  () => import("./pages/Admin/CreateRaffle/EditRaffleLayout")
 );
 
 const Support = lazy(() => import("./pages/Admin/Support/Support"));
@@ -150,8 +153,8 @@ const PrizeClaims = lazy(
   () => import("./pages/Admin/PrizeClaims/PrizeClaims")
 );
 
-const CreatePrizeClaim = lazy(
-  () => import("./pages/Admin/PrizeClaims/CreatePrizeClaim")
+const ProcessClaim = lazy(
+  () => import("./pages/Admin/PrizeClaims/ProcessClaim")
 );
 
 const Notifications = lazy(
@@ -323,14 +326,16 @@ function App() {
                   <Route index element={<RaffleManagement />} />
                   <Route path="all" element={<RaffleList />} />
                   <Route path=":id" element={<ViewRaffles />} />
-                  <Route path="create" element={<CreateLayout />} />
+                  <Route path="create" element={<CreateRaffleLayout />} />
+                  <Route path="edit/:id" element={<EditRaffleLayout />} />
                 </Route>
 
                 <Route path="instant-raffles">
                   <Route index element={<RaffleManagement />} />
                   <Route path="all" element={<RaffleList />} />
                   <Route path=":id" element={<ViewRaffles />} />
-                  <Route path="create" element={<CreateLayout />} />
+                  <Route path="create" element={<CreateRaffleLayout />} />
+                  <Route path="edit/:id" element={<EditRaffleLayout />} />
                 </Route>
 
                 {/* Customer Support */}
@@ -379,7 +384,7 @@ function App() {
                 {/* Prize Claims */}
                 <Route path="prize-claims">
                   <Route index element={<PrizeClaims />} />
-                  <Route path="create" element={<CreatePrizeClaim />} />
+                  <Route path=":id" element={<ProcessClaim />} />
                 </Route>
 
                 {/* Prize Management */}

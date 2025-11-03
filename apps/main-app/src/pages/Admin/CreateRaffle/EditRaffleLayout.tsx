@@ -6,8 +6,9 @@ import {
   Stepper,
   Text,
   Title,
+  LoadingOverlay,
 } from "@mantine/core";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { FaCheck } from "react-icons/fa";
 import BasicInformation from "./BasicInformation";
 import Layout from "./Layout";
@@ -18,41 +19,55 @@ import DynamicBreadcrumbs, {
   type Crumb,
 } from "../../../components/DynamicBreadCrumbs";
 import CustomButton from "../../../components/Buttons/CustomButton";
-import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
+import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import { useForm } from "@mantine/form";
 import {
   useFetchData,
   useGetData,
-  usePostData,
+  usePutData,
 } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Prizes from "./Prizes";
+import type { Raffle } from "../GameMgt/RaffleList";
 
 const breadCrumbs: Crumb[] = [
   { label: "Raffle Management", to: "/admin/raffles" },
-  { label: "Create a New Raffle", to: "/create-raffle" },
+  { label: "Edit Raffle", to: "" },
 ];
 
-function CreateLayout() {
+function EditRaffleLayout() {
+  const { id } = useParams<{ id: string }>();
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const navigate = useNavigate();
   const [active, setActive] = useState(0);
   const [isCheckingName, setIsCheckingName] = useState(false);
   const [lastCheckedName, setLastCheckedName] = useState<string>("");
+  const [initialRaffleName, setInitialRaffleName] = useState<string>("");
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const hasPreFilledForm = useRef(false);
+
   const validateNameMutation = useGetData(
     lastCheckedName
       ? `admin/game-management/check-name-exists?name=${encodeURIComponent(lastCheckedName)}`
       : ""
   );
-  const createMutation = usePostData("admin/game-management/games");
+  const updateMutation = usePutData("admin/game-management/games");
+
   const {
     data: categoriesData,
     isError: iscategoriesError,
     error: categoriesError,
   } = useFetchData("admin/game-management/category/all?paginate=0");
+
+  const {
+    data: raffleData,
+    isLoading: isRaffleLoading,
+    isError: isRaffleError,
+    error: raffleError,
+  } = useFetchData(id ? `admin/game-management/info/${id}` : "");
 
   useEffect(() => {
     if (iscategoriesError) {
@@ -66,6 +81,18 @@ function CreateLayout() {
     }
   }, [iscategoriesError, categoriesError]);
 
+  useEffect(() => {
+    if (isRaffleError) {
+      notifications.show({
+        title: "Failed to load Raffle",
+        message:
+          (raffleError as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+      navigate("/admin/raffles");
+    }
+  }, [isRaffleError, raffleError, navigate]);
+
   const categories = useMemo(() => {
     if (!categoriesData || !categoriesData.data) return [];
     return categoriesData.data.records.map(
@@ -77,7 +104,7 @@ function CreateLayout() {
   }, [categoriesData]);
 
   const form = useForm({
-    mode: "controlled",
+    mode: "uncontrolled",
     validateInputOnBlur: false,
     validateInputOnChange: false,
 
@@ -128,7 +155,12 @@ function CreateLayout() {
       gallery_images: "",
 
       // Nested arrays
-      tiers: [],
+      tiers: [] as {
+        name: string;
+        number_of_entry_start: number;
+        number_of_entry_end: number;
+        discount_percentage: number;
+      }[],
       prizes: [
         {
           name: "",
@@ -175,7 +207,6 @@ function CreateLayout() {
       percentage_markup: (val) =>
         val >= 0 ? null : "Markup cannot be negative",
 
-      // ✅ CTA text: required + max 15 chars
       cta_text: (val) => {
         if (val.trim().length === 0) return "CTA text is required";
         if (val.trim().length > 15)
@@ -183,14 +214,11 @@ function CreateLayout() {
         return null;
       },
 
-      // ✅ Start / End date validations
       start_date: (val) => {
-        // if (!values.is_scheduled) return null;
         if (!val) return "Start date required";
         return null;
       },
       end_date: (val, values) => {
-        // if (!values.is_scheduled) return null;
         if (!val) return "End date required";
         if (values.start_date) {
           const start = new Date(values.start_date);
@@ -200,12 +228,10 @@ function CreateLayout() {
         return null;
       },
       start_time: (val) => {
-        // if (!values.is_scheduled) return null;
         if (!val) return "Start time required";
         return null;
       },
       end_time: (val, values) => {
-        // if (!values.is_scheduled) return null;
         if (!val) return "End time required";
         if (!values.start_date || !values.end_date || !values.start_time)
           return null;
@@ -223,7 +249,6 @@ function CreateLayout() {
       sponsorship_details: (val) =>
         val.trim().length > 0 ? null : "Sponsorship details are required",
 
-      // ✅ New validations for media content
       card_image: (val) =>
         val && val.trim().length > 0 ? null : "Card image is required",
       gallery_images: (val) =>
@@ -236,7 +261,6 @@ function CreateLayout() {
         if (!prizes || prizes.length === 0)
           return "At least one prize item is required";
 
-        // 🧩 New Rule: Scheduled raffles can only have one prize
         if (values.is_scheduled && prizes.length > 1) {
           return "Scheduled raffles can only have one prize";
         }
@@ -254,14 +278,13 @@ function CreateLayout() {
         return null;
       },
 
-      // 🧩 Discount tiers validation
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tiers: (tiers: any[], values) => {
         if (!tiers || tiers.length === 0) return null;
 
         for (let i = 0; i < tiers.length; i++) {
           const tier = tiers[i];
-          if (!tier.name?.trim()) 
+          if (!tier.name?.trim())
             return `Discount Tier ${i + 1}: Please provide a name for this tier`;
           if (Number(tier.discount_percentage) <= 0)
             return `Discount Tier ${i + 1} ("${tier.name}"): Discount percentage must be greater than 0%`;
@@ -294,7 +317,6 @@ function CreateLayout() {
           }
         }
 
-        // ✅ NEW VALIDATION: min tier cannot be less than minimum_ticket_number_purchase
         const minTierStart = Math.min(
           ...tiers.map((t) => Number(t.number_of_entry_start))
         );
@@ -303,7 +325,6 @@ function CreateLayout() {
           return `Discount tier validation error: The lowest tier's starting range (${minTierStart}) cannot be less than the minimum tickets per purchase setting (${values.minimum_ticket_number_purchase}). Please adjust your tier ranges or minimum purchase settings.`;
         }
 
-        // ✅ NEW VALIDATION: max tier cannot exceed maximum_ticket_number_purchase
         const maxTierEnd = Math.max(
           ...tiers.map((t) => Number(t.number_of_entry_end))
         );
@@ -317,104 +338,232 @@ function CreateLayout() {
     },
   });
 
-  const checkNameExists = async (name: string) => {
-    setIsCheckingName(true);
-    setLastCheckedName(name);
-    try {
-      const resp = await validateNameMutation.mutateAsync();
-      // Adjust this logic depending on your actual API result shape
-      if (resp?.data?.exists) {
-        form.setFieldError("name", "Game name already exists");
-        setIsCheckingName(false);
-        return false;
-      } else {
+  // Prefill form when raffle data is loaded
+  useEffect(() => {
+    if (raffleData && raffleData.data && !hasPreFilledForm.current) {
+      const raffle: Raffle = raffleData.data;
+
+      // Transform prizes data
+      const transformedPrizes = raffle.prizes?.map((prize) => ({
+        name: prize.name || "",
+        quantity: Number(prize.quantity) || 1,
+        prize_cost: Number(prize.prize_cost) || 0,
+        image: prize.image || "",
+        description: prize.description || "",
+      })) || [
+        {
+          name: "",
+          quantity: 1,
+          prize_cost: 0,
+          image: "",
+          description: "",
+        },
+      ];
+
+      // Transform tiers data
+      const transformedTiers =
+        raffle.ticket_tiers?.map((tier) => ({
+          name: tier.name || "",
+          number_of_entry_start: Number(tier.number_of_entry_start) || 0,
+          number_of_entry_end: Number(tier.number_of_entry_end) || 0,
+          discount_percentage: Number(tier.discount_percentage) || 0,
+        })) || [];
+
+      // Convert string booleans to actual booleans
+      const stringToBoolean = (val: string) => val === "true" || val === "1";
+
+      form.setValues({
+        name: raffle.name || "",
+        description: raffle.description || "",
+        long_description: raffle.long_description || "",
+        category_id: raffle.category_id || "",
+        cta_text: raffle.cta_text || "",
+        supporting_text: raffle.supporting_text || "",
+        other_information: raffle.other_infomration || "",
+        competition_details: raffle.competition_details || "",
+        sponsorship_details: raffle.sponsorship_details || "",
+
+        total_tickets: Number(raffle.total_tickets) || 0,
+        ticket_price: Number(raffle.ticket_price) || 0,
+        percentage_markup: Number(raffle.percentage_markup) || 0,
+        prize_cost: Number(raffle.prize_cost) || 0,
+        minimum_ticket_number_purchase:
+          Number(raffle.minimum_ticket_number_purchase) || 1,
+        maximum_ticket_number_purchase:
+          Number(raffle.maximum_ticket_number_purchase) || 1,
+        maximum_ticket_amount_purchase:
+          Number(raffle.maximum_ticket_amount_purchase) || 0,
+        discount_type: raffle.discount_type || "straight_line",
+        discount_percentage: Number(raffle.discount_percentage) || 0,
+
+        start_date: raffle.start_date || "",
+        end_date: raffle.end_date || "",
+        start_time: raffle.start_time || "",
+        end_time: raffle.end_time || "",
+
+        allow_promo_code_usage: stringToBoolean(raffle.allow_promo_code_usage),
+        allow_referral_balance_usage: stringToBoolean(
+          raffle.allow_referral_balance_usage
+        ),
+        is_scheduled: stringToBoolean(raffle.is_scheduled),
+        is_active: stringToBoolean(raffle.is_active),
+        status: raffle.status || "published",
+        instant_game: stringToBoolean(raffle.instant_game),
+
+        minimum_referral_balance_amount:
+          Number(raffle.minimum_referral_balance_amount) || 0,
+        maximum_referral_balance_amount:
+          Number(raffle.maximum_referral_balance_amount) || 0,
+
+        documents: raffle.documents || "",
+        card_image: raffle.card_image || "",
+        gallery_images: raffle.gallery_images || "",
+
+        tiers: transformedTiers,
+        prizes: transformedPrizes,
+      });
+
+      setInitialRaffleName(raffle.name || "");
+      setIsInitialLoading(false);
+      hasPreFilledForm.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [raffleData]);
+
+  const checkNameExists = useCallback(
+    async (name: string) => {
+      // Skip name check if the name hasn't changed
+      if (name === initialRaffleName) {
         return true;
       }
-    } catch {
-      form.setFieldError("name", "Failed to check name uniqueness");
-      setIsCheckingName(false);
-      return false;
-    } finally {
-      setIsCheckingName(false);
-    }
-  };
 
-  // Step-wise field validation map
-  const stepFieldMap: Record<number, string[]> = {
-    0: [
-      "name",
-      "description",
-      "category_id",
-      "cta_text",
-      "start_date",
-      "end_date",
-      "start_time",
-      "end_time",
-      "maximum_referral_balance_amount",
-      "minimum_referral_balance_amount",
-    ],
-    1: [
-      "ticket_price",
-      "total_tickets",
-      "percentage_markup",
-      "prize_cost",
-      "minimum_ticket_number_purchase",
-      "maximum_ticket_number_purchase",
-      "tiers",
-    ],
-    2: ["prizes"],
-    3: ["competition_details", "sponsorship_details"],
-    4: ["card_image", "gallery_images"],
-  };
+      setIsCheckingName(true);
+      setLastCheckedName(name);
+      try {
+        const resp = await validateNameMutation.mutateAsync();
+        if (resp?.data?.exists) {
+          form.setFieldError("name", "Game name already exists");
+          setIsCheckingName(false);
+          return false;
+        } else {
+          return true;
+        }
+      } catch {
+        form.setFieldError("name", "Failed to check name uniqueness");
+        setIsCheckingName(false);
+        return false;
+      } finally {
+        setIsCheckingName(false);
+      }
+    },
+    [form, validateNameMutation, initialRaffleName]
+  );
 
-  // const validateStep = (stepIndex: number) => {
-  //   const fields = stepFieldMap[stepIndex];
-  //   return !fields.map((f) => form.validateField(f).hasError).some((x) => x);
-  // };
+  const stepFieldMap: Record<number, string[]> = useMemo(
+    () => ({
+      0: [
+        "name",
+        "description",
+        "category_id",
+        "cta_text",
+        "start_date",
+        "end_date",
+        "start_time",
+        "end_time",
+        "maximum_referral_balance_amount",
+        "minimum_referral_balance_amount",
+      ],
+      1: [
+        "ticket_price",
+        "total_tickets",
+        "percentage_markup",
+        "prize_cost",
+        "minimum_ticket_number_purchase",
+        "maximum_ticket_number_purchase",
+        "tiers",
+      ],
+      2: ["prizes"],
+      3: ["competition_details", "sponsorship_details"],
+      4: ["card_image", "gallery_images"],
+    }),
+    []
+  );
 
-  const validateStep = async (stepIndex: number) => {
-    const fields = stepFieldMap[stepIndex];
-    // Validate fields synchronously first
-    const localValid = !fields
-      .map((f) => form.validateField(f).hasError)
-      .some((x) => x);
+  const stepsLayout = useMemo(() => {
+    return [
+      {
+        label: "basic information",
+        description: "edit raffle basic detail below",
+        Component: BasicInformation,
+        props: { categories },
+      },
+      {
+        label: "ticket price & discount",
+        description: "edit ticket price and discount",
+        Component: TicketPrice,
+        props: {},
+      },
+      {
+        label: "Game Prizes",
+        description: "Edit prizes for this game",
+        Component: Prizes,
+        props: {},
+      },
+      {
+        label: "content marketing",
+        description: "Edit other content ...",
+        Component: ContentMarketing,
+        props: {},
+      },
+      {
+        label: "media content",
+        description: "Edit game banner ...",
+        Component: MediaContent,
+        props: {},
+      },
+    ];
+  }, [categories]);
 
-    let nameCheckValid = true;
-    if (stepIndex === 0 && localValid) {
-      // Async check for name uniqueness
-      nameCheckValid = await checkNameExists(form.values.name);
-    }
+  const validateStep = useCallback(
+    async (stepIndex: number) => {
+      const fields = stepFieldMap[stepIndex];
+      const localValid = !fields
+        .map((f) => form.validateField(f).hasError)
+        .some((x) => x);
 
-    return localValid && (stepIndex !== 0 || nameCheckValid);
-  };
+      let nameCheckValid = true;
+      if (stepIndex === 0 && localValid) {
+        nameCheckValid = await checkNameExists(form.getValues().name);
+      }
 
-  const nextStep = async () => {
-    setIsCheckingName(true); // show loading early
+      return localValid && (stepIndex !== 0 || nameCheckValid);
+    },
+    [form, checkNameExists, stepFieldMap]
+  );
+
+  const nextStep = useCallback(async () => {
+    setIsCheckingName(true);
     const isStepValid = await validateStep(active);
     setIsCheckingName(false);
     if (!isStepValid) return;
     setActive((current) =>
       current < stepsLayout.length - 1 ? current + 1 : current
     );
-  };
+  }, [active, validateStep, stepsLayout.length]);
 
-  const prevStep = () =>
-    setActive((current) => (current > 0 ? current - 1 : current));
+  const prevStep = useCallback(
+    () => setActive((current) => (current > 0 ? current - 1 : current)),
+    []
+  );
 
-  // REWRITE: Make handleSubmit async, check name uniqueness, show notification on errors.
-  const handleSubmit = async () => {
-    // Run all validation, plus name uniqueness
-
+  const handleSubmit = useCallback(async () => {
     const result = form.validate();
-
     let hasErrors = result.hasErrors;
-
     let nameValid = true;
 
     if (!hasErrors) {
-      // Still check the name uniqueness for final
       setIsCheckingName(true);
-      nameValid = await checkNameExists(form.values.name);
+      nameValid = await checkNameExists(form.getValues().name);
       setIsCheckingName(false);
       if (!nameValid) {
         hasErrors = true;
@@ -432,124 +581,104 @@ function CreateLayout() {
     }
 
     setAlertModalOpen(true);
-  };
+  }, [form, checkNameExists]);
 
-  function manageRaffles() {
+  const manageRaffles = useCallback(() => {
     setSuccessModalOpen(false);
     navigate("/admin/raffles");
-  }
+  }, [navigate]);
 
-  async function handleCreateRaffle() {
-    // Build final payload structure
+  const handleUpdateRaffle = useCallback(async () => {
+    const values = form.getValues();
     const payload = {
-      name: form.values.name,
-      instant_game: String(!form.values.is_scheduled),
-      total_tickets: Number(form.values.total_tickets),
-      ticket_price: Number(form.values.ticket_price),
-      description: form.values.description,
-      long_description: form.values.long_description,
-      category_id: form.values.category_id,
+      game_id: id, // Include the raffle ID for update
+      name: values.name,
+      instant_game: String(!values.is_scheduled),
+      total_tickets: Number(values.total_tickets),
+      ticket_price: Number(values.ticket_price),
+      description: values.description,
+      long_description: values.long_description,
+      category_id: values.category_id,
       minimum_ticket_number_purchase: Number(
-        form.values.minimum_ticket_number_purchase
+        values.minimum_ticket_number_purchase
       ),
       maximum_ticket_number_purchase: Number(
-        form.values.maximum_ticket_number_purchase
+        values.maximum_ticket_number_purchase
       ),
       maximum_ticket_amount_purchase: Number(
-        form.values.maximum_ticket_amount_purchase
+        values.maximum_ticket_amount_purchase
       ),
-      percentage_markup: Number(form.values.percentage_markup),
-      discount_type: form.values.discount_type,
-      discount_percentage: Number(form.values.discount_percentage),
-      tiers: form.values.tiers,
-      prizes: form.values.prizes, // ✅ Include prizes array
-      is_scheduled: String(form.values.is_scheduled),
-      start_date: form.values.start_date,
-      end_date: form.values.end_date,
-      start_time: form.values.start_time,
-      end_time: form.values.end_time,
-      cta_text: form.values.cta_text,
-      status: form.values.status,
-      allow_promo_code_usage: String(form.values.allow_promo_code_usage),
-      allow_referral_balance_usage: String(
-        form.values.allow_referral_balance_usage
-      ),
+      percentage_markup: Number(values.percentage_markup),
+      discount_type: values.discount_type,
+      discount_percentage: Number(values.discount_percentage),
+      tiers: values.tiers,
+      prizes: values.prizes,
+      is_scheduled: String(values.is_scheduled),
+      start_date: values.start_date,
+      end_date: values.end_date,
+      start_time: values.start_time,
+      end_time: values.end_time,
+      cta_text: values.cta_text,
+      status: values.status,
+      allow_promo_code_usage: String(values.allow_promo_code_usage),
+      allow_referral_balance_usage: String(values.allow_referral_balance_usage),
       minimum_referral_balance_amount: Number(
-        form.values.minimum_referral_balance_amount
+        values.minimum_referral_balance_amount
       ),
       maximum_referral_balance_amount: Number(
-        form.values.maximum_referral_balance_amount
+        values.maximum_referral_balance_amount
       ),
-      supporting_text: form.values.supporting_text,
-      competition_details: form.values.competition_details,
-      sponsorship_details: form.values.sponsorship_details,
-      other_information: form.values.other_information,
-      documents: form.values.documents,
-      card_image: form.values.card_image,
-      gallery_images: form.values.gallery_images,
-      is_active: String(form.values.is_active),
+      supporting_text: values.supporting_text,
+      competition_details: values.competition_details,
+      sponsorship_details: values.sponsorship_details,
+      other_information: values.other_information,
+      documents: values.documents,
+      card_image: values.card_image,
+      gallery_images: values.gallery_images,
+      is_active: String(values.is_active),
     };
 
     try {
-      const response = await createMutation.mutateAsync(payload);
+      const response = await updateMutation.mutateAsync(payload);
       notifications.show({
-        title: "Game Creation Successful",
-        message: response?.message || "Game created successfully",
+        title: "Raffle Updated Successfully",
+        message: response?.message || "Raffle updated successfully",
         color: "green",
       });
       setAlertModalOpen(false);
       setSuccessModalOpen(true);
     } catch (error) {
       notifications.show({
-        title: "Game Creation Failed",
+        title: "Raffle Update Failed",
         message: (error as { message: string })?.message || "An error occurred",
         color: "var(--color-primary-red)",
       });
     }
+  }, [form, updateMutation, id]);
+
+  const ActiveStep = useMemo(
+    () => stepsLayout[active].Component,
+    [stepsLayout, active]
+  );
+  const activeStepProps = useMemo(
+    () => stepsLayout[active].props || {},
+    [stepsLayout, active]
+  );
+
+  if (!id) {
+    return (
+      <div className="p-10 text-center">
+        <Text size="lg" c="red">
+          Invalid raffle ID
+        </Text>
+      </div>
+    );
   }
-
-  const gamePrefix = !form.values.is_scheduled ? "Instant " : "";
-
-  const stepsLayout = useMemo(() => {
-    return [
-      {
-        label: "basic information",
-        description: "enter raffle basic detail below",
-        Component: BasicInformation, // component reference
-        props: { categories },
-      },
-      {
-        label: "ticket price & discount",
-        description: "set ticket price and discount",
-        Component: TicketPrice,
-        props: {},
-      },
-      {
-        label: `${gamePrefix}Game Prizes`,
-        description: `Add prize to be won for this ${gamePrefix}game`,
-        Component: Prizes,
-        props: {},
-      },
-      {
-        label: "content marketing",
-        description: "Enter other content ...",
-        Component: ContentMarketing,
-        props: {},
-      },
-      {
-        label: "media content",
-        description: "Set game banner ...",
-        Component: MediaContent,
-        props: {},
-      },
-    ];
-  }, [categories, gamePrefix]);
-
-  const ActiveStep = stepsLayout[active].Component;
-  const activeStepProps = stepsLayout[active].props || {};
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)} className="pb-5">
+      <LoadingOverlay visible={isInitialLoading || isRaffleLoading} />
+
       {/* Breadcrumb */}
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
         <div className="px-6 md:px-10 py-1">
@@ -562,10 +691,10 @@ function CreateLayout() {
           <Flex mb="lg" justify="space-between">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
-                Create a raffle
+                Edit Raffle
               </Title>
               <Text className="!text-secondary-text">
-                Create new raffle game in simple step
+                Update raffle game details
               </Text>
             </div>
             <Flex gap={15}>
@@ -575,14 +704,9 @@ function CreateLayout() {
                 size="md"
                 buttonType="submit"
                 loading={isCheckingName}
-                disabled={isCheckingName}
-                rightSection={
-                  <div className="!inline-flex !bg-[#ff8283] p-1 w-fit rounded-md">
-                    <BsPlus className="!text-xl !text-white" />
-                  </div>
-                }
+                disabled={isCheckingName || isInitialLoading}
               >
-                Create New Raffle
+                Update Raffle
               </CustomButton>
             </Flex>
           </Flex>
@@ -618,7 +742,6 @@ function CreateLayout() {
 
         <Card withBorder mt="xl" radius="md">
           <Layout
-            // remove the key here — mounting/unmounting can be controlled separately.
             description={stepsLayout[active].description}
             label={stepsLayout[active].label}
             className="block"
@@ -656,33 +779,33 @@ function CreateLayout() {
               onClick={nextStep}
               rightSection={<BsChevronRight />}
               loading={isCheckingName}
-              disabled={isCheckingName}
+              disabled={isCheckingName || isInitialLoading}
             >
               Continue
             </CustomButton>
           )}
         </Flex>
       </Container>
+
       <AdminAlertModal
         opened={alertModalOpen}
         onClose={() => setAlertModalOpen(false)}
         status="error"
-        title={<span>Create New Raffle Game ?</span>}
+        title={<span>Update Raffle Game?</span>}
         description={
           <span>
-            Are you sure, you want to create a new raffle draw/game? Kindly note
-            that this game would go live now and customer would be able to view
-            raffle details and buy raffle ticket accordingly.
+            Are you sure you want to update this raffle draw/game? Changes will
+            be reflected immediately and customers will see the updated details.
           </span>
         }
         primaryButton={{
-          label: "Yes, Create Raffle Game",
-          onClick: handleCreateRaffle,
-          loading: createMutation.isPending,
-          disabled: createMutation.isPending,
+          label: "Yes, Update Raffle",
+          onClick: handleUpdateRaffle,
+          loading: updateMutation.isPending,
+          disabled: updateMutation.isPending,
         }}
         secondaryButton={{
-          label: "No, Close",
+          label: "No, Cancel",
           onClick: () => setAlertModalOpen(false),
         }}
       />
@@ -692,8 +815,8 @@ function CreateLayout() {
         opened={successModalOpen}
         onClose={manageRaffles}
         status="success"
-        title="Raffle Created"
-        description="Congratulation, you have successfully Created a New Raffle Game / Draw"
+        title="Raffle Updated"
+        description="Congratulations! You have successfully updated the raffle game."
         secondaryButton={{
           label: "Close",
           onClick: manageRaffles,
@@ -703,4 +826,4 @@ function CreateLayout() {
   );
 }
 
-export default CreateLayout;
+export default EditRaffleLayout;

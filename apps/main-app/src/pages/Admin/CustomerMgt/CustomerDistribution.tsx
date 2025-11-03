@@ -1,7 +1,6 @@
 import { Card, Divider, Flex, Group, Tabs, Text } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import type { TicketStats } from "../GameMgt/PerformanceMonitor";
 import CustomerTab from "./CustomerTab";
 import { DatePickerInput, MonthPickerInput } from "@mantine/dates";
 import { useGetData } from "../../../utils/hooks/useApis";
@@ -22,11 +21,7 @@ interface AcquisitionDayBreakdown {
 
 type TrendPoint = { date: string; registrations: number };
 
-function CustomerDistribution({
-  ticketStats,
-}: {
-  ticketStats?: TicketStats[];
-}) {
+function CustomerDistribution() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("sales");
@@ -232,7 +227,6 @@ function CustomerDistribution({
             <CustomerTab
               breakdowns={breakdowns}
               loading={isFetching}
-              ticketStats={ticketStats}
               acquisitionTrend={activeTrend}
               acquisitionTrendLoading={isAcqPending}
             />
@@ -241,7 +235,6 @@ function CustomerDistribution({
             <CustomerTab
               breakdowns={breakdowns}
               loading={isFetching}
-              ticketStats={ticketStats}
               acquisitionTrend={activeTrend}
               acquisitionTrendLoading={isAcqPending}
             />

@@ -27,65 +27,81 @@ import { type RaffleStatus } from "../../../models/raffles";
 import RaffleTable from "./RaffleTable";
 
 export interface Raffle {
-  uuid: string;
-  name: string;
-  uniqueID: string;
-  description: string;
-  long_description: string;
-  category_id: string;
-  prize_cost: string;
-  percentage_markup: string;
-  ticket_price: string;
-  total_tickets: number;
-  total_tickets_sold: number;
-  available_tickets: number;
-  minimum_ticket_number_purchase: number;
-  maximum_ticket_number_purchase: number;
-  maximum_ticket_amount_purchase: string;
-  discount_type: string;
-  discount_percentage: string;
-  is_scheduled: string;
-  instant_game: string;
-  start_date: string;
-  end_date: string;
-  start_time: string;
-  end_time: string;
-  cta_text: string;
-  supporting_text: string;
-  competition_details: string;
-  sponsorship_details: string;
-  other_infomration: string;
-  documents: string;
-  card_image: string;
-  gallery_images: string;
-  status: "draft" | "published";
-  approvalStatus: string;
-  allow_promo_code_usage: string;
-  allow_referral_balance_usage: string;
-  minimum_referral_balance_amount: string;
-  maximum_referral_balance_amount: string;
-  is_active: string;
-  is_default: string;
-  is_featured: string;
-  updated_by: string;
-  created_at: string;
-  total_draws: number;
-  total_draw_lines: number;
-  completed_draw_lines: number;
-  open_draw_lines: number;
-  main_active_status: RaffleStatus;
-  category: Category;
+  uuid: string
+  name: string
+  uniqueID: string
+  description: string
+  long_description: string
+  category_id: string
+  prize_cost: string
+  percentage_markup: string
+  ticket_price: string
+  total_tickets: number
+  available_tickets: number
+  minimum_ticket_number_purchase: number
+  maximum_ticket_number_purchase: number
+  maximum_ticket_amount_purchase: string
+  discount_type: string
+  discount_percentage: string
+  is_scheduled: string
+  instant_game: string
+  start_date: string
+  end_date: string
+  start_time: string
+  end_time: string
+  cta_text: string
+  supporting_text: string
+  competition_details: string
+  sponsorship_details: string
+  other_infomration: string
+  documents: string
+  card_image: string
+  gallery_images: string
+  status: string
+  approvalStatus: string
+  unlocked: string
+  allow_promo_code_usage: string
+  allow_referral_balance_usage: string
+  minimum_referral_balance_amount: string
+  maximum_referral_balance_amount: string
+  is_active: string
+  is_default: string
+  is_featured: string
+  updated_by: string
+  created_at: string
+  main_active_status: RaffleStatus
+  prizes: RafflePrize[]
+  ticket_tiers: TicketTier[]
+  category: Category
+}
+
+export interface RafflePrize {
+  id: number
+  uuid: string
+  name: string
+  prize_cost: string
+  description: string
+  image: string
+  quantity: number
+  game_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface TicketTier {
+  uuid: string
+  name: string
+  number_of_entry_start: number
+  number_of_entry_end: number
+  discount_percentage: string
+  game_id: string
+  updated_by: string
+  created_at: string
 }
 
 export interface Category {
-  uuid: string;
-  name: string;
-}
-
-export interface Link {
-  url?: string;
-  label: string;
-  active: boolean;
+  uuid: string
+  name: string
 }
 
 const breadCrumbs: Crumb[] = [

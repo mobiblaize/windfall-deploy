@@ -7,34 +7,46 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheck } from "react-icons/fa";
+import BasicInformation from "./BasicInformation";
+import Layout from "./Layout";
+import TicketPrice from "./TicketPrice";
+import ContentMarketing from "./ContentMarketing";
+import MediaContent from "./MediaContent";
 import DynamicBreadcrumbs, {
   type Crumb,
 } from "../../../components/DynamicBreadCrumbs";
 import CustomButton from "../../../components/Buttons/CustomButton";
-import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import { BsChevronLeft, BsChevronRight, BsPlus } from "react-icons/bs";
 import { useForm } from "@mantine/form";
-import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
+import {
+  useFetchData,
+  useGetData,
+  usePostData,
+} from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import { useNavigate } from "react-router-dom";
-import Layout from "../CreateRaffle/Layout";
-import CustomerForm from "./CustomerForm";
-import ClaimInformation from "./ClaimInformation";
-import DocumentUpload from "./DocumentUpload";
-import WinnerStory from "./WinnerStory";
+import Prizes from "./Prizes";
 
 const breadCrumbs: Crumb[] = [
-  { label: "Prize Claim", to: "/admin/prize-claims" },
-  { label: "Claim a Prize" },
+  { label: "Raffle Management", to: "/admin/raffles" },
+  { label: "Create a New Raffle", to: "/create-raffle" },
 ];
 
-function CreatePrizeClaim() {
+function CreateRaffleLayout() {
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const navigate = useNavigate();
   const [active, setActive] = useState(0);
+  const [isCheckingName, setIsCheckingName] = useState(false);
+  const [lastCheckedName, setLastCheckedName] = useState<string>("");
+  const validateNameMutation = useGetData(
+    lastCheckedName
+      ? `admin/game-management/check-name-exists?name=${encodeURIComponent(lastCheckedName)}`
+      : ""
+  );
   const createMutation = usePostData("admin/game-management/games");
   const {
     data: categoriesData,
@@ -249,20 +261,21 @@ function CreatePrizeClaim() {
 
         for (let i = 0; i < tiers.length; i++) {
           const tier = tiers[i];
-          if (!tier.name?.trim()) return `Tier ${i + 1}: Name is required`;
+          if (!tier.name?.trim()) 
+            return `Discount Tier ${i + 1}: Please provide a name for this tier`;
           if (Number(tier.discount_percentage) <= 0)
-            return `Tier ${i + 1}: Discount percentage must be greater than zero`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Discount percentage must be greater than 0%`;
           if (Number(tier.discount_percentage) > 100)
-            return `Tier ${i + 1}: Discount percentage cannot be more than 100%`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Discount percentage cannot exceed 100%`;
           if (Number(tier.number_of_entry_start) <= 0)
-            return `Tier ${i + 1}: Minimum ticket range must be greater than zero`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Minimum ticket range must start from at least 1`;
           if (Number(tier.number_of_entry_end) <= 0)
-            return `Tier ${i + 1}: Maximum ticket range must be greater than zero`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Maximum ticket range must be greater than 0`;
           if (
             Number(tier.number_of_entry_start) >=
             Number(tier.number_of_entry_end)
           )
-            return `Tier ${i + 1}: Minimum ticket range cannot be equal to or greater than maximum range`;
+            return `Discount Tier ${i + 1} ("${tier.name}"): Minimum range (${tier.number_of_entry_start}) must be less than maximum range (${tier.number_of_entry_end})`;
         }
 
         const sorted = [...tiers].sort(
@@ -277,19 +290,17 @@ function CreatePrizeClaim() {
             Number(current.number_of_entry_end) >=
             Number(next.number_of_entry_start)
           ) {
-            return `Tier ranges overlap between "${
-              current.name || `Tier ${i + 1}`
-            }" and "${next.name || `Tier ${i + 2}`}"`;
+            return `Discount tier ranges overlap: "${current.name}" (${current.number_of_entry_start}-${current.number_of_entry_end}) overlaps with "${next.name}" (${next.number_of_entry_start}-${next.number_of_entry_end}). Please ensure each tier has a unique, non-overlapping range.`;
           }
         }
 
         // ✅ NEW VALIDATION: min tier cannot be less than minimum_ticket_number_purchase
-        const minTierEnd = Math.min(
-          ...tiers.map((t) => Number(t.number_of_entry_end))
+        const minTierStart = Math.min(
+          ...tiers.map((t) => Number(t.number_of_entry_start))
         );
 
-        if (minTierEnd > Number(values.minimum_ticket_number_purchase)) {
-          return `The lowest tier range (${minTierEnd}) cannot be less than the minimum ticket number per purchase (${values.minimum_ticket_number_purchase}).`;
+        if (minTierStart < Number(values.minimum_ticket_number_purchase)) {
+          return `Discount tier validation error: The lowest tier's starting range (${minTierStart}) cannot be less than the minimum tickets per purchase setting (${values.minimum_ticket_number_purchase}). Please adjust your tier ranges or minimum purchase settings.`;
         }
 
         // ✅ NEW VALIDATION: max tier cannot exceed maximum_ticket_number_purchase
@@ -298,7 +309,7 @@ function CreatePrizeClaim() {
         );
 
         if (maxTierEnd > Number(values.maximum_ticket_number_purchase)) {
-          return `The highest tier range (${maxTierEnd}) cannot exceed the maximum ticket number per purchase (${values.maximum_ticket_number_purchase}).`;
+          return `Discount tier validation error: The highest tier's ending range (${maxTierEnd}) exceeds the maximum tickets per purchase setting (${values.maximum_ticket_number_purchase}). Please adjust your tier ranges or maximum purchase settings.`;
         }
 
         return null;
@@ -306,8 +317,30 @@ function CreatePrizeClaim() {
     },
   });
 
-  // Step-wise field validation map
-  const stepFieldMap: Record<number, string[]> = {
+  const checkNameExists = useCallback(async (name: string) => {
+    setIsCheckingName(true);
+    setLastCheckedName(name);
+    try {
+      const resp = await validateNameMutation.mutateAsync();
+      // Adjust this logic depending on your actual API result shape
+      if (resp?.data?.exists) {
+        form.setFieldError("name", "Game name already exists");
+        setIsCheckingName(false);
+        return false;
+      } else {
+        return true;
+      }
+    } catch {
+      form.setFieldError("name", "Failed to check name uniqueness");
+      setIsCheckingName(false);
+      return false;
+    } finally {
+      setIsCheckingName(false);
+    }
+  }, [form, validateNameMutation]);
+
+  // Step-wise field validation map (memoized to prevent recreating on every render)
+  const stepFieldMap: Record<number, string[]> = useMemo(() => ({
     0: [
       "name",
       "description",
@@ -331,92 +364,167 @@ function CreatePrizeClaim() {
     ],
     2: ["prizes"],
     3: ["competition_details", "sponsorship_details"],
-    4: [],
-  };
+    4: ["card_image", "gallery_images"],
+  }), []);
 
-  const validateStep = (stepIndex: number) => {
+  const stepsLayout = useMemo(() => {
+    return [
+      {
+        label: "basic information",
+        description: "enter raffle basic detail below",
+        Component: BasicInformation, // component reference
+        props: { categories },
+      },
+      {
+        label: "ticket price & discount",
+        description: "set ticket price and discount",
+        Component: TicketPrice,
+        props: {},
+      },
+      {
+        label: "Game Prizes",
+        description: "Add prize to be won for this game",
+        Component: Prizes,
+        props: {},
+      },
+      {
+        label: "content marketing",
+        description: "Enter other content ...",
+        Component: ContentMarketing,
+        props: {},
+      },
+      {
+        label: "media content",
+        description: "Set game banner ...",
+        Component: MediaContent,
+        props: {},
+      },
+    ];
+  }, [categories]);
+
+  // const validateStep = (stepIndex: number) => {
+  //   const fields = stepFieldMap[stepIndex];
+  //   return !fields.map((f) => form.validateField(f).hasError).some((x) => x);
+  // };
+
+  const validateStep = useCallback(async (stepIndex: number) => {
     const fields = stepFieldMap[stepIndex];
-    return !fields.map((f) => form.validateField(f).hasError).some((x) => x);
-  };
+    // Validate fields synchronously first
+    const localValid = !fields
+      .map((f) => form.validateField(f).hasError)
+      .some((x) => x);
 
-  const nextStep = () => {
-    const isStepValid = validateStep(active);
+    let nameCheckValid = true;
+    if (stepIndex === 0 && localValid) {
+      // Async check for name uniqueness
+      nameCheckValid = await checkNameExists(form.getValues().name);
+    }
+
+    return localValid && (stepIndex !== 0 || nameCheckValid);
+  }, [form, checkNameExists, stepFieldMap]);
+
+  const nextStep = useCallback(async () => {
+    setIsCheckingName(true); // show loading early
+    const isStepValid = await validateStep(active);
+    setIsCheckingName(false);
     if (!isStepValid) return;
     setActive((current) =>
       current < stepsLayout.length - 1 ? current + 1 : current
     );
-  };
+  }, [active, validateStep, stepsLayout.length]);
 
-  const prevStep = () =>
-    setActive((current) => (current > 0 ? current - 1 : current));
+  const prevStep = useCallback(() =>
+    setActive((current) => (current > 0 ? current - 1 : current)), []);
 
-  const handleSubmit = () => {
-    console.log("submitting");
+  // REWRITE: Make handleSubmit async, check name uniqueness, show notification on errors.
+  const handleSubmit = useCallback(async () => {
+    // Run all validation, plus name uniqueness
 
-    if (form.validate().hasErrors) {
+    const result = form.validate();
+
+    let hasErrors = result.hasErrors;
+
+    let nameValid = true;
+
+    if (!hasErrors) {
+      // Still check the name uniqueness for final
+      setIsCheckingName(true);
+      nameValid = await checkNameExists(form.getValues().name);
+      setIsCheckingName(false);
+      if (!nameValid) {
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      notifications.show({
+        title: "Form Error",
+        message:
+          "Some fields are invalid or missing. Please check the form for errors.",
+        color: "var(--color-primary-red)",
+      });
       return;
     }
 
     setAlertModalOpen(true);
-  };
+  }, [form, checkNameExists]);
 
-  function manageClaims() {
+  const manageRaffles = useCallback(() => {
     setSuccessModalOpen(false);
-    navigate("/admin/prize-claims");
-  }
+    navigate("/admin/raffles");
+  }, [navigate]);
 
-  async function handleCreateRaffle() {
+  const handleCreateRaffle = useCallback(async () => {
     // Build final payload structure
+    const values = form.getValues();
     const payload = {
-      name: form.values.name,
-      instant_game: String(!form.values.is_scheduled),
-      total_tickets: Number(form.values.total_tickets),
-      ticket_price: Number(form.values.ticket_price),
-      description: form.values.description,
-      long_description: form.values.long_description,
-      category_id: form.values.category_id,
+      name: values.name,
+      instant_game: String(!values.is_scheduled),
+      total_tickets: Number(values.total_tickets),
+      ticket_price: Number(values.ticket_price),
+      description: values.description,
+      long_description: values.long_description,
+      category_id: values.category_id,
       minimum_ticket_number_purchase: Number(
-        form.values.minimum_ticket_number_purchase
+        values.minimum_ticket_number_purchase
       ),
       maximum_ticket_number_purchase: Number(
-        form.values.maximum_ticket_number_purchase
+        values.maximum_ticket_number_purchase
       ),
       maximum_ticket_amount_purchase: Number(
-        form.values.maximum_ticket_amount_purchase
+        values.maximum_ticket_amount_purchase
       ),
-      percentage_markup: Number(form.values.percentage_markup),
-      discount_type: form.values.discount_type,
-      discount_percentage: Number(form.values.discount_percentage),
-      tiers: form.values.tiers,
-      prizes: form.values.prizes, // ✅ Include prizes array
-      is_scheduled: String(form.values.is_scheduled),
-      start_date: form.values.start_date,
-      end_date: form.values.end_date,
-      start_time: form.values.start_time,
-      end_time: form.values.end_time,
-      cta_text: form.values.cta_text,
-      status: form.values.status,
-      allow_promo_code_usage: String(form.values.allow_promo_code_usage),
+      percentage_markup: Number(values.percentage_markup),
+      discount_type: values.discount_type,
+      discount_percentage: Number(values.discount_percentage),
+      tiers: values.tiers,
+      prizes: values.prizes, // ✅ Include prizes array
+      is_scheduled: String(values.is_scheduled),
+      start_date: values.start_date,
+      end_date: values.end_date,
+      start_time: values.start_time,
+      end_time: values.end_time,
+      cta_text: values.cta_text,
+      status: values.status,
+      allow_promo_code_usage: String(values.allow_promo_code_usage),
       allow_referral_balance_usage: String(
-        form.values.allow_referral_balance_usage
+        values.allow_referral_balance_usage
       ),
       minimum_referral_balance_amount: Number(
-        form.values.minimum_referral_balance_amount
+        values.minimum_referral_balance_amount
       ),
       maximum_referral_balance_amount: Number(
-        form.values.maximum_referral_balance_amount
+        values.maximum_referral_balance_amount
       ),
-      supporting_text: form.values.supporting_text,
-      competition_details: form.values.competition_details,
-      sponsorship_details: form.values.sponsorship_details,
-      other_information: form.values.other_information,
-      documents: form.values.documents,
-      card_image: form.values.card_image,
-      gallery_images: form.values.gallery_images,
-      is_active: String(form.values.is_active),
+      supporting_text: values.supporting_text,
+      competition_details: values.competition_details,
+      sponsorship_details: values.sponsorship_details,
+      other_information: values.other_information,
+      documents: values.documents,
+      card_image: values.card_image,
+      gallery_images: values.gallery_images,
+      is_active: String(values.is_active),
     };
-
-    console.log("✅ Final Payload:", payload);
 
     try {
       const response = await createMutation.mutateAsync(payload);
@@ -434,39 +542,10 @@ function CreatePrizeClaim() {
         color: "var(--color-primary-red)",
       });
     }
-  }
+  }, [form, createMutation]);
 
-  const stepsLayout = useMemo(() => {
-    return [
-      {
-        label: "Customer Details",
-        description: "Enter customer details for prize claim",
-        Component: CustomerForm, // component reference
-        props: { categories },
-      },
-      {
-        label: "Claim Information",
-        description: "Enter raffle claim verifiable details",
-        Component: ClaimInformation,
-        props: {},
-      },
-      {
-        label: `Document upload`,
-        description: `Upload Supporting document for prize claims`,
-        Component: DocumentUpload,
-        props: {},
-      },
-      {
-        label: "Exclusive Winner Story",
-        description: "Enter winner's story here",
-        Component: WinnerStory,
-        props: {},
-      },
-    ];
-  }, [categories]);
-
-  const ActiveStep = stepsLayout[active].Component;
-  const activeStepProps = stepsLayout[active].props || {};
+  const ActiveStep = useMemo(() => stepsLayout[active].Component, [stepsLayout, active]);
+  const activeStepProps = useMemo(() => stepsLayout[active].props || {}, [stepsLayout, active]);
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)} className="pb-5">
@@ -482,12 +561,29 @@ function CreatePrizeClaim() {
           <Flex mb="lg" justify="space-between">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
-                Claim a Prize
+                Create a raffle
               </Title>
               <Text className="!text-secondary-text">
-                Create a prize claim process for this raffle winner / customer 
+                Create new raffle game in simple step
               </Text>
             </div>
+            <Flex gap={15}>
+              <CustomButton
+                border={false}
+                className="!rounded-lg"
+                size="md"
+                buttonType="submit"
+                loading={isCheckingName}
+                disabled={isCheckingName}
+                rightSection={
+                  <div className="!inline-flex !bg-[#ff8283] p-1 w-fit rounded-md">
+                    <BsPlus className="!text-xl !text-white" />
+                  </div>
+                }
+              >
+                Create New Raffle
+              </CustomButton>
+            </Flex>
           </Flex>
         </div>
       </Card>
@@ -551,24 +647,17 @@ function CreatePrizeClaim() {
             </Button>
           )}
 
-          {active < stepsLayout.length - 1 ? (
+          {active < stepsLayout.length - 1 && (
             <CustomButton
               size="lg"
               border={false}
               fullWidth={false}
               onClick={nextStep}
               rightSection={<BsChevronRight />}
+              loading={isCheckingName}
+              disabled={isCheckingName}
             >
               Continue
-            </CustomButton>
-          ) : (
-            <CustomButton
-              size="lg"
-              border={false}
-              fullWidth={false}
-              buttonType="submit"
-            >
-              Create Claim
             </CustomButton>
           )}
         </Flex>
@@ -579,23 +668,20 @@ function CreatePrizeClaim() {
         status="error"
         title={<span>Create New Raffle Game ?</span>}
         description={
-          <span className="text-center">
-            Are you sure you want to complete and create a prize claim process
-            for this raffle winner vis-a-vis prize won in a raffle ? <br />
-            <br /> Kindly note that this implies that the designated raffle
-            prize has been issued to the customer / raffle winner. <br />
-            <br /> Additionally, changes cannot be made to this prize claim
-            process as soon as it posted hence synced into the system.
+          <span>
+            Are you sure, you want to create a new raffle draw/game? Kindly note
+            that this game would go live now and customer would be able to view
+            raffle details and buy raffle ticket accordingly.
           </span>
         }
         primaryButton={{
-          label: "Yes, Create and Complete Prize Claim",
+          label: "Yes, Create Raffle Game",
           onClick: handleCreateRaffle,
           loading: createMutation.isPending,
           disabled: createMutation.isPending,
         }}
         secondaryButton={{
-          label: "Close",
+          label: "No, Close",
           onClick: () => setAlertModalOpen(false),
         }}
       />
@@ -603,17 +689,17 @@ function CreatePrizeClaim() {
       {/* Success Modal */}
       <AdminAlertModal
         opened={successModalOpen}
-        onClose={manageClaims}
+        onClose={manageRaffles}
         status="success"
-        title="Prize Claim Completed"
-        description="Prize Claim has been successfully submitted"
+        title="Raffle Created"
+        description="Congratulation, you have successfully Created a New Raffle Game / Draw"
         secondaryButton={{
           label: "Close",
-          onClick: manageClaims,
+          onClick: manageRaffles,
         }}
       />
     </form>
   );
 }
 
-export default CreatePrizeClaim;
+export default CreateRaffleLayout;

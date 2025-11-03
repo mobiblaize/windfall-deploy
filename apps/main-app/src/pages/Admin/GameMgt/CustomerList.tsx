@@ -7,20 +7,234 @@ import {
 	Flex,
 	Group,
 	SimpleGrid,
-	Table,
 	Text,
 	TextInput,
+	Select,
 } from "@mantine/core";
 import { AiFillExclamationCircle } from "react-icons/ai";
-import { FaCalendarAlt, FaSearch } from "react-icons/fa";
+import { FaCalendarAlt } from "react-icons/fa";
 import { FaFileArrowDown } from "react-icons/fa6";
 import { PiQuestionThin } from "react-icons/pi";
-import { SortMenu, FilterMenu } from "../../../components/FilterMenu";
-import WebMobileTab from "./WebMobileTab";
-import CustomerModal from "./CustomerModal";
-import RaffleCustomTable from "./RaffleCustomTable";
+import { HiSearch } from "react-icons/hi";
+import { IoFilterOutline } from "react-icons/io5";
+import { useEffect, useState, useMemo } from "react";
+import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
+import { notifications } from "@mantine/notifications";
+import { useDebounce } from "../../../utils/hooks/useDebounce";
+import type { Customer } from "../CustomerMgt/GameCustomers";
+import CustomerTable from "../CustomerMgt/CustomerTable";
+import TablePaginator from "../../../components/TablePaginator";
+import TabSwitcher, {
+	type TabSwitcherTab,
+} from "../../../components/TabSwitcher";
+import RenderSkeletonText from "../../../components/RenderSkeletonText";
 
-function CustomerList() {
+interface CustomerListProps {
+	raffleId?: string;
+	startDate?: string;
+	endDate?: string;
+}
+
+interface CustomerStats {
+	total_unique_customers: number;
+	unique_customers_percentage_change_last_3_days: number;
+	total_new_customers: number;
+	new_customers_percentage_change_last_3_days: number;
+	total_returning_customers: number;
+	returning_customers_percentage_change_last_3_days: number;
+	unique_customers_by_channel_percentage: {
+		highest_grossing: Array<{
+			type: string;
+			name: string;
+			unique_customers: number;
+			percentage_change_last_7_days: number;
+			merchant_id: string | null;
+		}>;
+		platform_breakdown: Array<{
+			platform: string;
+			unique_customers: number;
+			percentage_change_last_7_days: number;
+		}>;
+	};
+}
+
+const platformTabs: TabSwitcherTab[] = [
+	{
+		label: "Show All",
+		value: "",
+	},
+	{
+		label: "Web",
+		value: "web",
+	},
+	{
+		label: "Mobile App",
+		value: "mobile",
+	},
+];
+
+function CustomerList({
+	raffleId,
+	startDate = "",
+	endDate = "",
+}: CustomerListProps) {
+	const [customers, setCustomers] = useState<Customer[]>([]);
+	const [search, setSearch] = useState("");
+	const [sortBy, setSortBy] = useState<string | null>("desc");
+	const [platform, setPlatform] = useState<string>("");
+	const debouncedSearch = useDebounce(search, 500);
+	const [currentPage, setCurrentPage] = useState<number>(0);
+	const [filterPage, setFilterPage] = useState<number>(1);
+	const [total, setTotal] = useState<number>(0);
+	const [pageSize, setPageSize] = useState<number>(0);
+
+	// Build stats API URL
+	const statsUrl = useMemo(() => {
+		if (!raffleId) return null;
+		const params = new URLSearchParams();
+		if (startDate) params.append("start_date", startDate);
+		if (endDate) params.append("end_date", endDate);
+		return `admin/game-management/game-list/single-game/${raffleId}/customer-overview-stats${params.toString() ? `?${params.toString()}` : ""}`;
+	}, [raffleId, startDate, endDate]);
+
+	// Fetch stats
+	const {
+		data: statsResponse,
+		isLoading: isLoadingStats,
+		isError: isErrorStats,
+		error: statsError,
+	} = useFetchData(statsUrl);
+
+	// Build customers API URL
+	const customersUrl = useMemo(() => {
+		if (!raffleId) return null;
+		const params = new URLSearchParams();
+		if (debouncedSearch) params.append("search", debouncedSearch);
+		params.append("limit", "10");
+		if (sortBy) params.append("sort_by", sortBy);
+		if (platform) params.append("platform", platform);
+		if (startDate) params.append("start_date", startDate);
+		if (endDate) params.append("end_date", endDate);
+		params.append("paginate", "1");
+		params.append("page", filterPage.toString());
+		params.append("export", "0");
+		return `admin/game-management/game-list/single-game/${raffleId}/unique-customer-list?${params.toString()}`;
+	}, [raffleId, debouncedSearch, sortBy, platform, startDate, endDate, filterPage]);
+
+	// Fetch customers
+	const {
+		data: customersResponse,
+		isLoading: isLoadingCustomers,
+		isError: isErrorCustomers,
+		error: customersError,
+	} = useFetchData(customersUrl);
+
+	// Build export URL
+	const exportUrl = useMemo(() => {
+		if (!raffleId) return "";
+		const params = new URLSearchParams();
+		if (debouncedSearch) params.append("search", debouncedSearch);
+		params.append("limit", "10");
+		if (sortBy) params.append("sort_by", sortBy);
+		if (platform) params.append("platform", platform);
+		if (startDate) params.append("start_date", startDate);
+		if (endDate) params.append("end_date", endDate);
+		params.append("paginate", "0");
+		params.append("export", "1");
+		return `admin/game-management/game-list/single-game/${raffleId}/unique-customer-list?${params.toString()}`;
+	}, [raffleId, debouncedSearch, sortBy, platform, startDate, endDate]);
+
+	const exportCustomersMutation = useGetExportData(exportUrl);
+
+	const stats: CustomerStats | undefined = statsResponse?.data;
+
+	// Handle stats error
+	useEffect(() => {
+		if (isErrorStats) {
+			notifications.show({
+				title: "Failed to fetch customer statistics",
+				message:
+					(statsError as { message?: string })?.message || "An error occurred",
+				color: "red",
+			});
+		}
+	}, [isErrorStats, statsError]);
+
+	// Handle customers
+	useEffect(() => {
+		if (isErrorCustomers) {
+			notifications.show({
+				title: "Failed to fetch customers",
+				message:
+					(customersError as { message?: string })?.message ||
+					"An error occurred",
+				color: "red",
+			});
+			setCustomers([]);
+			setTotal(0);
+		}
+
+		if (customersResponse) {
+			setCustomers(customersResponse.data?.data || []);
+			setCurrentPage(customersResponse.data?.current_page || filterPage || 1);
+			setTotal(customersResponse.data?.total || 0);
+			setPageSize(customersResponse.data?.per_page || 10);
+		}
+	}, [isErrorCustomers, customersError, customersResponse, filterPage]);
+
+	const handleExport = () => {
+		exportCustomersMutation.mutate(undefined, {
+			onSuccess: (data) => {
+				const url = window.URL.createObjectURL(new Blob([data]));
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = `raffle_customers_${new Date()
+					.toISOString()
+					.slice(0, 10)}.xlsx`;
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				window.URL.revokeObjectURL(url);
+
+				notifications.show({
+					title: "Export Successful",
+					message: "Your file has been downloaded",
+					color: "green",
+				});
+			},
+			onError: (error) => {
+				notifications.show({
+					title: "Export Failed",
+					message: error?.message || "An error occurred",
+					color: "var(--color-primary-red)",
+				});
+			},
+		});
+	};
+
+	// Calculate average tickets per customer
+	const avgTicketsPerCustomer =
+		stats?.total_unique_customers && stats?.total_unique_customers > 0
+			? (
+					stats.unique_customers_by_channel_percentage.platform_breakdown.reduce(
+						(sum, p) => sum + p.unique_customers,
+						0
+					) / stats.total_unique_customers
+			  ).toFixed(1)
+			: "0";
+
+	if (!raffleId) {
+		return (
+			<Box mt="xl" pb="xl" mx="xl">
+				<Card withBorder radius="md" p="xl">
+					<Text className="!text-secondary-text" ta="center">
+						No raffle selected
+					</Text>
+				</Card>
+			</Box>
+		);
+	}
+
 	return (
 		<Box mt="xl" pb="xl" mx="xl">
 			<Card withBorder radius={"md"}>
@@ -44,19 +258,31 @@ function CustomerList() {
 							<PiQuestionThin />
 						</span>
 					</Text>
-					<Text className="!text-primary-green " fz={32} fw={500} mb="xs">
-						{(2000).toLocaleString()}
-					</Text>
+					{isLoadingStats ? (
+						<Box className="space-y-2">
+							<RenderSkeletonText height={40} width="30%" />
+							<RenderSkeletonText height={16} width="50%" />
+						</Box>
+					) : (
+						<>
+							<Text className="!text-primary-green " fz={32} fw={500} mb="xs">
+								{stats?.total_unique_customers?.toLocaleString() || 0}
+							</Text>
 
-					<Text
-						tt="capitalize"
-						fz="sm"
-						className="!text-secondary-text !item-center !flex !gap-2"
-						mb={5}
-					>
-						<AiFillExclamationCircle />
-						22.4% increase over the last days
-					</Text>
+							<Text
+								tt="capitalize"
+								fz="sm"
+								className="!text-secondary-text !item-center !flex !gap-2"
+								mb={5}
+							>
+								<AiFillExclamationCircle />
+								<span className="!text-primary-green">
+									{stats?.unique_customers_percentage_change_last_3_days || 0}%
+								</span>{" "}
+								increase over the last 3 days
+							</Text>
+						</>
+					)}
 				</Box>
 				<Divider my="md" />
 				<SimpleGrid
@@ -66,7 +292,7 @@ function CustomerList() {
 					verticalSpacing={{ base: "lg", sm: "xl" }}
 					mt="md"
 				>
-					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40">
+					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
 						<Text
 							tt={"capitalize"}
 							fz={"sm"}
@@ -77,14 +303,26 @@ function CustomerList() {
 								<PiQuestionThin />
 							</span>
 						</Text>
-						<Text fw={500} fz={28}>
-							5,000
-						</Text>
-						<Text tt="capitalize" fz="sm">
-							29.3% new user
-						</Text>
+						{isLoadingStats ? (
+							<Box className="space-y-2">
+								<RenderSkeletonText height={32} width="60%" />
+								<RenderSkeletonText height={14} width="70%" />
+							</Box>
+						) : (
+							<>
+								<Text fw={500} fz={28}>
+									{stats?.total_new_customers?.toLocaleString() || 0}
+								</Text>
+								<Text tt="capitalize" fz="sm">
+									<span className="!text-primary-green">
+										{stats?.new_customers_percentage_change_last_3_days || 0}%
+									</span>{" "}
+									new user
+								</Text>
+							</>
+						)}
 					</Box>
-					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40">
+					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
 						<Text
 							tt={"capitalize"}
 							fz={"sm"}
@@ -95,15 +333,29 @@ function CustomerList() {
 								<PiQuestionThin />
 							</span>
 						</Text>
-						<Text fw={500} fz={22} tt="capitalize">
-							{(1000).toLocaleString()}
-						</Text>
-						<Text tt="capitalize" fz="sm">
-							<span className="text-primary-green">+34.9% </span> increase in
-							the last 3 days
-						</Text>
+						{isLoadingStats ? (
+							<Box className="space-y-2">
+								<RenderSkeletonText height={28} width="60%" />
+								<RenderSkeletonText height={14} width="70%" />
+							</Box>
+						) : (
+							<>
+								<Text fw={500} fz={22} tt="capitalize">
+									{stats?.total_returning_customers?.toLocaleString() || 0}
+								</Text>
+								<Text tt="capitalize" fz="sm">
+									<span className="text-primary-green">
+										+
+										{stats?.returning_customers_percentage_change_last_3_days ||
+											0}
+										%{" "}
+									</span>{" "}
+									increase in the last 3 days
+								</Text>
+							</>
+						)}
 					</Box>
-					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40">
+					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
 						<Text
 							tt={"capitalize"}
 							fz={"sm"}
@@ -114,13 +366,21 @@ function CustomerList() {
 								<PiQuestionThin />
 							</span>
 						</Text>
-						<Text fw={500} fz={22}>
-							2 ticket units
-						</Text>
-						<Text tt="capitalize" fz="sm">
-							<span className="text-primary-green">+1.5 </span> increase in the
-							last 3 days
-						</Text>
+						{isLoadingStats ? (
+							<Box className="space-y-2">
+								<RenderSkeletonText height={28} width="60%" />
+								<RenderSkeletonText height={14} width="70%" />
+							</Box>
+						) : (
+							<>
+								<Text fw={500} fz={22}>
+									{avgTicketsPerCustomer} ticket units
+								</Text>
+								<Text tt="capitalize" fz="sm">
+									per customer average
+								</Text>
+							</>
+						)}
 					</Box>
 				</SimpleGrid>
 				<Card withBorder radius={"md"} mt="md">
@@ -172,14 +432,14 @@ function CustomerList() {
 					direction={{ base: "column", xs: "row" }}
 					gap={10}
 					justify={"space-between"}
-					px="sm"
+					px="md"
 				>
 					<Box>
 						<Text tt="capitalize" fz={"lg"} fw={600}>
-							game transaction list
+							Customer List
 						</Text>
 						<Text className="!text-secondary-text !text-xs !capitalize">
-							track and manage games transaction list on the system
+							Track and manage game customers across purchase channels
 						</Text>
 					</Box>
 
@@ -187,77 +447,64 @@ function CustomerList() {
 						rightSection={<FaFileArrowDown />}
 						variant="outline"
 						className="!border-secondary-text !text-secondary-text"
+						onClick={handleExport}
+						loading={exportCustomersMutation?.isPending}
+						disabled={exportCustomersMutation?.isPending}
 					>
 						Export
 					</Button>
 				</Flex>
-				<Divider my="md" />
+				<Divider mt="md" mb="lg" />
 				<Flex
-					direction={{ base: "column", xs: "row" }}
-					gap={10}
+					justify="space-between"
 					px="md"
-					wrap={"wrap"}
-					align={{ base: "start", md: "center" }}
-					justify={{ base: "start", sm: "space-between" }}
+					mb="lg"
+					wrap="wrap"
+					gap={8}
+					align="center"
 				>
-					<WebMobileTab />
-					<Flex gap={{ base: "md" }} wrap={"wrap"}>
-						<TextInput
-							className="w-full sm:w-fit"
-							placeholder="search"
-							leftSection={<FaSearch />}
+					<Flex justify="space-between" align="center">
+						<TabSwitcher
+							tabs={platformTabs}
+							activeTab={platform}
+							onChange={setPlatform}
 						/>
-
-						<SortMenu items={[]} />
-						<FilterMenu items={[]} />
 					</Flex>
-				</Flex>
-				<Divider my="md" />
-				<RaffleCustomTable
-					headers={[
-						"customer name & ID",
-						"location (L.G.A)",
-						"phone",
-						"purchase source",
-						"ticket price & number",
-						"number of ticket",
-						"",
-					]}
-				>
-					{[1, 2, 3, 4, 5, 6, 7]?.map((element) => (
-						<Table.Tr key={element}>
-							<Table.Td>{element}</Table.Td>
-							<Table.Td>{element}</Table.Td>
-							<Table.Td>{element}</Table.Td>
-							<Table.Td>{element}</Table.Td>
-							<Table.Td>{element}</Table.Td>
-							<Table.Td>{element}</Table.Td>
-
-							<Table.Td>
-								<CustomerModal />
-							</Table.Td>
-						</Table.Tr>
-					))}
-				</RaffleCustomTable>
-
-				<Divider />
-				<Flex justify={"space-between"} px="md" my={"xs"} py="xs">
-					<Text fs={"italic"}>page 1 of 10</Text>
+					<TextInput
+						leftSection={<HiSearch />}
+						placeholder="Search"
+						value={search}
+						onChange={(e) => setSearch(e.currentTarget.value)}
+						className="!w-72 !rounded-xl shadow-md"
+					/>
 					<Group>
-						<Button
-							variant="outline"
-							className="!border-secondary-text !text-secondary-text !italic !capitalize"
-						>
-							previous
-						</Button>
-						<Button
-							variant="outline"
-							className="!border-secondary-text !text-secondary-text !italic !capitalize"
-						>
-							next
-						</Button>
+						<Select
+							value={sortBy}
+							onChange={setSortBy}
+							rightSection={<IoFilterOutline />}
+							placeholder="Sort by: Show all"
+							data={[
+								{ value: "asc", label: "Oldest to Newest" },
+								{ value: "desc", label: "Newest to Oldest" },
+							]}
+							className="!shadow-md"
+							classNames={{
+								label: "!capitalize ",
+								options: "text-primary-text",
+							}}
+						/>
 					</Group>
 				</Flex>
+
+				<CustomerTable isLoading={isLoadingCustomers} customers={customers} />
+
+				<TablePaginator
+					currentPage={currentPage}
+					isLoading={isLoadingCustomers}
+					total={total}
+					pageSize={pageSize}
+					onPageChange={setFilterPage}
+				/>
 			</Card>
 		</Box>
 	);
@@ -265,7 +512,7 @@ function CustomerList() {
 
 export default CustomerList;
 
-export const data = [
+const data = [
 	{
 		date: "Mar 22",
 		Apples: 2890,

@@ -32,8 +32,6 @@ import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { GoArrowUpRight } from "react-icons/go";
 import CustomBadge from "../../../components/CustomBadge";
-import CustomButton from "../../../components/Buttons/CustomButton";
-import { BsPlus } from "react-icons/bs";
 
 interface PrizeClaimStats {
   total: number;
@@ -60,6 +58,7 @@ type PrizeClaimStatsCard = {
 export interface PrizeClaim {
   uuid: string;
   game_name: string;
+  game_id: string;
   game_category: string;
   draw_index: string;
   prize_won: string;
@@ -380,19 +379,6 @@ function PrizeClaims() {
                 </Text>
               </div>
               <Group>
-                <CustomButton
-                  border={false}
-                  className="!rounded-lg !h-12"
-                  size="sm"
-                  onClick={() => navigate("create")}
-                  rightSection={
-                    <div className="!inline-flex !bg-[#ff8283] p-1 w-fit rounded-md">
-                      <BsPlus className=" !text-white" />
-                    </div>
-                  }
-                >
-                  New Claim
-                </CustomButton>
                 <Button
                   variant="outline"
                   className="!border-secondary-text/50 !text-secondary-text !rounded-lg !text-sm !h-12"
@@ -452,12 +438,12 @@ function PrizeClaims() {
 
             <DynamicTableSection
               headers={[
-                { label: "Customer Name", key: "name" },
-                { label: "Game Name", key: "game" },
+                { label: "Raffle Details", key: "game" },
                 { label: "Game Category", key: "category" },
-                { label: "Draw Index", key: "draw" },
+                { label: "Raffle Draw Winner", key: "winner" },
                 { label: "Prize Won", key: "prize" },
-                { label: "Won At", key: "wonAt" },
+                { label: "Draw Index", key: "draw" },
+                { label: "Claim Date", key: "date" },
                 { label: "Status", key: "status" },
                 { label: "", key: "action" },
               ]}
@@ -466,14 +452,21 @@ function PrizeClaims() {
               emptyMessage="No prize claims found"
               renderItems={(claim) => [
                 <>
+                  <Text className="!text-base !font-medium !capitalize">
+                    {claim.game_name}
+                  </Text>
+                  <Text className="!text-secondary-text !text-sm !capitalize">
+                    {claim.game_id}
+                  </Text>
+                </>,
+                claim.game_category,
+                <>
                   <Text className="!text-base !text-primary-text !font-medium">
                     {claim.customer?.firstname} {claim.customer?.lastname}
                   </Text>
                 </>,
-                claim.game_name,
-                claim.game_category,
-                claim.draw_index,
                 claim.prize_won,
+                claim.draw_index,
                 claim?.won_at
                   ? format(new Date(claim.won_at), "MMMM d, yyyy h:mm a")
                   : "-",
