@@ -1,6 +1,7 @@
 import { Card, Text, Button, Stack, Title } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { IconLock } from "@tabler/icons-react";
+import { useAdminMenu } from "../../../utils/hooks/useAdminMenu";
 
 interface AccessDeniedProps {
   moduleName?: string;
@@ -8,13 +9,31 @@ interface AccessDeniedProps {
 
 export default function AccessDenied({ moduleName }: AccessDeniedProps) {
   const navigate = useNavigate();
+  const menuSections = useAdminMenu();
+
+  // Find the first accessible route and its module name from the menu
+  const firstAccessibleMenuItem = menuSections
+    .flatMap((section) => section.items)
+    .find((item) => item.path);
+  
+  const firstAccessibleRoute = firstAccessibleMenuItem?.path;
+  const firstAccessibleModuleName = firstAccessibleMenuItem?.requiredModule;
 
   const handleGoBack = () => {
     navigate(-1);
   };
 
   const handleGoToDashboard = () => {
-    navigate("/admin/raffles");
+    if (firstAccessibleRoute) {
+      navigate(firstAccessibleRoute);
+    } else {
+      // If no accessible routes, go to login
+      navigate("/admin/login");
+    }
+  };
+
+  const handleBackToLogin = () => {
+    navigate("/admin/login");
   };
 
   return (
@@ -49,12 +68,21 @@ export default function AccessDenied({ moduleName }: AccessDeniedProps) {
             >
               Go Back
             </Button>
-            <Button
-              onClick={handleGoToDashboard}
-              className="!bg-primary-red hover:!bg-red-700 !px-7 !h-12 !tracking-wide"
-            >
-              Go to Dashboard
-            </Button>
+            {firstAccessibleRoute ? (
+              <Button
+                onClick={handleGoToDashboard}
+                className="!bg-primary-red hover:!bg-red-700 !capitalize !px-7 !h-12 !tracking-wide"
+              >
+                Go to {firstAccessibleModuleName || "Dashboard"}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleBackToLogin}
+                className="!bg-primary-red hover:!bg-red-700 !px-7 !h-12 !tracking-wide"
+              >
+                Back to Login
+              </Button>
+            )}
           </Stack>
         </Stack>
       </Card>
