@@ -265,7 +265,6 @@ function DrawsOverview() {
 
     if (drawsResponse) {
       setDraws(drawsResponse.data?.records?.data || []);
-      console.log(drawsResponse.data);
       // Handle pagination metadata - check both possible response structures
       const paginationData = drawsResponse.data;
       setCurrentPage(paginationData?.records?.current_page || filterPage || 1);

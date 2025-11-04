@@ -37,9 +37,6 @@ const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
   requiredModule,
 }) => {
   const { hasPermission, module, user } = useRoutePermission();
-  console.log(user);
-  
-
   // If explicit permission/module is provided, use custom check
   let shouldAllowAccess = hasPermission;
     

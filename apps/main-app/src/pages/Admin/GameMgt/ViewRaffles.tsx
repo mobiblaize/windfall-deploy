@@ -205,7 +205,7 @@ function ViewRaffles() {
 
         <div className="bg-white border-b-2 border-[#d0d5dd]">
           <div className="px-6 md:px-10 pt-7 pb-2 mb-7">
-            <Flex justify="space-between" align="center">
+            <Flex justify="space-between" align="center" wrap={"wrap"} gap={"md"}>
               <div className="flex-1">
                 {isLoadingRaffle ? (
                   <>
