@@ -2,7 +2,7 @@ import { Box, Card, Divider, Flex, Text, Button, Select } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import { FaAngleDown } from "react-icons/fa";
 import Salestabs from "./Salestabs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { Raffle } from "./RaffleList";
 import { useFetchData, useGetData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
@@ -10,7 +10,7 @@ import RaffleOverviewCard from "./RaffleOverviewCard";
 import { DateInput } from "@mantine/dates";
 import { IoClose } from "react-icons/io5";
 import { CiCalendar } from "react-icons/ci";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import TicketPerformanceCard from "./TicketPerformanceCard";
 
 export interface TicketSalesStats {
@@ -98,14 +98,17 @@ interface PerformanceMonitorProps {
   raffleId?: string;
   startDate?: string;
   endDate?: string;
+  isInstantRaffleRoute?: boolean;
 }
 
 function PerformanceMonitor({
   raffleId: propRaffleId,
   startDate: propStartDate = "",
   endDate: propEndDate = "",
+  isInstantRaffleRoute = false,
 }: PerformanceMonitorProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [ticketSalesStats, setTicketSalesStats] = useState<TicketSalesStats>();
   const [ticketStats, setTicketStats] = useState<TicketStats[]>([]);
   const [ticketPerformance, setTicketPerformance] =
@@ -120,16 +123,28 @@ function PerformanceMonitor({
   const startDate = propRaffleId ? propStartDate : localStartDate;
   const endDate = propRaffleId ? propEndDate : localEndDate;
   const isEmbedded = !!propRaffleId; // Check if component is embedded in parent with raffleId
+  
+  // Determine base route for relative navigation
+  const baseRoute = useMemo(() => {
+    return location.pathname.includes("/instant-raffles") ? "/admin/instant-raffles" : "/admin/raffles";
+  }, [location.pathname]);
+
+  // Build API URLs with instant_game param when needed
+  const rafflesApiUrl = useMemo(() => {
+    if (isEmbedded) return null;
+    const baseUrl = `admin/game-management/game-list/all?paginate=0&limit=10&page=1`;
+    if (isInstantRaffleRoute) {
+      return `${baseUrl}&instant_game=true`;
+    }
+    return baseUrl;
+  }, [isEmbedded, isInstantRaffleRoute]);
+
   // Only fetch raffles and categories if not embedded (no raffleId prop)
   const {
     data: rafflesResponse,
     isError: isErrorRaffles,
     error: rafflesError,
-  } = useFetchData(
-    !isEmbedded
-      ? `admin/game-management/game-list/all?paginate=0&limit=10&page=1`
-      : null
-  );
+  } = useFetchData(rafflesApiUrl);
   const {
     data: categoriesResponse,
     isError: isErrorCategories,
@@ -140,16 +155,36 @@ function PerformanceMonitor({
       : null
   );
 
-  const ticketSalesMutation = useGetData(
-    `admin/game-management/dashboard/ticket-sales-stats?game_id=${raffleId}&game_category_id=${categoryId}&start_date=${startDate}&end_date=${endDate}`
-  );
-  const ticketStatsMutation = useGetData(
-    `admin/game-management/dashboard/ticket-stats?game_id=${raffleId}&game_category_id=${categoryId}&start_date=${startDate}&end_date=${endDate}`
-  );
+  // Build API URLs with instant_game param
+  // Note: When raffleId is provided (embedded mode), we don't need instant_game param
+  // because we're already filtering by a specific game ID
+  const ticketSalesApiUrl = useMemo(() => {
+    const baseUrl = `admin/game-management/dashboard/ticket-sales-stats?game_id=${raffleId}&game_category_id=${categoryId}&start_date=${startDate}&end_date=${endDate}`;
+    if (isInstantRaffleRoute && !raffleId) {
+      return `${baseUrl}&instant_game=true`;
+    }
+    return baseUrl;
+  }, [raffleId, categoryId, startDate, endDate, isInstantRaffleRoute]);
 
-  const ticketPerformanceMutation = useGetData(
-    `admin/game-management/dashboard/ticket-performance-stats?game_id=${raffleId}&start_date=${startDate}&end_date=${endDate}`
-  );
+  const ticketStatsApiUrl = useMemo(() => {
+    const baseUrl = `admin/game-management/dashboard/ticket-stats?game_id=${raffleId}&game_category_id=${categoryId}&start_date=${startDate}&end_date=${endDate}`;
+    if (isInstantRaffleRoute && !raffleId) {
+      return `${baseUrl}&instant_game=true`;
+    }
+    return baseUrl;
+  }, [raffleId, categoryId, startDate, endDate, isInstantRaffleRoute]);
+
+  const ticketPerformanceApiUrl = useMemo(() => {
+    const baseUrl = `admin/game-management/dashboard/ticket-performance-stats?game_id=${raffleId}&start_date=${startDate}&end_date=${endDate}`;
+    if (isInstantRaffleRoute && !raffleId) {
+      return `${baseUrl}&instant_game=true`;
+    }
+    return baseUrl;
+  }, [raffleId, startDate, endDate, isInstantRaffleRoute]);
+
+  const ticketSalesMutation = useGetData(ticketSalesApiUrl);
+  const ticketStatsMutation = useGetData(ticketStatsApiUrl);
+  const ticketPerformanceMutation = useGetData(ticketPerformanceApiUrl);
 
   const raffles: Raffle[] = rafflesResponse?.data;
   const rafflesData = (() => {
@@ -378,7 +413,7 @@ function PerformanceMonitor({
             <Button
               tt={"capitalize"}
               rightSection={<RiArrowRightUpLine size={16} />}
-              onClick={() => navigate(`/admin/raffles/${raffleId}`)}
+              onClick={() => navigate(`${baseRoute}/${raffleId}`)}
             >
               raffle details
             </Button>

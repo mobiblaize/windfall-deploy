@@ -11,10 +11,11 @@ import { colorMap } from "../../../models/raffles";
 type RaffleTableProps = {
   raffles: Raffle[];
   isLoading: boolean;
+  baseRoute?: string;
 }
 
 
-export default function RaffleTable( { isLoading, raffles }: RaffleTableProps) {
+export default function RaffleTable( { isLoading, raffles, baseRoute = "/admin/raffles" }: RaffleTableProps) {
   const navigate = useNavigate();
   return (
     <DynamicTableSection
@@ -69,7 +70,7 @@ export default function RaffleTable( { isLoading, raffles }: RaffleTableProps) {
             {raffle.status}
           </Badge>,
           <ActionIcon
-            onClick={() => navigate(`${raffle.uuid}`)}
+            onClick={() => navigate(`${baseRoute}/${raffle.uuid}`)}
             size={35}
             className="!bg-[#FFD5D6] !text-primary-red !text-xl"
           >

@@ -27,18 +27,30 @@ import {
 } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Prizes from "./Prizes";
-
-const breadCrumbs: Crumb[] = [
-  { label: "Raffle Management", to: "/admin/raffles" },
-  { label: "Create a New Raffle", to: "/create-raffle" },
-];
 
 function CreateRaffleLayout() {
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine if we're on instant-raffles route
+  const isInstantRaffleRoute = useMemo(() => {
+    return location.pathname.includes("/instant-raffles");
+  }, [location.pathname]);
+
+  // Determine base route for relative navigation
+  const baseRoute = useMemo(() => {
+    return isInstantRaffleRoute ? "/admin/instant-raffles" : "/admin/raffles";
+  }, [isInstantRaffleRoute]);
+
+  // Build breadcrumbs dynamically
+  const breadCrumbs: Crumb[] = useMemo(() => [
+    { label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management", to: baseRoute },
+    { label: "Create a New Raffle", to: "" },
+  ], [isInstantRaffleRoute, baseRoute]);
   const [active, setActive] = useState(0);
   const [isCheckingName, setIsCheckingName] = useState(false);
   const [lastCheckedName, setLastCheckedName] = useState<string>("");
@@ -471,8 +483,8 @@ function CreateRaffleLayout() {
 
   const manageRaffles = useCallback(() => {
     setSuccessModalOpen(false);
-    navigate("/admin/raffles");
-  }, [navigate]);
+    navigate(baseRoute);
+  }, [navigate, baseRoute]);
 
   const handleCreateRaffle = useCallback(async () => {
     // Build final payload structure

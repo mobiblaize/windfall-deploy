@@ -80,17 +80,19 @@ function ViewRaffles() {
 
   // Determine if this is an instant raffle route or regular raffle route
   const isInstantRaffleRoute = useMemo(() => {
-    return location.pathname.includes("/instant-raffles/");
+    return location.pathname.includes("/instant-raffles");
   }, [location.pathname]);
+
+  // Determine base route for relative navigation
+  const baseRoute = useMemo(() => {
+    return isInstantRaffleRoute ? "/admin/instant-raffles" : "/admin/raffles";
+  }, [isInstantRaffleRoute]);
 
   // Handle edit raffle action
   const handleEditRaffle = useCallback(() => {
     if (!id) return;
-    const editPath = isInstantRaffleRoute 
-      ? `/admin/instant-raffles/edit/${id}`
-      : `/admin/raffles/edit/${id}`;
-    navigate(editPath);
-  }, [id, isInstantRaffleRoute, navigate]);
+    navigate(`${baseRoute}/edit/${id}`);
+  }, [id, baseRoute, navigate]);
 
   // Handle start draw action
   const handleStartDraw = useCallback(() => {
@@ -155,11 +157,11 @@ function ViewRaffles() {
 
   const statusInfo = getStatusInfo();
 
-  const breadCrumbs: Crumb[] = [
-    { label: "Raffle Management", to: "/admin/raffles" },
-    { label: "Raffle List", to: "/admin/raffles/all" },
+  const breadCrumbs: Crumb[] = useMemo(() => [
+    { label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management", to: baseRoute },
+    { label: "Raffle List", to: `${baseRoute}/all` },
     { label: `${raffle?.name || "Loading..."}` },
-  ];
+  ], [isInstantRaffleRoute, baseRoute, raffle?.name]);
 
   // If no ID, show error state
   if (!id) {
@@ -313,6 +315,7 @@ function ViewRaffles() {
             raffleId={id}
             startDate={dateRange[0] || ""}
             endDate={dateRange[1] || ""}
+            isInstantRaffleRoute={isInstantRaffleRoute}
           />
         )}
         {tabs === "winner" && (

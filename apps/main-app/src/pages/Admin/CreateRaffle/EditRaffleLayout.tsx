@@ -27,7 +27,7 @@ import {
 } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Prizes from "./Prizes";
 import type { Raffle } from "../GameMgt/RaffleList";
 import LoadingState from "../../../components/LoadingState";
@@ -38,6 +38,17 @@ function EditRaffleLayout() {
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine if we're on instant-raffles route
+  const isInstantRaffleRoute = useMemo(() => {
+    return location.pathname.includes("/instant-raffles");
+  }, [location.pathname]);
+
+  // Determine base route for relative navigation
+  const baseRoute = useMemo(() => {
+    return isInstantRaffleRoute ? "/admin/instant-raffles" : "/admin/raffles";
+  }, [isInstantRaffleRoute]);
   const [active, setActive] = useState(0);
   const [isCheckingName, setIsCheckingName] = useState(false);
   const [lastCheckedName, setLastCheckedName] = useState<string>("");
@@ -85,9 +96,9 @@ function EditRaffleLayout() {
           (raffleError as { message: string })?.message || "An error occurred",
         color: "var(--color-primary-red)",
       });
-      navigate("/admin/raffles");
+      navigate(baseRoute);
     }
-  }, [isRaffleError, raffleError, navigate]);
+  }, [isRaffleError, raffleError, navigate, baseRoute]);
 
   const categories = useMemo(() => {
     if (!categoriesData || !categoriesData.data) return [];
@@ -581,8 +592,8 @@ function EditRaffleLayout() {
 
   const manageRaffles = useCallback(() => {
     setSuccessModalOpen(false);
-    navigate("/admin/raffles");
-  }, [navigate]);
+    navigate(baseRoute);
+  }, [navigate, baseRoute]);
 
   const handleUpdateRaffle = useCallback(async () => {
     const values = form.getValues();
@@ -661,10 +672,10 @@ function EditRaffleLayout() {
     [stepsLayout, active]
   );
   
-  const breadCrumbs: Crumb[] = [
-    { label: "Raffle Management", to: "/admin/raffles" },
+  const breadCrumbs: Crumb[] = useMemo(() => [
+    { label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management", to: baseRoute },
     { label: `Edit ${raffleData?.data?.name ?? "Raffle"}`, to: "" },
-  ];
+  ], [isInstantRaffleRoute, baseRoute, raffleData?.data?.name]);
 
   if (!id) {
     return (
@@ -674,7 +685,7 @@ function EditRaffleLayout() {
           description="Failed to fetch raffle details."
           format="secondary"
           fullWidth={true}
-          redirectLink="/admin/raffles/all"
+          redirectLink={`${baseRoute}/all`}
           btnText="Raffle List"
         />
       </div>

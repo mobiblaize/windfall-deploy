@@ -10,13 +10,14 @@ import {
 import { BiSolidBell } from "react-icons/bi";
 import PerformanceMonitor from "./PerformanceMonitor";
 import { useFetchData } from "../../../utils/hooks/useApis";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { notifications } from "@mantine/notifications";
 import { DateInput } from "@mantine/dates";
 import { IoClose } from "react-icons/io5";
 import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
 import SampleRaffles from "./SampleRaffles";
+import { useLocation } from "react-router-dom";
 
 type StatsCard = {
   title: string;
@@ -61,16 +62,30 @@ const cards: StatsCard[] = [
 ];
 
 function RaffleManagement() {
+  const location = useLocation();
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
+  
+  // Detect if we're on instant-raffles route
+  const isInstantRaffleRoute = useMemo(() => {
+    return location.pathname.includes("/instant-raffles");
+  }, [location.pathname]);
+
+  // Build API URL with instant_game param when on instant-raffles route
+  const statsApiUrl = useMemo(() => {
+    const baseUrl = `admin/game-management/dashboard/stats?start_date=${startDate}&end_date=${endDate}`;
+    if (isInstantRaffleRoute) {
+      return `${baseUrl}&instant_game=true`;
+    }
+    return baseUrl;
+  }, [startDate, endDate, isInstantRaffleRoute]);
+
   const {
     data: statsResponse,
     isLoading: isLoadingStats,
     isError: isErrorStats,
     error: statsError,
-  } = useFetchData(
-    `admin/game-management/dashboard/stats?start_date=${startDate}&end_date=${endDate}`
-  );
+  } = useFetchData(statsApiUrl);
 
   useEffect(() => {
     if (isErrorStats) {
@@ -218,9 +233,9 @@ function RaffleManagement() {
       </div>
 
       {/* === Raffle list table === */}
-      <SampleRaffles />
+      <SampleRaffles isInstantRaffleRoute={isInstantRaffleRoute} />
 
-      <PerformanceMonitor />
+      <PerformanceMonitor isInstantRaffleRoute={isInstantRaffleRoute} />
     </>
   );
 }

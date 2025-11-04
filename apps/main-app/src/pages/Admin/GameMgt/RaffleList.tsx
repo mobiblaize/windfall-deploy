@@ -11,12 +11,12 @@ import {
   Select
 } from "@mantine/core";
 import { FaFileArrowDown } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import type { Crumb } from "../../../components/DynamicBreadCrumbs";
 import DynamicBreadcrumbs from "../../../components/DynamicBreadCrumbs";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import { BsPlus } from "react-icons/bs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDebounce } from "../../../utils/hooks/useDebounce";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
@@ -105,13 +105,9 @@ export interface Category {
   name: string
 }
 
-const breadCrumbs: Crumb[] = [
-  { label: "Raffle Management", to: "/admin/raffles" },
-  { label: "Raffle List" },
-];
-
 function RaffleList() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string | null>("");
@@ -121,17 +117,47 @@ function RaffleList() {
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+
+  // Detect if we're on instant-raffles route
+  const isInstantRaffleRoute = useMemo(() => {
+    return location.pathname.includes("/instant-raffles");
+  }, [location.pathname]);
+
+  // Determine base route for relative navigation
+  const baseRoute = useMemo(() => {
+    return isInstantRaffleRoute ? "/admin/instant-raffles" : "/admin/raffles";
+  }, [isInstantRaffleRoute]);
+
+  // Build breadcrumbs dynamically
+  const breadCrumbs: Crumb[] = useMemo(() => [
+    { label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management", to: baseRoute },
+    { label: "Raffle List" },
+  ], [isInstantRaffleRoute, baseRoute]);
+
+  // Build API URL with instant_game param when needed
+  const apiUrl = useMemo(() => {
+    const baseUrl = `admin/game-management/game-list/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`;
+    if (isInstantRaffleRoute) {
+      return `${baseUrl}&instant_game=true`;
+    }
+    return baseUrl;
+  }, [debouncedSearch, filterPage, sortBy, filterBy, isInstantRaffleRoute]);
+
+  const exportApiUrl = useMemo(() => {
+    const baseUrl = `admin/game-management/game-list/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`;
+    if (isInstantRaffleRoute) {
+      return `${baseUrl}&instant_game=true`;
+    }
+    return baseUrl;
+  }, [debouncedSearch, filterPage, sortBy, filterBy, isInstantRaffleRoute]);
+
   const {
     data: response,
     isLoading,
     isError,
     error,
-  } = useFetchData(
-    `admin/game-management/game-list/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
-  );
-  const exportRafflesMutation = useGetExportData(
-    `admin/game-management/game-list/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
-  );
+  } = useFetchData(apiUrl);
+  const exportRafflesMutation = useGetExportData(exportApiUrl);
 
   useEffect(() => {
     if (isError) {
@@ -204,7 +230,7 @@ function RaffleList() {
                 border={false}
                 className="!rounded-lg"
                 size="md"
-                onClick={() => navigate("/admin/raffles/create")}
+                onClick={() => navigate(`${baseRoute}/create`)}
                 rightSection={
                   <div className="!inline-flex !bg-[#ff8283] p-1 w-fit rounded-md">
                     <BsPlus className="!text-xl !text-white" />
@@ -298,7 +324,7 @@ function RaffleList() {
             </Group>
           </Flex>
 
-          <RaffleTable isLoading={isLoading} raffles={raffles} />
+          <RaffleTable isLoading={isLoading} raffles={raffles} baseRoute={baseRoute} />
 
           <TablePaginator
             currentPage={currentPage}
