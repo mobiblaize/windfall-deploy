@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Box, Collapse, ActionIcon } from "@mantine/core";
+import { Box, Collapse, ActionIcon, Text } from "@mantine/core";
 import { IconChevronDown, IconChevronUp, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
 
@@ -132,10 +132,21 @@ export default function SideMenu({ menus, onClose, hideLink = false }: SideMenuP
           )}
         </div>
 
-        {/* Render all sections */}
-        {menus.map((section) => (
-          <MenuSection key={section.title} section={section} onClose={onClose} />
-        ))}
+        {/* Render all sections - only show sections with items */}
+        {menus
+          .filter((section) => section.items && section.items.length > 0)
+          .map((section) => (
+            <MenuSection key={section.title} section={section} onClose={onClose} />
+          ))}
+        
+        {/* Empty state if no sections available */}
+        {menus.filter((section) => section.items && section.items.length > 0).length === 0 && (
+          <div className="text-center py-8">
+            <Text className="text-[#EBEAEF] text-sm">
+              No menu items available. Please contact your administrator for access.
+            </Text>
+          </div>
+        )}
       </div>
 
       {/* Bottom Link */}

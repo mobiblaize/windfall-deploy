@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
   
   function closeModal() {
     setSuccessModalOpen(false);
-    handleLoginRedirect("/admin/raffles");
+    handleLoginRedirect("/admin/raffles", 'admin');
   }
   
   function changePassword() {

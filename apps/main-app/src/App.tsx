@@ -8,6 +8,7 @@ import {
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "./utils/helper/ProtectedRoute";
 import AdminProtectedRoute from "./utils/helper/AdminProtectedRoute";
+import PermissionProtectedRoute from "./utils/helper/PermissionProtectedRoute";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
@@ -307,89 +308,89 @@ function App() {
 
                 {/* User Management */}
                 <Route path="users">
-                  <Route index element={<UserManagement />} />
-                  <Route path="create" element={<CreateUser />} />
-                  <Route path=":id" element={<UserDetails />} />
-                  <Route path="edit/:id" element={<EditUser />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-view"><UserManagement /></PermissionProtectedRoute>} />
+                  <Route path="create" element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-edit"><CreateUser /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-view"><UserDetails /></PermissionProtectedRoute>} />
+                  <Route path="edit/:id" element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-edit"><EditUser /></PermissionProtectedRoute>} />
                 </Route>
 
                 {/* Role Management */}
                 <Route path="roles">
-                  <Route index element={<RoleManagement />} />
-                  <Route path="create" element={<CreateRole />} />
-                  <Route path=":id" element={<RoleDetails />} />
-                  <Route path="edit/:id" element={<EditRole />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-view"><RoleManagement /></PermissionProtectedRoute>} />
+                  <Route path="create" element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-edit"><CreateRole /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-view"><RoleDetails /></PermissionProtectedRoute>} />
+                  <Route path="edit/:id" element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-edit"><EditRole /></PermissionProtectedRoute>} />
                 </Route>
 
 
                 <Route path="raffles">
-                  <Route index element={<RaffleManagement />} />
-                  <Route path="all" element={<RaffleList />} />
-                  <Route path=":id" element={<ViewRaffles />} />
-                  <Route path="create" element={<CreateRaffleLayout />} />
-                  <Route path="edit/:id" element={<EditRaffleLayout />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-view"><RaffleManagement /></PermissionProtectedRoute>} />
+                  <Route path="all" element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-view"><RaffleList /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-view"><ViewRaffles /></PermissionProtectedRoute>} />
+                  <Route path="create" element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-edit"><CreateRaffleLayout /></PermissionProtectedRoute>} />
+                  <Route path="edit/:id" element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-edit"><EditRaffleLayout /></PermissionProtectedRoute>} />
                 </Route>
 
                 <Route path="instant-raffles">
-                  <Route index element={<RaffleManagement />} />
-                  <Route path="all" element={<RaffleList />} />
-                  <Route path=":id" element={<ViewRaffles />} />
-                  <Route path="create" element={<CreateRaffleLayout />} />
-                  <Route path="edit/:id" element={<EditRaffleLayout />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-view"><RaffleManagement /></PermissionProtectedRoute>} />
+                  <Route path="all" element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-view"><RaffleList /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-view"><ViewRaffles /></PermissionProtectedRoute>} />
+                  <Route path="create" element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-edit"><CreateRaffleLayout /></PermissionProtectedRoute>} />
+                  <Route path="edit/:id" element={<PermissionProtectedRoute requiredModule="Game Management" requiredPermission="game-management-edit"><EditRaffleLayout /></PermissionProtectedRoute>} />
                 </Route>
 
                 {/* Customer Support */}
                 <Route path="support">
-                  <Route index element={<Support />} />
-                  <Route path=":id" element={<ViewComplaint />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Customer Support" requiredPermission="customer-support-view"><Support /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="Customer Support" requiredPermission="customer-support-view"><ViewComplaint /></PermissionProtectedRoute>} />
                 </Route>
 
                 {/* Promo Code */}
                 <Route path="promo-codes">
-                  <Route index element={<PromoCode />} />
-                  <Route path="create" element={<CreatePromoCode />} />
-                  <Route path=":id" element={<ViewPromoCode />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Promo Code Management" requiredPermission="promo-code-management-view"><PromoCode /></PermissionProtectedRoute>} />
+                  <Route path="create" element={<PermissionProtectedRoute requiredModule="Promo Code Management" requiredPermission="promo-code-management-edit"><CreatePromoCode /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="Promo Code Management" requiredPermission="promo-code-management-view"><ViewPromoCode /></PermissionProtectedRoute>} />
                 </Route>
 
                 {/* Audit Trail */}
-                <Route path="audit" element={<AuditTrail />} />
+                <Route path="audit" element={<PermissionProtectedRoute requiredModule="User Management" requiredPermission="user-management-view"><AuditTrail /></PermissionProtectedRoute>} />
 
                 {/* Customers */}
                 <Route path="customers">
-                  <Route index element={<CustomerDashboard />} />
-                  <Route path=":id" element={<CustomerDetails />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Customer Management" requiredPermission="customer-management-view"><CustomerDashboard /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="Customer Management" requiredPermission="customer-management-view"><CustomerDetails /></PermissionProtectedRoute>} />
                 </Route>
 
                 {/* Notifications */}
-                <Route path="notifications" element={<Notifications />} />
+                <Route path="notifications" element={<PermissionProtectedRoute requiredModule="Notification" requiredPermission="notification-view"><Notifications /></PermissionProtectedRoute>} />
 
                 {/* Referrals */}
-                <Route path="referrals" element={<Referrals />} />
+                <Route path="referrals" element={<PermissionProtectedRoute requiredModule="Referral Management" requiredPermission="referral-management-view"><Referrals /></PermissionProtectedRoute>} />
 
                 {/* Reports */}
-                <Route path="reports" element={<Reports />} />
+                <Route path="reports" element={<PermissionProtectedRoute requiredModule="Report Management" requiredPermission="report-management-view"><Reports /></PermissionProtectedRoute>} />
 
                 {/* Transactions */}
                 <Route path="transactions">
-                  <Route index element={<TransactionDashboard />} />
-                  <Route path="all" element={<TransactionList />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Transaction Management" requiredPermission="transaction-management-view"><TransactionDashboard /></PermissionProtectedRoute>} />
+                  <Route path="all" element={<PermissionProtectedRoute requiredModule="Transaction Management" requiredPermission="transaction-management-view"><TransactionList /></PermissionProtectedRoute>} />
                 </Route>
 
                 {/* Draws */}
                 <Route path="draws">
-                  <Route index element={<DrawsOverview />} />
-                  <Route path=":id" element={<ViewDraw />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Draw Management" requiredPermission="draw-management-view"><DrawsOverview /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="Draw Management" requiredPermission="draw-management-view"><ViewDraw /></PermissionProtectedRoute>} />
                 </Route>
 
                 {/* Prize Claims */}
                 <Route path="prize-claims">
-                  <Route index element={<PrizeClaims />} />
-                  <Route path=":id" element={<ProcessClaim />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Prize Management" requiredPermission="prize-management-view"><PrizeClaims /></PermissionProtectedRoute>} />
+                  <Route path=":id" element={<PermissionProtectedRoute requiredModule="Prize Management" requiredPermission="prize-management-view"><ProcessClaim /></PermissionProtectedRoute>} />
                 </Route>
 
                 {/* Prize Management */}
                 <Route path="prizes">
-                  <Route index element={<PrizeManagement />} />
+                  <Route index element={<PermissionProtectedRoute requiredModule="Prize Management" requiredPermission="prize-management-view"><PrizeManagement /></PermissionProtectedRoute>} />
                 </Route>
               </Route>
             </Route>

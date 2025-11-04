@@ -84,13 +84,24 @@ export const useAuth = () => {
     localStorage.removeItem("pageDetails");
   }
 
-  const handleLoginRedirect = (defaultRedirect: string) => {
+  const handleLoginRedirect = (defaultRedirect: string, userType: 'admin' | 'user' = 'user') => {
     const { page, details } = getStoredRedirect();
     
-    // If a redirect page was stored, use it; otherwise use default
+    // Validate redirect page based on user type
     let redirectPage = page;
-    if (getUserType() === 'admin' && !redirectPage?.toLowerCase()?.startsWith('/admin')) {
-      redirectPage = null;
+    
+    if (redirectPage) {
+      const isAdminPage = redirectPage.toLowerCase().startsWith('/admin');
+      
+      // Admins should only be redirected to admin pages
+      if (userType === 'admin' && !isAdminPage) {
+        redirectPage = null;
+      }
+      
+      // Users should not be redirected to admin pages
+      if (userType === 'user' && isAdminPage) {
+        redirectPage = null;
+      }
     }
 
     navigate(redirectPage || defaultRedirect, {

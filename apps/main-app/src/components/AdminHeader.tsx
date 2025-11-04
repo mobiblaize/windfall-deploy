@@ -10,23 +10,7 @@ import {
   Card,
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import {
-  IconBell,
-  // IconHome,
-  IconTicket,
-  IconBolt,
-  IconCalendarStats,
-  IconUsers,
-  IconReceipt,
-  IconGift,
-  IconTrophy,
-  IconHeadset,
-  IconShare,
-  IconTicketOff,
-  IconReportAnalytics,
-  IconChartBar,
-  IconLogout,
-} from "@tabler/icons-react";
+import { IconBell, IconLogout } from "@tabler/icons-react";
 import SideMenu from "./SideMenu";
 import { useAtom } from "jotai";
 import { userAtom } from "../utils/hooks/useStorage";
@@ -36,51 +20,13 @@ import { useGetData } from "../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { useAuth } from "../utils/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
-const adminSideMenuItems = [
-  {
-    title: "Main Menu",
-    items: [
-      // { name: "Dashboard", path: "/admin/dashboard", icon: IconHome },
-      { name: "Raffle Management", path: "/admin/raffles", icon: IconTicket },
-      { name: "Instant Raffle", path: "/admin/instant-raffles", icon: IconBolt },
-      {
-        name: "Draw Management",
-        path: "/admin/draws",
-        icon: IconCalendarStats,
-      },
-      {
-        name: "Customer Management",
-        path: "/admin/customers",
-        icon: IconUsers,
-      },
-      {
-        name: "Transaction Management",
-        path: "/admin/transactions",
-        icon: IconReceipt,
-      },
-      { name: "Prize Claim", path: "/admin/prize-claims", icon: IconGift },
-      { name: "Prize Management", path: "/admin/prizes", icon: IconTrophy },
-    ],
-  },
-  {
-    title: "Other",
-    items: [
-      { name: "Notification", path: "/admin/notifications", icon: IconBell },
-      { name: "Customer Support", path: "/admin/support", icon: IconHeadset },
-      { name: "Referral Program", path: "/admin/referrals", icon: IconShare },
-      { name: "Promo-Code", path: "/admin/promo-codes", icon: IconTicketOff },
-      { name: "User Management", path: "/admin/users", icon: IconUsers },
-      { name: "Audit Trail", path: "/admin/audit", icon: IconReportAnalytics },
-      { name: "Report", path: "/admin/reports", icon: IconChartBar },
-    ],
-  },
-];
+import { useAdminMenu } from "../utils/hooks/useAdminMenu";
 
 export default function AdminHeader() {
   const [user] = useAtom(userAtom);
   const [logoutAlertModalOpen, setLogoutAlertModalOpen] =
     useState(false);
+  const menuSections = useAdminMenu();
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -171,7 +117,7 @@ export default function AdminHeader() {
         >
           <ScrollArea>
             <SideMenu
-              menus={adminSideMenuItems}
+              menus={menuSections}
               hideLink={true}
               onClose={close}
             />

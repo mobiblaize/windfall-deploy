@@ -30,6 +30,30 @@ export interface User {
     display_name: string;
     enforce_password_change: boolean;
   }[];
+  permissions: string[]
+  permissions_by_module: PermissionsByModule
+}
+
+export interface PermissionsByModule {
+  Dashboard: string[]
+  "Game Management": string[]
+  "Draw Management": string[]
+  "Result Management": string[]
+  "Customer Management": string[]
+  "Transaction Management": string[]
+  "Prize Management": string[]
+  Notification: string[]
+  "Customer Support": string[]
+  "Referral Management": string[]
+  "Promo Code Management": string[]
+  "User Management": string[]
+  "Content Management": string[]
+  "Report Management": string[]
+  Profile: string[]
+  "Workflow Management": string[]
+  "Merchant Management": string[]
+  "Broadcast Management": string[]
+  "Marketing Management": string[]
 }
 
 export interface NotificationSetting {
