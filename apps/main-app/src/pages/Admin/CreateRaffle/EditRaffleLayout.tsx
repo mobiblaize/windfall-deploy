@@ -100,7 +100,7 @@ function EditRaffleLayout() {
   }, [categoriesData]);
 
   const form = useForm({
-    mode: "uncontrolled",
+    mode: "controlled",
     validateInputOnBlur: false,
     validateInputOnChange: false,
 
