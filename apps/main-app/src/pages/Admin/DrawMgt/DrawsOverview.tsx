@@ -40,15 +40,29 @@ import { formatCurrency } from "../../../utils/helper/formatCurrency";
 import type { User } from "../UserMgt/UserMgt";
 
 interface DrawStats {
-  total_draws: number;
-  total_draw_lines: number;
-  games_eligible_today: number;
-  games_eligible_next_7_days: number;
-  games_eligible_next_14_days: number;
-  winners_last_7_days: number;
-  winners_last_14_days: number;
-  winners_last_1_month: number;
-  winners_announced_last_7_days: number;
+  total_draws: number
+  draws_created_last_7_days: number
+  total_completed_draws: number
+  completed_draws_last_7_days: number
+  total_pending_draws: number
+  pending_draws_last_7_days: number
+  games_eligible_today: number
+  games_eligible_next_7_days: number
+  games_eligible_next_14_days: number
+  winners_last_7_days: number
+  winners_last_14_days: number
+  winners_last_1_month: number
+  winners_announced_last_7_days: number
+  total_draw_lines: number
+  total_completed_draw_lines: number
+  total_pending_draw_lines: number
+  total_cancelled_draw_lines: number
+  total_closed_draw_lines: number
+  draw_lines_created_last_7_days: number
+  draw_lines_completed_last_7_days: number
+  draw_lines_pending_last_7_days: number
+  draw_lines_cancelled_last_7_days: number
+  draw_lines_closed_last_7_days: number
 }
 
 type DrawStatsCard = {
@@ -111,20 +125,20 @@ const drawStatsCards: DrawStatsCard[] = [
   {
     title: "Completed Draws",
     value: 0,
-    slug: "total_draw_lines",
+    slug: "total_completed_draw_lines",
     className:
       "!bg-secondary-green !text-primary-green/50 !border-primary-green/50",
     color: "!text-primary-green",
-    subtitle: "3 added in the last 3 days",
+    subtitle: "draws completed in the last 7 days",
   },
   {
     title: "Pending Draws",
     value: 0,
-    slug: "games_eligible_today",
+    slug: "total_pending_draw_lines",
     className:
       "!bg-primary-warning/10 !text-primary-warning/50 !border-primary-warning/50 ",
     color: "!text-primary-warning",
-    subtitle: "3 added in the last 3 days",
+    subtitle: "draws pending in the last 7 days",
   },
 ];
 
@@ -410,7 +424,7 @@ function DrawsOverview() {
                     fz={32}
                     className="!text-primary-red !font-semibold"
                   >
-                    {drawStats?.total_draws ?? 0}
+                    {drawStats?.total_draw_lines ?? 0}
                   </Text>
 
                   <Text
@@ -422,9 +436,9 @@ function DrawsOverview() {
                   >
                     <AiFillExclamationCircle />
                     <span className="!text-primary-green">
-                      {drawStats?.total_draw_lines ?? 0}
+                      {drawStats?.draw_lines_created_last_7_days ?? 0}
                     </span>{" "}
-                    total draws over the last 7 days
+                    draws created in the last 7 days
                   </Text>
                 </>
               )}
@@ -446,15 +460,25 @@ function DrawsOverview() {
                       </Stack>
                     </Card>
                   ))
-                : drawStatsCards.map((item) => (
-                    <DrawGridCard
-                      key={item.slug}
-                      {...{
-                        ...item,
-                        value: drawStats?.[item.slug] ?? 0,
-                      }}
-                    />
-                  ))}
+                : drawStatsCards.map((item) => {
+                    const cardValue = drawStats?.[item.slug] ?? 0;
+                    const subtitleKey = item.slug === "total_completed_draw_lines" 
+                      ? "draw_lines_completed_last_7_days"
+                      : "draw_lines_pending_last_7_days";
+                    const subtitleValue = drawStats?.[subtitleKey as keyof DrawStats] ?? 0;
+                    const dynamicSubtitle = `${subtitleValue} ${item.subtitle || ""}`;
+                    
+                    return (
+                      <DrawGridCard
+                        key={item.slug}
+                        {...{
+                          ...item,
+                          value: cardValue,
+                          subtitle: dynamicSubtitle,
+                        }}
+                      />
+                    );
+                  })}
             </SimpleGrid>
           </section>
         </Card>
