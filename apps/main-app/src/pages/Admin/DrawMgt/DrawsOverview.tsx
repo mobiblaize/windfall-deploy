@@ -152,10 +152,6 @@ const drawTabs: TabSwitcherTab[] = [
     value: "open",
   },
   {
-    label: "Pending",
-    value: "pending",
-  },
-  {
     label: "Closed",
     value: "closed",
   },

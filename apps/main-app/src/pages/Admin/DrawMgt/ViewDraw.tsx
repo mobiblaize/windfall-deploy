@@ -55,7 +55,7 @@ export interface DrawLineResponse {
 
 export interface DrawLine {
   uuid: string;
-  status: string;
+  status: "open" | "closed" | "cancelled";
   approvalStatus: string;
   draw_at: string | null;
   created_at: string;
@@ -148,6 +148,10 @@ export default function ViewDraw() {
   const [videoAlertModalOpen, setVideoAlertModalOpen] = useState(false);
   const [drawModalOpen, setDrawModalOpen] = useState(false);
   const [winnerSuccessModalOpen, setWinnerSuccessModalOpen] = useState(false);
+  const [selectWinnerErrorModalOpen, setSelectWinnerErrorModalOpen] =
+    useState(false);
+  const [selectWinnerErrorMessage, setSelectWinnerErrorMessage] =
+    useState<string>("");
   const [isWon, setIsWon] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [timeLeft, setTimeLeft] = useState(300);
@@ -261,13 +265,18 @@ export default function ViewDraw() {
       setDrawModalOpen(false);
       setWinnerSuccessModalOpen(true);
     } catch (error) {
+      const errorMessage =
+        (error as { message?: string })?.message || "An error occurred";
+
       notifications.show({
         title: "Failed to Select Winner",
-        message:
-          (error as { message?: string })?.message || "An error occurred",
+        message: errorMessage,
         color: "red",
       });
+
+      setSelectWinnerErrorMessage(errorMessage);
       setDrawModalOpen(false);
+      setSelectWinnerErrorModalOpen(true);
     }
   }
 
@@ -287,7 +296,8 @@ export default function ViewDraw() {
       setDrawLineData(drawLine);
 
       // Determine initial step and winner state
-      if (drawLine.draw_line.approvalStatus?.toLowerCase() === "approved") setStep(2);
+      if (drawLine.draw_line.approvalStatus?.toLowerCase() === "approved")
+        setStep(2);
       else if (drawLine.draw_line.winner && drawLine.draw_line.winner.won_at) {
         setStep(2);
         setIsWon(true);
@@ -327,7 +337,7 @@ export default function ViewDraw() {
                 </>
               )}
               <Text className="!text-secondary-text">
-                Start Draw for this game.
+                {isWon ? 'View': 'Start'} Draw for this game.
               </Text>
             </div>
           </Flex>
@@ -525,11 +535,37 @@ export default function ViewDraw() {
                                 variant="default"
                                 rightSection={<FaMagic />}
                                 onClick={startDraw}
-                                disabled={!drawLineData?.draw_line?.qualified_tickets_count || drawLineData?.draw_line?.qualified_tickets_count === 0 || selectWinnerMutation.isPending}
+                                disabled={
+                                  !drawLineData?.draw_line
+                                    ?.qualified_tickets_count ||
+                                  drawLineData?.draw_line
+                                    ?.qualified_tickets_count === 0 ||
+                                  drawLineData?.draw_line?.status !== "open" ||
+                                  selectWinnerMutation.isPending
+                                }
                                 loading={selectWinnerMutation.isPending}
                               >
                                 <span className="!font-medium">Start Draw</span>
                               </CustomButton>
+                              {drawLineData?.draw_line?.status !== "open" && (
+                                <Text className="!text-sm !text-red-500 !mt-3 !text-center">
+                                  This draw{" "}
+                                  {drawLineData?.draw_line?.status
+                                    ? `has been ${drawLineData?.draw_line?.status}`
+                                    : "is not open"}
+                                  .
+                                </Text>
+                              )}
+                              {drawLineData?.draw_line?.status === "open" &&
+                                (!drawLineData?.draw_line
+                                  ?.qualified_tickets_count ||
+                                  drawLineData?.draw_line
+                                    ?.qualified_tickets_count === 0) && (
+                                  <Text className="!text-sm !text-red-500 !mt-3 !text-center">
+                                    You cannot start this draw: No tickets
+                                    purchased for this game.
+                                  </Text>
+                                )}
                             </div>
                           )}
                         </div>
@@ -550,7 +586,7 @@ export default function ViewDraw() {
                     <Divider my="md" />
 
                     <SimpleGrid
-                      cols={{ base: 1, sm: 2 }}
+                      cols={{ base: 1, sm: 3 }}
                       spacing={{ base: 10, sm: "xl" }}
                       verticalSpacing={{ base: "md", sm: "xl" }}
                     >
@@ -571,6 +607,12 @@ export default function ViewDraw() {
                             }
                             className="!text-[#155eef]/50"
                             color="!text-[#155eef]"
+                          />
+                          <GridCard
+                            title="Number of Potential Winners"
+                            value={drawLineData.draw_line.potential_winners}
+                            className="!text-[#039855]/50"
+                            color="!text-[#039855]"
                           />
                         </>
                       )}
@@ -652,6 +694,19 @@ export default function ViewDraw() {
         primaryButton={{
           label: "Proceed",
           onClick: () => setWinnerSuccessModalOpen(false),
+        }}
+      />
+
+      {/* Error Modal for Select Winner */}
+      <AdminAlertModal
+        opened={selectWinnerErrorModalOpen}
+        onClose={() => setSelectWinnerErrorModalOpen(false)}
+        status="error"
+        title="Failed to Select Winner"
+        description={selectWinnerErrorMessage}
+        secondaryButton={{
+          label: "Close",
+          onClick: () => setSelectWinnerErrorModalOpen(false),
         }}
       />
     </div>
