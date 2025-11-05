@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
+import ConfettiImage from "../../../assets/confetti.png";
 import { useParams } from "react-router-dom";
 import DynamicBreadcrumbs, {
   type Crumb,
@@ -337,7 +338,7 @@ export default function ViewDraw() {
                 </>
               )}
               <Text className="!text-secondary-text">
-                {isWon ? 'View': 'Start'} Draw for this game.
+                {isWon ? "View" : "Start"} Draw for this game.
               </Text>
             </div>
           </Flex>
@@ -488,13 +489,42 @@ export default function ViewDraw() {
             {step === 2 && (
               <>
                 <div className="text-primary-text px-6 md:px-10 pb-10 pt-10">
-                  <CustomTickets
-                    borderColor="!border-primary-red"
-                    bgColor={isWon ? "!bg-secondary-red" : "!bg-white"}
-                  >
-                    <Grid gutter="sm" justify="center">
-                      <Grid.Col span={{ base: 12, md: 6 }}>
-                        <div className="relative p-0 sm:px-6 py-6">
+                  <div className="relative">
+                    {isWon && (
+                      <>
+                        {/* top confetti strip */}
+                        <div
+                          className="absolute left-10 right-10 top-0 h-12 pointer-events-none z-10"
+                          style={{
+                            backgroundImage: `url(${ConfettiImage})`,
+                            backgroundSize: "auto 100%",
+                            backgroundRepeat: "repeat-x",
+                            backgroundPosition: "top",
+                          }}
+                          aria-hidden="true"
+                        />
+
+                        {/* bottom confetti strip */}
+                        <div
+                          className="absolute left-10 right-10 bottom-0 h-12 pointer-events-none z-10"
+                          style={{
+                            backgroundImage: `url(${ConfettiImage})`,
+                            backgroundSize: "auto 100%",
+                            backgroundRepeat: "repeat-x",
+                            backgroundPosition: "bottom",
+                            transform: "rotate(180deg)",
+                          }}
+                          aria-hidden="true"
+                        />
+                      </>
+                    )}
+                    <CustomTickets
+                      borderColor="!border-primary-red"
+                      bgColor={isWon ? "!bg-secondary-red" : "!bg-white"}
+                    >
+                      <Grid gutter="sm" justify="center">
+                        <Grid.Col span={{ base: 12, md: 6 }}>
+                          <div className="relative p-0 sm:px-6 py-6">
                           <Text className="!text-xl !text-center md:!text-2xl !font-semibold !text-gray-900 !mb-6">
                             Winning Raffle Number
                           </Text>
@@ -503,7 +533,7 @@ export default function ViewDraw() {
                             <Text className="!text-sm !text-gray-600 !mb-1">
                               Ticket Number
                             </Text>
-                            <Text className="!text-primary-red !text-3xl !font-bold !tracking-wide break-all">
+                            <Text className="!text-primary-red sm:!text-3xl !text-2xl !font-bold !tracking-wide break-all">
                               {isWon && winner
                                 ? winner.ticket_number
                                 : "**********"}
@@ -572,6 +602,7 @@ export default function ViewDraw() {
                       </Grid.Col>
                     </Grid>
                   </CustomTickets>
+                  </div>
 
                   <Card withBorder mt={"xl"} radius={"md"} py={24}>
                     <div>
@@ -689,10 +720,10 @@ export default function ViewDraw() {
         opened={winnerSuccessModalOpen}
         onClose={() => setWinnerSuccessModalOpen(false)}
         status="success"
-        title="Lucky Winner Chose"
+        title="Lucky Winner Chosen"
         description="Congratulations, a Lucky Number Winner has been chosen."
-        primaryButton={{
-          label: "Proceed",
+        secondaryButton={{
+          label: "Close",
           onClick: () => setWinnerSuccessModalOpen(false),
         }}
       />
