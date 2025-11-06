@@ -1,50 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Avatar,
   Box,
+  Button,
   Divider,
-  Flex,
-  Select,
   SimpleGrid,
   Text,
+  TextInput,
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
-import { FaAngleDown } from "react-icons/fa";
-import ticketVector from "../../../assets/ticket-vector.png";
-import GameTicket from "../../Profile/GameTicket";
+import { HiMiniTicket } from "react-icons/hi2";
+import CustomTickets from "../../../components/CustomTickets";
 
-type Props = { form: UseFormReturnType<any>; categories: any };
-
-const game = {
-  uuid: "0353ca45-04d6-4309-a436-7d105f63061d",
-  name: "Biggie Instant Win 1",
-  instant_game: true,
-  card_image: null,
-  description: "An exciting game with wonderful prizes!",
-  supporting_text: "Additional info for players",
-  start_date: "2025-10-02",
-  end_date: "2025-10-30",
-  status: "live",
-  total_tickets: 15,
-  available_tickets: 9
-};
-
-const ticket = {
-  uuid: "13fb5f53-56ae-4b2c-b5bd-9d30ffed52f0",
-  ticket_number: "GNWoJE9BJRZH6D5",
-  validation_number: "ClZKjEIXD4FVWbyMcVgz",
-  issued_at: "2025-10-14 11:27:58",
-  status: "won",
-  prize: null,
-  owned_by_user: true
-};
+type Props = { form: UseFormReturnType<any>; categories?: any };
 
 
-
-function CustomerForm({ form, categories }: Props) {
+function CustomerForm({ form }: Props) {
+  const customerName = `${form.values.customer_firstname || ""} ${form.values.customer_lastname || ""}`.trim() || "N/A";
+  
   return (
     <Box>
-      {/* Raffle Name */}
+      {/* Customer Name */}
       <SimpleGrid cols={{ base: 1, sm: 2 }}>
         <Box>
           <Text tt="capitalize" fw={700}>
@@ -54,61 +29,117 @@ function CustomerForm({ form, categories }: Props) {
             Customer details
           </Text>
         </Box>
-        <Select
-          placeholder="Select category"
-          data={categories}
-          rightSection={<FaAngleDown />}
+        <TextInput
+          placeholder="Customer Name"
+          value={customerName}
+          readOnly
           classNames={{
-            input: "placeholder:text-xs",
-            options: "text-primary-text",
+            input: "placeholder:text-xs bg-gray-50 text-gray-700 !cursor-not-allowed",
           }}
-          {...form.getInputProps("category_id")}
         />
       </SimpleGrid>
 
       <Divider my="md" />
 
-      {/* Description */}
+      {/* Customer Contact */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={700}>
+            Email
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Customer email address
+          </Text>
+        </Box>
+        <TextInput
+          placeholder="Email"
+          value={form.values.customer_email || ""}
+          readOnly
+          classNames={{
+            input: "placeholder:text-xs bg-gray-50 text-gray-700 !cursor-not-allowed",
+          }}
+        />
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={700}>
+            Phone Number
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Customer phone number
+          </Text>
+        </Box>
+        <TextInput
+          placeholder="Phone Number"
+          value={form.values.customer_phone || ""}
+          readOnly
+          classNames={{
+            input: "placeholder:text-xs bg-gray-50 text-gray-700 !cursor-not-allowed",
+          }}
+        />
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      {/* Game Details */}
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
         <Box>
           <Text tt="capitalize" fw={700}>
             Game Details
           </Text>
           <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-            Select game for prize claim
+            Game details for prize claim
           </Text>
         </Box>
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-          <Select
-            placeholder="Select category"
-            label="Game Category"
-            required
-            data={categories}
-            rightSection={<FaAngleDown />}
+          <TextInput
+            placeholder="Game Name"
+            value={form.values.game_name || ""}
+            readOnly
             classNames={{
-              input: "placeholder:text-xs",
-              options: "text-primary-text",
+              input: "placeholder:text-xs bg-gray-50 text-gray-700 !cursor-not-allowed",
             }}
-            {...form.getInputProps("category_id")}
           />
-          <Select
-            placeholder="Select Game"
-            label="Game"
-            required
-            data={categories}
-            rightSection={<FaAngleDown />}
+          
+          <TextInput
+            placeholder="Game Category"
+            value={form.values.game_category || ""}
+            readOnly
             classNames={{
-              input: "placeholder:text-xs",
-              options: "text-primary-text",
+              input: "placeholder:text-xs bg-gray-50 text-gray-700 !cursor-not-allowed",
             }}
-            {...form.getInputProps("category_id")}
           />
         </SimpleGrid>
       </SimpleGrid>
 
       <Divider my="md" />
 
-      {/* Category */}
+      {/* Prize Won */}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={700}>
+            Prize Won
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Prize awarded to customer
+          </Text>
+        </Box>
+        <TextInput
+          placeholder="Prize Won"
+          value={form.values.prize_won || ""}
+          readOnly
+          classNames={{
+            input: "placeholder:text-xs bg-gray-50 text-gray-700 !cursor-not-allowed",
+          }}
+        />
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      {/* Ticket */}
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
         <Box>
           <Text tt="capitalize" fw={700}>
@@ -118,15 +149,34 @@ function CustomerForm({ form, categories }: Props) {
             Raffle Ticket by Customer
           </Text>
         </Box>
-        <Select
-          placeholder="Enter Ticket ID"
-          data={categories}
-          rightSection={<FaAngleDown />}
+        <TextInput
+          placeholder="Ticket ID"
+          value={form.values.ticket_number || ""}
+          readOnly
           classNames={{
-            input: "placeholder:text-xs",
-            options: "text-primary-text",
+            input: "placeholder:text-xs bg-gray-50 text-gray-700 !cursor-not-allowed",
           }}
-          {...form.getInputProps("category_id")}
+        />
+      </SimpleGrid>
+
+      <Divider my="md" />
+
+      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
+        <Box>
+          <Text tt="capitalize" fw={700}>
+            Draw Index
+          </Text>
+          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
+            Draw information
+          </Text>
+        </Box>
+        <TextInput
+          placeholder="Draw Index"
+          value={form.values.draw_index || ""}
+          readOnly
+          classNames={{
+            input: "placeholder:text-xs bg-gray-50 text-gray-700 !cursor-not-allowed",
+          }}
         />
       </SimpleGrid>
 
@@ -147,18 +197,36 @@ function CustomerForm({ form, categories }: Props) {
       </Box>
 
       <SimpleGrid cols={{ base: 1 }} mt="md">
-        <Flex direction={"column"} justify={"center"} align={"center"} px={15}>
-          <div className="rounded-full p-3 bg-secondary-red mb-3">
-            <Avatar src={ticketVector} alt="Ticket Icon" />
-          </div>
-          <Text tt="capitalize" fw={700}>
-            No Preview
+        <CustomTickets
+          bgColor="bg-secondary-green"
+          borderColor="border-primary-green"
+          containerBgColor="bg-white"
+        >
+          <Text fw={700} fz={20}>
+            {form.values.game_name || "Game Name"}
           </Text>
-          <Text tt="capitalize" mb={5} fz={"xs"} c="var(--secondary-text)">
-            Enter ticket ID / Number to preview status of winning and authenticity
+
+          <Text c="dimmed" fz={14} mb="md">
+            Prize: {form.values.prize_won || "Prize"}
           </Text>
-        </Flex>
-          <GameTicket game={game as any} item={ticket as any} containerBgColor='bg-white' />
+
+          <Box className="bg-white py-2 rounded-lg border-dashed border border-primary-green text-center">
+            <Text fz={14} mb={2}>
+              Ticket Number
+            </Text>
+            <Text fw={700} fz={24} className="!text-primary-red">
+              {form.values.ticket_number || "N/A"}
+            </Text>
+          </Box>
+          <Box mt={30} className={`flex items-center !justify-center`}>
+            <Button
+              rightSection={<HiMiniTicket />}
+              className={`!tracking-wide !capitalize !rounded-2xl !border !border-dashed !border-primary-green !bg-secondary-green !text-primary-green !h-8`}
+            >
+              Won
+            </Button>
+          </Box>
+        </CustomTickets>
       </SimpleGrid>
     </Box>
   );

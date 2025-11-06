@@ -64,6 +64,7 @@ export interface PrizeClaim {
   prize_won: string;
   announce_status: string;
   status: string;
+  claim_date: string;
   won_at: string;
   customer: PrizeClaimCustomer;
 }
@@ -467,8 +468,8 @@ function PrizeClaims() {
                 </>,
                 claim.prize_won,
                 claim.draw_index,
-                claim?.won_at
-                  ? format(new Date(claim.won_at), "MMMM d, yyyy h:mm a")
+                claim?.claim_date
+                  ? format(new Date(claim.claim_date), "MMMM d, yyyy h:mm a")
                   : "-",
                 <CustomBadge
                   status={
