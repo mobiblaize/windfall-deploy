@@ -1,7 +1,7 @@
 import { Text, Box, Flex, Button, ActionIcon } from "@mantine/core";
 import { useRef } from "react";
 import { HiDocumentArrowUp } from "react-icons/hi2";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { FaTrash, FaEdit, FaEye } from "react-icons/fa";
 
 type Props = {
   index?: number;
@@ -10,6 +10,7 @@ type Props = {
   onEdit?: (index?: number) => void;
   onDelete?: (index?: number) => void;
   item: DocumentItem;
+  isClaimed?: boolean;
 };
 
 export interface DocumentItem {
@@ -17,7 +18,7 @@ export interface DocumentItem {
   description?: string;
 }
 
-function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete }: Props) {
+function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isClaimed = false }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +47,37 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete }: Pr
     }
   };
 
+  const handleViewDocument = () => {
+    if (!document) return;
+    
+    // If it's already a full URL or data URI, open directly
+    if (document.startsWith('http://') || document.startsWith('https://') || document.startsWith('data:')) {
+      window.open(document, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    
+    // If it's a base64 string (starts with base64-like characters), treat as base64
+    // Check if it looks like base64 (alphanumeric, +, /, =)
+    const base64Pattern = /^[A-Za-z0-9+/=]+$/;
+    if (base64Pattern.test(document) && document.length > 100) {
+      // Try to determine file type from document name or default to image
+      const fileName = item.name?.toLowerCase() || '';
+      if (fileName.includes('pdf') || fileName.endsWith('.pdf')) {
+        window.open(`data:application/pdf;base64,${document}`, '_blank', 'noopener,noreferrer');
+      } else if (fileName.includes('doc') || fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+        // Word documents can't be opened directly in browser, show message
+        alert('Word documents cannot be previewed in the browser. Please download the file.');
+        return;
+      } else {
+        // Default to image
+        window.open(`data:image/jpeg;base64,${document}`, '_blank', 'noopener,noreferrer');
+      }
+    } else {
+      // Treat as URL/path and try to open
+      window.open(document, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const isUploaded = !!document;
   const activeBoxClass = isUploaded
     ? "border-primary-green bg-secondary-green"
@@ -57,7 +89,6 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete }: Pr
       py={"lg"}
       px={"md"}
       my={"lg"}
-      // onClick={handleCardClick}
     >
       <Flex justify="flex-start" align={"flex-start"} gap={10}>
         <div
@@ -79,61 +110,81 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete }: Pr
             )}
           </div>
 
-          <Flex gap={8} align="center" wrap="wrap">
-            {onEdit && (
+          {isClaimed ? (
+            // Read-only mode: only show eye icon to view document
+            document ? (
               <ActionIcon
                 variant="subtle"
                 color="blue"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onEdit(index);
+                  handleViewDocument();
                 }}
+                title="View Document"
               >
-                <FaEdit size={16} />
+                <FaEye size={16} />
               </ActionIcon>
-            )}
-            {onDelete && (
-              <ActionIcon
-                variant="subtle"
-                color="var(--primary-red)"
+            ) : null
+          ) : (
+            // Edit mode: show edit, delete, and upload buttons
+            <Flex gap={8} align="center" wrap="wrap">
+              {onEdit && (
+                <ActionIcon
+                  variant="subtle"
+                  color="blue"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(index);
+                  }}
+                >
+                  <FaEdit size={16} />
+                </ActionIcon>
+              )}
+              {onDelete && (
+                <ActionIcon
+                  variant="subtle"
+                  color="var(--primary-red)"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(index);
+                  }}
+                >
+                  <FaTrash size={16} />
+                </ActionIcon>
+              )}
+              <Button
+                variant="white"
+                fw={500}
+                className="!border !border-[#d0d5dd]"
+                size="md"
+                rightSection={
+                  <HiDocumentArrowUp
+                    size={16}
+                    className="text-primary-red rounded-sm"
+                  />
+                }
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDelete(index);
+                  fileInputRef.current?.click();
                 }}
               >
-                <FaTrash size={16} />
-              </ActionIcon>
-            )}
-            <Button
-              variant="white"
-              fw={500}
-              className="!border !border-[#d0d5dd]"
-              size="md"
-              rightSection={
-                <HiDocumentArrowUp
-                  size={16}
-                  className="text-primary-red rounded-sm"
-                />
-              }
-              onClick={(e) => {
-                e.stopPropagation();
-                fileInputRef.current?.click();
-              }}
-            >
-              {isUploaded ? "Change Upload" : "Upload Document"}
-            </Button>
-          </Flex>
+                {isUploaded ? "Change Upload" : "Upload Document"}
+              </Button>
+            </Flex>
+          )}
         </Flex>
       </Flex>
 
-      {/* Hidden file input */}
-      <input
-        type="file"
-        accept="image/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        style={{ display: "none" }}
-      />
+      {/* Hidden file input - only show when not claimed */}
+      {!isClaimed && (
+        <input
+          type="file"
+          accept="image/*,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
+      )}
     </Box>
   );
 }

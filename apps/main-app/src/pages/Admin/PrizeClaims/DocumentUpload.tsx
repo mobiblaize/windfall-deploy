@@ -114,16 +114,19 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
             onUpload={handleUploadDocument}
             onEdit={handleEditDocument}
             onDelete={handleDeleteDocument}
+            isClaimed={isClaimed}
           />
         ))
       ) : (
-        <EmptySection
-          title={"No Documents"}
-          format="secondary"
-          description={
-            "No documents added yet. Click 'Add Document' to add one."
-          }
-        />
+        !isClaimed && (
+          <EmptySection
+            title={"No Documents"}
+            format="secondary"
+            description={
+              "No documents added yet. Click 'Add Document' to add one."
+            }
+          />
+        )
       )}
 
       {form.errors.document_checklist && (
@@ -132,17 +135,19 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
         </Text>
       )}
       
-      <Box className="mb-4">
-        <Button
-          variant="outline"
-          onClick={() => setDocumentModalOpen(true)}
-          size="sm"
-        >
-          Add Document
-        </Button>
-      </Box>
-
       {!isClaimed && (
+        <Box className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setDocumentModalOpen(true)}
+            size="sm"
+          >
+            Add Document
+          </Button>
+        </Box>
+      )}
+
+      {isClaimed && (
         <>
           <Divider my="md" />
 
@@ -161,7 +166,7 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
               </Text>
             </Box>
             <TextInput
-              placeholder="Enter Claim Officer"
+              placeholder="Claim Officer"
               value={form.values.claim_officer || ""}
               readOnly
               classNames={{
@@ -186,6 +191,7 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
         </Box>
         <Box>
           <TextInput
+            readOnly={isClaimed}
             placeholder="Enter short description"
             {...form.getInputProps("short_description")}
             error={form.errors.short_description}
