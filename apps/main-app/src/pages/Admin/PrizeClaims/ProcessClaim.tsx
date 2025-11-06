@@ -7,7 +7,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheck } from "react-icons/fa";
 import DynamicBreadcrumbs, {
   type Crumb,
@@ -89,6 +89,7 @@ function ProcessClaim() {
     mode: "controlled",
     validateInputOnBlur: false,
     validateInputOnChange: false,
+    clearInputErrorOnChange: true,
 
     initialValues: {
       // Customer details (read-only)
@@ -183,54 +184,61 @@ function ProcessClaim() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
-  // Populate form with API data
-  useEffect(() => {
-    setClaimStatus(prizeClaimResponse?.data?.winner?.status || "unclaimed");
-    if (prizeClaimResponse?.data?.winner) {
-      const winner = prizeClaimResponse.data.winner;
-      const customer = winner.customer || {};
-      const claimOfficer = winner.claim_officer;
+  // Populate form with API data - memoize to prevent unnecessary re-renders
+  const formInitialData = useMemo(() => {
+    if (!prizeClaimResponse?.data?.winner) return null;
+    
+    const winner = prizeClaimResponse.data.winner;
+    const customer = winner.customer || {};
+    const claimOfficer = winner.claim_officer;
 
-      // Map document_checklist from API response
-      const documentChecklist: DocumentChecklistItem[] = Array.isArray(
-        winner.document_checklist
-      )
-        ? winner.document_checklist.map(
-            (doc: { name: string; description?: string; path?: string }) => ({
-              name: doc.name || "",
-              description: doc.description || "",
-              document: doc.path || "",
-            })
-          )
-        : [];
+    // Map document_checklist from API response
+    const documentChecklist: DocumentChecklistItem[] = Array.isArray(
+      winner.document_checklist
+    )
+      ? winner.document_checklist.map(
+          (doc: { name: string; description?: string; path?: string }) => ({
+            name: doc.name || "",
+            description: doc.description || "",
+            document: doc.path || "",
+          })
+        )
+      : [];
 
-      form.setValues({
-        customer_uuid: customer.uuid || "",
-        customer_firstname: customer.firstname || "",
-        customer_lastname: customer.lastname || "",
-        customer_email: customer.email || "",
-        customer_phone: customer.phone_number || "",
-        game_uuid: winner.game_name || "",
-        game_name: winner.game_name || "",
-        game_category: winner.game_category || "",
-        ticket_number: winner.ticket_number || "",
-        draw_index: winner.draw_index || "",
-        prize_won: winner.prize_won || "",
-        prize_uuid: winner.uuid || "",
-        claim_officer: claimOfficer?.name || "",
-        short_description: winner.short_description || "",
-        document_checklist: documentChecklist,
-        testimonial_short_description:
-          winner.testimonial_short_description || "",
-        testimonial: winner.testimonial || "",
-        media: Array.isArray(winner.media) ? winner.media : [],
-        video_url: winner.video_url || "",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return {
+      customer_uuid: customer.uuid || "",
+      customer_firstname: customer.firstname || "",
+      customer_lastname: customer.lastname || "",
+      customer_email: customer.email || "",
+      customer_phone: customer.phone_number || "",
+      game_uuid: winner.game_name || "",
+      game_name: winner.game_name || "",
+      game_category: winner.game_category || "",
+      ticket_number: winner.ticket_number || "",
+      draw_index: winner.draw_index || "",
+      prize_won: winner.prize_won || "",
+      prize_uuid: winner.uuid || "",
+      claim_officer: claimOfficer?.name || "",
+      short_description: winner.short_description || "",
+      document_checklist: documentChecklist,
+      testimonial_short_description:
+        winner.testimonial_short_description || "",
+      testimonial: winner.testimonial || "",
+      media: Array.isArray(winner.media) ? winner.media : [],
+      video_url: winner.video_url || "",
+    };
   }, [prizeClaimResponse]);
 
-  const validateCurrentStep = () => {
+  // Populate form with API data
+  useEffect(() => {
+    if (formInitialData) {
+      setClaimStatus(prizeClaimResponse?.data?.winner?.status || "unclaimed");
+      form.setValues(formInitialData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formInitialData]);
+
+  const validateCurrentStep = useCallback(() => {
     const fields = stepFieldMap[active];
 
     // Step 0: Customer Details - no validation needed (read-only)
@@ -244,9 +252,9 @@ function ProcessClaim() {
       .some((x) => x);
 
     return !hasErrors;
-  };
+  }, [active, form, stepFieldMap]);
 
-  const nextStep = () => {
+  const nextStep = useCallback(() => {
     // Clear previous errors first
     form.clearErrors();
 
@@ -276,15 +284,15 @@ function ProcessClaim() {
     setActive(
       (current) => (current < 3 ? current + 1 : current) // Total of 4 steps (0-3)
     );
-  };
+  }, [active, form, stepFieldMap, validateCurrentStep]);
 
-  const prevStep = () => {
+  const prevStep = useCallback(() => {
     // Clear validation errors when going back
     form.clearErrors();
     setActive((current) => (current > 0 ? current - 1 : current));
-  };
+  }, [form]);
 
-  const handleCompleteClaim = () => {
+  const handleCompleteClaim = useCallback(() => {
     // Clear previous errors first
     form.clearErrors();
 
@@ -316,9 +324,9 @@ function ProcessClaim() {
     }
 
     setAlertModalOpen(true);
-  };
+  }, [form, stepFieldMap]);
 
-  const handlePublishStory = () => {
+  const handlePublishStory = useCallback(() => {
     // Clear previous errors first
     form.clearErrors();
 
@@ -350,9 +358,9 @@ function ProcessClaim() {
     }
 
     setTestimonialConfirmModalOpen(true);
-  };
+  }, [form, stepFieldMap]);
 
-  async function handleProcessClaim() {
+  const handleProcessClaim = useCallback(async () => {
     if (!id) {
       notifications.show({
         title: "Error",
@@ -390,9 +398,9 @@ function ProcessClaim() {
         color: "var(--color-primary-red)",
       });
     }
-  }
+  }, [id, form, processClaimMutation]);
 
-  async function handleUploadTestimonial() {
+  const handleUploadTestimonial = useCallback(async () => {
     if (!id) {
       notifications.show({
         title: "Error",
@@ -426,24 +434,27 @@ function ProcessClaim() {
         color: "var(--color-primary-red)",
       });
     }
-  }
+  }, [id, form, uploadTestimonialMutation]);
 
-  function handleProcessClaimSuccess() {
+  const handleProcessClaimSuccess = useCallback(() => {
     setProcessClaimSuccessModalOpen(false);
     setActive(2); // Move to step 2 (testimonial)
-  }
+  }, []);
 
-  function handleProcessClaimSuccessClose() {
+  const handleProcessClaimSuccessClose = useCallback(() => {
     setProcessClaimSuccessModalOpen(false);
     navigate("/admin/prize-claims");
-  }
+  }, [navigate]);
 
-  function handleTestimonialSuccess() {
+  const handleTestimonialSuccess = useCallback(() => {
     setTestimonialSuccessModalOpen(false);
     navigate("/admin/prize-claims");
-  }
+  }, [navigate]);
 
-  const isClaimed = claimStatus === "claimed";
+  const isClaimed = useMemo(
+    () => claimStatus === "claimed",
+    [claimStatus]
+  );
 
   // Prize Claim Steps (0-1)
   const prizeClaimSteps = useMemo(() => {
@@ -480,18 +491,43 @@ function ProcessClaim() {
     ];
   }, []);
 
-  // Determine which section we're in
-  const isPrizeClaimSection = active < 2;
-  const isWinnerStorySection = active >= 2;
+  // Determine which section we're in - memoized to prevent recalculation
+  const isPrizeClaimSection = useMemo(() => active < 2, [active]);
+  const isWinnerStorySection = useMemo(() => active >= 2, [active]);
 
   // Get current step layout based on section
-  const currentStepsLayout = isPrizeClaimSection
-    ? prizeClaimSteps
-    : winnerStorySteps;
-  const currentStepIndex = isPrizeClaimSection ? active : active - 2;
+  const currentStepsLayout = useMemo(
+    () => (isPrizeClaimSection ? prizeClaimSteps : winnerStorySteps),
+    [isPrizeClaimSection, prizeClaimSteps, winnerStorySteps]
+  );
+  const currentStepIndex = useMemo(
+    () => (isPrizeClaimSection ? active : active - 2),
+    [isPrizeClaimSection, active]
+  );
 
-  const ActiveStep = currentStepsLayout[currentStepIndex].Component;
-  const activeStepProps = currentStepsLayout[currentStepIndex].props || {};
+  const ActiveStep = useMemo(
+    () => currentStepsLayout[currentStepIndex]?.Component,
+    [currentStepsLayout, currentStepIndex]
+  );
+  const activeStepProps = useMemo(
+    () => currentStepsLayout[currentStepIndex]?.props || {},
+    [currentStepsLayout, currentStepIndex]
+  );
+
+  // Memoized back button handler
+  const handleBackButton = useCallback(() => {
+    if (isWinnerStorySection && currentStepIndex === 0) {
+      // Go back to last step of Prize Claim section
+      setActive(1);
+    } else {
+      prevStep();
+    }
+  }, [isWinnerStorySection, currentStepIndex, prevStep]);
+
+  // Memoized handler for navigating to winner story
+  const handleNavigateToWinnerStory = useCallback(() => {
+    setActive(2);
+  }, []);
 
   return (
     <div className="pb-5">
@@ -631,14 +667,7 @@ function ProcessClaim() {
                 (isWinnerStorySection && currentStepIndex === 0)) && (
                 <Button
                   size="lg"
-                  onClick={() => {
-                    if (isWinnerStorySection && currentStepIndex === 0) {
-                      // Go back to last step of Prize Claim section
-                      setActive(1);
-                    } else {
-                      prevStep();
-                    }
-                  }}
+                  onClick={handleBackButton}
                   variant="default"
                   leftSection={<BsChevronLeft />}
                 >
@@ -667,7 +696,7 @@ function ProcessClaim() {
                   size="lg"
                   border={false}
                   fullWidth={false}
-                  onClick={() => setActive(2)}
+                  onClick={handleNavigateToWinnerStory}
                   rightSection={<BsChevronRight />}
                 >
                   Edit Winner Story

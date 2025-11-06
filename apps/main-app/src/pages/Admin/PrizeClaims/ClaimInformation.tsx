@@ -123,6 +123,41 @@ function MediaContentInner({ form }: Props) {
     });
   }, []);
 
+  // Memoized handlers for ImageCard callbacks
+  const handleImageCardUpload = useCallback(
+    async (index: number, file: File) => {
+      await handleReplaceGalleryImage(index, file);
+    },
+    [handleReplaceGalleryImage]
+  );
+
+  const handleImageCardDelete = useCallback(
+    (index: number) => {
+      removeGalleryImage(index);
+    },
+    [removeGalleryImage]
+  );
+
+  const handleEmptyImageCardUpload = useCallback(
+    async (file: File) => {
+      try {
+        const base64 = await fileToBase64(file, 1);
+        const newItem = { id: makeId("g-"), src: base64 };
+        setGalleryItems((prev) => {
+          const updated = [...prev, newItem];
+          return updated;
+        });
+      } catch (error) {
+        notifications.show({
+          title: "Upload failed",
+          message: (error as Error).message,
+          color: "red",
+        });
+      }
+    },
+    []
+  );
+
   const hasGallery = useMemo(
     () => galleryItems.length > 0,
     [galleryItems.length]
@@ -173,10 +208,8 @@ function MediaContentInner({ form }: Props) {
               width={490}
               height={500}
               index={index}
-              onUpload={async (file: File) => {
-                await handleReplaceGalleryImage(index, file);
-              }}
-              onDelete={() => removeGalleryImage(index)}
+              onUpload={(file: File) => handleImageCardUpload(index, file)}
+              onDelete={() => handleImageCardDelete(index)}
             />
           ))}
         </SimpleGrid>
@@ -185,22 +218,7 @@ function MediaContentInner({ form }: Props) {
           <ImageCard
             width={490}
             height={500}
-            onUpload={async (file: File) => {
-              try {
-                const base64 = await fileToBase64(file, 1);
-                const newItem = { id: makeId("g-"), src: base64 };
-                setGalleryItems((prev) => {
-                  const updated = [...prev, newItem];
-                  return updated;
-                });
-              } catch (error) {
-                notifications.show({
-                  title: "Upload failed",
-                  message: (error as Error).message,
-                  color: "red",
-                });
-              }
-            }}
+            onUpload={handleEmptyImageCardUpload}
           />
         </SimpleGrid>
       )}

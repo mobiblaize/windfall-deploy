@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Box,
   Divider,
@@ -27,10 +27,13 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  const documentChecklist: DocumentChecklistItem[] =
-    form.values.document_checklist || [];
+  // Memoize document checklist to prevent unnecessary recalculations
+  const documentChecklist: DocumentChecklistItem[] = useMemo(
+    () => form.values.document_checklist || [],
+    [form.values.document_checklist]
+  );
 
-  const handleAddDocument = (name: string, description: string) => {
+  const handleAddDocument = useCallback((name: string, description: string) => {
     const newItem: DocumentChecklistItem = {
       name,
       description,
@@ -39,15 +42,15 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
     const updated = [...documentChecklist, newItem];
     form.setFieldValue("document_checklist", updated);
     form.clearFieldError("document_checklist");
-  };
+  }, [documentChecklist, form]);
 
-  const handleEditDocument = (index?: number) => {
+  const handleEditDocument = useCallback((index?: number) => {
     if (index === undefined) return;
     setEditingIndex(index);
     setDocumentModalOpen(true);
-  };
+  }, []);
 
-  const handleUpdateDocument = (name: string, description: string) => {
+  const handleUpdateDocument = useCallback((name: string, description: string) => {
     if (editingIndex === null) return;
 
     const updated = [...documentChecklist];
@@ -59,16 +62,16 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
     form.setFieldValue("document_checklist", updated);
     form.clearFieldError("document_checklist");
     setEditingIndex(null);
-  };
+  }, [editingIndex, documentChecklist, form]);
 
-  const handleDeleteDocument = (index?: number) => {
+  const handleDeleteDocument = useCallback((index?: number) => {
     if (index === undefined) return;
     const updated = documentChecklist.filter((_, i) => i !== index);
     form.setFieldValue("document_checklist", updated);
     form.clearFieldError("document_checklist");
-  };
+  }, [documentChecklist, form]);
 
-  const handleUploadDocument = async (file: File, index?: number) => {
+  const handleUploadDocument = useCallback(async (file: File, index?: number) => {
     if (index === undefined) return;
     try {
       const base64 = await fileToBase64(file);
@@ -86,20 +89,35 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
         color: "red",
       });
     }
-  };
+  }, [documentChecklist, form]);
 
-  const handleModalSubmit = (name: string, description: string) => {
+  const handleModalSubmit = useCallback((name: string, description: string) => {
     if (editingIndex !== null) {
       handleUpdateDocument(name, description);
     } else {
       handleAddDocument(name, description);
     }
-  };
+  }, [editingIndex, handleAddDocument, handleUpdateDocument]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setDocumentModalOpen(false);
     setEditingIndex(null);
-  };
+  }, []);
+
+  const handleOpenModal = useCallback(() => {
+    setDocumentModalOpen(true);
+  }, []);
+
+  // Memoize modal props to prevent unnecessary re-renders
+  const modalInitialName = useMemo(
+    () => (editingIndex !== null ? documentChecklist[editingIndex]?.name : ""),
+    [editingIndex, documentChecklist]
+  );
+
+  const modalInitialDescription = useMemo(
+    () => (editingIndex !== null ? documentChecklist[editingIndex]?.description || "" : ""),
+    [editingIndex, documentChecklist]
+  );
 
   return (
     <Box>
@@ -139,7 +157,7 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
         <Box className="mb-4">
           <Button
             variant="outline"
-            onClick={() => setDocumentModalOpen(true)}
+            onClick={handleOpenModal}
             size="sm"
           >
             Add Document
@@ -203,14 +221,8 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
         opened={documentModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleModalSubmit}
-        initialName={
-          editingIndex !== null ? documentChecklist[editingIndex]?.name : ""
-        }
-        initialDescription={
-          editingIndex !== null
-            ? documentChecklist[editingIndex]?.description || ""
-            : ""
-        }
+        initialName={modalInitialName}
+        initialDescription={modalInitialDescription}
         isEdit={editingIndex !== null}
       />
 

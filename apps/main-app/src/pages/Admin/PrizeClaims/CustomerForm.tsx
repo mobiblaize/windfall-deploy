@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useMemo } from "react";
 import {
   Box,
   Button,
@@ -15,7 +16,26 @@ type Props = { form: UseFormReturnType<any>; categories?: any };
 
 
 function CustomerForm({ form }: Props) {
-  const customerName = `${form.values.customer_firstname || ""} ${form.values.customer_lastname || ""}`.trim() || "N/A";
+  // Memoize computed values to prevent recalculation on every render
+  const customerName = useMemo(
+    () => `${form.values.customer_firstname || ""} ${form.values.customer_lastname || ""}`.trim() || "N/A",
+    [form.values.customer_firstname, form.values.customer_lastname]
+  );
+
+  const gameName = useMemo(
+    () => form.values.game_name || "Game Name",
+    [form.values.game_name]
+  );
+
+  const prizeWon = useMemo(
+    () => form.values.prize_won || "Prize",
+    [form.values.prize_won]
+  );
+
+  const ticketNumber = useMemo(
+    () => form.values.ticket_number || "N/A",
+    [form.values.ticket_number]
+  );
   
   return (
     <Box>
@@ -203,11 +223,11 @@ function CustomerForm({ form }: Props) {
           containerBgColor="bg-white"
         >
           <Text fw={700} fz={20}>
-            {form.values.game_name || "Game Name"}
+            {gameName}
           </Text>
 
           <Text c="dimmed" fz={14} mb="md">
-            Prize: {form.values.prize_won || "Prize"}
+            Prize: {prizeWon}
           </Text>
 
           <Box className="bg-white py-2 rounded-lg border-dashed border border-primary-green text-center">
@@ -215,7 +235,7 @@ function CustomerForm({ form }: Props) {
               Ticket Number
             </Text>
             <Text fw={700} fz={24} className="!text-primary-red">
-              {form.values.ticket_number || "N/A"}
+              {ticketNumber}
             </Text>
           </Box>
           <Box mt={30} className={`flex items-center !justify-center`}>
@@ -232,4 +252,5 @@ function CustomerForm({ form }: Props) {
   );
 }
 
-export default CustomerForm;
+// Memoize to prevent unnecessary re-renders when parent updates unrelated fields
+export default React.memo(CustomerForm);

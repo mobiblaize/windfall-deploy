@@ -66,10 +66,10 @@ function AllNotifications() {
       setTotal(0);
     }
     if (response) {
-      setNotifications(response.data?.notifications?.data || []);
-      setCurrentPage(response.data?.notifications?.current_page || 1);
-      setTotal(response.data?.notifications?.total || 0);
-      setPageSize(response.data?.notifications?.per_page || 10);
+      setNotifications(response.data?.data || []);
+      setCurrentPage(response.data?.current_page || 1);
+      setTotal(response.data?.total || 0);
+      setPageSize(response.data?.per_page || 10);
     }
   }, [error, isError, response]);
 

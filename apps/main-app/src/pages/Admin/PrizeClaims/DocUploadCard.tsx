@@ -1,5 +1,5 @@
 import { Text, Box, Flex, Button, ActionIcon } from "@mantine/core";
-import { useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { HiDocumentArrowUp } from "react-icons/hi2";
 import { FaTrash, FaEdit, FaEye } from "react-icons/fa";
 
@@ -18,25 +18,26 @@ export interface DocumentItem {
   description?: string;
 }
 
+// Memoize valid file types to prevent recreation on every render
+const VALID_FILE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+] as const;
+
 function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isClaimed = false }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      const validTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ];
-      
-      if (!validTypes.includes(file.type)) {
+      if (!VALID_FILE_TYPES.includes(file.type as typeof VALID_FILE_TYPES[number])) {
         alert("Please select an image (JPG, PNG, GIF, WEBP), PDF, or Word document");
         e.target.value = "";
         return;
@@ -45,9 +46,9 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isCl
       onUpload(file, index);
       e.target.value = ""; // reset input
     }
-  };
+  }, [onUpload, index]);
 
-  const handleViewDocument = () => {
+  const handleViewDocument = useCallback(() => {
     if (!document) return;
     
     // If it's already a full URL or data URI, open directly
@@ -76,12 +77,36 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isCl
       // Treat as URL/path and try to open
       window.open(document, '_blank', 'noopener,noreferrer');
     }
-  };
+  }, [document, item.name]);
 
-  const isUploaded = !!document;
-  const activeBoxClass = isUploaded
-    ? "border-primary-green bg-secondary-green"
-    : "border-primary-red bg-secondary-red";
+  const handleEditClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(index);
+  }, [onEdit, index]);
+
+  const handleDeleteClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.(index);
+  }, [onDelete, index]);
+
+  const handleViewClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleViewDocument();
+  }, [handleViewDocument]);
+
+  const handleUploadClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    fileInputRef.current?.click();
+  }, []);
+
+  // Memoize computed values
+  const isUploaded = useMemo(() => !!document, [document]);
+  const activeBoxClass = useMemo(
+    () => isUploaded
+      ? "border-primary-green bg-secondary-green"
+      : "border-primary-red bg-secondary-red",
+    [isUploaded]
+  );
 
   return (
     <Box
@@ -116,10 +141,7 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isCl
               <ActionIcon
                 variant="subtle"
                 color="blue"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleViewDocument();
-                }}
+                onClick={handleViewClick}
                 title="View Document"
               >
                 <FaEye size={16} />
@@ -132,10 +154,7 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isCl
                 <ActionIcon
                   variant="subtle"
                   color="blue"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(index);
-                  }}
+                  onClick={handleEditClick}
                 >
                   <FaEdit size={16} />
                 </ActionIcon>
@@ -144,10 +163,7 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isCl
                 <ActionIcon
                   variant="subtle"
                   color="var(--primary-red)"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(index);
-                  }}
+                  onClick={handleDeleteClick}
                 >
                   <FaTrash size={16} />
                 </ActionIcon>
@@ -163,10 +179,7 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isCl
                     className="text-primary-red rounded-sm"
                   />
                 }
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
-                }}
+                onClick={handleUploadClick}
               >
                 {isUploaded ? "Change Upload" : "Upload Document"}
               </Button>
@@ -189,4 +202,5 @@ function DocUploadCard({ item, document, index, onUpload, onEdit, onDelete, isCl
   );
 }
 
-export default DocUploadCard;
+// Memoize to prevent unnecessary re-renders when parent updates unrelated fields
+export default React.memo(DocUploadCard);
