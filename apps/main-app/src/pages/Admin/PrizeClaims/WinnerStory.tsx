@@ -12,7 +12,7 @@ function WinnerStory({ form }: Props) {
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
         <Box>
           <Text tt="capitalize" fw={700}>
-            Short Summary <span className="text-red-500">*</span>
+            Testimonial Summary <span className="text-red-500">*</span>
           </Text>
           <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
             Enter short summary of the winner's story

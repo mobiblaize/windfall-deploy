@@ -140,7 +140,7 @@ function ProcessClaim() {
       },
       testimonial_short_description: (value) => {
         if (!value?.trim()) {
-          return "Testimonial short description is required";
+          return "Testimonial summary is required";
         }
         return null;
       },
@@ -178,7 +178,7 @@ function ProcessClaim() {
           : [];
 
           console.log(documentChecklist);
-      form.setValues({
+      form.setValues({  
         customer_uuid: customer.uuid || "",
         customer_firstname: customer.firstname || "",
         customer_lastname: customer.lastname || "",
@@ -227,7 +227,7 @@ function ProcessClaim() {
       return;
     }
     setActive((current) =>
-      current < stepsLayout.length - 1 ? current + 1 : current
+      current < 3 ? current + 1 : current // Total of 4 steps (0-3)
     );
   };
 
@@ -344,36 +344,51 @@ function ProcessClaim() {
 
   const isClaimed = claimStatus === 'claimed';
 
-  const stepsLayout = useMemo(() => {
+  // Prize Claim Steps (0-1)
+  const prizeClaimSteps = useMemo(() => {
     return [
       {
         label: "Customer Details",
         description: "Enter customer details for prize claim",
-        Component: CustomerForm, // component reference
+        Component: CustomerForm,
       },
       {
-        label: `Document upload`,
-        description: `Upload Supporting document for prize claims`,
+        label: "Document Upload",
+        description: "Upload supporting documents for prize claims",
         Component: DocumentUpload,
         props: { isClaimed },
       },
+    ];
+  }, [isClaimed]);
+
+  // Winner Story Steps (2-3)
+  const winnerStorySteps = useMemo(() => {
+    return [
       {
-        label: "Exclusive Winner Story",
+        label: "Winner Story",
         description: "Enter winner's story here",
         Component: WinnerStory,
         props: {},
       },
       {
-        label: "Winners Details",
-        description: "Enter winners media details for this Prize.",
+        label: "Media Upload",
+        description: "Upload media for winner story",
         Component: ClaimInformation,
         props: {},
       },
     ];
-  }, [isClaimed]);
+  }, []);
 
-  const ActiveStep = stepsLayout[active].Component;
-  const activeStepProps = stepsLayout[active].props || {};
+  // Determine which section we're in
+  const isPrizeClaimSection = active < 2;
+  const isWinnerStorySection = active >= 2;
+
+  // Get current step layout based on section
+  const currentStepsLayout = isPrizeClaimSection ? prizeClaimSteps : winnerStorySteps;
+  const currentStepIndex = isPrizeClaimSection ? active : active - 2;
+
+  const ActiveStep = currentStepsLayout[currentStepIndex].Component;
+  const activeStepProps = currentStepsLayout[currentStepIndex].props || {};
 
 
   if (isLoadingPrizeClaim) {
@@ -406,10 +421,12 @@ function ProcessClaim() {
           <Flex mb="lg" justify="space-between">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
-                Claim a Prize
+                {isPrizeClaimSection ? "Claim a Prize" : "Winner Story"}
               </Title>
               <Text className="!text-secondary-text">
-                Process a prize claim for this raffle winner / customer.
+                {isPrizeClaimSection
+                  ? "Process a prize claim for this raffle winner / customer."
+                  : "Share the winner's story and upload media for this prize claim."}
               </Text>
             </div>
             
@@ -444,34 +461,62 @@ function ProcessClaim() {
         className="text-primary-text !mx-auto w-full md:w-2/3 lg:w-[70%]"
         mt="lg"
       >
-        <Stepper
-          allowNextStepsSelect={false}
-          active={active}
-          onStepClick={setActive}
-          className="capitalize"
-          size="xs"
-          icon={<FaCheck className="text-secondary-red" />}
-          styles={{
-            stepBody: { display: "none" },
-            step: { padding: 0 },
-            stepIcon: { color: "white" },
-            separator: { marginLeft: -2, marginRight: -2, height: 4 },
-          }}
-        >
-          {stepsLayout.map((step) => (
-            <Stepper.Step
-              key={step.label}
-              label={step.label}
-              allowStepClick={false}
-            />
-          ))}
-        </Stepper>
+        {/* Prize Claim Section */}
+        {isPrizeClaimSection && (
+          <Stepper
+              allowNextStepsSelect={false}
+              active={currentStepIndex}
+              onStepClick={(step) => setActive(step)}
+              className="capitalize"
+              size="xs"
+              icon={<FaCheck className="text-secondary-red" />}
+              styles={{
+                stepBody: { display: "none" },
+                step: { padding: 0 },
+                stepIcon: { color: "white" },
+                separator: { marginLeft: -2, marginRight: -2, height: 4 },
+              }}
+            >
+              {prizeClaimSteps.map((step) => (
+                <Stepper.Step
+                  key={step.label}
+                  label={step.label}
+                  allowStepClick={false}
+                />
+              ))}
+            </Stepper>
+        )}
+
+        {/* Winner Story Section */}
+        {isWinnerStorySection && (
+          <Stepper
+              allowNextStepsSelect={false}
+              active={currentStepIndex}
+              onStepClick={(step) => setActive(step + 2)}
+              className="capitalize"
+              size="xs"
+              icon={<FaCheck className="text-secondary-red" />}
+              styles={{
+                stepBody: { display: "none" },
+                step: { padding: 0 },
+                stepIcon: { color: "white" },
+                separator: { marginLeft: -2, marginRight: -2, height: 4 },
+              }}
+            >
+              {winnerStorySteps.map((step) => (
+                <Stepper.Step
+                  key={step.label}
+                  label={step.label}
+                  allowStepClick={false}
+                />
+              ))}
+            </Stepper>
+        )}
 
         <Card withBorder mt="xl" radius="md">
           <Layout
-            // remove the key here — mounting/unmounting can be controlled separately.
-            description={stepsLayout[active].description}
-            label={stepsLayout[active].label}
+            description={currentStepsLayout[currentStepIndex].description}
+            label={currentStepsLayout[currentStepIndex].label}
             className="block"
           >
             <ActiveStep
@@ -488,10 +533,18 @@ function ProcessClaim() {
           gap={20}
           className="!bg-white !rounded-xl !border !border-gray-200 !p-6 mt-10 !mb-10"
         >
-          {active > 0 && (
+          {/* Back button - show if not on first step of current section, or on first step of Winner Story to go back to Prize Claim */}
+          {(currentStepIndex > 0 || (isWinnerStorySection && currentStepIndex === 0)) && (
             <Button
               size="lg"
-              onClick={prevStep}
+              onClick={() => {
+                if (isWinnerStorySection && currentStepIndex === 0) {
+                  // Go back to last step of Prize Claim section
+                  setActive(1);
+                } else {
+                  prevStep();
+                }
+              }}
               variant="default"
               leftSection={<BsChevronLeft />}
             >
@@ -499,7 +552,8 @@ function ProcessClaim() {
             </Button>
           )}
 
-          {active < stepsLayout.length - 1 ? (
+          {/* Continue/Next button */}
+          {isPrizeClaimSection && currentStepIndex < prizeClaimSteps.length - 1 && (
             <CustomButton
               size="lg"
               border={false}
@@ -508,9 +562,34 @@ function ProcessClaim() {
               onClick={nextStep}
               rightSection={<BsChevronRight />}
             >
-              {active === 1 ? 'Add Winner Story' : 'Continue'}
+              Continue
             </CustomButton>
-          ) : null}
+          )}
+
+          {/* Add Winner Story button - show on step 1 of Prize Claim when isClaimed */}
+          {isPrizeClaimSection && currentStepIndex === 1 && isClaimed && (
+            <CustomButton
+              size="lg"
+              border={false}
+              fullWidth={false}
+              onClick={() => setActive(2)}
+              rightSection={<BsChevronRight />}
+            >
+              Add Winner Story
+            </CustomButton>
+          )}
+
+          {isWinnerStorySection && currentStepIndex < winnerStorySteps.length - 1 && (
+            <CustomButton
+              size="lg"
+              border={false}
+              fullWidth={false}
+              onClick={nextStep}
+              rightSection={<BsChevronRight />}
+            >
+              Continue
+            </CustomButton>
+          )}
         </Flex>
       </Container>
       {/* Process Claim Confirmation Modal */}

@@ -61,8 +61,6 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
     setEditingIndex(null);
   };
 
-  console.log(form.values.claim_officer);
-
   const handleDeleteDocument = (index?: number) => {
     if (index === undefined) return;
     const updated = documentChecklist.filter((_, i) => i !== index);
@@ -105,15 +103,6 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
 
   return (
     <Box>
-      <Box className="mb-4">
-        <Button
-          variant="outline"
-          onClick={() => setDocumentModalOpen(true)}
-          size="sm"
-        >
-          Add Document
-        </Button>
-      </Box>
 
       {documentChecklist.length > 0 ? (
         documentChecklist.map((item, idx) => (
@@ -142,6 +131,16 @@ function DocumentUploadInner({ form, isClaimed }: Props) {
           {form.errors.document_checklist}
         </Text>
       )}
+      
+      <Box className="mb-4">
+        <Button
+          variant="outline"
+          onClick={() => setDocumentModalOpen(true)}
+          size="sm"
+        >
+          Add Document
+        </Button>
+      </Box>
 
       {!isClaimed && (
         <>
