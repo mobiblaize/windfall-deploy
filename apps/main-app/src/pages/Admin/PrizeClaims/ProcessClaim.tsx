@@ -166,6 +166,23 @@ function ProcessClaim() {
     },
   });
 
+  // Step-wise field validation map (memoized to prevent recreating on every render)
+  const stepFieldMap: Record<number, string[]> = useMemo(
+    () => ({
+      0: [], // Step 0: Customer Details - no validation needed (read-only)
+      1: ["short_description", "document_checklist"], // Step 1: Document Upload
+      2: ["testimonial_short_description", "testimonial"], // Step 2: Winner Story
+      3: ["media"], // Step 3: Media Upload
+    }),
+    []
+  );
+
+  // Clear errors when step changes
+  useEffect(() => {
+    form.clearErrors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
+
   // Populate form with API data
   useEffect(() => {
     setClaimStatus(prizeClaimResponse?.data?.winner?.status || "unclaimed");
@@ -187,7 +204,6 @@ function ProcessClaim() {
           )
         : [];
 
-      console.log(documentChecklist);
       form.setValues({
         customer_uuid: customer.uuid || "",
         customer_firstname: customer.firstname || "",
@@ -215,126 +231,86 @@ function ProcessClaim() {
   }, [prizeClaimResponse]);
 
   const validateCurrentStep = () => {
-    console.log(form.values);
+    const fields = stepFieldMap[active];
 
-    // Validate all fields first
-    const validation = form.validate();
-
+    // Step 0: Customer Details - no validation needed (read-only)
     if (active === 0) {
-      // Step 0: Customer Details - no validation needed (read-only)
       return true;
-    } else if (active === 1) {
-      // Step 1: Document Upload - validate short_description and document_checklist
-      const hasShortDescriptionError = !!validation.errors.short_description;
-      const hasDocumentChecklistError = !!validation.errors.document_checklist;
-
-      // Also check if document_checklist items are valid
-      const documentChecklist = form.values.document_checklist || [];
-      let hasInvalidDocuments = false;
-
-      if (documentChecklist.length > 0) {
-        for (let i = 0; i < documentChecklist.length; i++) {
-          const item = documentChecklist[i] as DocumentChecklistItem;
-          if (!item.name?.trim() || !item.document?.trim()) {
-            hasInvalidDocuments = true;
-            break;
-          }
-        }
-      }
-
-      return (
-        !hasShortDescriptionError &&
-        !hasDocumentChecklistError &&
-        !hasInvalidDocuments
-      );
-    } else if (active === 2) {
-      // Step 2: Winner Story - validate testimonial fields
-      const hasShortDescriptionError =
-        !!validation.errors.testimonial_short_description;
-      const hasTestimonialError = !!validation.errors.testimonial;
-
-      return !hasShortDescriptionError && !hasTestimonialError;
-    } else if (active === 3) {
-      // Step 3: Media Upload - validate media
-      const hasMediaError = !!validation.errors.media;
-
-      return !hasMediaError;
     }
-    return true;
+
+    // Validate fields for current step using validateField
+    const hasErrors = fields
+      .map((f) => form.validateField(f).hasError)
+      .some((x) => x);
+
+    return !hasErrors;
   };
 
   const nextStep = () => {
+    // Clear previous errors first
+    form.clearErrors();
+
+    // Validate current step
     const isValid = validateCurrentStep();
 
     if (!isValid) {
-      // Show validation error notification
-      const validation = form.validate();
-      const currentErrors = Object.keys(validation.errors);
-
-      if (currentErrors.length > 0) {
-        const firstError = currentErrors[0];
-        notifications.show({
-          title: "Validation Error",
-          message:
-            validation.errors[firstError] ||
-            "Please fill in all required fields",
-          color: "var(--color-primary-red)",
-        });
+      // Show validation error notification - get first error from current step fields
+      const fields = stepFieldMap[active];
+      for (const field of fields) {
+        const fieldValidation = form.validateField(field);
+        if (fieldValidation.hasError) {
+          notifications.show({
+            title: "Validation Error",
+            message:
+              fieldValidation.error || "Please fill in all required fields",
+            color: "var(--color-primary-red)",
+          });
+          break;
+        }
       }
       return;
     }
 
+    // Clear errors before moving to next step
+    form.clearErrors();
     setActive(
       (current) => (current < 3 ? current + 1 : current) // Total of 4 steps (0-3)
     );
   };
 
-  const prevStep = () =>
+  const prevStep = () => {
+    // Clear validation errors when going back
+    form.clearErrors();
     setActive((current) => (current > 0 ? current - 1 : current));
+  };
 
   const handleCompleteClaim = () => {
-    // Validate step 1 fields
-    const validation = form.validate();
-    const hasShortDescriptionError = !!validation.errors.short_description;
-    const hasDocumentChecklistError = !!validation.errors.document_checklist;
+    // Clear previous errors first
+    form.clearErrors();
 
-    // Also check if document_checklist items are valid
-    const documentChecklist = form.values.document_checklist || [];
-    let hasInvalidDocuments = false;
+    // Validate steps 0 and 1 fields (steps 0-1 for Process Claim section)
+    const step0Fields = stepFieldMap[0];
+    const step1Fields = stepFieldMap[1];
+    const allFields = [...step0Fields, ...step1Fields];
 
-    if (documentChecklist.length > 0) {
-      for (let i = 0; i < documentChecklist.length; i++) {
-        const item = documentChecklist[i] as DocumentChecklistItem;
-        if (!item.name?.trim() || !item.document?.trim()) {
-          hasInvalidDocuments = true;
+    // Validate all fields for steps 0 and 1
+    const hasErrors = allFields
+      .map((f) => form.validateField(f).hasError)
+      .some((x) => x);
+
+    if (hasErrors) {
+      // Show first validation error
+      for (const field of allFields) {
+        const fieldValidation = form.validateField(field);
+        if (fieldValidation.hasError) {
+          notifications.show({
+            title: "Validation Error",
+            message:
+              fieldValidation.error || "Please fill in all required fields",
+            color: "var(--color-primary-red)",
+          });
           break;
         }
-      }
-    }
-
-    if (
-      hasShortDescriptionError ||
-      hasDocumentChecklistError ||
-      hasInvalidDocuments
-    ) {
-      // Show validation errors
-      if (hasShortDescriptionError) {
-        notifications.show({
-          title: "Validation Error",
-          message:
-            validation.errors.short_description ||
-            "Short description is required",
-          color: "var(--color-primary-red)",
-        });
-      }
-      if (hasDocumentChecklistError || hasInvalidDocuments) {
-        notifications.show({
-          title: "Validation Error",
-          message:
-            validation.errors.document_checklist ||
-            "All documents must have a name and be uploaded",
-          color: "var(--color-primary-red)",
-        });
       }
       return;
     }
@@ -343,42 +319,33 @@ function ProcessClaim() {
   };
 
   const handlePublishStory = () => {
+    // Clear previous errors first
+    form.clearErrors();
+
     // Validate steps 2 and 3 - validate all testimonial and media fields
-    const validation = form.validate();
-    const hasShortDescriptionError =
-      !!validation.errors.testimonial_short_description;
-    const hasTestimonialError = !!validation.errors.testimonial;
-    const hasMediaError = !!validation.errors.media;
+    const step2Fields = stepFieldMap[2];
+    const step3Fields = stepFieldMap[3];
+    const allFields = [...step2Fields, ...step3Fields];
 
-    // Check step 2 validations
-    if (hasShortDescriptionError || hasTestimonialError) {
-      if (hasShortDescriptionError) {
-        notifications.show({
-          title: "Validation Error",
-          message:
-            validation.errors.testimonial_short_description ||
-            "Testimonial summary is required",
-          color: "var(--color-primary-red)",
-        });
-      }
-      if (hasTestimonialError) {
-        notifications.show({
-          title: "Validation Error",
-          message: validation.errors.testimonial || "Testimonial is required",
-          color: "var(--color-primary-red)",
-        });
-      }
-      return;
-    }
+    // Validate all fields for steps 2 and 3
+    const hasErrors = allFields
+      .map((f) => form.validateField(f).hasError)
+      .some((x) => x);
 
-    // Check step 3 validations
-    if (hasMediaError) {
-      notifications.show({
-        title: "Validation Error",
-        message:
-          validation.errors.media || "At least one image upload is required",
-        color: "var(--color-primary-red)",
-      });
+    if (hasErrors) {
+      // Show first validation error
+      for (const field of allFields) {
+        const fieldValidation = form.validateField(field);
+        if (fieldValidation.hasError) {
+          notifications.show({
+            title: "Validation Error",
+            message:
+              fieldValidation.error || "Please fill in all required fields",
+            color: "var(--color-primary-red)",
+          });
+          break;
+        }
+      }
       return;
     }
 

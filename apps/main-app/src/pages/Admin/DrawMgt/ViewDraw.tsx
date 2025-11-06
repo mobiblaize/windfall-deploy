@@ -293,16 +293,16 @@ export default function ViewDraw() {
       });
     }
     if (drawLineResponse?.data) {
-      const drawLine = drawLineResponse.data as DrawLineResponse;
-      setDrawLineData(drawLine);
+      const drawLine = drawLineResponse.data?.draw_line as DrawLine;
+      setDrawLineData(drawLineResponse?.data);
 
       // Determine initial step and winner state
-      if (drawLine.draw_line.approvalStatus?.toLowerCase() === "approved")
+      if (drawLine.approvalStatus?.toLowerCase() === "approved")
         setStep(2);
-      else if (drawLine.draw_line.winner && drawLine.draw_line.winner.won_at) {
+      if (drawLine.winner && drawLine.winner.won_at) {
         setStep(2);
         setIsWon(true);
-        setWinner(drawLine.draw_line.winner);
+        setWinner(drawLine.winner);
       } else {
         setStep(1);
         setIsWon(false);

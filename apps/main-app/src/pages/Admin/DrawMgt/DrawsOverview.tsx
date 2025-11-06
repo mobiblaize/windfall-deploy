@@ -83,6 +83,7 @@ export interface DrawRecord {
     uuid: string;
     name: string;
   };
+  initiated_by: User;
   winner: DrawWinner;
   metrics: {
     total_ticket_paid_amount: string;
@@ -622,13 +623,13 @@ function DrawsOverview() {
                   )}
                 </>,
                 <>
-                  {draw.winner?.initiated_by ? (
+                  {draw.initiated_by ? (
                     <>
                       <Text className="!text-base !text-primary-text !font-medium">
-                        {draw.winner?.initiated_by?.name}
+                        {draw.initiated_by?.name}
                       </Text>
                       <Text className="!text-secondary-text !text-sm">
-                        {draw.winner?.initiated_by?.uniqueID}
+                        {draw.initiated_by?.uniqueID}
                       </Text>
                     </>
                   ) : (
