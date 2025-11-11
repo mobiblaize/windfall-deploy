@@ -48,13 +48,13 @@ export interface OrderTicket {
   owned_by_user: boolean;
 }
 
-export interface Prize {
+interface Prize {
   uuid: string;
   name: string;
   description: string;
 }
 
-export interface Link {
+interface Link {
   url?: string;
   label: string;
   active: boolean;

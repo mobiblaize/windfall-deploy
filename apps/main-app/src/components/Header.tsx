@@ -1,5 +1,4 @@
 import {
-  Menu,
   Input,
   ActionIcon,
   Container,
@@ -9,10 +8,14 @@ import {
   Drawer,
   ScrollArea,
 } from "@mantine/core";
-import { createSearchParams, Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  createSearchParams,
+  Link,
+  NavLink,
+  useNavigate,
+} from "react-router-dom";
 import {
   IconZoomFilled,
-  IconChevronDown,
   IconHome,
   IconInfoCircle,
   IconGift,
@@ -35,13 +38,7 @@ const menuItems = [
   { name: "Raffles", path: "/raffles" },
   { name: "Game Result", path: "/profile/result" },
   { name: "Live Draw", path: "/draws" },
-  {
-    name: "Winners",
-    dropdown: [
-      { name: "Recent Winners", path: "/winners/recent" },
-      { name: "All Time Winners", path: "/winners/all-time" },
-    ],
-  },
+  { name: "Winners", path: "/winners" },
   { name: "About Us", path: "/about" },
   { name: "Prize", path: "/prize" },
   { name: "Contact Us", path: "/contact-us" },
@@ -89,7 +86,6 @@ const theme = createTheme({
 
 export default function Header() {
   const [search, setSearch] = useState("");
-  const location = useLocation();
   const navigate = useNavigate();
   const [opened, { toggle, close }] = useDisclosure(false);
   const isMobile = useMediaQuery("(max-width: 1095px)");
@@ -159,7 +155,11 @@ export default function Header() {
                       placeholder="Enter keyword to search..."
                       aria-label="Search raffles"
                     />
-                    <ActionIcon onClick={searchGame} size={"input-md"} aria-label="Search">
+                    <ActionIcon
+                      onClick={searchGame}
+                      size={"input-md"}
+                      aria-label="Search"
+                    >
                       <IconZoomFilled />
                     </ActionIcon>
                   </div>
@@ -191,49 +191,20 @@ export default function Header() {
         <div className="bg-white text-black">
           <Container size="xl">
             <nav className="flex justify-between overflow-x-auto h-[88px] items-center">
-              {menuItems.map((item, index) =>
-                item.dropdown ? (
-                  <Menu key={item.name} withinPortal>
-                    <Menu.Target>
-                      <a
-                        className={`cursor-pointer flex items-center justify-center font-medium text-[18px] leading-[24px] px-4 py-3 h-full border-r border-r-[#f3f2f5] ${
-                          location.pathname.startsWith("/winners")
-                            ? "text-primary-red"
-                            : "text-gray-700"
-                        } ${index === menuItems.length - 1 ? "!border-r-0" : ""}`}
-                      >
-                        {item.name}
-                        <IconChevronDown className="ml-1" size={16} />
-                      </a>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                      {item.dropdown.map((sub) => (
-                        <Menu.Item
-                          className="font-medium !text-[18px] !leading-[24px]"
-                          key={sub.path}
-                          component={NavLink}
-                          to={sub.path}
-                        >
-                          {sub.name}
-                        </Menu.Item>
-                      ))}
-                    </Menu.Dropdown>
-                  </Menu>
-                ) : (
-                  <NavLink
-                    key={item.name}
-                    to={item.path}
-                    className={({ isActive }) =>
-                      `flex items-center justify-center font-medium text-[18px] leading-[24px] px-4 py-3 h-full whitespace-nowrap border-r border-r-[#f3f2f5] ${
-                        isActive ? "text-primary-red" : "text-gray-700"
-                      } ${index === menuItems.length - 1 ? "!border-r-0" : ""}`
-                    }
-                    style={{ display: "flex", flex: 1 }}
-                  >
-                    {item.name}
-                  </NavLink>
-                )
-              )}
+              {menuItems.map((item, index) => (
+                <NavLink
+                  key={item.name}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center justify-center font-medium text-[18px] leading-[24px] px-4 py-3 h-full whitespace-nowrap border-r border-r-[#f3f2f5] ${
+                      isActive ? "text-primary-red" : "text-gray-700"
+                    } ${index === menuItems.length - 1 ? "!border-r-0" : ""}`
+                  }
+                  style={{ display: "flex", flex: 1 }}
+                >
+                  {item.name}
+                </NavLink>
+              ))}
             </nav>
           </Container>
         </div>

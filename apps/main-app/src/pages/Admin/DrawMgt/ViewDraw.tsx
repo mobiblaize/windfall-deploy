@@ -17,18 +17,18 @@ import { useEffect, useState } from "react";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import ConfettiImage from "../../../assets/confetti.png";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DynamicBreadcrumbs, {
   type Crumb,
 } from "../../../components/DynamicBreadCrumbs";
 import { notifications } from "@mantine/notifications";
 import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
 import { useForm } from "@mantine/form";
-import { IconBell } from "@tabler/icons-react";
+import { IconBell, IconHomeFilled } from "@tabler/icons-react";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import { BiSolidBell } from "react-icons/bi";
 import CustomTickets from "../../../components/CustomTickets";
-import { FaMagic } from "react-icons/fa";
+import { FaMagic, FaUser } from "react-icons/fa";
 import UnlockDrawModal from "./UnlockDrawModal";
 import RenderSkeletonText from "../../../components/RenderSkeletonText";
 import LoadingState from "../../../components/LoadingState";
@@ -137,6 +137,7 @@ type StatsCard = {
 
 export default function ViewDraw() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [drawLineData, setDrawLineData] = useState<DrawLineResponse | null>(
     null
   );
@@ -149,6 +150,7 @@ export default function ViewDraw() {
   const [videoAlertModalOpen, setVideoAlertModalOpen] = useState(false);
   const [drawModalOpen, setDrawModalOpen] = useState(false);
   const [winnerSuccessModalOpen, setWinnerSuccessModalOpen] = useState(false);
+  const [winnerAnnouncedModal, setWinnerAnnouncedModal] = useState(false);
   const [selectWinnerErrorModalOpen, setSelectWinnerErrorModalOpen] =
     useState(false);
   const [selectWinnerErrorMessage, setSelectWinnerErrorMessage] =
@@ -168,10 +170,18 @@ export default function ViewDraw() {
   // API mutations
   const initiateOtpMutation = usePostData("");
   const verifyOtpMutation = usePostData("");
+  const announceWinnerMutation = usePostData("");
   const selectWinnerMutation = usePostData("");
 
   async function unlockDraw() {
-    if (!drawLineData?.approval_flow.approver?.process_id) return;
+    if (!drawLineData?.approval_flow.approver?.process_id) {
+      notifications.show({
+        title: "No Process ID",
+        message: "No Process ID found for OTP verification.",
+        color: "red",
+      });
+      return;
+    }
 
     try {
       const response = await initiateOtpMutation.mutateAsync({
@@ -194,8 +204,45 @@ export default function ViewDraw() {
     }
   }
 
+  function allDraws() {
+    navigate("/admin/draws");
+  }
+
+  async function announceWinner() {
+    if (!winner?.uuid) {
+      notifications.show({
+        title: "WInner Not Found",
+        message: "No winner data found to announce.",
+        color: "red",
+      });
+      return;
+    }
+
+    try {
+      await announceWinnerMutation.mutateAsync({
+        url: `admin/draw-management/announce-winner/${winner?.uuid}`,
+        payload: {},
+      });
+      setWinnerAnnouncedModal(true);
+    } catch (error) {
+      notifications.show({
+        title: "Winner Announcement Failed",
+        message:
+          (error as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+    }
+  }
+
   async function submitUnlockPin(pin: string) {
-    if (!drawLineData?.approval_flow.approver?.process_id) return;
+    if (!drawLineData?.approval_flow.approver?.process_id) {
+      notifications.show({
+        title: "No Process ID",
+        message: "No Process ID found for OTP verification.",
+        color: "red",
+      });
+      return;
+    }
 
     try {
       await verifyOtpMutation.mutateAsync({
@@ -297,8 +344,7 @@ export default function ViewDraw() {
       setDrawLineData(drawLineResponse?.data);
 
       // Determine initial step and winner state
-      if (drawLine.approvalStatus?.toLowerCase() === "approved")
-        setStep(2);
+      if (drawLine.approvalStatus?.toLowerCase() === "approved") setStep(2);
       if (drawLine.winner && drawLine.winner.won_at) {
         setStep(2);
         setIsWon(true);
@@ -525,83 +571,86 @@ export default function ViewDraw() {
                       <Grid gutter="sm" justify="center">
                         <Grid.Col span={{ base: 12, md: 6 }}>
                           <div className="relative p-0 sm:px-6 py-6">
-                          <Text className="!text-xl !text-center md:!text-2xl !font-semibold !text-gray-900 !mb-6">
-                            Winning Raffle Number
-                          </Text>
-
-                          <Box className="border-2 relative border-dashed border-primary-red text-center px-6 py-4 rounded-lg !bg-white !mb-5">
-                            <Text className="!text-sm !text-gray-600 !mb-1">
-                              Ticket Number
+                            <Text className="!text-xl !text-center md:!text-2xl !font-semibold !text-gray-900 !mb-6">
+                              Winning Raffle Number
                             </Text>
-                            <Text className="!text-primary-red sm:!text-3xl !text-2xl !font-bold !tracking-wide break-all">
-                              {isWon && winner
-                                ? winner.ticket_number
-                                : "**********"}
-                            </Text>
-                          </Box>
 
-                          {isWon && winner ? (
-                            <Group className="mt-2 !justify-center !items-center">
-                              <Avatar
-                                src={winner.customer_image || undefined}
-                                alt="Owner"
-                                className="!border !border-primary-red !rounded-full !h-12 !w-12"
-                              />
-                              <Box>
-                                <Text className="!text-base !text-secondary-text">
-                                  Lucky Winner
-                                </Text>
-                                <Text className="!text-lg !font-bold !text-primary-red">
-                                  {winner.customer_name}
-                                </Text>
-                              </Box>
-                            </Group>
-                          ) : (
-                            <div className="text-center">
-                              <CustomButton
-                                size="lg"
-                                border={false}
-                                fullWidth={false}
-                                variant="default"
-                                rightSection={<FaMagic />}
-                                onClick={startDraw}
-                                disabled={
-                                  !drawLineData?.draw_line
-                                    ?.qualified_tickets_count ||
-                                  drawLineData?.draw_line
-                                    ?.qualified_tickets_count === 0 ||
-                                  drawLineData?.draw_line?.status !== "open" ||
-                                  selectWinnerMutation.isPending
-                                }
-                                loading={selectWinnerMutation.isPending}
-                              >
-                                <span className="!font-medium">Start Draw</span>
-                              </CustomButton>
-                              {drawLineData?.draw_line?.status !== "open" && (
-                                <Text className="!text-sm !text-red-500 !mt-3 !text-center">
-                                  This draw{" "}
-                                  {drawLineData?.draw_line?.status
-                                    ? `has been ${drawLineData?.draw_line?.status}`
-                                    : "is not open"}
-                                  .
-                                </Text>
-                              )}
-                              {drawLineData?.draw_line?.status === "open" &&
-                                (!drawLineData?.draw_line
-                                  ?.qualified_tickets_count ||
-                                  drawLineData?.draw_line
-                                    ?.qualified_tickets_count === 0) && (
+                            <Box className="border-2 relative border-dashed border-primary-red text-center px-6 py-4 rounded-lg !bg-white !mb-5">
+                              <Text className="!text-sm !text-gray-600 !mb-1">
+                                Ticket Number
+                              </Text>
+                              <Text className="!text-primary-red sm:!text-3xl !text-2xl !font-bold !tracking-wide break-all">
+                                {isWon && winner
+                                  ? winner.ticket_number
+                                  : "**********"}
+                              </Text>
+                            </Box>
+
+                            {isWon && winner ? (
+                              <Group className="mt-2 !justify-center !items-center">
+                                <Avatar
+                                  src={winner.customer_image || undefined}
+                                  alt="Owner"
+                                  className="!border !border-primary-red !rounded-full !h-12 !w-12"
+                                />
+                                <Box>
+                                  <Text className="!text-base !text-secondary-text">
+                                    Lucky Winner
+                                  </Text>
+                                  <Text className="!text-lg !font-bold !text-primary-red">
+                                    {winner.customer_name}
+                                  </Text>
+                                </Box>
+                              </Group>
+                            ) : (
+                              <div className="text-center">
+                                <CustomButton
+                                  size="lg"
+                                  border={false}
+                                  fullWidth={false}
+                                  variant="default"
+                                  rightSection={<FaMagic />}
+                                  onClick={startDraw}
+                                  disabled={
+                                    !drawLineData?.draw_line
+                                      ?.qualified_tickets_count ||
+                                    drawLineData?.draw_line
+                                      ?.qualified_tickets_count === 0 ||
+                                    drawLineData?.draw_line?.status !==
+                                      "open" ||
+                                    selectWinnerMutation.isPending
+                                  }
+                                  loading={selectWinnerMutation.isPending}
+                                >
+                                  <span className="!font-medium">
+                                    Start Draw
+                                  </span>
+                                </CustomButton>
+                                {drawLineData?.draw_line?.status !== "open" && (
                                   <Text className="!text-sm !text-red-500 !mt-3 !text-center">
-                                    You cannot start this draw: No tickets
-                                    purchased for this game.
+                                    This draw{" "}
+                                    {drawLineData?.draw_line?.status
+                                      ? `has been ${drawLineData?.draw_line?.status}`
+                                      : "is not open"}
+                                    .
                                   </Text>
                                 )}
-                            </div>
-                          )}
-                        </div>
-                      </Grid.Col>
-                    </Grid>
-                  </CustomTickets>
+                                {drawLineData?.draw_line?.status === "open" &&
+                                  (!drawLineData?.draw_line
+                                    ?.qualified_tickets_count ||
+                                    drawLineData?.draw_line
+                                      ?.qualified_tickets_count === 0) && (
+                                    <Text className="!text-sm !text-red-500 !mt-3 !text-center">
+                                      You cannot start this draw: No tickets
+                                      purchased for this game.
+                                    </Text>
+                                  )}
+                              </div>
+                            )}
+                          </div>
+                        </Grid.Col>
+                      </Grid>
+                    </CustomTickets>
                   </div>
 
                   <Card withBorder mt={"xl"} radius={"md"} py={24}>
@@ -649,6 +698,36 @@ export default function ViewDraw() {
                       )}
                     </SimpleGrid>
                   </Card>
+
+                  {isWon && (
+                    <Card withBorder mt={"xl"} radius={"md"} py={24}>
+                      <Flex justify="flex-end" gap={15}>
+                        <Button
+                          fullWidth={false}
+                          size="md"
+                          variant="default"
+                          leftSection={<IconHomeFilled />}
+                          className="!font-medium"
+                          onClick={allDraws}
+                        >
+                          All Draws
+                        </Button>
+                        <CustomButton
+                          size="md"
+                          border={false}
+                          rightSection={<FaUser />}
+                          fullWidth={false}
+                          variant="default"
+                          className="!font-medium"
+                          disabled={announceWinnerMutation.isPending}
+                          loading={announceWinnerMutation.isPending}
+                          onClick={announceWinner}
+                        >
+                          Announce Winner
+                        </CustomButton>
+                      </Flex>
+                    </Card>
+                  )}
                 </div>
               </>
             )}
@@ -738,6 +817,26 @@ export default function ViewDraw() {
         secondaryButton={{
           label: "Close",
           onClick: () => setSelectWinnerErrorModalOpen(false),
+        }}
+      />
+
+      {/* Announce Modal */}
+      <AdminAlertModal
+        opened={winnerAnnouncedModal}
+        onClose={() => setWinnerAnnouncedModal(false)}
+        status="success"
+        title="Winner Announced"
+        description="Congratulations, Winner has been announced for this draw."
+        secondaryButton={{
+          label: "Close",
+          onClick: () => setWinnerAnnouncedModal(false),
+        }}
+        primaryButton={{
+          label: "Manage Draws",
+          onClick: () => {
+            setWinnerAnnouncedModal(false);
+            allDraws();
+          },
         }}
       />
     </div>

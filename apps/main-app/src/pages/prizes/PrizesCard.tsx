@@ -1,35 +1,32 @@
 import { Card, Image, Text } from "@mantine/core";
+import type { Prize } from "../Admin/PrizeManagement/PrizeManagement";
 
-function PrizesCard({item}:{item:unknown}) {
-	console.log(item);
-	return (
-		<Card className="!rounded-xl">
-			<Card.Section className="!m-1">
-				<Image
-					className="!rounded-xl h-[200px]"
-					src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
-					alt="Norway"
-				/>
-			</Card.Section>
-			<Card.Section className="!mx-1 !my-4">
-				<Text className="!capitalize !text-2xl !font-extrabold">A luxury house in lekki</Text>
-				<Text fz="lg" className="!text-primary-red">
-					Price category:{" "}
-					<span className="text-secondary-text font-medium text-sm">
-						Grand price
-					</span>
-				</Text>
-				<Text className="!font-light !my-4 !tracking-wide">
-					Win a stunning, fully finished luxury home in the prestigious
-					neighbourhood of Lekki, Lagos. This exquisite property features
-					premium fittings, elegant design, ample space, and top-notch
-					finishing. Nestled in a serene, secure environment with easy access to
-					key landmarks, it’s more than just a home — it’s a lifestyle upgrade.
-					All it takes is one raffle ticket to make this dream your reality.
-				</Text>
-			</Card.Section>
-		</Card>
-	);
+function PrizesCard({ item }: { item: Prize }) {
+  return (
+    <Card className="!rounded-xl">
+      <Card.Section className="!m-1">
+        <Image
+          className="!rounded-xl h-[200px]"
+          src={item.image}
+          alt="Norway"
+        />
+      </Card.Section>
+      <Card.Section className="!mx-1 !my-4">
+        <Text className="!capitalize !text-2xl !font-extrabold">
+          {item.name}
+        </Text>
+        {/* <Text fz="lg" className="!text-primary-red">
+          Price category:{" "}
+          <span className="text-secondary-text font-medium text-sm">
+            Grand price
+          </span>
+        </Text> */}
+        <Text className="!font-light !my-4 !tracking-wide">
+          {item.description}
+        </Text>
+      </Card.Section>
+    </Card>
+  );
 }
 
 export default PrizesCard;

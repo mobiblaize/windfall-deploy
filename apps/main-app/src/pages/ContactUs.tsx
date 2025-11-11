@@ -12,8 +12,9 @@ import { IconPhone, IconMail } from "@tabler/icons-react";
 import SectionBanner from "../components/SectionBanner"; // adjust path as needed
 import MainButton from "../components/Buttons/MainButton";
 import { notifications } from "@mantine/notifications";
-import { usePostData } from "../utils/hooks/useApis";
+import { useFetchData, usePostData } from "../utils/hooks/useApis";
 import { useForm } from "@mantine/form";
+import { useEffect } from "react";
 
 const inputStyles = {
   input: {
@@ -23,14 +24,20 @@ const inputStyles = {
 };
 
 export default function ContactUs() {
-  const contactUsMutation = usePostData(`guest/contact-us`);
+  const {
+    data: response,
+    isError,
+    error,
+  } = useFetchData(`guest/dropdown/issue-type`);
+  const contactUsMutation = usePostData(`guest/contact-us-by-guest`);
 
   const form = useForm({
     initialValues: {
       fullname: "",
+      phone: "",
       email: "",
-      subject: "",
-      message: "",
+      issue_type: "",
+      customer_complaint: "",
     },
 
     validate: {
@@ -44,12 +51,27 @@ export default function ContactUs() {
         }
         return null;
       },
-      subject: (val) => (val ? null : "Enter a subject"),
-      message: (val) => (val ? null : "Enter your message"),
+      issue_type: (val) => (val ? null : "Enter a subject"),
+      customer_complaint: (val) => (val ? null : "Enter your message"),
     },
   });
 
+  useEffect(() => {
+    if (isError) {
+      notifications.show({
+        title: "Failed to fetch Issue Types",
+        message:
+          (error as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+    }
+  }, [error, isError]);
+
+  const issueTypes: string[] = response?.data || [];
+
   const contactUs = async () => {
+    console.log('submitted');
+    
     if (form.validate().hasErrors) {
       return;
     }
@@ -168,6 +190,12 @@ export default function ContactUs() {
                   {...form.getInputProps("fullname")}
                 />
                 <TextInput
+                  label="Phone Number"
+                  type="tel"
+                  placeholder="081XXXXXXXX"
+                  {...form.getInputProps("phone")}
+                />
+                <TextInput
                   label="Email address"
                   placeholder="you@example.com"
                   required
@@ -175,22 +203,18 @@ export default function ContactUs() {
                 />
                 <Select
                   label="Subject"
-                  placeholder="General inquiry"
-                  data={["General inquiry", "Prize claim", "Technical issue"]}
+                  placeholder="Add a subject"
+                  data={issueTypes}
                   required
-                  {...form.getInputProps("subject")}
+                  {...form.getInputProps("issue_type")}
                   styles={inputStyles}
-                />
-                <TextInput
-                  label="Raffle reference code"
-                  placeholder="e.g. WIN12345678"
                 />
                 <Textarea
                   label="Message"
                   placeholder="Type your message here..."
                   required
                   className="!mb-5"
-                  {...form.getInputProps("message")}
+                  {...form.getInputProps("customer_complaint")}
                   styles={{
                     input: {
                       height: "8rem",
@@ -201,7 +225,12 @@ export default function ContactUs() {
                   Tip: Include your winning ticket number or draw date for
                   prize-related inquiries.
                 </Text>
-                <MainButton disabled={contactUsMutation.isPending} loading={contactUsMutation.isPending} size="lg" buttonType="submit">
+                <MainButton
+                  disabled={contactUsMutation.isPending}
+                  loading={contactUsMutation.isPending}
+                  size="lg"
+                  buttonType="submit"
+                >
                   <span className="!text-base">Send Message</span>
                 </MainButton>
               </form>

@@ -82,7 +82,7 @@ export default function SampleRafflesGames() {
             ) : (
               <EmptyState
                 description="No Raffles Found"
-                title="No raffles found"
+                title="No featured raffles at this time, please check back later."
                 format="secondary"
                 fullWidth={true}
               />

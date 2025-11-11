@@ -19,11 +19,9 @@ const ScrollUp = lazy(() => import("./utils/helper/ScrollUp"));
 // Public pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Draws = lazy(() => import("./pages/draws/Draws"));
-const RecentDraws = lazy(() => import("./pages/draws/RecentDraws"));
-const SpecificResult = lazy(() => import("./pages/draws/SpecificResult"));
+const SpecificResult = lazy(() => import("./pages/winners/WinnerStory"));
 const AllWinnersPage = lazy(() => import("./pages/winners/AllWinnersPage"));
-const RecentWinners = lazy(() => import("./pages/winners/RecentWinners"));
-const AllPricesPage = lazy(() => import("./pages/prizes/AllPricesPage"));
+const AllPrizesPage = lazy(() => import("./pages/prizes/AllPrizesPage"));
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const Signup = lazy(() => import("./pages/auth/Signup"));
@@ -37,10 +35,6 @@ const RedirectOrderDetails = lazy(
 // Raffles
 const RaffleGames = lazy(() => import("./pages/raffles/RaffleGames"));
 const RaffleDetails = lazy(() => import("./pages/raffles/RaffleDetails"));
-// const RaffleGroups = lazy(() => import("./pages/raffles/RaffleGroups"));
-// const RafflesPaymentReceipt = lazy(
-//   () => import("./pages/raffles/RafflesPaymentReceipt")
-// );
 
 // Profile
 const ProfileLayout = lazy(() => import("./pages/Profile/ProfileLayout"));
@@ -191,12 +185,10 @@ function App() {
 
             {/* Draws */}
             <Route path="draws" element={<Draws />} />
-            <Route path="draws/recent" element={<RecentDraws />} />
 
             {/* winners */}
-            <Route path="winners/all-time" element={<AllWinnersPage />} />
-            <Route path="winners/recent" element={<RecentWinners />} />
-            <Route path="winners/all-time/:id" element={<SpecificResult />} />
+            <Route path="winners" element={<AllWinnersPage />} />
+            <Route path="winners/:id" element={<SpecificResult />} />
 
             {/* Profile grouped */}
             <Route
@@ -241,13 +233,8 @@ function App() {
             {/* Raffles */}
             <Route path="raffles" element={<RaffleGames />} />
             <Route path="raffles/:id" element={<RaffleDetails />} />
-            {/* <Route
-              path="raffles/receipts"
-              element={<RafflesPaymentReceipt />}
-            />
-            <Route path="raffles/receipts/:id" element={<RaffleGroups />} /> */}
 
-            <Route path="prize" element={<AllPricesPage />} />
+            <Route path="prize" element={<AllPrizesPage />} />
 
             {/* Static pages */}
             <Route path="cart" element={<Cart />} />
