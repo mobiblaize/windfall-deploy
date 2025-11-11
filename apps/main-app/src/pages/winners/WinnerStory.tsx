@@ -230,8 +230,8 @@ const renderImageGrid = (media?: string[], prizeImage?: string) => {
         )}
 
         {allImages.length === 2 && hasPrizeImage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
-            <div className="sm:col-span-2 lg:col-span-2 rounded-lg overflow-hidden h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-5 my-10 lg:h-[400px]">
+            <div className="lg:col-span-2 rounded-lg overflow-hidden h-full">
               <Image
                 src={allImages[0]}
                 alt="Winner prize image"
@@ -249,7 +249,7 @@ const renderImageGrid = (media?: string[], prizeImage?: string) => {
         )}
 
         {allImages.length === 3 && !hasPrizeImage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 my-10 sm:h-[600px] md:h-[600px] lg:h-[400px]">
             <div className="sm:row-span-2 rounded-lg overflow-hidden h-full">
               <Image
                 src={allImages[0]}
@@ -275,7 +275,7 @@ const renderImageGrid = (media?: string[], prizeImage?: string) => {
         )}
 
         {allImages.length === 3 && hasPrizeImage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[600px] md:h-[600px] lg:h-[400px]">
             <div className="sm:col-span-2 rounded-lg overflow-hidden h-full">
               <Image
                 src={allImages[0]}
@@ -301,7 +301,7 @@ const renderImageGrid = (media?: string[], prizeImage?: string) => {
         )}
 
         {allImages.length === 4 && !hasPrizeImage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 my-10 sm:h-[600px] md:h-[600px] lg:h-[400px]">
             <div className="sm:row-span-2 rounded-lg overflow-hidden h-full">
               <Image
                 src={allImages[0]}
@@ -334,7 +334,7 @@ const renderImageGrid = (media?: string[], prizeImage?: string) => {
         )}
 
         {allImages.length === 4 && hasPrizeImage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[600px] md:h-[600px] lg:h-[400px]">
             <div className="sm:col-span-2 sm:row-span-2 rounded-lg overflow-hidden h-full">
               <Image
                 src={firstImages[0]}
@@ -367,7 +367,7 @@ const renderImageGrid = (media?: string[], prizeImage?: string) => {
         )}
 
         {allImages.length >= 5 && hasPrizeImage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[600px] md:h-[600px] lg:h-[400px]">
             <div className="sm:col-span-2 sm:row-span-2 rounded-lg overflow-hidden h-full">
               <Image
                 src={firstImages[0]}
@@ -407,7 +407,7 @@ const renderImageGrid = (media?: string[], prizeImage?: string) => {
         )}
 
         {allImages.length >= 5 && !hasPrizeImage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 my-10 sm:h-[600px] md:h-[600px] lg:h-[400px]">
             <div className="sm:row-span-2 rounded-lg overflow-hidden h-full">
               <Image
                 src={firstImages[0]}
