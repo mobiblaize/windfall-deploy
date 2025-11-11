@@ -267,7 +267,7 @@ export default function PaymentReceipt() {
         opened={paymentSuccessModalOpen}
         status="success"
         title={ order?.order.status === "order placed" ? "Raffle Ticket Payment Completed": order?.order.status === "pending" ? "Raffle Ticket Payment Processing": "Raffle Ticket Payment Failed"}
-        description={ order?.order.status === "order placed" ? "Congratulation, you have successfully, paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and can see more on your WindFall Raffle Profile.": order?.order.status === "pending" ? "Your payment is still being processed. You will be notified once the process is completed.": "Unfortunately, your payment was not successful. Please try again or use a different payment method."}
+        description={ order?.order.status === "order placed" ? "Congratulation, you have successfully paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and you can see more on your WindFall Raffle Profile.": order?.order.status === "pending" ? "Your payment is still being processed. You will be notified once the process is completed.": "Unfortunately, your payment was not successful. Please try again or use a different payment method."}
         primaryButton={{
           label: "Done",
           onClick: () => {

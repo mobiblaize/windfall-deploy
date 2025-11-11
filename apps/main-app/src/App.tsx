@@ -75,7 +75,6 @@ const Faq = lazy(() => import("./pages/Faq"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DownloadApp = lazy(() => import("./pages/DownloadApp"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
-const ClaimPrices = lazy(() => import("./pages/ClaimPrices/ClaimPrices"));
 
 // Admin
 const AdminLoginPage = lazy(() => import("./pages/Admin/Auth/AdminLogin"));
@@ -264,7 +263,6 @@ function App() {
             <Route path="cookie-policy" element={<CookiePolicy />} />
             <Route path="about" element={<AboutUs />} />
             <Route path="terms-of-use" element={<TermsOfUse />} />
-            <Route path="claim-prices" element={<ClaimPrices />} />
             <Route path="contact-us" element={<ContactUs />} />
             <Route path="download-app" element={<DownloadApp />} />
 

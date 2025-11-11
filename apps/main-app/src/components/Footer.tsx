@@ -15,6 +15,7 @@ import { useForm } from "@mantine/form";
 
 export default function Footer() {
   const subscribeMutation = usePostData(`guest/subscribe`);
+  const currentYear = new Date().getFullYear();
 
   const form = useForm({
     initialValues: {
@@ -183,7 +184,7 @@ export default function Footer() {
                 <NavLink to={"/game-rules"}>How to play</NavLink>
               </li>
               <li>
-                <NavLink to={"/claim-prices"}>Claim prizes</NavLink>
+                Claim prizes
               </li>
               <li>
                 <NavLink to={"/contact-us"}>Contact Us</NavLink>
@@ -254,7 +255,7 @@ export default function Footer() {
           </p>
         </div>
         <p className="text-gray-500 pt-4 text-center md:text-right">
-          © 2025 Windfall Raffle™ by Home Windfall Limited | All Rights
+          © {currentYear} Windfall Raffle™ by Home Windfall Limited | All Rights
           Reserved
         </p>
       </div>

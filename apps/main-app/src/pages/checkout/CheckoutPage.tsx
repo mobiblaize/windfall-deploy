@@ -300,7 +300,7 @@ function CheckoutPage() {
           <span className="text-primary-red">({totalNoOfTickets || 0})</span>
         </Text>
         <Text className="!text-secondary-text !mb-5">
-          Buy Raffle ticket in very simple step and stand a chance to win big!!!
+          Buy Raffle ticket in very simple steps and stand a chance to win big!!!
         </Text>
 
         {cartLoading && (

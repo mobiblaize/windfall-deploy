@@ -111,8 +111,10 @@ export default function RaffleGames() {
                 </>
               ) : (
                 <>
-                  <span>All Raffles/Games</span>{" "}
-                  <span className="text-primary-red">({total})</span>
+                  <span>
+                    All Raffles/Games{" "}
+                    <span className="text-primary-red">({total})</span>
+                  </span>
                 </>
               )}
             </div>
