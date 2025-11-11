@@ -162,7 +162,14 @@ function ResetPassword() {
 
       <Flex className="py-10" align="center" justify="center">
         <div className="m:w-4/5 md:!w-5/9 lg:!w-5/10 mt-10 !mb-20">
-          <NewPassword resendEmail={()=>setEmailModalOpen(true)} onComplete={validatePassword} isLoading={createPasswordMutation.isPending}/>
+          <NewPassword
+            resendEmail={() => {
+              emailForm.reset();
+              setEmailModalOpen(true);
+            }}
+            onComplete={validatePassword}
+            isLoading={createPasswordMutation.isPending}
+          />
         </div>
       </Flex>
 
