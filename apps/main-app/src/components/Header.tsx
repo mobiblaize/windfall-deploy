@@ -56,10 +56,7 @@ const sideMenuItems = [
       {
         name: "Winners",
         icon: IconAward,
-        dropdown: [
-          { name: "Recent Winners", path: "/winners/recent" },
-          { name: "All Time Winners", path: "/winners/all-time" },
-        ],
+        path: "/winners",
       },
       { name: "About Us", path: "/about", icon: IconInfoCircle },
       { name: "Prize", path: "/prize", icon: IconStar },

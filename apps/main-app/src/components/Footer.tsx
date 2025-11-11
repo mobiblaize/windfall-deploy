@@ -173,7 +173,7 @@ export default function Footer() {
                 <NavLink to={"/register"}>Register</NavLink>
               </li>
               <li>
-                <NavLink to={"/winners/all-time"}>Our Winner</NavLink>
+                <NavLink to={"/winners"}>Our Winners</NavLink>
               </li>
             </ul>
           </div>
@@ -184,12 +184,11 @@ export default function Footer() {
                 <NavLink to={"/game-rules"}>How to play</NavLink>
               </li>
               <li>
-                Claim prizes
+                <NavLink to={"/game-rules"}>Games Rules</NavLink>
               </li>
               <li>
                 <NavLink to={"/contact-us"}>Contact Us</NavLink>
               </li>
-              <li>Blog</li>
               <li>
                 <NavLink to={"/responsible-playing"}>
                   Responsible Playing
@@ -200,9 +199,6 @@ export default function Footer() {
           <div>
             <p className="font-semibold text-white mb-2">Legal</p>
             <ul className="space-y-2">
-              <li>
-                <NavLink to={"/game-rules"}>Games Rules</NavLink>
-              </li>
               <li>
                 <NavLink to={"/terms-and-conditions"}>
                   Terms & Conditions
