@@ -11,7 +11,7 @@ export default function RaffleCard(raffle: Raffle) {
   const isInstant =
     raffle.main_active_status === "instant" || raffle.instant_game === "true";
   const navigate = useNavigate();
-  const progressColor = isActive ? "var(--primary-red)" : "#f79009";
+  const progressColor = !isActive ? "#f79009": isInstant ? "var(--color-instant-blue)" : "var(--primary-red)";
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-4 text-center">

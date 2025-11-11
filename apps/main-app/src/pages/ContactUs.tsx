@@ -67,11 +67,17 @@ export default function ContactUs() {
     }
   }, [error, isError]);
 
-  const issueTypes: string[] = response?.data || [];
+  const issueTypes: string[] = response?.data
+    ? [
+        {
+          value: "",
+          label: "Select an issue type",
+        },
+        ...response.data,
+      ]
+    : [];
 
   const contactUs = async () => {
-    console.log('submitted');
-    
     if (form.validate().hasErrors) {
       return;
     }

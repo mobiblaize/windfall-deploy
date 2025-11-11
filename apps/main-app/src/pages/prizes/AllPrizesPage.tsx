@@ -58,8 +58,8 @@ function AllPrizesPage() {
   return (
     <div className="mb-5 md:mb-10 flex flex-col h-full">
       <SectionHeader
-        heading="Prices"
-        subHeading="A look at all our prizes that we offer"
+        heading="Prizes"
+        subHeading="A look at prizes that we offer"
         imageLeft={houseLeft}
         imageRight={houseRight}
         imageLeftWidth="40%"
