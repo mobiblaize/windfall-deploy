@@ -151,7 +151,7 @@ export interface Ticket {
   uuid: string;
   ticket_number: string;
   issued_at: string;
-  flag: 'pending'| 'yet to be won'| 'won'|'lost';
+  flag: 'pending'| 'yet to be won'| 'won'|'lost' | 'already won' | 'you won';
   prize: Prize2;
   owned_by_user: boolean;
 }

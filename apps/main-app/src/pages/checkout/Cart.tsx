@@ -138,7 +138,7 @@ function Cart() {
           <span className="text-primary-red">({cart?.cart.summary.total_quantity || 0})</span>
         </Text>
         <Text className="!text-secondary-text">
-          See the list of Raffle Ticket you want buy. Checkout now before draw
+          See the list of Raffle Tickets you want to buy
         </Text>
 
         {cartLoading && (

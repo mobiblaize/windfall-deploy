@@ -1,5 +1,6 @@
 import {
   Alert,
+  Button,
   Card,
   Flex,
   List,
@@ -17,12 +18,13 @@ export type PasswordFormValues = {
 };
 
 type NewPasswordProps = {
+  resendEmail: () => void;
   onComplete: (formValues: PasswordFormValues) => void;
   isLoading?: boolean;
   error?: string;
 };
 
-function NewPassword({ onComplete, isLoading, error }: NewPasswordProps) {
+function NewPassword({ onComplete, isLoading, error, resendEmail }: NewPasswordProps) {
   const form = useForm({
     initialValues: {
       password: "",
@@ -104,7 +106,16 @@ function NewPassword({ onComplete, isLoading, error }: NewPasswordProps) {
           />
         </Stack>
 
-        <Flex justify="flex-end" className="!mt-7">
+        <Flex justify="flex-end" gap={"md"} className="!mt-7">
+          <Button
+            fullWidth={false}
+            size="lg"
+            variant="default"
+            className="!font-medium"
+            onClick={resendEmail}
+          >
+            Resend Email
+          </Button>
           <CustomButton
             disabled={isLoading}
             loading={isLoading}

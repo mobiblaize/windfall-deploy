@@ -144,7 +144,8 @@ function CustomerDashboard() {
             <>
               <Box mb={"lg"}>
                 <Skeleton height={16} width={240} mb={8} />
-                <Skeleton height={40} width={180} />
+                <Skeleton height={40} width={180} mb={22} />
+                <Skeleton height={16} width={220} />
               </Box>
               <Divider my="sm" />
               <SimpleGrid

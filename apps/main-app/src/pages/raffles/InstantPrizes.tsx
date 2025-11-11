@@ -18,10 +18,11 @@ export default function InstantPrizes({ raffle }: RaffleProps) {
   const prizes = raffle.prizes;
 
   const toggleItem = (index: number) => {
-    setOpenIndexes((prev) =>
-      prev.includes(index)
-        ? prev.filter((i) => i !== index) // close it
-        : [...prev, index] // open it
+    setOpenIndexes(
+      (prev) =>
+        prev.includes(index)
+          ? prev.filter((i) => i !== index) // close it
+          : [...prev, index] // open it
     );
   };
 
@@ -55,7 +56,7 @@ export default function InstantPrizes({ raffle }: RaffleProps) {
             >
               <Group gap="sm">
                 <Avatar
-                  src="/assets/profile.jpg"
+                  src={prize.image}
                   alt="Profile"
                   radius="md"
                   size={48}
@@ -88,33 +89,36 @@ export default function InstantPrizes({ raffle }: RaffleProps) {
             {isOpen && (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-6 pb-6 pt-2">
                 {filteredTickets.length > 0 ? (
-                  filteredTickets.map((ticket, idx) => (
-                    <div
-                      key={idx}
-                      className="border border-[#9A999D] border-dashed rounded-lg p-3 flex flex-col items-start"
-                    >
-                      <span
-                        className={`px-2 py-[2px] rounded-full text-xs font-medium mb-2 ${
-                          ticket.flag === "won"
-                            ? "!bg-[#D1FADF] !text-[#027A48]"
-                            : ticket.flag === "lost"
-                            ? "!bg-light-red !text-primary-red"
-                            : "!bg-[#F2F4F7] !text-[#344054]"
-                        }`}
+                  filteredTickets.map((ticket, idx) => {
+                    const isWon = (ticket.flag === "won") || (ticket.flag === "already won") || (ticket.flag === "you won");
+                    return (
+                      <div
+                        key={idx}
+                        className="border border-[#9A999D] border-dashed rounded-lg p-3 flex flex-col items-start"
                       >
-                        {ticket.flag}
-                      </span>
-                      <Text
-                        className={`!font-medium ${
-                          ticket.flag !== "won"
-                            ? "!text-primary-red"
-                            : "!text-gray-800"
-                        }`}
-                      >
-                        {ticket.ticket_number}
-                      </Text>
-                    </div>
-                  ))
+                        <span
+                          className={`px-2 py-[2px] capitalize rounded-full text-xs font-medium mb-2 ${
+                            isWon
+                              ? "!bg-[#D1FADF] !text-[#027A48]"
+                              : ticket.flag === "lost"
+                                ? "!bg-light-red !text-primary-red"
+                                : "!bg-[#F2F4F7] !text-[#344054]"
+                          }`}
+                        >
+                          {ticket.flag}
+                        </span>
+                        <Text
+                          className={`!font-medium ${
+                            !isWon
+                              ? "!text-primary-red"
+                              : "!text-gray-800"
+                          }`}
+                        >
+                          {ticket.ticket_number}
+                        </Text>
+                      </div>
+                    );
+                  })
                 ) : (
                   <p className="col-span-full text-sm text-gray-500">
                     No tickets found

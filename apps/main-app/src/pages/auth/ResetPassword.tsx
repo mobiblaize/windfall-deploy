@@ -141,7 +141,7 @@ function ResetPassword() {
     },
 
     validate: {
-      email: (value) => (value ? null : "Email / Phone NumberEmail / Phone Number is required"),
+      email: (value) => (value ? null : "Email / Phone Number is required"),
     },
   });
 
@@ -162,7 +162,7 @@ function ResetPassword() {
 
       <Flex className="py-10" align="center" justify="center">
         <div className="m:w-4/5 md:!w-5/9 lg:!w-5/10 mt-10 !mb-20">
-          <NewPassword onComplete={validatePassword} isLoading={createPasswordMutation.isPending}/>
+          <NewPassword resendEmail={()=>setEmailModalOpen(true)} onComplete={validatePassword} isLoading={createPasswordMutation.isPending}/>
         </div>
       </Flex>
 
@@ -176,7 +176,7 @@ function ResetPassword() {
           </>
         }
         description={
-          <>
+          <form onSubmit={emailForm.onSubmit(handleEmailSubmit)}>
             <Text className="!text-base !text-center !text-[#818181] !mb-5">
               To start the forget password process, kindly enter your email
               below.
@@ -199,7 +199,7 @@ function ResetPassword() {
                 }}
               />
             </div>
-          </>
+          </form>
         }
         primaryButton={{
           label: "Yes, Forget Password",

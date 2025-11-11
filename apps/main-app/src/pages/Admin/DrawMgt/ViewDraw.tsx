@@ -40,6 +40,7 @@ const breadCrumbs: Crumb[] = [
 
 type Winner = {
   uuid: string;
+  announce_status: string;
   customer_name: string;
   customer_email: string;
   customer_phone_number: string;
@@ -224,6 +225,7 @@ export default function ViewDraw() {
         payload: {},
       });
       setWinnerAnnouncedModal(true);
+      setWinner(winner ? { ...winner, announce_status: "true" } : null);
     } catch (error) {
       notifications.show({
         title: "Winner Announcement Failed",
@@ -719,11 +721,11 @@ export default function ViewDraw() {
                           fullWidth={false}
                           variant="default"
                           className="!font-medium"
-                          disabled={announceWinnerMutation.isPending}
+                          disabled={announceWinnerMutation.isPending || winner?.announce_status === "true"}
                           loading={announceWinnerMutation.isPending}
                           onClick={announceWinner}
                         >
-                          Announce Winner
+                          {winner?.announce_status === "true" ? 'Winner Announced': 'Announce Winner'}
                         </CustomButton>
                       </Flex>
                     </Card>

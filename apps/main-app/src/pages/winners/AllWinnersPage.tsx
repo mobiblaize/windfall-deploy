@@ -25,6 +25,7 @@ export interface Winner {
   testimonial: string;
   game_category: string;
   prize_won: string;
+  prize_image: string;
   prize_cost: string;
   ticket_price: string;
   draw_index: string;

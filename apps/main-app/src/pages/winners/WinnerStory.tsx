@@ -55,7 +55,7 @@ function WinnerStory() {
                 {winnerStory?.testimonial_short_description}
               </Text>
 
-              {renderImageGrid(winnerStory?.media).top}
+              {renderImageGrid(winnerStory?.media, winnerStory?.prize_image).top}
 
               <div className="my-5 ">
                 {" "}
@@ -128,7 +128,7 @@ function WinnerStory() {
                 ></div>
               </Container>
 
-              {renderImageGrid(winnerStory?.media).bottom}
+              {renderImageGrid(winnerStory?.media, winnerStory?.prize_image).bottom}
               
               {winnerStory?.video_url && (
                 <Container size="xs" className="my-7 md:my-10 lg:my-14">
@@ -171,25 +171,38 @@ function WinnerStory() {
 
 export default WinnerStory;
 
-const renderImageGrid = (media?: string[]) => {
-  if (!media || media?.length === 0)
+const renderImageGrid = (media?: string[], prizeImage?: string) => {
+  // Combine prize_image with media array, prioritizing prize_image first
+  let allImages = media || [];
+  const hasPrizeImage = !!prizeImage;
+
+  if (prizeImage) {
+    // Remove prize_image from media if it exists there to avoid duplicates
+    allImages = allImages.filter((img) => img !== prizeImage);
+    // Add prize_image at the beginning
+    allImages = [prizeImage, ...allImages];
+  }
+
+  if (!allImages || allImages.length === 0)
     return {
       top: null,
       bottom: null,
     };
 
-  const firstFourImages = media?.slice(0, 4);
-  const remainingImages = media?.slice(4);
+  // If there's a prize image, take 5 images for top section, otherwise 4
+  const topSectionCount = hasPrizeImage ? 5 : 4;
+  const firstImages = allImages.slice(0, topSectionCount);
+  const remainingImages = allImages.slice(topSectionCount);
 
   return {
     top: (
       <>
         {/* IMAGES SECTION 1 */}
-        {media.length === 1 && (
+        {allImages.length === 1 && (
           <div className="my-10">
             <div className="rounded-lg overflow-hidden w-full">
               <Image
-                src={media[0]}
+                src={allImages[0]}
                 alt="Winner image 1"
                 className="w-full h-auto"
               />
@@ -197,39 +210,63 @@ const renderImageGrid = (media?: string[]) => {
           </div>
         )}
 
-        {media.length === 2 && (
+        {allImages.length === 2 && !hasPrizeImage && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 my-10">
-            {media.map((img, idx) => (
-              <div key={idx} className="rounded-lg overflow-hidden">
-                <Image
-                  src={img}
-                  alt={`Winner image ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
+            <div className="rounded-lg overflow-hidden">
+              <Image
+                src={allImages[0]}
+                alt="Winner image 1"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden">
+              <Image
+                src={allImages[1]}
+                alt="Winner image 2"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         )}
 
-        {media.length === 3 && (
+        {allImages.length === 2 && hasPrizeImage && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+            <div className="sm:col-span-2 lg:col-span-2 rounded-lg overflow-hidden h-full">
+              <Image
+                src={allImages[0]}
+                alt="Winner prize image"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={allImages[1]}
+                alt="Winner image 2"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        {allImages.length === 3 && !hasPrizeImage && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
             <div className="sm:row-span-2 rounded-lg overflow-hidden h-full">
               <Image
-                src={media[0]}
+                src={allImages[0]}
                 alt="Winner image 1"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="rounded-lg overflow-hidden h-full">
               <Image
-                src={media[1]}
+                src={allImages[1]}
                 alt="Winner image 2"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="rounded-lg overflow-hidden h-full">
               <Image
-                src={media[2]}
+                src={allImages[2]}
                 alt="Winner image 3"
                 className="w-full h-full object-cover"
               />
@@ -237,32 +274,164 @@ const renderImageGrid = (media?: string[]) => {
           </div>
         )}
 
-        {media.length >= 4 && (
+        {allImages.length === 3 && hasPrizeImage && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+            <div className="sm:col-span-2 rounded-lg overflow-hidden h-full">
+              <Image
+                src={allImages[0]}
+                alt="Winner prize image"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={allImages[1]}
+                alt="Winner image 2"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={allImages[2]}
+                alt="Winner image 3"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        {allImages.length === 4 && !hasPrizeImage && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
             <div className="sm:row-span-2 rounded-lg overflow-hidden h-full">
               <Image
-                src={firstFourImages[0]}
+                src={allImages[0]}
                 alt="Winner image 1"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="rounded-lg overflow-hidden h-full">
               <Image
-                src={firstFourImages[1]}
+                src={allImages[1]}
                 alt="Winner image 2"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="sm:row-span-2 rounded-lg overflow-hidden h-full">
               <Image
-                src={firstFourImages[2]}
+                src={allImages[2]}
                 alt="Winner image 3"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="rounded-lg overflow-hidden h-full">
               <Image
-                src={firstFourImages[3]}
+                src={allImages[3]}
+                alt="Winner image 4"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        {allImages.length === 4 && hasPrizeImage && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+            <div className="sm:col-span-2 sm:row-span-2 rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[0]}
+                alt="Winner prize image"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[1]}
+                alt="Winner image 2"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full sm:row-span-2">
+              <Image
+                src={firstImages[2]}
+                alt="Winner image 3"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[3]}
+                alt="Winner image 4"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        {allImages.length >= 5 && hasPrizeImage && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+            <div className="sm:col-span-2 sm:row-span-2 rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[0]}
+                alt="Winner prize image"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[1]}
+                alt="Winner image 2"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[2]}
+                alt="Winner image 3"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[3]}
+                alt="Winner image 4"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[4]}
+                alt="Winner image 5"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        {allImages.length >= 5 && !hasPrizeImage && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 my-10 sm:h-[200px] md:h-[300px] lg:h-[400px]">
+            <div className="sm:row-span-2 rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[0]}
+                alt="Winner image 1"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[1]}
+                alt="Winner image 2"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="sm:row-span-2 rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[2]}
+                alt="Winner image 3"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="rounded-lg overflow-hidden h-full">
+              <Image
+                src={firstImages[3]}
                 alt="Winner image 4"
                 className="w-full h-full object-cover"
               />
@@ -279,10 +448,13 @@ const renderImageGrid = (media?: string[]) => {
         className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-7 my-7 md:my-10"
       >
         {remainingImages.map((img, idx) => (
-          <div key={idx + 4} className="rounded-lg overflow-hidden">
+          <div
+            key={idx + topSectionCount}
+            className="rounded-lg overflow-hidden"
+          >
             <Image
               src={img}
-              alt={`Winner image ${idx + 5}`}
+              alt={`Winner image ${idx + topSectionCount + 1}`}
               className="w-full h-full object-cover"
             />
           </div>

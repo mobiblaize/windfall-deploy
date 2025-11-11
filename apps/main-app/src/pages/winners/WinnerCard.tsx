@@ -3,6 +3,7 @@ import { GoArrowUpRight } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import type { Winner } from "./AllWinnersPage";
 import { formatCurrency } from "../../utils/helper/formatCurrency";
+import placeholderImg from "../../assets/placeholder-img.png";
 
 export default function WinnerCard({ winner }: { winner: Winner }) {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function WinnerCard({ winner }: { winner: Winner }) {
     <div className="bg-white rounded-xl p-5 text-center shadow-sm">
       <Image
         className="!rounded-md h-48 object-cover mb-5"
-        src={winner.card_image}
+        src={winner.prize_image || placeholderImg}
         alt={winner.game_name}
       />
       <p className="text-sm text-gray-500 mb-1">Prize Won</p>

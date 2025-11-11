@@ -29,7 +29,7 @@ const steps = [
   },
   {
     title: "Claim Your Prize",
-    description: "If you win, receive instructions on how to claim your prize.",
+    description: "If you win, you'll receive instructions on how to claim your prize.",
   },
 ];
 
