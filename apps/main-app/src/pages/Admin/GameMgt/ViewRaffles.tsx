@@ -344,7 +344,7 @@ function ViewRaffles() {
                   ) : (
                     <ApprovalOfficersTooltip
                       officers={
-                        raffle?.approval_workflows.approval_processes ?? []
+                         []
                       }
                     >
                       <CustomBadge
