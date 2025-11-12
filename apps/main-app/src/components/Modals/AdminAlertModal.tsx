@@ -15,7 +15,7 @@ import loadingImg from "../../assets/loading.gif";
 import delImg from "../../assets/delete.gif";
 import CustomButton from "../../components/Buttons/CustomButton";
 
-type CustomButtonProps = ButtonProps & {
+export type CustomButtonProps = ButtonProps & {
   label: string;
   disabled?: boolean;
   onClick: () => void;
@@ -46,7 +46,7 @@ export default function AdminAlertModal({
   secondaryButton,
   size,
   padding = "lg",
-  radius = "lg"
+  radius = "lg",
 }: Props) {
   const getStatusImage = () => {
     switch (status) {
@@ -92,13 +92,15 @@ export default function AdminAlertModal({
       }}
     >
       <Box className="text-center">
-        {getStatusImage() && <Image
-          src={primaryButton?.loading ? loadingImg : getStatusImage()}
-          alt={status}
-          className="w-[100px] h-[100px] mx-auto mb-5"
-          fit="contain"
-          radius="md"
-        />}
+        {getStatusImage() && (
+          <Image
+            src={primaryButton?.loading ? loadingImg : getStatusImage()}
+            alt={status}
+            className="w-[100px] h-[100px] mx-auto mb-5"
+            fit="contain"
+            radius="md"
+          />
+        )}
 
         <div className={`!text-3xl !font-semibold !mb-4 ${getTitleColor()}`}>
           {title}
@@ -114,6 +116,7 @@ export default function AdminAlertModal({
                 fullWidth
                 size="lg"
                 disabled={primaryButton.disabled}
+                loading={primaryButton.loading}
                 border={false}
                 onClick={primaryButton.onClick}
                 className="flex-1 !font-medium"

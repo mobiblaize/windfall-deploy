@@ -6,6 +6,7 @@ import { useFetchData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import Paginator from "../../../components/Paginator";
 import EmptyState from "../../../components/EmptyState";
+// import InstantPrizes from "../../raffles/InstantPrizes";
 
 interface WinnerTabProps {
   raffleId?: string;
@@ -66,11 +67,7 @@ interface Winner {
   };
 }
 
-function WinnerTab({
-  raffleId,
-  startDate = "",
-  endDate = "",
-}: WinnerTabProps) {
+function WinnerTab({ raffleId, startDate = "", endDate = "" }: WinnerTabProps) {
   const [winners, setWinners] = useState<Winner[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [filterPage, setFilterPage] = useState<number>(1);
@@ -165,15 +162,20 @@ function WinnerTab({
               </Grid.Col>
             ))}
           </Grid>
-          {total>perPage && <Box mt="xl">
-            <Paginator
-              currentPage={currentPage}
-              isLoading={isLoadingWinners}
-              total={total}
-              pageSize={pageSize}
-              onPageChange={setFilterPage}
-            />
-          </Box>}
+
+          {/* <InstantPrizes raffle={instantRaffle} /> */}
+
+          {total > perPage && (
+            <Box mt="xl">
+              <Paginator
+                currentPage={currentPage}
+                isLoading={isLoadingWinners}
+                total={total}
+                pageSize={pageSize}
+                onPageChange={setFilterPage}
+              />
+            </Box>
+          )}
         </>
       ) : (
         <EmptyState

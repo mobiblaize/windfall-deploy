@@ -21,19 +21,30 @@ import { useEffect, useState, useMemo } from "react";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { useDebounce } from "../../../utils/hooks/useDebounce";
-import type { Customer } from "../CustomerMgt/GameCustomers";
-import CustomerTable from "../CustomerMgt/CustomerTable";
 import TablePaginator from "../../../components/TablePaginator";
 import TabSwitcher, {
 	type TabSwitcherTab,
 } from "../../../components/TabSwitcher";
 import RenderSkeletonText from "../../../components/RenderSkeletonText";
+import type { Customer } from "../CustomerMgt/CustomerDetails";
+import GameCustomerTable from "./GameCustomerTable";
 
 interface CustomerListProps {
 	raffleId?: string;
 	startDate?: string;
 	endDate?: string;
 }
+
+export interface GameCustomer {
+  customer_id: string
+  platform: string
+  ticket_count: string
+  total_amount_spent: string
+  games_played_count: number
+  customer: Customer
+  order_details: string[]
+}
+
 
 interface CustomerStats {
 	total_unique_customers: number;
@@ -78,7 +89,7 @@ function CustomerList({
 	startDate = "",
 	endDate = "",
 }: CustomerListProps) {
-	const [customers, setCustomers] = useState<Customer[]>([]);
+	const [customers, setCustomers] = useState<GameCustomer[]>([]);
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState<string | null>("desc");
 	const [platform, setPlatform] = useState<string>("");
@@ -175,10 +186,10 @@ function CustomerList({
 		}
 
 		if (customersResponse) {
-			setCustomers(customersResponse.data?.data || []);
-			setCurrentPage(customersResponse.data?.current_page || filterPage || 1);
-			setTotal(customersResponse.data?.total || 0);
-			setPageSize(customersResponse.data?.per_page || 10);
+			setCustomers(customersResponse.data?.records?.data || []);
+			setCurrentPage(customersResponse.data?.records?.current_page || filterPage || 1);
+			setTotal(customersResponse.data?.records?.total || 0);
+			setPageSize(customersResponse.data?.records?.per_page || 10);
 		}
 	}, [isErrorCustomers, customersError, customersResponse, filterPage]);
 
@@ -496,7 +507,7 @@ function CustomerList({
 					</Group>
 				</Flex>
 
-				<CustomerTable isLoading={isLoadingCustomers} customers={customers} />
+				<GameCustomerTable isLoading={isLoadingCustomers} customers={customers} />
 
 				<TablePaginator
 					currentPage={currentPage}

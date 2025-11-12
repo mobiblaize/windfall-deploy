@@ -25,6 +25,7 @@ import { IoFilterOutline } from "react-icons/io5";
 import TablePaginator from "../../../components/TablePaginator";
 import { type RaffleStatus } from "../../../models/raffles";
 import RaffleTable from "./RaffleTable";
+import type { ApprovalWorkflows } from "../../../utils/models/approval";
 
 export interface Raffle {
   uuid: string
@@ -73,7 +74,8 @@ export interface Raffle {
   main_active_status: RaffleStatus
   prizes: RafflePrize[]
   ticket_tiers: TicketTier[]
-  category: Category
+  category: Category  
+  approval_workflows: ApprovalWorkflows
 }
 
 export interface RafflePrize {

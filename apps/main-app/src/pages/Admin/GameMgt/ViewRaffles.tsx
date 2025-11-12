@@ -5,7 +5,12 @@ import DynamicBreadcrumbs, {
 } from "../../../components/DynamicBreadCrumbs";
 import type { Raffle } from "./RaffleList";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import RaffleTransactionalList from "./RaffleTransactionalList";
 import CustomerList from "./CustomerList";
 import PerformanceMonitor from "./PerformanceMonitor";
@@ -15,14 +20,18 @@ import CustomBadge from "../../../components/CustomBadge";
 import { DatePickerInput } from "@mantine/dates";
 import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
-import { useFetchData } from "../../../utils/hooks/useApis";
+import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import EmptyState from "../../../components/EmptyState";
+import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
+import CommentsModal from "../../../components/CommentsModal";
+import type { ApprovalStatus } from "../../../utils/models/approval";
+import ApprovalOfficersTooltip from "../../../components/ApprovalOfficersTooltip";
 
 function ViewRaffles() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  // Date range state - can be passed to child components in future  
+  // Date range state - can be passed to child components in future
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([
     null,
     null,
@@ -32,6 +41,15 @@ function ViewRaffles() {
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("view");
   const [tabs, setTabs] = useState(tabFromUrl || "transactional list");
+  const [approvalAction, setApprovalAction] =
+    useState<ApprovalStatus>("approved");
+  const [approveGameModalOpen, setApproveGameModalOpen] = useState(false);
+  const [approvalConfirmationModalOpen, setApprovalConfirmationModalOpen] =
+    useState(false);
+  const [approvalSuccessModalOpen, setApprovalSuccessModalOpen] =
+    useState(false);
+
+  const isApprove = approvalAction === "approved";
 
   // Fetch raffle data
   const {
@@ -40,6 +58,9 @@ function ViewRaffles() {
     isError: isErrorRaffle,
     error: raffleError,
   } = useFetchData(id ? `admin/game-management/info/${id}` : null);
+  const approveProcessMutation = usePostData(
+    "admin/workflow-management/approvals/action"
+  );
 
   useEffect(() => {
     if (tabFromUrl && tabFromUrl !== tabs) {
@@ -70,14 +91,6 @@ function ViewRaffles() {
     navigate(`?${params.toString()}`);
   };
 
-  const tablinks = [
-    "transactional list",
-    "customer list",
-    "performance monitor",
-    "winner",
-    "game draw",
-  ];
-
   // Determine if this is an instant raffle route or regular raffle route
   const isInstantRaffleRoute = useMemo(() => {
     return location.pathname.includes("/instant-raffles");
@@ -101,30 +114,71 @@ function ViewRaffles() {
     navigate(drawPath);
   }, [id, navigate]);
 
+  const isInstantGame = raffle?.instant_game === "true";
+
+  const tablinks = useMemo(() => {
+    const links = [
+      "transactional list",
+      "customer list",
+      "performance monitor",
+      "winner",
+    ];
+    if (!isInstantGame) {
+      links.push("game draw");
+    }
+    return links;
+  }, [isInstantGame]);
 
   // Memoize action items based on raffle data
   const actionItems = useMemo<ActionItem[]>(() => {
     if (!id) return [];
 
     const items: ActionItem[] = [];
-    const isInstantGame = raffle?.instant_game === "true" || raffle?.is_scheduled === "false";
     const isLive = raffle?.main_active_status === "live";
     const isEnded = raffle?.main_active_status === "ended";
+    const canApprove =
+      raffle?.approval_workflows?.approver?.can_approve === "true";
+    const isPendingUserApproval =
+      raffle?.approval_workflows?.approver?.status === "pending";
+    const gameApproved = raffle?.approvalStatus === "approved";
 
     // Edit Raffle action - always available
     items.push({
       id: "edit-raffle",
       label: "edit raffle",
-      description: isLive 
-        ? "Live game edit is limited" 
+      description: isLive
+        ? "Live game edit is limited"
         : "Edit raffle details and settings",
       onClick: handleEditRaffle,
       disabled: isLoadingRaffle || !raffle,
       color: "default",
     });
 
+    if (canApprove && !isPendingUserApproval) {
+      items.push(
+        {
+          id: "approve-game",
+          label: "Approve Raffle Game",
+          description: "Approve this raffle to go live for players",
+          onClick: () => initiateApproval("approved"),
+          disabled: !canApprove,
+          color: "green",
+          divider: true, // Add divider before this action
+        },
+        {
+          id: "decline-game",
+          label: "Reject Raffle Game",
+          description: "Reject this raffle from going live",
+          onClick: () => initiateApproval("declined"),
+          disabled: !canApprove,
+          color: "red",
+          divider: true, // Add divider before this action
+        }
+      );
+    }
+
     // Start a Draw action - only for scheduled raffles (not instant games)
-    if (!isInstantGame) {
+    if (!isInstantGame && gameApproved) {
       items.push({
         id: "start-draw",
         label: "start a draw",
@@ -137,12 +191,19 @@ function ViewRaffles() {
     }
 
     return items;
-  }, [id, raffle, isLoadingRaffle, handleEditRaffle, handleStartDraw]);
+  }, [
+    id,
+    raffle,
+    isLoadingRaffle,
+    handleEditRaffle,
+    handleStartDraw,
+    isInstantGame,
+  ]);
 
   // Helper function to get status badge info
   const getStatusInfo = () => {
     if (!raffle) return { status: "pending" as const, label: "Loading" };
-    
+
     if (raffle.main_active_status === "live") {
       return { status: "successful" as const, label: "Live" };
     } else if (raffle.main_active_status === "upcoming") {
@@ -157,11 +218,22 @@ function ViewRaffles() {
 
   const statusInfo = getStatusInfo();
 
-  const breadCrumbs: Crumb[] = useMemo(() => [
-    { label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management", to: baseRoute },
-    { label: "Raffle List", to: `${baseRoute}/all` },
-    { label: `${raffle?.name || "Loading..."}` },
-  ], [isInstantRaffleRoute, baseRoute, raffle?.name]);
+  const initiateApproval = (status: ApprovalStatus) => {
+    setApprovalAction(status);
+    setApprovalConfirmationModalOpen(true);
+  };
+
+  const breadCrumbs: Crumb[] = useMemo(
+    () => [
+      {
+        label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management",
+        to: baseRoute,
+      },
+      { label: "Raffle List", to: `${baseRoute}/all` },
+      { label: `${raffle?.name || "Loading..."}` },
+    ],
+    [isInstantRaffleRoute, baseRoute, raffle?.name]
+  );
 
   // If no ID, show error state
   if (!id) {
@@ -187,94 +259,142 @@ function ViewRaffles() {
     );
   }
 
+  const approveGame = async (reason: string) => {
+    const payload = {
+      process_id: raffle?.approval_workflows?.approver?.process_id,
+      reason,
+      status: approvalAction,
+    };
+    try {
+      const response = await approveProcessMutation.mutateAsync({
+        payload,
+      });
+      setApproveGameModalOpen(false);
+      setApprovalSuccessModalOpen(true);
+      notifications.show({
+        title: "Action Successful",
+        message: response?.message || `Game ${approvalAction} successfully`,
+        color: "green",
+      });
+    } catch (error) {
+      notifications.show({
+        title: `Failed to ${isApprove ? 'Approve': 'Reject'} Game`,
+        message:
+          (error as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+    }
+  };
+
   return (
-    <Tabs
-      value={tabs}
-      onChange={handleTabChange}
-      classNames={{
-        tab: "!text-secondary-text hover:!text-primary-red !transition !bg-white hover:!bg-light-red !text-[14px] !border-transparent !font-medium data-[active=true]:!text-primary-red hover:!border-primary-red  data-[active=true]:!border-primary-red !pb-4",
-        list: "gap-6",
-      }}
-    >
-      <div className="text-primary-text">
-        <Card className="bg-white !border-b !p-0 !border-b-gray-200">
-          <div className="px-6 md:px-10 py-1">
-            <DynamicBreadcrumbs items={breadCrumbs} />
-          </div>
-        </Card>
+    <>
+      <Tabs
+        value={tabs}
+        onChange={handleTabChange}
+        classNames={{
+          tab: "!text-secondary-text hover:!text-primary-red !transition !bg-white hover:!bg-light-red !text-[14px] !border-transparent !font-medium data-[active=true]:!text-primary-red hover:!border-primary-red  data-[active=true]:!border-primary-red !pb-4",
+          list: "gap-6",
+        }}
+      >
+        <div className="text-primary-text">
+          <Card className="bg-white !border-b !p-0 !border-b-gray-200">
+            <div className="px-6 md:px-10 py-1">
+              <DynamicBreadcrumbs items={breadCrumbs} />
+            </div>
+          </Card>
 
-        <div className="bg-white border-b-2 border-[#d0d5dd]">
-          <div className="px-6 md:px-10 pt-7 pb-2 mb-7">
-            <Flex justify="space-between" align="center" wrap={"wrap"} gap={"md"}>
-              <div className="flex-1">
-                {isLoadingRaffle ? (
-                  <>
-                    <Skeleton height={35} width="60%" mb="xs" />
-                    <Skeleton height={20} width="40%" />
-                  </>
-                ) : raffle ? (
-                  <>
-                    <Title className="!text-primary-text text-2xl" order={2}>
-                      {raffle.name}
-                    </Title>
-                    <Text className="!text-secondary-text">
-                      {raffle.uniqueID} • View and manage raffle details
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Title className="!text-primary-text text-2xl" order={2}>
-                      Raffle Details
-                    </Title>
-                    <Text className="!text-secondary-text">
-                      Loading raffle information...
-                    </Text>
-                  </>
-                )}
-              </div>
+          <div className="bg-white border-b-2 border-[#d0d5dd]">
+            <div className="px-6 md:px-10 pt-7 pb-2 mb-7">
+              <Flex
+                justify="space-between"
+                align="center"
+                wrap={"wrap"}
+                gap={"md"}
+              >
+                <div className="flex-1">
+                  {isLoadingRaffle ? (
+                    <>
+                      <Skeleton height={35} width="60%" mb="xs" />
+                      <Skeleton height={20} width="40%" />
+                    </>
+                  ) : raffle ? (
+                    <>
+                      <Title className="!text-primary-text text-2xl" order={2}>
+                        {raffle.name}
+                      </Title>
+                      <Text className="!text-secondary-text">
+                        {raffle.uniqueID} • View and manage raffle details
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Title className="!text-primary-text text-2xl" order={2}>
+                        Raffle Details
+                      </Title>
+                      <Text className="!text-secondary-text">
+                        Loading raffle information...
+                      </Text>
+                    </>
+                  )}
+                </div>
 
-              <Flex align="center" wrap="wrap" gap={20} justify="end">
-                {isLoadingRaffle ? (
-                  <Skeleton height={32} width={80} />
-                ) : (
-                  <CustomBadge status={statusInfo.status} label={statusInfo.label} />
-                )}
-                
-                <DatePickerInput
-                  type="range"
-                  value={dateRange}
-                  onChange={setDateRange}
-                  valueFormat="YYYY-MM-DD"
-                  placeholder="Select date range"
-                  clearable
-                  rightSection={
-                    !dateRange[0] && !dateRange[1] ? <CiCalendar /> : undefined
-                  }
-                  classNames={{
-                    label: "!capitalize",
-                  }}
-                  popoverProps={{
-                    classNames: {
-                      dropdown: "!text-primary-text",
-                    },
-                  }}
-                />
-                <TakeAction 
-                  actions={actionItems}
-                  loading={isLoadingRaffle}
-                  disabled={isLoadingRaffle || !raffle}
-                />
+                <Flex align="center" wrap="wrap" gap={20} justify="end">
+                  {isLoadingRaffle ? (
+                    <Skeleton height={32} width={80} />
+                  ) : (
+                    <ApprovalOfficersTooltip
+                      officers={
+                        raffle?.approval_workflows.approval_processes ?? []
+                      }
+                    >
+                      <CustomBadge
+                        status={statusInfo.status}
+                        label={statusInfo.label}
+                      />
+                    </ApprovalOfficersTooltip>
+                  )}
+
+                  <DatePickerInput
+                    type="range"
+                    value={dateRange}
+                    onChange={setDateRange}
+                    valueFormat="YYYY-MM-DD"
+                    placeholder="Select date range"
+                    clearable
+                    rightSection={
+                      !dateRange[0] && !dateRange[1] ? (
+                        <CiCalendar />
+                      ) : undefined
+                    }
+                    classNames={{
+                      label: "!capitalize",
+                    }}
+                    popoverProps={{
+                      classNames: {
+                        dropdown: "!text-primary-text",
+                      },
+                    }}
+                  />
+                  <TakeAction
+                    actions={actionItems}
+                    loading={isLoadingRaffle}
+                    disabled={isLoadingRaffle || !raffle}
+                  />
+                </Flex>
               </Flex>
-            </Flex>
-          </div>
+            </div>
 
-          <Flex className="px-6 md:px-10 pb-5" gap={15} justify="space-between">
-            <Tabs.List>
-              {tablinks.map((item) => (
-                <Tabs.Tab
-                  key={item}
-                  value={item}
-                  className="relative
+            <Flex
+              className="px-6 md:px-10 pb-5"
+              gap={15}
+              justify="space-between"
+            >
+              <Tabs.List>
+                {tablinks.map((item) => (
+                  <Tabs.Tab
+                    key={item}
+                    value={item}
+                    className="relative
 					px-5 py-2
 					!font-sm sm:!font-base 
 					!capitalize 
@@ -288,46 +408,89 @@ function ViewRaffles() {
 					data-[active=true]:border-b-solid 
 					data-[active=true]:border-b-2[var(--color-primary-red)]
 					data-[active=true]:hover:text-primary-red text-nowrap"
-                >
-                  {item}
-                </Tabs.Tab>
-              ))}
-            </Tabs.List>
-          </Flex>
-        </div>
+                  >
+                    {item}
+                  </Tabs.Tab>
+                ))}
+              </Tabs.List>
+            </Flex>
+          </div>
 
-        {tabs === "transactional list" && (
-          <RaffleTransactionalList
-            raffleId={id}
-            startDate={dateRange[0] || ""}
-            endDate={dateRange[1] || ""}
-          />
-        )}
-        {tabs === "customer list" && (
-          <CustomerList
-            raffleId={id}
-            startDate={dateRange[0] || ""}
-            endDate={dateRange[1] || ""}
-          />
-        )}
-        {tabs === "performance monitor" && (
-          <PerformanceMonitor
-            raffleId={id}
-            startDate={dateRange[0] || ""}
-            endDate={dateRange[1] || ""}
-            isInstantRaffleRoute={isInstantRaffleRoute}
-          />
-        )}
-        {tabs === "winner" && (
-          <WinnerTab
-            raffleId={id}
-            startDate={dateRange[0] || ""}
-            endDate={dateRange[1] || ""}
-          />
-        )}
-        {tabs === "game draw" && <GamedrawTab />}
-      </div>
-    </Tabs>
+          {tabs === "transactional list" && (
+            <RaffleTransactionalList
+              raffleId={id}
+              startDate={dateRange[0] || ""}
+              endDate={dateRange[1] || ""}
+            />
+          )}
+          {tabs === "customer list" && (
+            <CustomerList
+              raffleId={id}
+              startDate={dateRange[0] || ""}
+              endDate={dateRange[1] || ""}
+            />
+          )}
+          {tabs === "performance monitor" && (
+            <PerformanceMonitor
+              raffleId={id}
+              startDate={dateRange[0] || ""}
+              endDate={dateRange[1] || ""}
+              isInstantRaffleRoute={isInstantRaffleRoute}
+            />
+          )}
+          {tabs === "winner" && (
+            <WinnerTab
+              raffleId={id}
+              startDate={dateRange[0] || ""}
+              endDate={dateRange[1] || ""}
+            />
+          )}
+          {tabs === "game draw" && !isInstantGame && <GamedrawTab />}
+        </div>
+      </Tabs>
+
+      <AdminAlertModal
+        opened={approvalConfirmationModalOpen}
+        onClose={() => setApprovalConfirmationModalOpen(false)}
+        status="error"
+        title={`${isApprove ? "Approve" : "Reject"} New Raffle Game ?`}
+        description={`${isApprove ? "Are you sure you want to approve this new raffle draw/game? Kindly note that this game would go live now and customer would be able to view raffle details and buy raffle ticket accordingly." : "Are you sure you want to reject this new raffle draw/game? Kindly note that this game would not go live now."}`}
+        primaryButton={{
+          label: `${isApprove ? "Yes, Approve" : "Yes, Reject"} Raffle Game`,
+          onClick: () => {
+            setApprovalConfirmationModalOpen(false);
+            setApproveGameModalOpen(true);
+          },
+        }}
+        secondaryButton={{
+          label: "Close",
+          onClick: () => setApprovalConfirmationModalOpen(false),
+        }}
+      />
+
+      <CommentsModal
+        modalOpen={approveGameModalOpen}
+        title={`${isApprove ? "Why Approve Game?" : "Why Reject Game? "}`}
+        description={`${isApprove ? "Enter comment on game here" : "Provide a reason to why this game is rejected"}`}
+        primaryButtonLabel={`${isApprove ? "Complete Game Approval" : "Complete Game Rejection"}`}
+        label={`${isApprove ? "Comment here" : "Enter reason"}`}
+        submitComment={approveGame}
+        isLoading={approveProcessMutation.isPending}
+        closeModal={() => setApproveGameModalOpen(false)}
+      />
+
+      <AdminAlertModal
+        opened={approvalSuccessModalOpen}
+        onClose={() => setApprovalSuccessModalOpen(false)}
+        status="success"
+        title={`Raffle ${isApprove ? "Approved" : "Rejected"}`}
+        description={`${isApprove ? "Congratulation, you have successfully approved a New Raffle Game / Draw and posted it live" : "You have successfully rejected a New Raffle Game / Draw"}`}
+        primaryButton={{
+          label: "Close",
+          onClick: () => setApprovalSuccessModalOpen(false),
+        }}
+      />
+    </>
   );
 }
 

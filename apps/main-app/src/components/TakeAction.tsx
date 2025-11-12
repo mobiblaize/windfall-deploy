@@ -131,9 +131,6 @@ export const TakeAction = ({
 									<Text fw={500} fz="sm" className="!capitalize">
 										{action.label}
 									</Text>
-									{action.color === "red" && (
-										<Box className="w-1 h-1 rounded-full bg-red-500" />
-									)}
 								</Group>
 								<Text 
 									tt="capitalize" 

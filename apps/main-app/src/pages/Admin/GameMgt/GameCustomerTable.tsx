@@ -2,22 +2,22 @@ import { ActionIcon, Text } from "@mantine/core";
 import { GoArrowUpRight } from "react-icons/go";
 import DynamicTableSection from "../../../components/DynamicTableSection";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
-import type { Customer } from "./GameCustomers";
 import { useNavigate } from "react-router-dom";
+import type { GameCustomer } from "./CustomerList";
 
 type CustomerTableProps = {
-  customers: Customer[];
+  customers: GameCustomer[];
   isLoading: boolean;
 };
 
-export default function CustomerTable({
+export default function GameCustomerTable({
   isLoading,
   customers,
 }: CustomerTableProps) {
   const navigate = useNavigate();
 
-  function goToCustomerDetail(customer: Customer) {
-    navigate(`/admin/customers/${customer.uuid}`);
+  function goToCustomerDetail(customer: GameCustomer) {
+    navigate(`/admin/customers/${customer?.customer?.uuid}`);
   }
 
   return (
@@ -35,29 +35,29 @@ export default function CustomerTable({
         data={customers}
         loading={isLoading}
         emptyMessage="No customers found"
-        renderItems={(customer: Customer) => {
+        renderItems={(customer: GameCustomer) => {
           return [
             <>
               <Text className="!text-base !font-medium">
-                {customer.customer_name}
+                {customer.customer.firstname} {customer.customer.lastname}
               </Text>
               <Text className="!text-secondary-text !text-sm">
-                {customer.uniqueID}
+                {customer.customer.uniqueID}
               </Text>
             </>,
             <Text className="!text-base !font-medium">
-              {customer.location || "-"}
+              {customer.customer.lga || "-"}
             </Text>,
 
             <Text className="!text-base !font-medium !capitalize">
-              {customer.phone || "-"}
+              {customer.customer.phone_number || "-"}
             </Text>,
 
             <Text className="!text-base !font-medium !capitalize">
               {customer.platform || "-"}
             </Text>,
             <Text className="!text-secondary-text">
-              {customer.number_of_games_played}
+              {Number(customer.ticket_count || 0)?.toLocaleString()}
             </Text>,
             <Text className="!text-base !font-medium">
               {formatCurrency(customer.total_amount_spent)}
