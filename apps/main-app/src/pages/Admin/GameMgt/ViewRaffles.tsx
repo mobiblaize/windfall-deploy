@@ -154,7 +154,7 @@ function ViewRaffles() {
       color: "default",
     });
 
-    if (canApprove && !isPendingUserApproval) {
+    if (canApprove && isPendingUserApproval) {
       items.push(
         {
           id: "approve-game",

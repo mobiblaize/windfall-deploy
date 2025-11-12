@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   IconCircleCheck,
   IconCircleX,
@@ -135,10 +135,47 @@ const ApprovalOfficersTooltip: React.FC<ApprovalOfficersTooltipProps> = ({
   children,
 }) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
+  const [arrowOffset, setArrowOffset] = useState<number>(0);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isVisible && tooltipRef.current && triggerRef.current) {
+      const trigger = triggerRef.current;
+      const triggerRect = trigger.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      
+      const tooltipWidth = 320; // 80 * 4 = 320px (w-80)
+      const padding = 8; // Minimum padding from viewport edges
+      
+      // Calculate the ideal centered position
+      const idealLeft = triggerRect.left + (triggerRect.width / 2) - (tooltipWidth / 2);
+      
+      // Calculate the maximum left position that keeps tooltip in viewport
+      const maxLeft = viewportWidth - tooltipWidth - padding;
+      
+      // Calculate the final left position
+      const finalLeft = Math.max(padding, Math.min(idealLeft, maxLeft));
+      
+      // Calculate arrow offset from center
+      const triggerCenter = triggerRect.left + (triggerRect.width / 2);
+      const tooltipLeftEdge = finalLeft;
+      const arrowPos = triggerCenter - tooltipLeftEdge;
+      
+      setTooltipStyle({
+        left: `${finalLeft}px`,
+        transform: 'none'
+      });
+      
+      setArrowOffset(arrowPos);
+    }
+  }, [isVisible]);
 
   return (
     <div className="relative inline-block">
       <div
+        ref={triggerRef}
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
         className="inline-block cursor-pointer"
@@ -148,13 +185,18 @@ const ApprovalOfficersTooltip: React.FC<ApprovalOfficersTooltipProps> = ({
 
       {isVisible && (
         <div
-          className="absolute z-50 w-80 mt-2 left-1/2 -translate-x-1/2"
+          ref={tooltipRef}
+          style={tooltipStyle}
+          className="fixed z-50 w-80 max-w-[calc(100vw-16px)] mt-2"
           onMouseEnter={() => setIsVisible(true)}
           onMouseLeave={() => setIsVisible(false)}
         >
           <div className="bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
             {/* Arrow */}
-            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
+            <div 
+              className="absolute -top-2 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"
+              style={{ left: `${arrowOffset}px`, marginLeft: '-8px' }}
+            ></div>
 
             <div className="max-h-96 overflow-y-auto">
               <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
