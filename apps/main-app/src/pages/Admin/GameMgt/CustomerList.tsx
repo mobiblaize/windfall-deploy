@@ -12,7 +12,6 @@ import {
 	Select,
 } from "@mantine/core";
 import { AiFillExclamationCircle } from "react-icons/ai";
-import { FaCalendarAlt } from "react-icons/fa";
 import { FaFileArrowDown } from "react-icons/fa6";
 import { PiQuestionThin } from "react-icons/pi";
 import { HiSearch } from "react-icons/hi";
@@ -68,6 +67,13 @@ interface CustomerStats {
 		}>;
 	};
 }
+
+interface CustomerTrends {
+  date: string
+  customers: number
+  total_tickets: number
+}
+
 
 const platformTabs: TabSwitcherTab[] = [
 	{
@@ -138,7 +144,24 @@ function CustomerList({
 		isLoading: isLoadingCustomers,
 		isError: isErrorCustomers,
 		error: customersError,
-	} = useFetchData(customersUrl);
+	} = useFetchData(customersUrl);	
+
+	// Build trends API URL
+	const trendsUrl = useMemo(() => {
+		if (!raffleId) return null;
+		const params = new URLSearchParams();
+		if (startDate) params.append("start_date", startDate);
+		if (endDate) params.append("end_date", endDate);
+		return `admin/game-management/game-list/single-game/${raffleId}/customer-trend-analysis${params.toString() ? `?${params.toString()}` : ""}`;
+	}, [raffleId, startDate, endDate]);
+
+	
+	const {
+		data: trendsResponse,
+		isLoading: isLoadingTrends,
+		isError: isErrorTrends,
+		error: trendsError,
+	} = useFetchData(trendsUrl);	
 
 	// Build export URL
 	const exportUrl = useMemo(() => {
@@ -159,6 +182,8 @@ function CustomerList({
 
 	const stats: CustomerStats | undefined = statsResponse?.data;
 
+	const trends: CustomerTrends[] | undefined = trendsResponse?.data;
+
 	// Handle stats error
 	useEffect(() => {
 		if (isErrorStats) {
@@ -170,6 +195,18 @@ function CustomerList({
 			});
 		}
 	}, [isErrorStats, statsError]);
+
+	// Handle trends error
+	useEffect(() => {
+		if (isErrorTrends) {
+			notifications.show({
+				title: "Failed to fetch customer trends analysis",
+				message:
+					(trendsError as { message?: string })?.message || "An error occurred",
+				color: "red",
+			});
+		}
+	}, [isErrorTrends, trendsError]);
 
 	// Handle customers
 	useEffect(() => {
@@ -233,6 +270,20 @@ function CustomerList({
 					) / stats.total_unique_customers
 			  ).toFixed(1)
 			: "0";
+
+	// Format trends data for the chart
+	const chartData = useMemo(() => {
+		if (!trends || trends.length === 0) return [];
+		
+		return trends.map((item) => ({
+			date: new Date(item.date).toLocaleDateString('en-US', { 
+				month: 'short', 
+				day: 'numeric' 
+			}),
+			customers: item.customers,
+			tickets: item.total_tickets,
+		}));
+	}, [trends]);
 
 	if (!raffleId) {
 		return (
@@ -407,7 +458,7 @@ function CustomerList({
 							</span>
 						</Text>
 
-						<Button
+						{/* <Button
 							variant="outline"
 							className="!border-secondary-text/50 !text-primary-red"
 							rightSection={
@@ -415,18 +466,34 @@ function CustomerList({
 							}
 						>
 							Date: 23/2025
-						</Button>
+						</Button> */}
 					</Flex>
 					<Divider my="md" />
 					<Box my="lg" className="w-full h-full">
-						<AreaChart
-							h={300}
-							data={data}
-							dataKey="date"
-							series={[{ name: "Apples", color: "var(--primary-red)" }]}
-							curveType="bump"
-							withDots={false}
-						/>
+						{isLoadingTrends ? (
+							<Box className="space-y-2">
+								<RenderSkeletonText height={300} width="100%" />
+							</Box>
+						) : chartData.length > 0 ? (
+							<AreaChart
+								h={300}
+								data={chartData}
+								dataKey="date"
+								series={[
+									{ name: "customers", color: "var(--primary-red)", label: "Customers" },
+									{ name: "tickets", color: "var(--primary-green)", label: "Tickets" }
+								]}
+								curveType="bump"
+								withDots={false}
+								withLegend
+							/>
+						) : (
+							<Box className="flex items-center justify-center h-[300px]">
+								<Text className="!text-secondary-text" ta="center">
+									No trend data available for the selected period
+								</Text>
+							</Box>
+						)}
 					</Box>
 				</Card>
 			</Card>
@@ -522,36 +589,3 @@ function CustomerList({
 }
 
 export default CustomerList;
-
-const data = [
-	{
-		date: "Mar 22",
-		Apples: 2890,
-		Oranges: 2338,
-		Tomatoes: 2452,
-	},
-	{
-		date: "Mar 23",
-		Apples: 2756,
-		Oranges: 2103,
-		Tomatoes: 2402,
-	},
-	{
-		date: "Mar 24",
-		Apples: 3322,
-		Oranges: 986,
-		Tomatoes: 1821,
-	},
-	{
-		date: "Mar 25",
-		Apples: 3470,
-		Oranges: 2108,
-		Tomatoes: 2809,
-	},
-	{
-		date: "Mar 26",
-		Apples: 3129,
-		Oranges: 1726,
-		Tomatoes: 2290,
-	},
-];

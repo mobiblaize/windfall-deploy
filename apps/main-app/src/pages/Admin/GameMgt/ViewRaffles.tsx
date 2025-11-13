@@ -350,6 +350,8 @@ function ViewRaffles() {
 
                   <DatePickerInput
                     type="range"
+                    minDate={raffle?.start_date}
+                    maxDate={raffle?.end_date}
                     value={dateRange}
                     onChange={setDateRange}
                     valueFormat="YYYY-MM-DD"
