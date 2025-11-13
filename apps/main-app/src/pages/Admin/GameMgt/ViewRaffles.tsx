@@ -242,7 +242,7 @@ function ViewRaffles() {
   const breadCrumbs: Crumb[] = useMemo(
     () => [
       {
-        label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management",
+        label: isInstantRaffleRoute ? "Instant Raffle Management" : "Raffle Management",
         to: baseRoute,
       },
       { label: "Raffle List", to: `${baseRoute}/all` },

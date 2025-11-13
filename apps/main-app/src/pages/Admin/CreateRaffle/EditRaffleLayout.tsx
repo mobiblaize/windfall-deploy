@@ -673,7 +673,7 @@ function EditRaffleLayout() {
   );
   
   const breadCrumbs: Crumb[] = useMemo(() => [
-    { label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management", to: baseRoute },
+    { label: isInstantRaffleRoute ? "Instant Raffle Management" : "Raffle Management", to: baseRoute },
     { label: `${raffleData?.data?.name ?? "Raffle"} Details`, to: `${baseRoute}/${id}` },
     { label: `Edit Raffle` },
   ], [isInstantRaffleRoute, baseRoute, raffleData?.data?.name, id]);

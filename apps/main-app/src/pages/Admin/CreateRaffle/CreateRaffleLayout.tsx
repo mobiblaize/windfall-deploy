@@ -48,7 +48,7 @@ function CreateRaffleLayout() {
 
   // Build breadcrumbs dynamically
   const breadCrumbs: Crumb[] = useMemo(() => [
-    { label: isInstantRaffleRoute ? "Instant Raffle" : "Raffle Management", to: baseRoute },
+    { label: isInstantRaffleRoute ? "Instant Raffle Management" : "Raffle Management", to: baseRoute },
     { label: "Create a New Raffle", to: "" },
   ], [isInstantRaffleRoute, baseRoute]);
   const [active, setActive] = useState(0);

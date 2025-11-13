@@ -51,7 +51,7 @@ export const adminMenuConfig: AdminMenuSection[] = [
         requiredPermission: "game-management-view",
       },
       {
-        name: "Instant Raffle",
+        name: "Instant Raffle Management",
         path: "/admin/instant-raffles",
         icon: IconBolt,
         requiredModule: "Game Management",

@@ -38,7 +38,7 @@ export default function MainLayout() {
   const isMobile = useMediaQuery(`(max-width: ${mobileBP}px)`);
   
   const sideMenuWidth =
-    (!isAdminPage || isAdminAuth || isMobile) ? 0 : 300;
+    (!isAdminPage || isAdminAuth || isMobile) ? 0 : 320;
 
   return (
       <AppShell
