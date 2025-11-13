@@ -112,7 +112,7 @@ export default function RaffleDetails() {
                 {activeTab === "sponsorship" && (
                   <SponsorshipDetails details={raffle.sponsorship_details} />
                 )}
-                {activeTab === "prizes" && <InstantPrizes raffle={raffle} />}
+                {activeTab === "prizes" && <InstantPrizes prizes={raffle.prizes ?? []} />}
                 {/* {activeTab === "faqs" && <RafflesFaq />} */}
               </div>
 

@@ -58,7 +58,7 @@ function ViewRaffles() {
     isLoading: isLoadingRaffle,
     isError: isErrorRaffle,
     error: raffleError,
-    refetch: refetchRaffle
+    refetch: refetchRaffle,
   } = useFetchData(id ? `admin/game-management/info/${id}` : null);
 
   // Use the approval process hook
@@ -209,14 +209,15 @@ function ViewRaffles() {
     handleEditRaffle,
     handleStartDraw,
     isInstantGame,
-    gameApproved
+    gameApproved,
   ]);
 
   // Helper function to get status badge info
   const getStatusInfo = () => {
     if (!raffle) return { status: "pending" as const, label: "Loading" };
 
-    if (gamePendingApproval) return { status: "pending" as const, label: "Pending Approval" };
+    if (gamePendingApproval)
+      return { status: "pending" as const, label: "Pending Approval" };
     if (gameDeclined) return { status: "failed" as const, label: "Rejected" };
 
     if (raffle.main_active_status === "live") {
@@ -339,7 +340,9 @@ function ViewRaffles() {
                     <Skeleton height={32} width={80} />
                   ) : (
                     <ApprovalOfficersTooltip
-                      officers={raffle?.approval_workflows?.approval_processes ?? []}
+                      officers={
+                        raffle?.approval_workflows?.approval_processes ?? []
+                      }
                     >
                       <CustomBadge
                         status={statusInfo.status}
@@ -437,11 +440,16 @@ function ViewRaffles() {
           {tabs === "winner" && (
             <WinnerTab
               raffleId={id}
+              isInstantGame={isInstantGame}
+            />
+          )}
+          {tabs === "game draw" && !isInstantGame && (
+            <GamedrawTab
+              raffleId={id}
               startDate={dateRange[0] || ""}
               endDate={dateRange[1] || ""}
             />
           )}
-          {tabs === "game draw" && !isInstantGame && <GamedrawTab />}
         </div>
       </Tabs>
 

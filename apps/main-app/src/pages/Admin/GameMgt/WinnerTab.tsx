@@ -4,89 +4,94 @@ import { HiMiniTicket } from "react-icons/hi2";
 import { useEffect, useMemo, useState } from "react";
 import { useFetchData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
-import Paginator from "../../../components/Paginator";
 import EmptyState from "../../../components/EmptyState";
-// import InstantPrizes from "../../raffles/InstantPrizes";
+import InstantPrizes from "../../raffles/InstantPrizes";
+import { transformPrizeGroupsToRafflePrizes } from "../../../utils/helper/transformPrizeGroupsToRafflePrizes";
 
 interface WinnerTabProps {
   raffleId?: string;
-  startDate?: string;
-  endDate?: string;
+  isInstantGame: boolean;
 }
 
-interface Winner {
+export interface WinnersData {
+  game: Game;
+  summary: Summary;
+  prize_groups: PrizeGroup[];
+}
+
+export interface Game {
   uuid: string;
-  customer_id: string;
-  ticket_id: string;
-  prize_name: string;
-  status: string;
-  announce_status: string;
-  approvalStatus: string;
-  announced_by_id: string;
-  announce_time: string;
-  claim_officer_id: string | null;
-  claimed_time: string | null;
-  short_description: string;
-  evidence: string | null;
-  document_checklist: string | null;
-  won_at: string | null;
-  created_at: string;
-  prize_cost: string;
-  game_uuid: string;
-  game_unique_id: string;
-  game_name: string;
-  game_ticket_price: string;
-  claim_date: string | null;
-  game_category_uuid: string;
-  game_category_name: string;
-  ticket: {
-    uuid: string;
-    customer_id: string;
-    ticket_number: string;
-  };
-  customer: {
-    uuid: string;
-    firstname: string;
-    lastname: string;
-    uniqueID: string;
-    avatar: string | null;
-    referral_link: string;
-    total_amount_spent: string;
-  };
-  game_draw: {
-    uuid: string;
-    game_id: string;
-    prize_id: string;
-    game: {
-      uuid: string;
-      ticket_price: string;
-      name: string;
-      category_id: string;
-      main_active_status: string;
-    };
-  };
+  unique_id: string;
+  name: string;
+  category: Category;
+  ticket_price: string;
+  instant_game: boolean;
+  start_date: string;
+  end_date: string;
 }
 
-function WinnerTab({ raffleId, startDate = "", endDate = "" }: WinnerTabProps) {
-  const [winners, setWinners] = useState<Winner[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [filterPage, setFilterPage] = useState<number>(1);
-  const [perPage, setPerPage] = useState<number>(10);
-  const [total, setTotal] = useState<number>(0);
-  const [pageSize, setPageSize] = useState<number>(10);
+export interface Category {
+  uuid: string;
+  name: string;
+}
+
+export interface Summary {
+  total_prizes: number;
+  total_tickets: number;
+  total_winning_tickets: number;
+  total_customers: number;
+}
+
+export interface PrizeGroup {
+  prize: Prize;
+  counts: Counts;
+  tickets: Ticket[];
+}
+
+export interface Prize {
+  uuid?: string;
+  name: string;
+  image?: string;
+  description?: string;
+  prize_cost?: string;
+}
+
+export interface Counts {
+  total_tickets: number;
+  winning_tickets: number;
+}
+
+export interface Ticket {
+  ticket: Ticket2;
+  customer?: Customer;
+}
+
+export interface Ticket2 {
+  uuid: string;
+  number: string;
+  validation_number: string;
+  is_winner: boolean;
+  issued_at?: string;
+}
+
+export interface Customer {
+  uuid: string;
+  unique_id: string;
+  firstname: string;
+  lastname: string;
+  avatar: string;
+}
+
+function WinnerTab({ raffleId, isInstantGame }: WinnerTabProps) {
+  const [winnersData, setWinnersData] = useState<WinnersData>();
 
   // Build API URL
   const winnersUrl = useMemo(() => {
     if (!raffleId) return null;
     const params = new URLSearchParams();
     params.append("limit", "10");
-    if (startDate) params.append("start_date", startDate);
-    if (endDate) params.append("end_date", endDate);
-    params.append("paginate", "1");
-    params.append("page", filterPage.toString());
-    params.append("export", "0");
-    return `admin/game-management/game-list/single-game/${raffleId}/winner-list?${params.toString()}`;
-  }, [raffleId, startDate, endDate, filterPage]);
+    return `admin/game-management/game-list/single-game/${raffleId}/winner-list-drill-down?${params.toString()}`;
+  }, [raffleId]);
 
   // Fetch winners
   const {
@@ -95,11 +100,6 @@ function WinnerTab({ raffleId, startDate = "", endDate = "" }: WinnerTabProps) {
     isError: isErrorWinners,
     error: winnersError,
   } = useFetchData(winnersUrl);
-
-  // Reset page to 1 when date filters change
-  useEffect(() => {
-    setFilterPage(1);
-  }, [startDate, endDate]);
 
   // Handle winners response
   useEffect(() => {
@@ -111,19 +111,15 @@ function WinnerTab({ raffleId, startDate = "", endDate = "" }: WinnerTabProps) {
           "An error occurred",
         color: "red",
       });
-      setWinners([]);
-      setTotal(0);
+      setWinnersData(undefined);
     }
 
     if (winnersResponse) {
-      const record = winnersResponse.data?.record;
-      setWinners(record?.data || []);
-      setCurrentPage(record?.current_page || filterPage || 1);
-      setPerPage(record?.per_page || 10);
-      setTotal(record?.total || 0);
-      setPageSize(record?.per_page || 10);
+      console.log(winnersResponse);
+
+      setWinnersData(winnersResponse?.data);
     }
-  }, [isErrorWinners, winnersError, winnersResponse, filterPage]);
+  }, [isErrorWinners, winnersError, winnersResponse]);
 
   // Show empty state if no raffle ID
   if (!raffleId) {
@@ -153,28 +149,35 @@ function WinnerTab({ raffleId, startDate = "", endDate = "" }: WinnerTabProps) {
             </Grid.Col>
           ))}
         </Grid>
-      ) : winners.length ? (
+      ) : winnersData?.prize_groups?.length ? (
         <>
-          <Grid columns={5}>
-            {winners?.map((item) => (
-              <Grid.Col span={{ base: 5, sm: 3 }} key={item.uuid}>
-                <WinnerCard item={item} />
-              </Grid.Col>
-            ))}
-          </Grid>
+          {!isInstantGame && (
+            <Grid columns={5}>
+              {winnersData?.prize_groups?.map((prizeGroup) => (
+                <>
+                  {prizeGroup.tickets.map((ticket) => (
+                    <Grid.Col
+                      span={{ base: 5, sm: 3 }}
+                      key={ticket.ticket.uuid}
+                    >
+                      <WinnerCard
+                        prizeName={prizeGroup.prize.name}
+                        shortDescription={prizeGroup.prize.description}
+                        ticketNumber={ticket.ticket.number}
+                      />
+                    </Grid.Col>
+                  ))}
+                </>
+              ))}
+            </Grid>
+          )}
 
-          {/* <InstantPrizes raffle={instantRaffle} /> */}
-
-          {total > perPage && (
-            <Box mt="xl">
-              <Paginator
-                currentPage={currentPage}
-                isLoading={isLoadingWinners}
-                total={total}
-                pageSize={pageSize}
-                onPageChange={setFilterPage}
-              />
-            </Box>
+          {isInstantGame && (
+            <InstantPrizes
+              prizes={transformPrizeGroupsToRafflePrizes(
+                winnersData.prize_groups
+              )}
+            />
           )}
         </>
       ) : (
@@ -182,7 +185,7 @@ function WinnerTab({ raffleId, startDate = "", endDate = "" }: WinnerTabProps) {
           fullWidth={true}
           format="secondary"
           title="No Winners Announced Yet"
-          description="This game is still live hence, a winner is yet to be announced."
+          description="This game is not concluded hence, a winner is yet to be announced."
         />
       )}
     </Box>
@@ -191,18 +194,26 @@ function WinnerTab({ raffleId, startDate = "", endDate = "" }: WinnerTabProps) {
 
 export default WinnerTab;
 
-function WinnerCard({ item }: { item: Winner }) {
+function WinnerCard({
+  prizeName,
+  shortDescription,
+  ticketNumber,
+}: {
+  prizeName?: string;
+  shortDescription?: string;
+  ticketNumber?: string;
+}) {
   return (
     <CustomTickets
       bgColor="bg-secondary-green"
       borderColor="border-primary-green"
     >
       <Text fw={700} fz={20}>
-        {item.prize_name}
+        {prizeName}
       </Text>
 
       <Text c="dimmed" fz={14} mb="md">
-        {item.short_description || "Win this amazing prize"}
+        {shortDescription || "Win this amazing prize"}
       </Text>
 
       <Box className="bg-white py-2 rounded-lg border-dashed border border-primary-green text-center">
@@ -210,7 +221,7 @@ function WinnerCard({ item }: { item: Winner }) {
           Ticket Number
         </Text>
         <Text fw={700} fz={24} className="!text-primary-red">
-          {item.ticket.ticket_number}
+          {ticketNumber}
         </Text>
       </Box>
       <Box mt={30} className={`flex items-center !justify-center`}>

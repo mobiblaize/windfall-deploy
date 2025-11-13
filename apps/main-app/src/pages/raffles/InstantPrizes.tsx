@@ -6,16 +6,15 @@ import {
 } from "@tabler/icons-react";
 import { Avatar, Flex, Group, Text, TextInput } from "@mantine/core";
 import { HiSearch } from "react-icons/hi";
-import type { Raffle } from "../../models/raffles";
+import type { RafflePrize } from "../../models/raffles";
 
 interface RaffleProps {
-  raffle: Raffle;
+  prizes: RafflePrize[];
 }
 
-export default function InstantPrizes({ raffle }: RaffleProps) {
+export default function InstantPrizes({ prizes }: RaffleProps) {
   const [openIndexes, setOpenIndexes] = useState<number[]>([]); // multiple open accordions
   const [searchTerm, setSearchTerm] = useState("");
-  const prizes = raffle.prizes;
 
   const toggleItem = (index: number) => {
     setOpenIndexes(
