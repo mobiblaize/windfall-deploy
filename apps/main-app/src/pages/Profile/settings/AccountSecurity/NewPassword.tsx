@@ -18,7 +18,7 @@ export type PasswordFormValues = {
 };
 
 type NewPasswordProps = {
-  resendEmail: () => void;
+  resendEmail?: () => void;
   onComplete: (formValues: PasswordFormValues) => void;
   isLoading?: boolean;
   error?: string;
@@ -107,7 +107,7 @@ function NewPassword({ onComplete, isLoading, error, resendEmail }: NewPasswordP
         </Stack>
 
         <Flex justify="flex-end" gap={"md"} className="!mt-7">
-          <Button
+          {resendEmail && <Button
             fullWidth={false}
             size="lg"
             variant="default"
@@ -115,7 +115,7 @@ function NewPassword({ onComplete, isLoading, error, resendEmail }: NewPasswordP
             onClick={resendEmail}
           >
             Resend Email
-          </Button>
+          </Button>}
           <CustomButton
             disabled={isLoading}
             loading={isLoading}
