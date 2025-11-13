@@ -8,6 +8,7 @@ import { GoArrowUpRight } from "react-icons/go";
 import DynamicTableSection from "../../../components/DynamicTableSection";
 import { format } from "date-fns";
 import { colorMap } from "../../../models/raffles";
+import CustomBadge from "../../../components/CustomBadge";
 type RaffleTableProps = {
   raffles: Raffle[];
   isLoading: boolean;
@@ -25,7 +26,7 @@ export default function RaffleTable( { isLoading, raffles, baseRoute = "/admin/r
         { label: "Date Created", key: "date" },
         { label: "Raffle Duration", key: "duration" },
         { label: "Raffle Status", key: "main_active_status" },
-        { label: "Draw Status", key: "status" },
+        { label: "Approval Status", key: "status" },
         { label: "", key: "action" },
       ]}
       data={raffles}
@@ -55,20 +56,16 @@ export default function RaffleTable( { isLoading, raffles, baseRoute = "/admin/r
             {raffle.main_active_status}
           </Badge>,
 
-          <Badge
-            color={
-              raffle.status === "published"
-                ? "green"
-                : raffle.status === "draft"
-                  ? "#f79009"
-                  : "gray"
+          <CustomBadge
+            status={
+              raffle.approvalStatus === "approved"
+                ? "successful"
+                : raffle.approvalStatus === "pending"
+                  ? "pending"
+                  : "failed"
             }
-            radius="md"
-            className="!capitalize !text-sm !h-[22px]"
-            variant="light"
-          >
-            {raffle.status}
-          </Badge>,
+            label={raffle.approvalStatus}
+          />,
           <ActionIcon
             onClick={() => navigate(`${baseRoute}/${raffle.uuid}`)}
             size={35}

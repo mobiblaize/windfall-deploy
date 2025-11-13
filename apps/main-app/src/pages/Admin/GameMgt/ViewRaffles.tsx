@@ -115,6 +115,9 @@ function ViewRaffles() {
   }, [id, navigate]);
 
   const isInstantGame = raffle?.instant_game === "true";
+  const gamePendingApproval = raffle?.approvalStatus === "pending";
+  const gameApproved = raffle?.approvalStatus === "approved";
+  const gameDeclined = raffle?.approvalStatus === "declined";
 
   const tablinks = useMemo(() => {
     const links = [
@@ -140,7 +143,6 @@ function ViewRaffles() {
       raffle?.approval_workflows?.approver?.can_approve === "true";
     const isPendingUserApproval =
       raffle?.approval_workflows?.approver?.status === "pending";
-    const gameApproved = raffle?.approvalStatus === "approved";
 
     // Edit Raffle action - always available
     items.push({
@@ -198,11 +200,15 @@ function ViewRaffles() {
     handleEditRaffle,
     handleStartDraw,
     isInstantGame,
+    gameApproved
   ]);
 
   // Helper function to get status badge info
   const getStatusInfo = () => {
     if (!raffle) return { status: "pending" as const, label: "Loading" };
+
+    if (gamePendingApproval) return { status: "pending" as const, label: "Pending Approval" };
+    if (gameDeclined) return { status: "failed" as const, label: "Rejected" };
 
     if (raffle.main_active_status === "live") {
       return { status: "successful" as const, label: "Live" };
@@ -343,9 +349,7 @@ function ViewRaffles() {
                     <Skeleton height={32} width={80} />
                   ) : (
                     <ApprovalOfficersTooltip
-                      officers={
-                         []
-                      }
+                      officers={raffle?.approval_workflows?.approval_processes ?? []}
                     >
                       <CustomBadge
                         status={statusInfo.status}
