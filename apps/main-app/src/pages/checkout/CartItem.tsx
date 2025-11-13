@@ -8,7 +8,7 @@ import { formatCurrency } from "../../utils/helper/formatCurrency";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDebounce } from "../../utils/hooks/useDebounce";
-import defaultRaffleImg from "../../utils/helper/defaultRaffeImg";
+import defaultRaffleImg from "../../utils/helper/defaultImg";
 
 interface CartItemProps {
   item: Item;

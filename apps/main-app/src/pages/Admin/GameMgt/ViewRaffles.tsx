@@ -20,13 +20,14 @@ import CustomBadge from "../../../components/CustomBadge";
 import { DatePickerInput } from "@mantine/dates";
 import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
-import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
+import { useFetchData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import EmptyState from "../../../components/EmptyState";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import CommentsModal from "../../../components/CommentsModal";
 import type { ApprovalStatus } from "../../../utils/models/approval";
 import ApprovalOfficersTooltip from "../../../components/ApprovalOfficersTooltip";
+import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
 
 function ViewRaffles() {
   const { id } = useParams<{ id: string }>();
@@ -58,9 +59,14 @@ function ViewRaffles() {
     isError: isErrorRaffle,
     error: raffleError,
   } = useFetchData(id ? `admin/game-management/info/${id}` : null);
-  const approveProcessMutation = usePostData(
-    "admin/workflow-management/approvals/action"
-  );
+
+  // Use the approval process hook
+  const { approveProcess, isPending: isApprovingProcess } = useApprovalProcess({
+    onSuccess: () => {
+      setApproveGameModalOpen(false);
+      setApprovalSuccessModalOpen(true);
+    },
+  });
 
   useEffect(() => {
     if (tabFromUrl && tabFromUrl !== tabs) {
@@ -180,7 +186,7 @@ function ViewRaffles() {
     }
 
     // Start a Draw action - only for scheduled raffles (not instant games)
-    if (!isInstantGame && gameApproved) {
+    if (!isInstantGame && gameApproved && isEnded) {
       items.push({
         id: "start-draw",
         label: "start a draw",
@@ -266,30 +272,11 @@ function ViewRaffles() {
   }
 
   const approveGame = async (reason: string) => {
-    const payload = {
+    await approveProcess({
       process_id: raffle?.approval_workflows?.approver?.process_id,
       reason,
       status: approvalAction,
-    };
-    try {
-      const response = await approveProcessMutation.mutateAsync({
-        payload,
-      });
-      setApproveGameModalOpen(false);
-      setApprovalSuccessModalOpen(true);
-      notifications.show({
-        title: "Action Successful",
-        message: response?.message || `Game ${approvalAction} successfully`,
-        color: "green",
-      });
-    } catch (error) {
-      notifications.show({
-        title: `Failed to ${isApprove ? 'Approve': 'Reject'} Game`,
-        message:
-          (error as { message?: string })?.message || "An error occurred",
-        color: "red",
-      });
-    }
+    });
   };
 
   return (
@@ -479,7 +466,7 @@ function ViewRaffles() {
         primaryButtonLabel={`${isApprove ? "Complete Game Approval" : "Complete Game Rejection"}`}
         label={`${isApprove ? "Comment here" : "Enter reason"}`}
         submitComment={approveGame}
-        isLoading={approveProcessMutation.isPending}
+        isLoading={isApprovingProcess}
         closeModal={() => setApproveGameModalOpen(false)}
       />
 

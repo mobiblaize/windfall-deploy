@@ -33,6 +33,9 @@ import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import type { Raffle } from "../GameMgt/RaffleList";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import LoadingState from "../../../components/LoadingState";
+import type { ApprovalStatus } from "../../../utils/models/approval";
+import CommentsModal from "../../../components/CommentsModal";
+import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
 
 const breadCrumbs: Crumb[] = [
   { label: "Promo Code", to: "/admin/promo-codes" },
@@ -55,8 +58,39 @@ export default function ViewPromoCode() {
     useState(false);
   const [deleteAlertModalOpen, setDeleteAlertModalOpen] = useState(false);
   const [deleteSuccessModalOpen, setDeleteSuccessModalOpen] = useState(false);
+  const [approvalAction, setApprovalAction] =
+    useState<ApprovalStatus>("approved");
+  const [approvePromoCodeModalOpen, setApprovePromoCodeModalOpen] =
+    useState(false);
+  const [approvalConfirmationModalOpen, setApprovalConfirmationModalOpen] =
+    useState(false);
+  const [approvalSuccessModalOpen, setApprovalSuccessModalOpen] =
+    useState(false);
+
+  const isApprove = approvalAction === "approved";
 
   const navigate = useNavigate();
+
+  const initiateApproval = (status: ApprovalStatus) => {
+    setApprovalAction(status);
+    setApprovalConfirmationModalOpen(true);
+  };
+
+  // Use the approval process hook
+  const { approveProcess, isPending: isApprovingProcess } = useApprovalProcess({
+    onSuccess: () => {
+      setApprovePromoCodeModalOpen(false);
+      setApprovalSuccessModalOpen(true);
+    },
+  });
+
+  const approveGame = async (reason: string) => {
+    await approveProcess({
+      process_id: promo?.approval_workflows?.approver?.process_id,
+      reason,
+      status: approvalAction,
+    });
+  };
 
   // Fetch promo by id
   const {
@@ -228,6 +262,8 @@ export default function ViewPromoCode() {
 
   const promoActive = form.values.is_active === "true";
 
+  const isPendingApproval = promo?.approvalStatus === "pending";
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -259,10 +295,8 @@ export default function ViewPromoCode() {
                   Save Changes
                 </Menu.Item>
                 <Menu.Divider />
-                <Menu.Item
-                  onClick={() =>setDeactivateAlertModalOpen(true)}
-                >
-                  {promoActive ? 'Deactivate': 'Reactivate'} Promo-Code
+                <Menu.Item onClick={() => setDeactivateAlertModalOpen(true)}>
+                  {promoActive ? "Deactivate" : "Reactivate"} Promo-Code
                 </Menu.Item>
                 <Menu.Item
                   className="!text-red-500"
@@ -270,6 +304,23 @@ export default function ViewPromoCode() {
                 >
                   Delete Promo-Code
                 </Menu.Item>
+                {isPendingApproval && (
+                  <>
+                    <Menu.Divider />
+                    <Menu.Item
+                      className="!text-green-500"
+                      onClick={() => initiateApproval("approved")}
+                    >
+                      Approve Promo-Code
+                    </Menu.Item>
+                    <Menu.Item
+                      className="!text-red-500"
+                      onClick={() => initiateApproval("declined")}
+                    >
+                      Reject Promo-Code
+                    </Menu.Item>
+                  </>
+                )}
               </Menu.Dropdown>
             </Menu>
           </Flex>
@@ -510,7 +561,7 @@ export default function ViewPromoCode() {
                           boxShadow: "none",
                           textAlign: "center",
                           padding: 0,
-                          height: "fit-content"
+                          height: "fit-content",
                         },
                       }}
                       placeholder="e.g. Get-₦5K-Off"
@@ -616,10 +667,11 @@ export default function ViewPromoCode() {
               setDeactivateSuccessModalOpen(true);
               notifications.show({
                 title: `Promo-Code ${action} successfully`,
-                message: response?.message || `Promo-Code ${action} successfully`,
+                message:
+                  response?.message || `Promo-Code ${action} successfully`,
                 color: "green",
               });
-              form.setFieldValue('is_active', response?.data?.is_active);
+              form.setFieldValue("is_active", response?.data?.is_active);
             } catch (error) {
               notifications.show({
                 title: "Toggle Failed",
@@ -663,12 +715,16 @@ export default function ViewPromoCode() {
           label: "Yes, Delete",
           onClick: async () => {
             try {
-              const response = await deletePromoMutation.mutateAsync(id as string);
+              const response = await deletePromoMutation.mutateAsync(
+                id as string
+              );
               setDeleteAlertModalOpen(false);
               setDeleteSuccessModalOpen(true);
               notifications.show({
                 title: "Promo-Code Deleted Successfully",
-                message: response?.message || "Promo-Code has been deleted successfully",
+                message:
+                  response?.message ||
+                  "Promo-Code has been deleted successfully",
                 color: "green",
               });
             } catch (error) {
@@ -700,6 +756,48 @@ export default function ViewPromoCode() {
         primaryButton={{
           label: "Close",
           onClick: closeDeleteModal,
+        }}
+      />
+
+      <AdminAlertModal
+        opened={approvalConfirmationModalOpen}
+        onClose={() => setApprovalConfirmationModalOpen(false)}
+        status="error"
+        title={`${isApprove ? "Approve" : "Reject"} New Raffle Game ?`}
+        description={`${isApprove ? "Are you sure you want to approve this new raffle draw/game? Kindly note that this game would go live now and customer would be able to view raffle details and buy raffle ticket accordingly." : "Are you sure you want to reject this new raffle draw/game? Kindly note that this game would not go live now."}`}
+        primaryButton={{
+          label: `${isApprove ? "Yes, Approve" : "Yes, Reject"} Raffle Game`,
+          onClick: () => {
+            setApprovalConfirmationModalOpen(false);
+            setApprovePromoCodeModalOpen(true);
+          },
+        }}
+        secondaryButton={{
+          label: "Close",
+          onClick: () => setApprovalConfirmationModalOpen(false),
+        }}
+      />
+
+      <CommentsModal
+        modalOpen={approvePromoCodeModalOpen}
+        title={`${isApprove ? "Why Approve Game?" : "Why Reject Game? "}`}
+        description={`${isApprove ? "Enter comment on game here" : "Provide a reason to why this game is rejected"}`}
+        primaryButtonLabel={`${isApprove ? "Complete Game Approval" : "Complete Game Rejection"}`}
+        label={`${isApprove ? "Comment here" : "Enter reason"}`}
+        submitComment={approveGame}
+        isLoading={isApprovingProcess}
+        closeModal={() => setApprovePromoCodeModalOpen(false)}
+      />
+
+      <AdminAlertModal
+        opened={approvalSuccessModalOpen}
+        onClose={() => setApprovalSuccessModalOpen(false)}
+        status="success"
+        title={`Raffle ${isApprove ? "Approved" : "Rejected"}`}
+        description={`${isApprove ? "Congratulation, you have successfully approved a New Raffle Game / Draw and posted it live" : "You have successfully rejected a New Raffle Game / Draw"}`}
+        primaryButton={{
+          label: "Close",
+          onClick: () => setApprovalSuccessModalOpen(false),
         }}
       />
     </div>

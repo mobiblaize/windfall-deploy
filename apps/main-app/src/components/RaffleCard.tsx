@@ -4,7 +4,7 @@ import type { Raffle } from "../models/raffles";
 import GameBadge from "./GameBadge";
 import { formatCurrency } from "../utils/helper/formatCurrency";
 import { getTicketsSoldPercentage } from "../utils/helper/getTicketsSoldPercentage";
-import defaultRaffleImg from "../utils/helper/defaultRaffeImg";
+import defaultRaffleImg from "../utils/helper/defaultImg";
 
 export default function RaffleCard(raffle: Raffle) {
   const isActive = raffle.main_active_status === "live";

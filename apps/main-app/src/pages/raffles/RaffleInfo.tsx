@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { evaluateDiscount } from "../../utils/helper/evaluateDiscount";
 import { raffleToCartItem } from "../../utils/helper/raffleToCartItem";
 import { getTicketsSoldPercentage } from "../../utils/helper/getTicketsSoldPercentage";
-import defaultRaffleImg from "../../utils/helper/defaultRaffeImg";
+import defaultRaffleImg from "../../utils/helper/defaultImg";
 import GameBadge from "../../components/GameBadge";
 import evaluateMax from "../../utils/helper/evaluateMax";
 

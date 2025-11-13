@@ -2,7 +2,7 @@ import { Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import ResultsBadge from "../../components/ResultsBadge";
 import type { RaffleGame } from "./GamesTab";
-import defaultRaffleImg from "../../utils/helper/defaultRaffeImg";
+import defaultRaffleImg from "../../utils/helper/defaultImg";
 
 function GamesCard({ game }: { game: RaffleGame }) {
   const navigate = useNavigate();
