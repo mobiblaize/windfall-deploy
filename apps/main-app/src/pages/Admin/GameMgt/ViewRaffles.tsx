@@ -58,6 +58,7 @@ function ViewRaffles() {
     isLoading: isLoadingRaffle,
     isError: isErrorRaffle,
     error: raffleError,
+    refetch: refetchRaffle
   } = useFetchData(id ? `admin/game-management/info/${id}` : null);
 
   // Use the approval process hook
@@ -65,6 +66,7 @@ function ViewRaffles() {
     onSuccess: () => {
       setApproveGameModalOpen(false);
       setApprovalSuccessModalOpen(true);
+      refetchRaffle();
     },
   });
 
@@ -150,17 +152,18 @@ function ViewRaffles() {
     const isPendingUserApproval =
       raffle?.approval_workflows?.approver?.status === "pending";
 
-    // Edit Raffle action - always available
-    items.push({
-      id: "edit-raffle",
-      label: "edit raffle",
-      description: isLive
-        ? "Live game edit is limited"
-        : "Edit raffle details and settings",
-      onClick: handleEditRaffle,
-      disabled: isLoadingRaffle || !raffle,
-      color: "default",
-    });
+    if (isPendingUserApproval) {
+      items.push({
+        id: "edit-raffle",
+        label: "edit raffle",
+        description: isLive
+          ? "Live game edit is limited"
+          : "Edit raffle details and settings",
+        onClick: handleEditRaffle,
+        disabled: isLoadingRaffle || !raffle,
+        color: "default",
+      });
+    }
 
     if (canApprove && isPendingUserApproval) {
       items.push(

@@ -116,7 +116,7 @@ export default function ViewComplaint() {
                 <Skeleton height={28} width={300} radius="sm" />
               ) : (
                 <Title className="!text-primary-text text-2xl" order={2}>
-                  {complaint?.customer?.firstname} {complaint?.customer?.lastname} (
+                  {complaint?.customer ? `${complaint?.customer?.firstname} ${complaint?.customer?.lastname}`: complaint?.guest?.fullname} (
                   {complaint?.uniqueID})
                 </Title>
               )}
@@ -191,10 +191,10 @@ export default function ViewComplaint() {
                 ) : (
                   <>
                     <h3 className="font-medium text-gray-800">
-                      {complaint?.customer?.firstname} {complaint?.customer?.lastname}
+                      {complaint?.customer ? `${complaint?.customer?.firstname} ${complaint?.customer?.lastname}`: complaint?.guest?.fullname}
                     </h3>
                     <p className="text-base text-secondary-text">
-                      ID: {complaint?.customer?.uniqueID}
+                      ID: {complaint?.customer?.uniqueID ?? complaint?.guest?.phone}
                     </p>
                   </>
                 )}
@@ -296,13 +296,8 @@ export default function ViewComplaint() {
                     </p>
                   </Grid.Col>
                   <Grid.Col span={{ base: 12, md: 7 }}>
-                    <h3 className="font-medium text-gray-800">
-                      This is complaints that the customer would submitThis is
-                      complaints that the customer would submitThis is
-                      complaints that the customer would submitThis is
-                      complaints that the customer would submit
-                    </h3>
-                    <p className="text-base text-secondary-text">ID:8003</p>
+                    <h3 className="font-medium text-gray-800">{complaint?.resolved_by?.name}</h3>
+                    <p className="text-base text-secondary-text">ID: {complaint?.resolved_by?.uniqueID}</p>
                   </Grid.Col>
                 </Grid>
 

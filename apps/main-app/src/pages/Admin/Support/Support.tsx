@@ -66,6 +66,11 @@ export interface Complaints {
   issue_type: string;
   platform: string;
   customer: Customer;
+  guest: {
+    email: string,
+    fullname: string,
+    phone: string,
+  }
   customer_id: string;
   customer_complaint: string;
   other_information: string;
@@ -467,10 +472,10 @@ function Support() {
               renderItems={(complaint) => [
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
-                    {complaint.customer?.firstname} {complaint.customer?.lastname}
+                    {complaint.customer ? `${complaint.customer?.firstname} ${complaint.customer?.lastname}`: complaint.guest?.fullname}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {complaint.customer?.uniqueID}
+                    {complaint.customer?.uniqueID ?? complaint.guest?.phone}
                   </Text>
                 </>,
                 complaint.uniqueID,

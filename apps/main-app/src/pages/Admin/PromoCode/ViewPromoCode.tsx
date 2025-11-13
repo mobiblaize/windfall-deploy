@@ -76,28 +76,13 @@ export default function ViewPromoCode() {
     setApprovalConfirmationModalOpen(true);
   };
 
-  // Use the approval process hook
-  const { approveProcess, isPending: isApprovingProcess } = useApprovalProcess({
-    onSuccess: () => {
-      setApprovePromoCodeModalOpen(false);
-      setApprovalSuccessModalOpen(true);
-    },
-  });
-
-  const approveGame = async (reason: string) => {
-    await approveProcess({
-      process_id: promo?.approval_workflows?.approver?.process_id,
-      reason,
-      status: approvalAction,
-    });
-  };
-
   // Fetch promo by id
   const {
     data: promoResponse,
     isError: isPromoError,
     isLoading: loadingPromo,
     error: promoError,
+    refetch: refetchPromo,
   } = useFetchData(`admin/promo-code-management/show/${id}`);
 
   // Fetch possible games for the dropdown
@@ -131,7 +116,7 @@ export default function ViewPromoCode() {
   useEffect(() => {
     if (isRafflesError) {
       notifications.show({
-        title: "Failed to fetch Raffle Games",
+        title: "Failed to fetch Promo-Codes",
         message:
           (rafflesError as { message?: string })?.message ||
           "An error occurred",
@@ -139,6 +124,23 @@ export default function ViewPromoCode() {
       });
     }
   }, [rafflesError, isRafflesError]);
+
+  // Use the approval process hook
+  const { approveProcess, isPending: isApprovingProcess } = useApprovalProcess({
+    onSuccess: () => {
+      refetchPromo();
+      setApprovePromoCodeModalOpen(false);
+      setApprovalSuccessModalOpen(true);
+    },
+  });
+
+  const approvePromoCode = async (reason: string) => {
+    await approveProcess({
+      process_id: promo?.approval_workflows?.approver?.process_id,
+      reason,
+      status: approvalAction,
+    });
+  };
 
   const gamesData = useMemo(
     () =>
@@ -159,6 +161,9 @@ export default function ViewPromoCode() {
     setDeleteSuccessModalOpen(false);
     navigate(`/admin/promo-codes`, { replace: true });
   }
+
+  const isPendingApproval = promo?.approvalStatus === "pending";
+  const isApproved = promo?.approvalStatus === "approved";
 
   const form = useForm({
     initialValues: {
@@ -262,8 +267,6 @@ export default function ViewPromoCode() {
 
   const promoActive = form.values.is_active === "true";
 
-  const isPendingApproval = promo?.approvalStatus === "pending";
-
   return (
     <div>
       {/* Breadcrumb */}
@@ -291,7 +294,10 @@ export default function ViewPromoCode() {
               </Menu.Target>
               <Menu.Dropdown>
                 <Menu.Label>Take Action</Menu.Label>
-                <Menu.Item onClick={() => setConfirmModalOpen(true)}>
+                <Menu.Item
+                  disabled={isApproved}
+                  onClick={() => setConfirmModalOpen(true)}
+                >
                   Save Changes
                 </Menu.Item>
                 <Menu.Divider />
@@ -371,6 +377,7 @@ export default function ViewPromoCode() {
                     {...form.getInputProps("name")}
                     required
                     error={form.errors.name}
+                    disabled={isApproved}
                   />
                 </Grid.Col>
               </Grid>
@@ -393,6 +400,7 @@ export default function ViewPromoCode() {
                     {...form.getInputProps("description")}
                     required
                     error={form.errors.description}
+                    disabled={isApproved}
                   />
                 </Grid.Col>
               </Grid>
@@ -422,12 +430,14 @@ export default function ViewPromoCode() {
                       value="percentage"
                       label="Percentage Value"
                       description="x percentage value is deducted from the final cost of purchase during checkout. "
+                      disabled={isApproved}
                     />
                     <Radio
                       mt={"md"}
                       value="amount"
                       label="Fixed Value"
                       description="A certain ₦xxxx value is deducted from the final cost of purchase during checkout. i.e ₦1,000"
+                      disabled={isApproved}
                     />
                   </Radio.Group>
                   <Card withBorder mt="md" radius="md" className="!p-8 !pt-6">
@@ -441,6 +451,7 @@ export default function ViewPromoCode() {
                       classNames={{ input: "placeholder:text-xs" }}
                       {...form.getInputProps("type_value")}
                       error={form.errors.type_value}
+                      disabled={isApproved}
                     />
                   </Card>
                 </Grid.Col>
@@ -473,6 +484,7 @@ export default function ViewPromoCode() {
                           dropdown: "!text-primary-text",
                         },
                       }}
+                      disabled={isApproved}
                     />
                     <DateInput
                       label="End date"
@@ -486,6 +498,7 @@ export default function ViewPromoCode() {
                           dropdown: "!text-primary-text",
                         },
                       }}
+                      disabled={isApproved}
                     />
                   </SimpleGrid>
                 </Grid.Col>
@@ -509,6 +522,7 @@ export default function ViewPromoCode() {
                     rightSection={<FaAngleDown />}
                     placeholder="Game: "
                     data={gamesData}
+                    disabled={isApproved}
                     filter={({ options, search }) => {
                       const searchTerms = search
                         .toLowerCase()
@@ -551,6 +565,7 @@ export default function ViewPromoCode() {
                     </Text>
                     <TextInput
                       className="!text-center !font-bold !text-3xl !text-primary-red"
+                      disabled={isApproved}
                       styles={{
                         input: {
                           fontSize: "2.25rem",
@@ -610,7 +625,7 @@ export default function ViewPromoCode() {
                 variant="default"
                 rightSection={<BsChevronRight />}
                 loading={updatePromoMutation.isPending}
-                disabled={updatePromoMutation.isPending}
+                disabled={updatePromoMutation.isPending || isApproved}
               >
                 Save Changes
               </CustomButton>
@@ -763,28 +778,28 @@ export default function ViewPromoCode() {
         opened={approvalConfirmationModalOpen}
         onClose={() => setApprovalConfirmationModalOpen(false)}
         status="error"
-        title={`${isApprove ? "Approve" : "Reject"} New Raffle Game ?`}
-        description={`${isApprove ? "Are you sure you want to approve this new raffle draw/game? Kindly note that this game would go live now and customer would be able to view raffle details and buy raffle ticket accordingly." : "Are you sure you want to reject this new raffle draw/game? Kindly note that this game would not go live now."}`}
+        title={`${isApprove ? "Approve" : "Reject"} New Promo-Code ?`}
+        description={`${isApprove ? "Are you sure you want to approve this new Promo-Code? Kindly note that this Promo-Code would go live now and customer would be able to apply in games accordingly." : "Are you sure you want to reject this new Promo-Code? Kindly note that this Promo-Code would not go live now."}`}
         primaryButton={{
-          label: `${isApprove ? "Yes, Approve" : "Yes, Reject"} Raffle Game`,
+          label: `${isApprove ? "Yes, Approve" : "Yes, Reject"} Promo-Code`,
           onClick: () => {
             setApprovalConfirmationModalOpen(false);
             setApprovePromoCodeModalOpen(true);
           },
         }}
         secondaryButton={{
-          label: "Close",
+          label: "No, Close",
           onClick: () => setApprovalConfirmationModalOpen(false),
         }}
       />
 
       <CommentsModal
         modalOpen={approvePromoCodeModalOpen}
-        title={`${isApprove ? "Why Approve Game?" : "Why Reject Game? "}`}
-        description={`${isApprove ? "Enter comment on game here" : "Provide a reason to why this game is rejected"}`}
-        primaryButtonLabel={`${isApprove ? "Complete Game Approval" : "Complete Game Rejection"}`}
+        title={`${isApprove ? "Why Approve Promo-Code?" : "Why Reject Promo-Code? "}`}
+        description={`${isApprove ? "Enter comment on promo-Code here" : "Provide a reason to why this promo-Code is rejected"}`}
+        primaryButtonLabel={`${isApprove ? "Complete Promo-Code Approval" : "Complete Promo-Code Rejection"}`}
         label={`${isApprove ? "Comment here" : "Enter reason"}`}
-        submitComment={approveGame}
+        submitComment={approvePromoCode}
         isLoading={isApprovingProcess}
         closeModal={() => setApprovePromoCodeModalOpen(false)}
       />
@@ -793,9 +808,16 @@ export default function ViewPromoCode() {
         opened={approvalSuccessModalOpen}
         onClose={() => setApprovalSuccessModalOpen(false)}
         status="success"
-        title={`Raffle ${isApprove ? "Approved" : "Rejected"}`}
-        description={`${isApprove ? "Congratulation, you have successfully approved a New Raffle Game / Draw and posted it live" : "You have successfully rejected a New Raffle Game / Draw"}`}
+        title={`Promo-Code ${isApprove ? "Approved" : "Rejected"}`}
+        description={`${isApprove ? "Congratulation, you have successfully approved a New Promo-Code and posted it live" : "You have successfully rejected a New Promo-Code"}`}
         primaryButton={{
+          label: "Manage Promo-Code",
+          onClick: () => {
+            setApprovalSuccessModalOpen(false);
+            navigate(`/admin/promo-codes`, { replace: true });
+          },
+        }}
+        secondaryButton={{
           label: "Close",
           onClick: () => setApprovalSuccessModalOpen(false),
         }}
