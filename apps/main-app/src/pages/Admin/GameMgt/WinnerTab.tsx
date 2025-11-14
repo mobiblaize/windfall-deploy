@@ -115,8 +115,6 @@ function WinnerTab({ raffleId, isInstantGame }: WinnerTabProps) {
     }
 
     if (winnersResponse) {
-      console.log(winnersResponse);
-
       setWinnersData(winnersResponse?.data);
     }
   }, [isErrorWinners, winnersError, winnersResponse]);

@@ -12,6 +12,7 @@ import {
   Divider,
   Avatar,
   Group,
+  TextInput,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import CustomButton from "../../../components/Buttons/CustomButton";
@@ -146,6 +147,7 @@ export default function ViewDraw() {
   const [otpMessage, setOtpMessage] = useState<string>(
     "Enter the OTP sent to your email to unlock this draw."
   );
+  const [videoUrl, setVideoUrl] = useState("");
   const [unlockDrawModalOpen, setUnlockDrawModalOpen] = useState(false);
   const [unlockSuccessModalOpen, setUnlockSuccessModalOpen] = useState(false);
   const [videoAlertModalOpen, setVideoAlertModalOpen] = useState(false);
@@ -346,11 +348,13 @@ export default function ViewDraw() {
       setDrawLineData(drawLineResponse?.data);
 
       // Determine initial step and winner state
-      if (drawLine.approvalStatus?.toLowerCase() === "approved") setStep(2);
       if (drawLine.winner && drawLine.winner.won_at) {
         setStep(2);
         setIsWon(true);
         setWinner(drawLine.winner);
+      } else if (drawLine.approvalStatus?.toLowerCase() === "approved") {
+        setVideoAlertModalOpen(true);
+        setStep(2);
       } else {
         setStep(1);
         setIsWon(false);
@@ -507,6 +511,7 @@ export default function ViewDraw() {
                       fullWidth={false}
                       variant="default"
                       leftSection={<BsChevronLeft />}
+                      onClick={() => navigate("..")}
                     >
                       Back
                     </Button>
@@ -721,11 +726,16 @@ export default function ViewDraw() {
                           fullWidth={false}
                           variant="default"
                           className="!font-medium"
-                          disabled={announceWinnerMutation.isPending || winner?.announce_status === "true"}
+                          disabled={
+                            announceWinnerMutation.isPending ||
+                            winner?.announce_status === "true"
+                          }
                           loading={announceWinnerMutation.isPending}
                           onClick={announceWinner}
                         >
-                          {winner?.announce_status === "true" ? 'Winner Announced': 'Announce Winner'}
+                          {winner?.announce_status === "true"
+                            ? "Winner Announced"
+                            : "Announce Winner"}
                         </CustomButton>
                       </Flex>
                     </Card>
@@ -769,9 +779,27 @@ export default function ViewDraw() {
         onClose={handleVideoModalClose}
         status="error"
         title="Connect External Video Feed"
-        description="Kindly connect system to an external Video feed to be able to translate and sync video feed to an external source such as YouTube, Twitter. And only share visible area to the Public."
+        description={
+          <form className="!space-y-3">
+            <Text className="text-center">
+              Kindly connect system to an external Video feed to be able to
+              translate and sync video feed to an external source such as
+              YouTube, Twitter. And only share visible area to the Public.
+            </Text>
+
+            <TextInput
+              label="Video URL"
+              required
+              placeholder="Enter URL"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.currentTarget.value)}
+              className="!rounded-xl shadow-md text-left !text-primary-text"
+            />
+          </form>
+        }
         primaryButton={{
           label: "Yes, Video Feed Connected",
+          disabled: !videoUrl,
           onClick: handleVideoModalClose,
         }}
         secondaryButton={{

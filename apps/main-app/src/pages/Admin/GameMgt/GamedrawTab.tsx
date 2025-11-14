@@ -9,9 +9,9 @@ import {
   Group,
   Grid,
   Skeleton,
+  Badge,
 } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
-import StatusBadge from "../../../components/StatusBadge";
 import { useEffect, useMemo, useState } from "react";
 import EmptyState from "../../../components/EmptyState";
 import { useFetchData } from "../../../utils/hooks/useApis";
@@ -157,8 +157,7 @@ function GamedrawTab({
     <Box mt="xl" pb="xl" mx="xl">
       {isLoadingWinners ? (
         <Grid columns={5}>
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Grid.Col span={{ base: 5, sm: 3 }} key={index}>
+          <Grid.Col span={{ base: 5, sm: 3 }}>
               <Card withBorder radius="md" p="lg">
                 <Skeleton height={120} mb="md" />
                 <Skeleton height={20} width="80%" mb="sm" />
@@ -166,7 +165,6 @@ function GamedrawTab({
                 <Skeleton height={80} />
               </Card>
             </Grid.Col>
-          ))}
         </Grid>
       ) : winners.length ? (
         <>
@@ -208,60 +206,79 @@ function DrawItem({ item }: { item: Winner }) {
   return (
     <Card withBorder radius={"md"}>
       <Box>
-        <Text c="var(--primary-red)" tt="capitalize" fw={500} fz={"lg"}>
+        <Text c="var(--primary-red)" tt="capitalize" fw={700} fz={"xl"}>
           {item.prize_name}
         </Text>
-        <Text c="var(--secondary-text)" fz={"xs"} tt="capitalize">
+        <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
           game price
         </Text>
       </Box>
       <Box my="lg">
-        <Text c="var(--secondary-text)" fz={"xs"} tt="capitalize">
+        <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
           draw pot
         </Text>
-        <Text tt="capitalize" fw={500} fz={"md"}>
+        <Text tt="capitalize" fw={600} fz={"md"}>
           5,200 ticket/ticket
         </Text>
       </Box>
-      <SimpleGrid cols={2}>
+      <SimpleGrid cols={{ base: 1, sm: 2 }}>
         <Box>
-          <Text c="var(--secondary-text)" fz={"xs"} tt="capitalize">
+          <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
             prize distribution
           </Text>
-          <Text tt="capitalize" fw={500} fz={"md"}>
+          <Text tt="capitalize" fw={600} fz={"md"}>
             single
           </Text>
         </Box>
         <Box>
-          <Text c="var(--secondary-text)" fz={"xs"} tt="capitalize">
+          <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
             draw conducted by
           </Text>
           <Group align={"center"}>
-            <Avatar radius="sm" className="border-2 border-primary-red" />
+            <Avatar radius="md" className="border-2 border-primary-red" />
             <Box>
-              <Text fz="sm">Adekunle ibrahim</Text>
-              <Text c="var(--secondary-text)" fz={"xs"} tt="capitalize">
-                operation manager
+              <Text fz="sm" fw={600}>
+                Adekunle ibrahim
+              </Text>
+              <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
+                Role:{" "}
+                <span className="text-[#575757] font-medium">
+                  operation manager
+                </span>
               </Text>
             </Box>
           </Group>
         </Box>
       </SimpleGrid>
       <Box my="md">
-        <Text fz="xs" tt="capitalize">
+        <Text fz="sm" c="var(--secondary-text)" tt="capitalize">
           draw winner
         </Text>
-        <Flex justify={"space-between"} align="center">
+        <Flex justify={"space-between"} align="center" gap={10} wrap={"wrap"}>
           <Group>
-            <Avatar radius={"sm"} className="border-2 border-primary-red" />
+            <Avatar radius={"md"} className="border-2 border-primary-red !h-15 !w-15" />
             <Box>
               <Text fz="sm" c="var(--secondary-text)" tt="capitalize">
                 Hameedat adekunle
               </Text>
-              <Text fz="xs" c="var(--secondary-text)">
-                ID:9044| +234903456789
+              <Text fz="sm" mb={3} c="var(--secondary-text)">
+                ID:{" "}
+                <span className="text-[#575757] font-medium">
+                  9044 | +234903456789
+                </span>
               </Text>
-              <StatusBadge status="verified" />
+              <Badge
+                className="!capitalize"
+                style={{
+                  backgroundColor: "var(--color-secondary-green)",
+                  color: "var(--color-primary-green)",
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                Verified
+              </Badge>
             </Box>
           </Group>
           <Button
