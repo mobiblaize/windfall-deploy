@@ -563,7 +563,7 @@ function EditRaffleLayout() {
     []
   );
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (status: "draft" | "published" = "published") => {
     const result = form.validate();
     let hasErrors = result.hasErrors;
     let nameValid = true;
@@ -587,6 +587,7 @@ function EditRaffleLayout() {
       return;
     }
 
+    form.setFieldValue("status", status);
     setAlertModalOpen(true);
   }, [form, checkNameExists]);
 
@@ -671,12 +672,25 @@ function EditRaffleLayout() {
     () => stepsLayout[active].props || {},
     [stepsLayout, active]
   );
+
+  const breadCrumbs: Crumb[] = useMemo(
+    () => [
+      {
+        label: isInstantRaffleRoute
+          ? "Instant Raffle Management"
+          : "Raffle Management",
+        to: baseRoute,
+      },
+      {
+        label: `${raffleData?.data?.name ?? "Raffle"} Details`,
+        to: `${baseRoute}/${id}`,
+      },
+      { label: `Edit Raffle` },
+    ],
+    [isInstantRaffleRoute, baseRoute, raffleData?.data?.name, id]
+  );
   
-  const breadCrumbs: Crumb[] = useMemo(() => [
-    { label: isInstantRaffleRoute ? "Instant Raffle Management" : "Raffle Management", to: baseRoute },
-    { label: `${raffleData?.data?.name ?? "Raffle"} Details`, to: `${baseRoute}/${id}` },
-    { label: `Edit Raffle` },
-  ], [isInstantRaffleRoute, baseRoute, raffleData?.data?.name, id]);
+  const isPublished = form.values.status === "published";
 
   if (!id) {
     return (
@@ -694,7 +708,10 @@ function EditRaffleLayout() {
   }
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)} className="pb-5">
+    <form onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit("published");
+      }}   className="pb-5">
       {/* Breadcrumb */}
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
         <div className="px-6 md:px-10 py-1">
@@ -809,6 +826,19 @@ function EditRaffleLayout() {
                   Continue
                 </CustomButton>
               )}
+              {active === stepsLayout.length - 1 && raffleData?.data?.status === 'draft' && (
+                <CustomButton
+                  size="lg"
+                  border={false}
+                  fullWidth={false}
+                  type="dark"
+                  onClick={() => handleSubmit("draft")}
+                  loading={isCheckingName}
+                  disabled={isCheckingName}
+                >
+                  Save As Draft
+                </CustomButton>
+              )}
             </Flex>
           </Container>
         </>
@@ -818,11 +848,11 @@ function EditRaffleLayout() {
         opened={alertModalOpen}
         onClose={() => setAlertModalOpen(false)}
         status="error"
-        title={<span>Update Raffle Game?</span>}
+        title={<span>{isPublished ? "Update Raffle Game?" : "Save as Draft"} ?</span>}
         description={
           <span>
-            Are you sure you want to update this raffle draw/game? Changes will
-            be reflected immediately and customers will see the updated details.
+            {isPublished ? 'Are you sure you want to update this raffle draw/game? Changes will be reflected immediately and customers will see the updated details.': 
+             "Are you sure, you want to save as draft ? You can update and publish this raffle game later."}
           </span>
         }
         primaryButton={{

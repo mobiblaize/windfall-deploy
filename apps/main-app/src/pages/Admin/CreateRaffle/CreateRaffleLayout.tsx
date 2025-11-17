@@ -47,10 +47,18 @@ function CreateRaffleLayout() {
   }, [isInstantRaffleRoute]);
 
   // Build breadcrumbs dynamically
-  const breadCrumbs: Crumb[] = useMemo(() => [
-    { label: isInstantRaffleRoute ? "Instant Raffle Management" : "Raffle Management", to: baseRoute },
-    { label: "Create a New Raffle", to: "" },
-  ], [isInstantRaffleRoute, baseRoute]);
+  const breadCrumbs: Crumb[] = useMemo(
+    () => [
+      {
+        label: isInstantRaffleRoute
+          ? "Instant Raffle Management"
+          : "Raffle Management",
+        to: baseRoute,
+      },
+      { label: "Create a New Raffle", to: "" },
+    ],
+    [isInstantRaffleRoute, baseRoute]
+  );
   const [active, setActive] = useState(0);
   const [isCheckingName, setIsCheckingName] = useState(false);
   const [lastCheckedName, setLastCheckedName] = useState<string>("");
@@ -273,7 +281,7 @@ function CreateRaffleLayout() {
 
         for (let i = 0; i < tiers.length; i++) {
           const tier = tiers[i];
-          if (!tier.name?.trim()) 
+          if (!tier.name?.trim())
             return `Discount Tier ${i + 1}: Please provide a name for this tier`;
           if (Number(tier.discount_percentage) <= 0)
             return `Discount Tier ${i + 1} ("${tier.name}"): Discount percentage must be greater than 0%`;
@@ -329,55 +337,61 @@ function CreateRaffleLayout() {
     },
   });
 
-  const checkNameExists = useCallback(async (name: string) => {
-    setIsCheckingName(true);
-    setLastCheckedName(name);
-    try {
-      const resp = await validateNameMutation.mutateAsync();
-      // Adjust this logic depending on your actual API result shape
-      if (resp?.data?.exists) {
-        form.setFieldError("name", "Game name already exists");
+  const checkNameExists = useCallback(
+    async (name: string) => {
+      setIsCheckingName(true);
+      setLastCheckedName(name);
+      try {
+        const resp = await validateNameMutation.mutateAsync();
+        // Adjust this logic depending on your actual API result shape
+        if (resp?.data?.exists) {
+          form.setFieldError("name", "Game name already exists");
+          setIsCheckingName(false);
+          return false;
+        } else {
+          return true;
+        }
+      } catch {
+        form.setFieldError("name", "Failed to check name uniqueness");
         setIsCheckingName(false);
         return false;
-      } else {
-        return true;
+      } finally {
+        setIsCheckingName(false);
       }
-    } catch {
-      form.setFieldError("name", "Failed to check name uniqueness");
-      setIsCheckingName(false);
-      return false;
-    } finally {
-      setIsCheckingName(false);
-    }
-  }, [form, validateNameMutation]);
+    },
+    [form, validateNameMutation]
+  );
 
   // Step-wise field validation map (memoized to prevent recreating on every render)
-  const stepFieldMap: Record<number, string[]> = useMemo(() => ({
-    0: [
-      "name",
-      "description",
-      "category_id",
-      "cta_text",
-      "start_date",
-      "end_date",
-      "start_time",
-      "end_time",
-      "maximum_referral_balance_amount",
-      "minimum_referral_balance_amount",
-    ],
-    1: [
-      "ticket_price",
-      "total_tickets",
-      "percentage_markup",
-      "prize_cost",
-      "minimum_ticket_number_purchase",
-      "maximum_ticket_number_purchase",
-      "tiers",
-    ],
-    2: ["prizes"],
-    3: ["competition_details", "sponsorship_details"],
-    4: ["card_image", "gallery_images"],
-  }), []);
+  const stepFieldMap: Record<number, string[]> = useMemo(
+    () => ({
+      0: [
+        "name",
+        "description",
+        "category_id",
+        "cta_text",
+        "start_date",
+        "end_date",
+        "start_time",
+        "end_time",
+        "maximum_referral_balance_amount",
+        "minimum_referral_balance_amount",
+      ],
+      1: [
+        "ticket_price",
+        "total_tickets",
+        "percentage_markup",
+        "prize_cost",
+        "minimum_ticket_number_purchase",
+        "maximum_ticket_number_purchase",
+        "tiers",
+      ],
+      2: ["prizes"],
+      3: ["competition_details", "sponsorship_details"],
+      4: ["card_image", "gallery_images"],
+    }),
+    []
+  );
 
   const stepsLayout = useMemo(() => {
     return [
@@ -419,21 +433,24 @@ function CreateRaffleLayout() {
   //   return !fields.map((f) => form.validateField(f).hasError).some((x) => x);
   // };
 
-  const validateStep = useCallback(async (stepIndex: number) => {
-    const fields = stepFieldMap[stepIndex];
-    // Validate fields synchronously first
-    const localValid = !fields
-      .map((f) => form.validateField(f).hasError)
-      .some((x) => x);
+  const validateStep = useCallback(
+    async (stepIndex: number) => {
+      const fields = stepFieldMap[stepIndex];
+      // Validate fields synchronously first
+      const localValid = !fields
+        .map((f) => form.validateField(f).hasError)
+        .some((x) => x);
 
-    let nameCheckValid = true;
-    if (stepIndex === 0 && localValid) {
-      // Async check for name uniqueness
-      nameCheckValid = await checkNameExists(form.getValues().name);
-    }
+      let nameCheckValid = true;
+      if (stepIndex === 0 && localValid) {
+        // Async check for name uniqueness
+        nameCheckValid = await checkNameExists(form.getValues().name);
+      }
 
-    return localValid && (stepIndex !== 0 || nameCheckValid);
-  }, [form, checkNameExists, stepFieldMap]);
+      return localValid && (stepIndex !== 0 || nameCheckValid);
+    },
+    [form, checkNameExists, stepFieldMap]
+  );
 
   const nextStep = useCallback(async () => {
     setIsCheckingName(true); // show loading early
@@ -445,41 +462,47 @@ function CreateRaffleLayout() {
     );
   }, [active, validateStep, stepsLayout.length]);
 
-  const prevStep = useCallback(() =>
-    setActive((current) => (current > 0 ? current - 1 : current)), []);
+  const prevStep = useCallback(
+    () => setActive((current) => (current > 0 ? current - 1 : current)),
+    []
+  );
 
   // REWRITE: Make handleSubmit async, check name uniqueness, show notification on errors.
-  const handleSubmit = useCallback(async () => {
-    // Run all validation, plus name uniqueness
+  const handleSubmit = useCallback(
+    async (status: "draft" | "published" = "published") => {
+      // Run all validation, plus name uniqueness
+      const result = form.validate();
 
-    const result = form.validate();
+      let hasErrors = result.hasErrors;
 
-    let hasErrors = result.hasErrors;
+      let nameValid = true;
 
-    let nameValid = true;
-
-    if (!hasErrors) {
-      // Still check the name uniqueness for final
-      setIsCheckingName(true);
-      nameValid = await checkNameExists(form.getValues().name);
-      setIsCheckingName(false);
-      if (!nameValid) {
-        hasErrors = true;
+      if (!hasErrors) {
+        // Still check the name uniqueness for final
+        setIsCheckingName(true);
+        nameValid = await checkNameExists(form.getValues().name);
+        setIsCheckingName(false);
+        if (!nameValid) {
+          hasErrors = true;
+        }
       }
-    }
 
-    if (hasErrors) {
-      notifications.show({
-        title: "Form Error",
-        message:
-          "Some fields are invalid or missing. Please check the form for errors.",
-        color: "var(--color-primary-red)",
-      });
-      return;
-    }
+      if (hasErrors) {
+        notifications.show({
+          title: "Form Error",
+          message:
+            "Some fields are invalid or missing. Please check the form for errors.",
+          color: "var(--color-primary-red)",
+        });
+        return;
+      }
 
-    setAlertModalOpen(true);
-  }, [form, checkNameExists]);
+      form.setFieldValue("status", status);
+
+      setAlertModalOpen(true);
+    },
+    [form, checkNameExists]
+  );
 
   const manageRaffles = useCallback(() => {
     setSuccessModalOpen(false);
@@ -519,9 +542,7 @@ function CreateRaffleLayout() {
       cta_text: values.cta_text,
       status: values.status,
       allow_promo_code_usage: String(values.allow_promo_code_usage),
-      allow_referral_balance_usage: String(
-        values.allow_referral_balance_usage
-      ),
+      allow_referral_balance_usage: String(values.allow_referral_balance_usage),
       minimum_referral_balance_amount: Number(
         values.minimum_referral_balance_amount
       ),
@@ -556,11 +577,24 @@ function CreateRaffleLayout() {
     }
   }, [form, createMutation]);
 
-  const ActiveStep = useMemo(() => stepsLayout[active].Component, [stepsLayout, active]);
-  const activeStepProps = useMemo(() => stepsLayout[active].props || {}, [stepsLayout, active]);
+  const isPublished = form.values.status === "published";
+  const ActiveStep = useMemo(
+    () => stepsLayout[active].Component,
+    [stepsLayout, active]
+  );
+  const activeStepProps = useMemo(
+    () => stepsLayout[active].props || {},
+    [stepsLayout, active]
+  );
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)} className="pb-5">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit("published");
+      }}
+      className="pb-5"
+    >
       {/* Breadcrumb */}
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
         <div className="px-6 md:px-10 py-1">
@@ -672,18 +706,36 @@ function CreateRaffleLayout() {
               Continue
             </CustomButton>
           )}
+
+          {active === stepsLayout.length - 1 && (
+            <CustomButton
+              size="lg"
+              border={false}
+              fullWidth={false}
+              type="dark"
+              onClick={() => handleSubmit("draft")}
+              loading={isCheckingName}
+              disabled={isCheckingName}
+            >
+              Save As Draft
+            </CustomButton>
+          )}
         </Flex>
       </Container>
       <AdminAlertModal
         opened={alertModalOpen}
         onClose={() => setAlertModalOpen(false)}
         status="error"
-        title={<span>Create New Raffle Game ?</span>}
+        title={
+          <span>
+            {isPublished ? "Create New Raffle Game" : "Save as Draft"} ?
+          </span>
+        }
         description={
           <span>
-            Are you sure, you want to create a new raffle draw/game? Kindly note
-            that this game would go live now and customer would be able to view
-            raffle details and buy raffle ticket accordingly.
+            {isPublished
+              ? "Are you sure, you want to create a new raffle draw/game? Kindly note that this game would go live after approval and customer would be able to view raffle details and buy raffle ticket accordingly."
+              : "Are you sure, you want to save as draft ? You can update and publish this raffle game later."}
           </span>
         }
         primaryButton={{

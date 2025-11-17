@@ -23,7 +23,7 @@ import DynamicBreadcrumbs, {
   type Crumb,
 } from "../../../components/DynamicBreadCrumbs";
 import { notifications } from "@mantine/notifications";
-import { useFetchData, usePostData } from "../../../utils/hooks/useApis";
+import { useFetchData, usePostData, usePutData } from "../../../utils/hooks/useApis";
 import { useForm } from "@mantine/form";
 import { IconBell, IconHomeFilled } from "@tabler/icons-react";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
@@ -62,6 +62,7 @@ export interface DrawLine {
   approvalStatus: string;
   draw_at: string | null;
   created_at: string;
+  video_url: string;
   draw: Draw;
   qualified_tickets_count: number;
   unique_customers_count: number;
@@ -174,6 +175,7 @@ export default function ViewDraw() {
   const initiateOtpMutation = usePostData("");
   const verifyOtpMutation = usePostData("");
   const announceWinnerMutation = usePostData("");
+  const videoUrlMutation = usePutData("");
   const selectWinnerMutation = usePostData("");
 
   async function unlockDraw() {
@@ -222,15 +224,58 @@ export default function ViewDraw() {
     }
 
     try {
-      await announceWinnerMutation.mutateAsync({
+      const response = await announceWinnerMutation.mutateAsync({
         url: `admin/draw-management/announce-winner/${winner?.uuid}`,
         payload: {},
+      });
+      notifications.show({
+        title: "Winner Announcement Successful",
+        message: response?.message || "Winner announced successfully",
+        color: "green",
       });
       setWinnerAnnouncedModal(true);
       setWinner(winner ? { ...winner, announce_status: "true" } : null);
     } catch (error) {
       notifications.show({
         title: "Winner Announcement Failed",
+        message:
+          (error as { message?: string })?.message || "An error occurred",
+        color: "red",
+      });
+    }
+  }
+
+  async function submitDrawUrl() {
+    if (!videoUrl) {
+      notifications.show({
+        title: "No Video Url",
+        message: "No video url entered",
+        color: "red",
+      });
+      return;
+    }
+
+    if (videoUrl === drawLineData?.draw_line?.video_url) {
+      handleVideoModalClose();
+      return;
+    }
+
+    try {
+      const response = await videoUrlMutation.mutateAsync({
+        url: `admin/draw-management/add-video-url-to-draw-line/${id}`,
+        payload: {
+          video_url: videoUrl
+        },
+      });
+      notifications.show({
+        title: "Video URL submitted",
+        message: response?.message || "Video URL submitted successfully",
+        color: "green",
+      });
+      handleVideoModalClose();
+    } catch (error) {
+      notifications.show({
+        title: "Draw URL submission Failed",
         message:
           (error as { message?: string })?.message || "An error occurred",
         color: "red",
@@ -249,9 +294,14 @@ export default function ViewDraw() {
     }
 
     try {
-      await verifyOtpMutation.mutateAsync({
+      const response = await verifyOtpMutation.mutateAsync({
         url: `admin/draw-management/verify-draw-otp/${drawLineData.approval_flow.approver?.process_id}`,
         payload: { otp: pin },
+      });
+      notifications.show({
+        title: "Verification Successful",
+        message: response?.message || "OTP verification successful",
+        color: "green",
       });
 
       setUnlockDrawModalOpen(false);
@@ -276,7 +326,12 @@ export default function ViewDraw() {
       });
 
       if (response.message) {
-        setOtpMessage(response.message);
+      notifications.show({
+        title: "OTP Resend Successful",
+        message: response?.message || "OTP resent successfully",
+        color: "green",
+      });
+        // setOtpMessage(response.message);
       }
       setTimeLeft(300);
     } catch (error) {
@@ -314,6 +369,11 @@ export default function ViewDraw() {
         setWinner(response.data.winner);
         setIsWon(true);
       }
+      notifications.show({
+        title: "Draw Completed Successfully",
+        message: response?.message || "Draw Concluded Successfully",
+        color: "green",
+      });
       setDrawModalOpen(false);
       setWinnerSuccessModalOpen(true);
     } catch (error) {
@@ -346,6 +406,8 @@ export default function ViewDraw() {
     if (drawLineResponse?.data) {
       const drawLine = drawLineResponse.data?.draw_line as DrawLine;
       setDrawLineData(drawLineResponse?.data);
+
+      setVideoUrl(drawLine?.video_url ?? '');
 
       // Determine initial step and winner state
       if (drawLine.winner && drawLine.winner.won_at) {
@@ -799,8 +861,9 @@ export default function ViewDraw() {
         }
         primaryButton={{
           label: "Yes, Video Feed Connected",
-          disabled: !videoUrl,
-          onClick: handleVideoModalClose,
+          disabled: !videoUrl || videoUrlMutation.isPending,
+          loading:  videoUrlMutation.isPending,
+          onClick: submitDrawUrl,
         }}
         secondaryButton={{
           label: "Continue Without",

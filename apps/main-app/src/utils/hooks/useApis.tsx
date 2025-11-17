@@ -132,10 +132,24 @@ export const useLogout = (defaultHeaders?: RequestHeaders) => {
 // Update Data (PUT)
 // -----------------------------
 export const usePutData = (url: string, defaultHeaders?: RequestHeaders) => {
-  return useMutation({
-    mutationFn: async (arg: any & { headers?: RequestHeaders }) => {
-      const { headers, ...payload } = arg;
-      const response = await axiosInstance.put(baseUrl + url, payload, {
+ return useMutation({
+    mutationFn: async (
+      arg:
+        | any // raw payload
+        | { url?: string; payload?: any; headers?: RequestHeaders } // structured
+    ) => {
+      let apiUrl = url;
+      let payload: any = arg;
+      let headers: RequestHeaders | undefined;
+
+      if (typeof arg === "object" && ("url" in arg || "payload" in arg || "headers" in arg)) {
+        const structured = arg as { url?: string; payload?: any; headers?: RequestHeaders };
+        apiUrl = structured.url ?? url;
+        payload = structured.payload ?? {};
+        headers = structured.headers;
+      }
+
+      const response = await axiosInstance.put(baseUrl + apiUrl, payload, {
         headers: mergeHeaders(defaultHeaders, headers),
       });
       return response.data;

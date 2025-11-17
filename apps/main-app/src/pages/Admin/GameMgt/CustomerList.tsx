@@ -52,6 +52,8 @@ interface CustomerStats {
 	new_customers_percentage_change_last_3_days: number;
 	total_returning_customers: number;
 	returning_customers_percentage_change_last_3_days: number;
+	ticket_stats_last_7_days_count: number;
+	average_tickets_per_customer: number;
 	unique_customers_by_channel_percentage: {
 		highest_grossing: Array<{
 			type: string;
@@ -259,18 +261,7 @@ function CustomerList({
 			},
 		});
 	};
-
-	// Calculate average tickets per customer
-	const avgTicketsPerCustomer =
-		stats?.total_unique_customers && stats?.total_unique_customers > 0
-			? (
-					stats.unique_customers_by_channel_percentage.platform_breakdown.reduce(
-						(sum, p) => sum + p.unique_customers,
-						0
-					) / stats.total_unique_customers
-			  ).toFixed(1)
-			: "0";
-
+	
 	// Format trends data for the chart
 	const chartData = useMemo(() => {
 		if (!trends || trends.length === 0) return [];
@@ -436,10 +427,10 @@ function CustomerList({
 						) : (
 							<>
 								<Text fw={500} fz={22}>
-									{avgTicketsPerCustomer} ticket units
+									{stats?.average_tickets_per_customer?.toLocaleString()} ticket units
 								</Text>
 								<Text tt="capitalize" fz="sm">
-									per customer average
+									+{stats?.ticket_stats_last_7_days_count?.toLocaleString()} in the last 7 days.
 								</Text>
 							</>
 						)}
