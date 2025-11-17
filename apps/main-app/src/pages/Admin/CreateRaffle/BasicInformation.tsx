@@ -140,7 +140,7 @@ function BasicInformationInner({ form, categories }: Props) {
           <Radio
             checked={!isScheduled}
             onChange={() => handleScheduleChange(false)}
-            label="Straight to live raffle game"
+            label="Instant raffle game"
             description="Raffle goes live immediately upon publishing. Tickets available instantly."
           />
 

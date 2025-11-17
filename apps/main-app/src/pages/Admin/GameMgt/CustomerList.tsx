@@ -318,7 +318,7 @@ function CustomerList({
 						</Box>
 					) : (
 						<>
-							<Text className="!text-primary-green " fz={32} fw={500} mb="xs">
+							<Text className="!text-primary-green " fz={32} fw={700} mb="xs">
 								{stats?.total_unique_customers?.toLocaleString() || 0}
 							</Text>
 
@@ -344,6 +344,7 @@ function CustomerList({
 					spacing={{ base: 10, sm: "xl" }}
 					verticalSpacing={{ base: "lg", sm: "xl" }}
 					mt="md"
+					className="!text-secondary-text"
 				>
 					<Box className="sm:!border-r sm:!border-b-0 !border-b !border-secondary-text/40 py-3 sm:py-0">
 						<Text
@@ -363,7 +364,7 @@ function CustomerList({
 							</Box>
 						) : (
 							<>
-								<Text fw={500} fz={28}>
+								<Text className="!text-primary-text" fw={700} fz={28}>
 									{stats?.total_new_customers?.toLocaleString() || 0}
 								</Text>
 								<Text tt="capitalize" fz="sm">
@@ -393,7 +394,7 @@ function CustomerList({
 							</Box>
 						) : (
 							<>
-								<Text fw={500} fz={22} tt="capitalize">
+								<Text className="!text-primary-text" fw={700} fz={22} tt="capitalize">
 									{stats?.total_returning_customers?.toLocaleString() || 0}
 								</Text>
 								<Text tt="capitalize" fz="sm">
@@ -426,11 +427,15 @@ function CustomerList({
 							</Box>
 						) : (
 							<>
-								<Text fw={500} fz={22}>
+								<Text className="!text-primary-text" fw={700} fz={22}>
 									{stats?.average_tickets_per_customer?.toLocaleString()} ticket units
 								</Text>
 								<Text tt="capitalize" fz="sm">
-									+{stats?.ticket_stats_last_7_days_count?.toLocaleString()} in the last 7 days.
+									<span className="text-primary-green">
+										+
+										{stats?.ticket_stats_last_7_days_count ||
+											0}{" "}
+									</span> in the last 7 days.
 								</Text>
 							</>
 						)}
