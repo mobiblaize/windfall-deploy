@@ -195,7 +195,7 @@ function ViewRaffles() {
         label: "start a draw",
         description: "Start a draw for this game",
         onClick: handleStartDraw,
-        disabled: isLoadingRaffle || !raffle || isEnded,
+        disabled: isLoadingRaffle || !raffle || !isEnded,
         color: "green",
         divider: true, // Add divider before this action
       });

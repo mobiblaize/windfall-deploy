@@ -96,6 +96,8 @@ function CreateRaffleLayout() {
     );
   }, [categoriesData]);
 
+  
+
   const form = useForm({
     mode: "controlled",
     validateInputOnBlur: false,
@@ -133,10 +135,10 @@ function CreateRaffleLayout() {
       // Flags
       allow_promo_code_usage: false,
       allow_referral_balance_usage: false,
-      is_scheduled: false,
+      is_scheduled: !isInstantRaffleRoute,
       is_active: true,
       status: "published",
-      instant_game: true,
+      instant_game: isInstantRaffleRoute,
 
       // Referral limits
       minimum_referral_balance_amount: 0,

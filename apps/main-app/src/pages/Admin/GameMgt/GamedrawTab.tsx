@@ -17,58 +17,122 @@ import EmptyState from "../../../components/EmptyState";
 import { useFetchData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import Paginator from "../../../components/Paginator";
+import { useNavigate } from "react-router-dom";
 
 interface Winner {
-  uuid: string;
-  customer_id: string;
-  ticket_id: string;
-  prize_name: string;
-  status: string;
-  announce_status: string;
-  approvalStatus: string;
-  announced_by_id: string;
-  announce_time: string;
-  claim_officer_id: string | null;
-  claimed_time: string | null;
-  short_description: string;
-  evidence: string | null;
-  document_checklist: string | null;
-  won_at: string | null;
-  created_at: string;
-  prize_cost: string;
-  game_uuid: string;
-  game_unique_id: string;
-  game_name: string;
-  game_ticket_price: string;
-  claim_date: string | null;
-  game_category_uuid: string;
-  game_category_name: string;
-  ticket: {
-    uuid: string;
-    customer_id: string;
-    ticket_number: string;
-  };
-  customer: {
-    uuid: string;
-    firstname: string;
-    lastname: string;
-    uniqueID: string;
-    avatar: string | null;
-    referral_link: string;
-    total_amount_spent: string;
-  };
-  game_draw: {
-    uuid: string;
-    game_id: string;
-    prize_id: string;
-    game: {
-      uuid: string;
-      ticket_price: string;
-      name: string;
-      category_id: string;
-      main_active_status: string;
-    };
-  };
+  uuid: string
+  customer_id: string
+  ticket_id: string
+  game_draw_id: string
+  game_draw_line_id: string
+  prize_name: string
+  status: string
+  announce_status: string
+  approvalStatus: string
+  announced_by_id: string
+  announce_time: string
+  claim_officer_id: string
+  claimed_time: string
+  short_description: string
+  evidence: TemplateStringsArray
+  document_checklist: DocumentChecklist[]
+  won_at: string
+  initiated_by_id: string
+  created_at: string
+  prize_cost: string
+  game_uuid: string
+  game_unique_id: string
+  game_name: string
+  game_ticket_price: string
+  claim_date: string
+  game_category_uuid: string
+  game_category_name: string
+  customer: Customer
+  game_draw: GameDraw
+  game_draw_line: GameDrawLine
+  ticket: Ticket
+}
+
+export interface DocumentChecklist {
+  name: string
+  path: string
+  description: string
+}
+
+export interface Customer {
+  uuid: string
+  firstname: string
+  lastname: string
+  uniqueID: string
+  avatar: string
+  lga: string
+  area: string
+  phone_number: string
+  referral_link: string
+  total_amount_spent: string
+}
+
+export interface GameDraw {
+  uuid: string
+  game_id: string
+  prize_id: string
+  game: Game
+}
+
+export interface Game {
+  uuid: string
+  ticket_price: string
+  name: string
+  total_tickets: number
+  available_tickets: number
+  start_date: string
+  end_date: string
+  main_active_status: string
+}
+
+export interface GameDrawLine {
+  uuid: string
+  game_id: string
+  game_draw_id: string
+  prize_id: string
+  admin_id: string
+  customer_id: string
+  draw_at: string
+  status: string
+  approvalStatus: string
+  video_url: string
+  created_at: string
+  prize: Prize
+  initiated_by: InitiatedBy
+}
+
+export interface Prize {
+  uuid: string
+  name: string
+  image: string
+  description: string
+  prize_cost: string
+}
+
+export interface InitiatedBy {
+  uuid: string
+  name: string
+  avatar: string
+  uniqueID: string
+  enforce_password_change: boolean
+  unread_notifications_count: number
+}
+
+export interface Ticket {
+  uuid: string
+  customer_id: string
+  ticket_number: string
+}
+
+export interface Link {
+  url?: string
+  label: string
+  active: boolean
 }
 
 interface GameDrawProps {
@@ -158,19 +222,19 @@ function GamedrawTab({
       {isLoadingWinners ? (
         <Grid columns={5}>
           <Grid.Col span={{ base: 5, sm: 3 }}>
-              <Card withBorder radius="md" p="lg">
-                <Skeleton height={120} mb="md" />
-                <Skeleton height={20} width="80%" mb="sm" />
-                <Skeleton height={15} width="60%" mb="lg" />
-                <Skeleton height={80} />
-              </Card>
-            </Grid.Col>
+            <Card withBorder radius="md" p="lg">
+              <Skeleton height={120} mb="md" />
+              <Skeleton height={20} width="80%" mb="sm" />
+              <Skeleton height={15} width="60%" mb="lg" />
+              <Skeleton height={80} />
+            </Card>
+          </Grid.Col>
         </Grid>
       ) : winners.length ? (
         <>
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
             {winners?.map((item) => (
-              <DrawItem key={item.uuid} item={item} />
+              <DrawItem key={item.uuid} winner={item} />
             ))}
           </SimpleGrid>
 
@@ -202,32 +266,26 @@ function GamedrawTab({
 
 export default GamedrawTab;
 
-function DrawItem({ item }: { item: Winner }) {
+function DrawItem({ winner }: { winner: Winner }) {
+  const navigate = useNavigate();
+
   return (
     <Card withBorder radius={"md"}>
       <Box>
         <Text c="var(--primary-red)" tt="capitalize" fw={700} fz={"xl"}>
-          {item.prize_name}
+          {winner.prize_name}
         </Text>
         <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
-          game price
-        </Text>
-      </Box>
-      <Box my="lg">
-        <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
-          draw pot
-        </Text>
-        <Text tt="capitalize" fw={600} fz={"md"}>
-          5,200 ticket/ticket
+          game prize
         </Text>
       </Box>
       <SimpleGrid cols={{ base: 1, sm: 2 }}>
-        <Box>
+        <Box my="lg">
           <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
-            prize distribution
+            draw pot
           </Text>
           <Text tt="capitalize" fw={600} fz={"md"}>
-            single
+            {(winner.game_draw.game.total_tickets || 0) - (winner.game_draw.game.available_tickets || 0)} tickets
           </Text>
         </Box>
         <Box>
@@ -235,15 +293,15 @@ function DrawItem({ item }: { item: Winner }) {
             draw conducted by
           </Text>
           <Group align={"center"}>
-            <Avatar radius="md" className="border-2 border-primary-red" />
+            <Avatar radius="md" src={winner.game_draw_line?.initiated_by?.avatar} className="border-2 border-primary-red" />
             <Box>
               <Text fz="sm" fw={600}>
-                Adekunle ibrahim
+                {winner.game_draw_line?.initiated_by?.name}
               </Text>
               <Text c="var(--secondary-text)" fz={"sm"} tt="capitalize">
-                Role:{" "}
+                ID:{" "}
                 <span className="text-[#575757] font-medium">
-                  operation manager
+                  {winner.game_draw_line?.initiated_by?.uniqueID}
                 </span>
               </Text>
             </Box>
@@ -254,17 +312,21 @@ function DrawItem({ item }: { item: Winner }) {
         <Text fz="sm" c="var(--secondary-text)" tt="capitalize">
           draw winner
         </Text>
-        <Flex justify={"space-between"} align="center" gap={10} wrap={"wrap"}>
+        <Flex justify={"space-between"} align="center" gap={15} wrap={"wrap"}>
           <Group>
-            <Avatar radius={"md"} className="border-2 border-primary-red !h-15 !w-15" />
+            <Avatar
+              radius={"md"}
+              src={winner.customer?.avatar}
+              className="border-2 border-primary-red !h-15 !w-15"
+            />
             <Box>
               <Text fz="sm" c="var(--secondary-text)" tt="capitalize">
-                Hameedat adekunle
+                {winner.customer?.firstname} {winner.customer?.lastname}
               </Text>
               <Text fz="sm" mb={3} c="var(--secondary-text)">
                 ID:{" "}
                 <span className="text-[#575757] font-medium">
-                  9044 | +234903456789
+                  {winner.customer?.uniqueID} | {winner.customer?.phone_number}
                 </span>
               </Text>
               <Badge
@@ -285,6 +347,7 @@ function DrawItem({ item }: { item: Winner }) {
             tt="capitalize"
             radius="sm"
             rightSection={<RiArrowRightUpLine />}
+            onClick={()=>navigate(`/admin/draws/${winner.game_draw_line_id}`)}
             variant="outline"
             className="!border-secondary-text/50 !text-secondary-text/50"
           >
