@@ -33,6 +33,7 @@ import { FaMagic, FaUser } from "react-icons/fa";
 import UnlockDrawModal from "./UnlockDrawModal";
 import RenderSkeletonText from "../../../components/RenderSkeletonText";
 import LoadingState from "../../../components/LoadingState";
+import { usePermissions } from "../../../utils/hooks/usePermissions";
 
 const breadCrumbs: Crumb[] = [
   { label: "Draw Management", to: "/admin/draws" },
@@ -139,6 +140,7 @@ type StatsCard = {
 };
 
 export default function ViewDraw() {
+  const {canApproveDraw, canUnlockDraw} = usePermissions();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [drawLineData, setDrawLineData] = useState<DrawLineResponse | null>(
@@ -179,6 +181,14 @@ export default function ViewDraw() {
   const selectWinnerMutation = usePostData("");
 
   async function unlockDraw() {
+    if (!canUnlockDraw) {      
+      notifications.show({
+        title: "Not Authorized",
+        message: "You are not authorized to unlock a draw.",
+        color: "red",
+      });
+      return;
+    }
     if (!drawLineData?.approval_flow.approver?.process_id) {
       notifications.show({
         title: "No Process ID",
@@ -355,6 +365,14 @@ export default function ViewDraw() {
   }
 
   async function startDraw() {
+    if (!canApproveDraw) {      
+      notifications.show({
+        title: "Not Authorized",
+        message: "You are not authorized to start a draw.",
+        color: "red",
+      });
+      return;
+    }
     if (!id) return;
 
     setDrawModalOpen(true);
