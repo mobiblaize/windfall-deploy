@@ -1,6 +1,5 @@
 import {
   BrowserRouter,
-  Navigate,
   Outlet,
   Route,
   Routes,
@@ -9,6 +8,8 @@ import { Suspense, lazy } from "react";
 import ProtectedRoute from "./utils/helper/ProtectedRoute";
 import AdminProtectedRoute from "./utils/helper/AdminProtectedRoute";
 import PermissionProtectedRoute from "./utils/helper/PermissionProtectedRoute";
+import RedirectWithLoading from "./components/RedirectWithLoading";
+import LoadingScreen from "./components/LoadingScreen";
 
 // Layouts
 const MainLayout = lazy(() => import("./pages/Main"));
@@ -171,10 +172,10 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollUp />
-      <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+      <Suspense fallback={<LoadingScreen />}>
         <Routes>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route index element={<RedirectWithLoading to="/dashboard" replace />} />
 
             {/* Public routes */}
             <Route path="login" element={<LoginPage />} />
@@ -198,7 +199,7 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<Navigate to="all-games" replace />} />
+              <Route index element={<RedirectWithLoading to="all-games" replace />} />
               <Route path="all-games" element={<GamesTab />} />
               <Route path="all-games/:id" element={<GamesTickets />} />
               <Route path="result" element={<ResultsTab />} />
@@ -288,7 +289,7 @@ function App() {
                   </AdminProtectedRoute>
                 }
               >
-                <Route index element={<Navigate to="raffles" replace />} />
+                <Route index element={<RedirectWithLoading to="raffles" replace />} />
                 {/* <Route path="dashboard" element={<Dashboard />} /> */}
 
                 {/* User Management */}
