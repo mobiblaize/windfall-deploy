@@ -86,8 +86,21 @@ export const usePostExportData = (url: string, defaultHeaders?: RequestHeaders) 
 // -----------------------------
 export const useGetExportData = (url: string, defaultHeaders?: RequestHeaders) => {
   return useMutation({
-    mutationFn: async (headers?: RequestHeaders) => {
-      const response = await axiosInstance.get(baseUrl + url, {
+    mutationFn: async (
+      arg:
+        | any // raw payload
+        | { url?: string; payload?: any; headers?: RequestHeaders } // structured
+    ) => {
+      let apiUrl = url;
+      let headers: RequestHeaders | undefined;
+
+      if (typeof arg === "object" && ("url" in arg || "payload" in arg || "headers" in arg)) {
+        const structured = arg as { url?: string; payload?: any; headers?: RequestHeaders };
+        apiUrl = structured.url ?? url;
+        headers = structured.headers;
+      }
+
+      const response = await axiosInstance.get(baseUrl + apiUrl, {
         responseType: "blob",
         headers: mergeHeaders(defaultHeaders, headers),
       });

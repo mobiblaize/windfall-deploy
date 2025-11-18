@@ -1,139 +1,294 @@
-import { Text, Title, Flex, Card } from "@mantine/core";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Text, Title, Flex, Card, Select } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { useGetData } from "../../../utils/hooks/useApis";
+import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
 import LoadingState from "../../../components/LoadingState";
 import EmptyState from "../../../components/EmptyState";
-import Paginator from "../../../components/Paginator";
-import type { Permission } from "../RoleMgt/CreateRole";
 import { DateInput } from "@mantine/dates";
 import "@mantine/dates/styles.css";
 import { CiCalendar } from "react-icons/ci";
 import { useForm } from "@mantine/form";
+import { FaAngleDown } from "react-icons/fa";
 
-export interface Role {
-  uuid: string;
+export interface Reports {
+  non_instant_games_report: SingleReport;
+  instant_games_report: SingleReport;
+  draw_report: SingleReport;
+  transaction_report: SingleReport;
+  customer_management_report: SingleReport;
+}
+
+export interface SingleReport {
+  url: string;
   name: string;
-  display_name: string;
-  guard_name?: string;
   description: string;
-  is_active: "true" | "false";
-  created_at: string;
-  user_count: number;
-  updated_by: UpdatedBy;
-  permissions: Permission[];
+  export: boolean;
+  fields: Field[];
 }
 
-export interface UpdatedBy {
-  uuid: string;
+export interface NonInstantGamesReport {
+  url: string;
   name: string;
-  uniqueID: string;
-  avatar: string;
-  enforce_password_change: boolean;
+  description: string;
+  export: boolean;
+  fields: Field[];
 }
 
-function isActive(isActive?: "true" | "false") {
-  return isActive === "true";
+export interface Field {
+  key: string;
+  label: string;
+  type: 'date' | 'select';
+  placeholder?: string;
+  required?: boolean;
+  rules?: 'after_or_equal:start_date';
+  options?: Option[];
+  searchable?: boolean;
+  clearable?: boolean;
+  multiple?: boolean;
+  default?: string;
+}
+
+export interface Option {
+  value: string;
+  label: string;
 }
 
 type CardProps = {
-  role: Role;
-  selectReport: (role: Role) => void;
+  report: SingleReport;
+  selectReport: (report: SingleReport) => void;
 };
 
-function ReportCard({ role, selectReport }: CardProps) {
-  const active = isActive(role.is_active);
+function ReportCard({ report, selectReport }: CardProps) {
   return (
     <Card
       shadow="sm"
       radius="lg"
       padding="lg"
-      onClick={() => selectReport(role)}
-      className={`rounded-2xl border transition !cursor-pointer ${
-        active
-          ? "border-gray-200 bg-white"
-          : "border-gray-200 bg-gray-50 opacity-70"
-      }`}
+      onClick={() => selectReport(report)}
+      className={`rounded-2xl border transition !cursor-pointer border-gray-200 bg-white`}
     >
       <Text className="!text-primary-text !mt-3 !text-xl !leading-snug !font-bold">
-        {role.display_name}
+        {report.name}
       </Text>
       <Text className="!text-sm !text-gray-600 !mt-1 !leading-snug">
-        {role.description}
+        {report.description}
       </Text>
     </Card>
   );
 }
 
 export default function Reports() {
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(0);
-  const [filterPage, setFilterPage] = useState<number>(1);
-  const [currentRoleId, setCurrentRoleId] = useState<string | null>(null);
-  const [currentRoleActiveStatus, setCurrentRoleActiveStatus] = useState(true);
-  const [total, setTotal] = useState<number>(0);
-  const [pageSize, setPageSize] = useState<number>(0);
+  const [currentReport, setCurrentReport] = useState<SingleReport>();
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportSuccessModalOpen, setReportSuccessModalOpen] = useState(false);
+  const generateReportMutation = useGetExportData("");
 
-  const getRolesMutation = useGetData(
-    `admin/user-management/roles/all?paginate=1&page=${filterPage}`
-  );
-  const [deactivateAlertModalOpen, setDeactivateAlertModalOpen] =
-    useState(false);
-  const [deactivateSuccessModalOpen, setDeactivateSuccessModalOpen] =
-    useState(false);
-
-  const form = useForm({
-    initialValues: {
-      start_date: "",
-      end_date: "",
-    },
-
-    validate: {
-      start_date: (val) => (val ? null : "Start Date is required"),
-      end_date: (val) => (val ? null : "End Date is required"),
-    },
+  const form = useForm<Record<string, any>>({
+    initialValues: {},
   });
 
-  // Re-fetch when search or page changes
+  const {
+    data: reportsResponse,
+    isLoading: isLoadingReports,
+    isError: isErrorReports,
+    error: reportsError,
+  } = useFetchData("admin/report-management/all-reports");
+
   useEffect(() => {
-    getRoles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterPage]);
-
-  function onPageChange(page: number) {
-    setFilterPage(page);
-  }
-  
-    const handleSubmit = async (values: typeof form.values) => {
-      if (form.validate().hasErrors) {
-        return;
-      }
-      console.log(currentRoleId);
-      console.log(values);
-      
-    };
-
-  async function getRoles() {
-    try {
-      const response = await getRolesMutation.mutateAsync();
-      setRoles(response.data?.records?.data || []);
-      setCurrentPage(response.data?.records?.current_page || 1);
-      setTotal(response.data?.records?.total || 0);
-      setPageSize(response.data?.records?.per_page || 10);
-    } catch (error) {
+    if (isErrorReports) {
       notifications.show({
-        title: "Failed to fetch roles",
-        message: (error as { message: string })?.message || "An error occurred",
-        color: "var(--color-primary-red)",
+        title: "Failed to fetch Reports",
+        message:
+          (reportsError as { message?: string })?.message ||
+          "An error occurred",
+        color: "red",
       });
     }
-  }
+  }, [reportsError, isErrorReports, reportsResponse]);
 
-  const selectReport = (role: Role) => {
-    setCurrentRoleId(role.uuid);
-    setCurrentRoleActiveStatus(isActive(role.is_active));
-    setDeactivateAlertModalOpen(true);
+  const reports: Reports | undefined = reportsResponse?.data;
+
+  // Initialize form when a report is selected
+  useEffect(() => {
+    if (currentReport) {
+      const initialValues: Record<string, any> = {};
+      const validationRules: Record<string, any> = {};
+
+      currentReport.fields.forEach((field) => {
+        // Set initial values
+        initialValues[field.key] = field.default || "";
+
+        console.log(field);
+        
+        // Set validation rules
+        if (field.type === "date" && field.rules === "after_or_equal:start_date") {
+
+          console.log('date input');
+          
+          
+          // Complex validation with cross-field dependency
+          validationRules[field.key] = (val: any, values: Record<string, any>) => {
+            if (!val && field.required) {
+              return `${field.label} is required`;
+            }
+            if (val && values.start_date) {
+              const startDate = new Date(values.start_date);
+              const endDate = new Date(val);
+              if (endDate < startDate) {
+                return `${field.label} must be after or equal to Start Date`;
+              }
+            }
+            return null;
+          };
+        } else if (field.required) {
+          // Simple required validation
+          validationRules[field.key] = (val: any) =>
+            val ? null : `${field.label} is required`;
+        }
+      });
+
+      // Add validation rules to initial values
+      initialValues._validation = validationRules;
+
+      // Reset form completely with new values
+      form.reset();
+      form.setInitialValues(initialValues);
+      form.setValues(initialValues);
+      form.clearErrors();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentReport]);
+
+  const handleSubmit = async (values: Record<string, any>) => {
+    // Manual validation
+    const validationRules = form.values._validation || {};
+    const errors: Record<string, string> = {};
+
+    Object.entries(validationRules).forEach(([key, validator]: [string, any]) => {
+      const error = validator(values[key], values);
+      if (error) {
+        errors[key] = error;
+      }
+    });
+
+    if (Object.keys(errors).length > 0) {
+      form.setErrors(errors);
+      return;
+    }
+
+    // Build query params from form values
+    const queryParams = new URLSearchParams();
+    Object.entries(values).forEach(([key, value]) => {
+      if (key === '_validation') return; // Skip validation rules
+      
+      if (value) {
+        // Format dates if needed
+        if (value instanceof Date) {
+          queryParams.append(key, value.toISOString().split("T")[0]);
+        } else if (Array.isArray(value)) {
+          // Handle multiple select
+          value.forEach((v) => queryParams.append(key, v));
+        } else {
+          queryParams.append(key, value.toString());
+        }
+      }
+    });
+
+    const url = `admin/report-management${currentReport?.url}?${queryParams.toString()}`;
+
+    generateReportMutation.mutate(
+      { url },
+      {
+        onSuccess: (data) => {
+          const url = window.URL.createObjectURL(new Blob([data]));
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${currentReport?.name} export ${new Date()
+            .toISOString()
+            .slice(0, 10)}.xlsx`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+
+          notifications.show({
+            title: "Export Successful",
+            message: "Your file has been downloaded",
+            color: "green",
+          });
+
+          setReportModalOpen(false);
+          setReportSuccessModalOpen(true);
+        },
+        onError: (error) => {
+          notifications.show({
+            title: "Export Failed",
+            message: error?.message || "An error occurred",
+            color: "var(--color-primary-red)",
+          });
+        },
+      }
+    );
+  };
+
+  const selectReport = (report: SingleReport) => {
+    setCurrentReport(report);
+    setReportModalOpen(true);
+  };
+
+  const reportKeys = reports ? (Object.keys(reports) as (keyof Reports)[]) : [];
+
+  // Render dynamic form fields
+  const renderFormFields = () => {
+    if (!currentReport?.fields) return null;
+
+    return currentReport.fields.map((field) => {
+      if (field.type === "date") {
+        return (
+          <div key={field.key} className="text-start mb-5">
+            <DateInput
+              label={field.label}
+              placeholder={field.placeholder || `Pick ${field.label.toLowerCase()}`}
+              required={field.required}
+              classNames={{ input: "placeholder:text-xs" }}
+              {...form.getInputProps(field.key)}
+              rightSection={<CiCalendar />}
+              popoverProps={{
+                classNames: {
+                  dropdown: "!text-primary-text",
+                },
+              }}
+            />
+          </div>
+        );
+      }
+
+      if (field.type === "select") {
+        return (
+          <div key={field.key} className="text-start mb-5">
+            <Select
+              required={field.required}
+              rightSection={<FaAngleDown />}
+              placeholder={field.placeholder || "Select..."}
+              label={field.label}
+              data={field.options || []}
+              searchable={field.searchable}
+              clearable={field.clearable}
+              multiple={field.multiple}
+              classNames={{
+                label: "!capitalize",
+                options: "text-primary-text",
+              }}
+              {...form.getInputProps(field.key)}
+            />
+          </div>
+        );
+      }
+
+      return null;
+    });
   };
 
   return (
@@ -154,40 +309,29 @@ export default function Reports() {
       </Card>
 
       <div className="px-6 md:px-10 py-5">
-        {getRolesMutation.isPending && (
-          <LoadingState description="Fetching roles data from the system." />
+        {isLoadingReports && (
+          <LoadingState description="Fetching reports data from the system." />
         )}
-        {!getRolesMutation.isPending && (
+        {!isLoadingReports && (
           <>
-            {roles.length ? (
+            {reportKeys.length ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {roles.map((role) => (
+                  {reportKeys.map((report) => (
                     <ReportCard
-                      key={role.uuid}
-                      role={role}
+                      key={report}
+                      report={reports?.[report] as SingleReport}
                       selectReport={selectReport}
                     />
                   ))}
                 </div>
-                <div className="mt-10">
-                  <Paginator
-                    currentPage={currentPage}
-                    isLoading={getRolesMutation.isPending}
-                    total={total}
-                    pageSize={pageSize}
-                    onPageChange={onPageChange}
-                  />
-                </div>
               </>
             ) : (
               <EmptyState
-                btnText="Create Role"
-                description="No roles found"
+                description="Failed to fetch reports"
                 format="secondary"
                 fullWidth={true}
-                title="No roles found"
-                redirectLink="/admin/roles/create"
+                title="No reports found"
               />
             )}
           </>
@@ -195,70 +339,40 @@ export default function Reports() {
       </div>
 
       <AdminAlertModal
-        opened={deactivateAlertModalOpen}
-        onClose={() => setDeactivateAlertModalOpen(false)}
+        opened={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
         title={`Generate Report`}
         description={
-          <>
+          <div className="mb-10">
             <div className="mb-5">
               Generate a report to stay abreast with game and platform
               performances
             </div>
 
-            <div className="text-start mb-5">
-              <DateInput
-                label="Start date"
-                placeholder="Pick start date"
-                required
-                classNames={{ input: "placeholder:text-xs" }}
-                {...form.getInputProps("start_date")}
-                error={form.errors.start_date}
-                rightSection={<CiCalendar />}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
-              />
-            </div>
-
-            <div className="text-start mb-10">
-              <DateInput
-                label="End date"
-                placeholder="Pick end date"
-                required
-                classNames={{ input: "placeholder:text-xs" }}
-                {...form.getInputProps("end_date")}
-                error={form.errors.end_date}
-                rightSection={<CiCalendar />}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
-              />
-            </div>
-          </>
+            {renderFormFields()}
+          </div>
         }
         primaryButton={{
           label: "Generate Report",
+          disabled: generateReportMutation.isPending,
+          loading: generateReportMutation.isPending,
           onClick: () => handleSubmit(form.values),
         }}
         secondaryButton={{
           label: "No, Close",
-          onClick: () => setDeactivateAlertModalOpen(false),
+          onClick: () => setReportModalOpen(false),
         }}
       />
 
       <AdminAlertModal
-        opened={deactivateSuccessModalOpen}
-        onClose={() => setDeactivateSuccessModalOpen(false)}
+        opened={reportSuccessModalOpen}
+        onClose={() => setReportSuccessModalOpen(false)}
         status="success"
-        title={`Role ${!currentRoleActiveStatus ? "Reactivated" : "Deactivated"}`}
-        description={`${!currentRoleActiveStatus ? "Congratulations, Role  has been successfully reactivated" : "Congratulations, Role has been successfully deactivated"}`}
+        title={`Report Generated`}
+        description={`Congratulations, Report has been successfully generated.`}
         primaryButton={{
           label: "Close",
-          onClick: () => setDeactivateSuccessModalOpen(false),
+          onClick: () => setReportSuccessModalOpen(false),
         }}
       />
     </form>
