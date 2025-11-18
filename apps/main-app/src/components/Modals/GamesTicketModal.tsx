@@ -24,7 +24,7 @@ export default function GamesTicketModal({
 }: Props) {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const downloadTicketMutation = useGetExportData(
-    `customer/games/ticket/${item.uuid}/download`
+    `customer/games/ticket/download-single-ticket-file/${item.uuid}`
   );
 
   const downloadTicket = () => {
