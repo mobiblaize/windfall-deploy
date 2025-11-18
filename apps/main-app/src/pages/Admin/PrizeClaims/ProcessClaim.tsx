@@ -25,6 +25,11 @@ import ClaimInformation from "./ClaimInformation";
 import DocumentUpload from "./DocumentUpload";
 import WinnerStory from "./WinnerStory";
 import LoadingState from "../../../components/LoadingState";
+import { TakeAction, type ActionItem } from "../../../components/TakeAction";
+import CommentsModal from "../../../components/CommentsModal";
+import { usePermissions } from "../../../utils/hooks/usePermissions";
+import type { ApprovalStatus } from "../../../utils/models/approval";
+import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
 
 const breadCrumbs: Crumb[] = [
   { label: "Prize Claim", to: "/admin/prize-claims" },
@@ -51,12 +56,24 @@ function ProcessClaim() {
   const [claimStatus, setClaimStatus] = useState<"claimed" | "unclaimed">(
     "unclaimed"
   );
+  const [approvalAction, setApprovalAction] =
+    useState<ApprovalStatus>("approved");
+  const [approvePromoCodeModalOpen, setApprovePromoCodeModalOpen] =
+    useState(false);
+  const [approvalConfirmationModalOpen, setApprovalConfirmationModalOpen] =
+    useState(false);
+  const [approvalSuccessModalOpen, setApprovalSuccessModalOpen] =
+    useState(false);
+  const { canApprovePrizeClaim } = usePermissions();
+
+  const isApprove = approvalAction === "approved";
 
   // Fetch prize claim data
   const {
     data: prizeClaimResponse,
     isLoading: isLoadingPrizeClaim,
     isError: isErrorPrizeClaim,
+    refetch: refetchPrizeClaim,
     error: prizeClaimError,
   } = useFetchData(id ? `admin/prize-claim-management/show/${id}` : null);
 
@@ -187,7 +204,7 @@ function ProcessClaim() {
   // Populate form with API data - memoize to prevent unnecessary re-renders
   const formInitialData = useMemo(() => {
     if (!prizeClaimResponse?.data?.winner) return null;
-    
+
     const winner = prizeClaimResponse.data.winner;
     const customer = winner.customer || {};
     const claimOfficer = winner.claim_officer;
@@ -221,8 +238,7 @@ function ProcessClaim() {
       claim_officer: claimOfficer?.name || "",
       short_description: winner.short_description || "",
       document_checklist: documentChecklist,
-      testimonial_short_description:
-        winner.testimonial_short_description || "",
+      testimonial_short_description: winner.testimonial_short_description || "",
       testimonial: winner.testimonial || "",
       media: Array.isArray(winner.media) ? winner.media : [],
       video_url: winner.video_url || "",
@@ -451,10 +467,7 @@ function ProcessClaim() {
     navigate("/admin/prize-claims");
   }, [navigate]);
 
-  const isClaimed = useMemo(
-    () => claimStatus === "claimed",
-    [claimStatus]
-  );
+  const isClaimed = useMemo(() => claimStatus === "claimed", [claimStatus]);
 
   // Prize Claim Steps (0-1)
   const prizeClaimSteps = useMemo(() => {
@@ -514,6 +527,62 @@ function ProcessClaim() {
     [currentStepsLayout, currentStepIndex]
   );
 
+  const { approveProcess, isPending: isApprovingProcess } = useApprovalProcess({
+    onSuccess: () => {
+      refetchPrizeClaim();
+      setApprovePromoCodeModalOpen(false);
+      setApprovalSuccessModalOpen(true);
+    },
+  });
+
+  const approvePromoCode = async (reason: string) => {
+    await approveProcess({
+      process_id: prizeClaimResponse?.data?.approval_workflows?.approver?.process_id,
+      reason,
+      status: approvalAction,
+    });
+  };
+
+  // Memoize action items based on raffle data
+  const actionItems = useMemo<ActionItem[]>(() => {
+    if (!id) return [];
+
+    const items: ActionItem[] = [];
+
+    const isPendingApproval =
+      prizeClaimResponse?.data?.winner?.approvalStatus === "pending";
+
+    if (canApprovePrizeClaim && isPendingApproval && isClaimed) {
+      items.push(
+        {
+          id: "approve-prize-claim",
+          label: "Approve Prize Claim",
+          description: "Approve this prize claim for the winner",
+          onClick: () => initiateApproval("approved"),
+          disabled: !canApprovePrizeClaim,
+          color: "green",
+          divider: true, // Add divider before this action
+        },
+        {
+          id: "decline-prize-claim",
+          label: "Reject Prize Claim",
+          description: "Reject this prize claim for this player",
+          onClick: () => initiateApproval("declined"),
+          disabled: !canApprovePrizeClaim,
+          color: "red",
+          divider: true, // Add divider before this action
+        }
+      );
+    }
+
+    return items;
+  }, [canApprovePrizeClaim, id, isClaimed, prizeClaimResponse?.data?.winner?.approvalStatus]);
+
+  const initiateApproval = (status: ApprovalStatus) => {
+    setApprovalAction(status);
+    setApprovalConfirmationModalOpen(true);
+  };
+
   // Memoized back button handler
   const handleBackButton = useCallback(() => {
     if (isWinnerStorySection && currentStepIndex === 0) {
@@ -552,16 +621,24 @@ function ProcessClaim() {
               </Text>
             </div>
 
-            {active === 1 && !isClaimed && (
-              <CustomButton
-                border={false}
-                className="!rounded-lg"
-                size="md"
-                buttonType="button"
-                onClick={handleCompleteClaim}
-              >
-                Complete Claim
-              </CustomButton>
+            {active === 1 && (
+              <>
+                {!isClaimed && <CustomButton
+                  border={false}
+                  className="!rounded-lg"
+                  size="md"
+                  buttonType="button"
+                  onClick={handleCompleteClaim}
+                >
+                  Complete Claim
+                </CustomButton>}
+
+                {isClaimed && <TakeAction
+                  actions={actionItems}
+                  loading={isLoadingPrizeClaim}
+                  disabled={isLoadingPrizeClaim}
+                />}
+              </>
             )}
 
             {active === 3 && (
@@ -798,6 +875,55 @@ function ProcessClaim() {
         secondaryButton={{
           label: "Continue",
           onClick: handleTestimonialSuccess,
+        }}
+      />
+
+      <AdminAlertModal
+        opened={approvalConfirmationModalOpen}
+        onClose={() => setApprovalConfirmationModalOpen(false)}
+        status="error"
+        title={`${isApprove ? "Approve" : "Reject"} New Promo-Code ?`}
+        description={`${isApprove ? "Are you sure you want to approve this new Promo-Code? Kindly note that this Promo-Code would go live now and customer would be able to apply in games accordingly." : "Are you sure you want to reject this new Promo-Code? Kindly note that this Promo-Code would not go live now."}`}
+        primaryButton={{
+          label: `${isApprove ? "Yes, Approve" : "Yes, Reject"} Promo-Code`,
+          onClick: () => {
+            setApprovalConfirmationModalOpen(false);
+            setApprovePromoCodeModalOpen(true);
+          },
+        }}
+        secondaryButton={{
+          label: "No, Close",
+          onClick: () => setApprovalConfirmationModalOpen(false),
+        }}
+      />
+
+      <CommentsModal
+        modalOpen={approvePromoCodeModalOpen}
+        title={`${isApprove ? "Why Approve Promo-Code?" : "Why Reject Promo-Code? "}`}
+        description={`${isApprove ? "Enter comment on promo-Code here" : "Provide a reason to why this promo-Code is rejected"}`}
+        primaryButtonLabel={`${isApprove ? "Complete Promo-Code Approval" : "Complete Promo-Code Rejection"}`}
+        label={`${isApprove ? "Comment here" : "Enter reason"}`}
+        submitComment={approvePromoCode}
+        isLoading={isApprovingProcess}
+        closeModal={() => setApprovePromoCodeModalOpen(false)}
+      />
+
+      <AdminAlertModal
+        opened={approvalSuccessModalOpen}
+        onClose={() => setApprovalSuccessModalOpen(false)}
+        status="success"
+        title={`Promo-Code ${isApprove ? "Approved" : "Rejected"}`}
+        description={`${isApprove ? "Congratulation, you have successfully approved a New Promo-Code and posted it live" : "You have successfully rejected a New Promo-Code"}`}
+        primaryButton={{
+          label: "Manage Promo-Code",
+          onClick: () => {
+            setApprovalSuccessModalOpen(false);
+            navigate(`/admin/promo-codes`, { replace: true });
+          },
+        }}
+        secondaryButton={{
+          label: "Close",
+          onClick: () => setApprovalSuccessModalOpen(false),
         }}
       />
     </div>

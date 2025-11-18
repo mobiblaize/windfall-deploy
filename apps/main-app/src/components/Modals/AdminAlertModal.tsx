@@ -1,3 +1,5 @@
+// SOLUTION: Update AdminAlertModal component to prevent auto-focus
+
 import {
   Modal,
   Box,
@@ -33,6 +35,7 @@ type Props = {
   color?: "dark" | "primary";
   primaryButton?: CustomButtonProps;
   secondaryButton?: CustomButtonProps;
+  trapFocus?: boolean; // NEW: Add this prop
 };
 
 export default function AdminAlertModal({
@@ -47,6 +50,7 @@ export default function AdminAlertModal({
   size,
   padding = "lg",
   radius = "lg",
+  trapFocus = false, // NEW: Default to false to prevent auto-focus
 }: Props) {
   const getStatusImage = () => {
     switch (status) {
@@ -85,6 +89,7 @@ export default function AdminAlertModal({
       radius={radius}
       padding={padding}
       size={size}
+      trapFocus={trapFocus} // NEW: Add this to prevent auto-focus
       overlayProps={{ blur: 3, opacity: 0.2 }}
       classNames={{
         body: "bg-white px-6 pb-6 pt-10",

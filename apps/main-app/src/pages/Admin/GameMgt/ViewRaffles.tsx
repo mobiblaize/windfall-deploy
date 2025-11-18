@@ -50,7 +50,7 @@ function ViewRaffles() {
     useState(false);
   const [approvalSuccessModalOpen, setApprovalSuccessModalOpen] =
     useState(false);
-  const {canApproveGame} = usePermissions();
+  const { canApproveGame } = usePermissions();
 
   const isApprove = approvalAction === "approved";
 
@@ -150,10 +150,9 @@ function ViewRaffles() {
     const isLive = raffle?.main_active_status === "live";
     const isEnded = raffle?.main_active_status === "ended";
     const isPublished = raffle?.status === "published";
-    const isPendingUserApproval =
-      raffle?.approval_workflows?.approver?.status === "pending";
+    const isPendingApproval = raffle?.approvalStatus === "pending";
 
-    if (isPendingUserApproval) {
+    if (isPendingApproval) {
       items.push({
         id: "edit-raffle",
         label: "edit raffle",
@@ -166,7 +165,7 @@ function ViewRaffles() {
       });
     }
 
-    if (canApproveGame && isPendingUserApproval && isPublished) {
+    if (canApproveGame && isPendingApproval && isPublished) {
       items.push(
         {
           id: "approve-game",
@@ -211,7 +210,7 @@ function ViewRaffles() {
     handleStartDraw,
     isInstantGame,
     gameApproved,
-    canApproveGame
+    canApproveGame,
   ]);
 
   // Helper function to get status badge info
@@ -244,7 +243,9 @@ function ViewRaffles() {
   const breadCrumbs: Crumb[] = useMemo(
     () => [
       {
-        label: isInstantRaffleRoute ? "Instant Raffle Management" : "Raffle Management",
+        label: isInstantRaffleRoute
+          ? "Instant Raffle Management"
+          : "Raffle Management",
         to: baseRoute,
       },
       { label: "Raffle List", to: `${baseRoute}/all` },
@@ -440,10 +441,7 @@ function ViewRaffles() {
             />
           )}
           {tabs === "winner" && (
-            <WinnerTab
-              raffleId={id}
-              isInstantGame={isInstantGame}
-            />
+            <WinnerTab raffleId={id} isInstantGame={isInstantGame} />
           )}
           {tabs === "game draw" && !isInstantGame && (
             <GamedrawTab
