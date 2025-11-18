@@ -22,10 +22,18 @@ export interface LiveDraw {
   card_image?: string;
   customer?: Customer;
   metrics: Metrics;
+  video_url: string;
+  conducted_by: ConductedBy;
+}
+
+interface ConductedBy {
+    name: string;
+    uuid: string;
 }
 
 export interface Game {
   name: string;
+  card_image: string;
   short_description: string;
   total_tickets: number;
   start_date: string;
@@ -40,7 +48,8 @@ export interface Customer {
 export interface Metrics {
   tickets_left: number;
   unique_players: number;
-  potential_draw: number;
+  potential_winner: number;
+  total_tickets_sold: number;
 }
 
 export default function Draws() {
@@ -95,7 +104,7 @@ export default function Draws() {
         <header className="flex flex-col md:flex-row items-center justify-between mb-4">
           <div>
             <h1 className="capitalize font-bold text-2xl md:text-3xl text-nowrap">
-              all draw result <span className="text-primary-red">(192)</span>
+              all draw result <span className="text-primary-red">({total})</span>
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -146,7 +155,7 @@ export default function Draws() {
               ) : (
                 <div className="mt-10">
                   <EmptyState
-                    description="No draws stories found"
+                    description="No draws found"
                     title="No Records Found"
                     format="secondary"
                     fullWidth={true}
