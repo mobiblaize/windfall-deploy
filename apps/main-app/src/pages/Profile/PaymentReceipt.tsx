@@ -7,7 +7,7 @@ import AlertModal from "../../components/Modals/AlertModal";
 import MyGameHeader from "./MyGameHeader";
 import type { Crumb } from "../../components/DynamicBreadCrumbs";
 import { useOutletContext, useParams } from "react-router-dom";
-import { useFetchData } from "../../utils/hooks/useApis";
+import { useFetchData, useGetExportData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { formatCurrency } from "../../utils/helper/formatCurrency";
 import GameBadge from "../../components/GameBadge";
@@ -42,7 +42,7 @@ export interface Order {
   promo_code: string;
   promo_code_id: string;
   referral_code: string;
-  status: 'order placed' | 'pending' | 'failed';
+  status: "order placed" | "pending" | "failed";
   payment_status: string;
   ip_address: string;
   city: string;
@@ -90,12 +90,16 @@ export default function PaymentReceipt() {
   const [order, setOrder] = useState<OrderData>();
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [paymentSuccessModalOpen, setPaymentSuccessModalOpen] = useState(false);
+  const transactionUrl = `customer/games/order/${id}/games`;
   const {
     data: response,
     isLoading,
     isError,
     error,
-  } = useFetchData(`customer/games/order/${id}/games`);
+  } = useFetchData(transactionUrl);
+  const downloadReceiptMutation = useGetExportData(
+    `${transactionUrl}?download_receipt=true`
+  );
 
   useEffect(() => {
     setCrumbs(items);
@@ -123,6 +127,36 @@ export default function PaymentReceipt() {
     return cardImage ? cardImage.split("|").filter(Boolean) : [];
   };
 
+  const downloadReceipt = () => {
+    downloadReceiptMutation.mutate(undefined, {
+      onSuccess: (data) => {
+        const url = window.URL.createObjectURL(new Blob([data]));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${order?.order.uniqueID}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        notifications.show({
+          title: "Download Successful",
+          message: "Your file has been downloaded",
+          color: "green",
+        });
+        
+        setSuccessModalOpen(true);
+      },
+      onError: (error) => {
+        notifications.show({
+          title: "Download Failed",
+          message: error?.message || "An error occurred",
+          color: "var(--color-primary-red)",
+        });
+      },
+    });
+  };
+
   return (
     <div>
       <MyGameHeader
@@ -136,8 +170,10 @@ export default function PaymentReceipt() {
       >
         {order && (
           <CustomButton
-            onClick={() => setSuccessModalOpen(true)}
             rightSection={<HiDocumentArrowDown size={18} />}
+            onClick={downloadReceipt}
+            disabled={downloadReceiptMutation.isPending}
+            loading={downloadReceiptMutation.isPending}
           >
             Download Receipt
           </CustomButton>
@@ -266,8 +302,20 @@ export default function PaymentReceipt() {
       <AlertModal
         opened={paymentSuccessModalOpen}
         status="success"
-        title={ order?.order.status === "order placed" ? "Raffle Ticket Payment Completed": order?.order.status === "pending" ? "Raffle Ticket Payment Processing": "Raffle Ticket Payment Failed"}
-        description={ order?.order.status === "order placed" ? "Congratulation, you have successfully paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and you can see more on your WindFall Raffle Profile.": order?.order.status === "pending" ? "Your payment is still being processed. You will be notified once the process is completed.": "Unfortunately, your payment was not successful. Please try again or use a different payment method."}
+        title={
+          order?.order.status === "order placed"
+            ? "Raffle Ticket Payment Completed"
+            : order?.order.status === "pending"
+              ? "Raffle Ticket Payment Processing"
+              : "Raffle Ticket Payment Failed"
+        }
+        description={
+          order?.order.status === "order placed"
+            ? "Congratulation, you have successfully paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and you can see more on your WindFall Raffle Profile."
+            : order?.order.status === "pending"
+              ? "Your payment is still being processed. You will be notified once the process is completed."
+              : "Unfortunately, your payment was not successful. Please try again or use a different payment method."
+        }
         primaryButton={{
           label: "Done",
           onClick: () => {
