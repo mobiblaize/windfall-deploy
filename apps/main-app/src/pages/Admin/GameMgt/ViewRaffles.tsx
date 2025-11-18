@@ -28,6 +28,7 @@ import CommentsModal from "../../../components/CommentsModal";
 import type { ApprovalStatus } from "../../../utils/models/approval";
 import ApprovalOfficersTooltip from "../../../components/ApprovalOfficersTooltip";
 import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
+import { usePermissions } from "../../../utils/hooks/usePermissions";
 
 function ViewRaffles() {
   const { id } = useParams<{ id: string }>();
@@ -49,6 +50,7 @@ function ViewRaffles() {
     useState(false);
   const [approvalSuccessModalOpen, setApprovalSuccessModalOpen] =
     useState(false);
+  const {canApproveGame} = usePermissions();
 
   const isApprove = approvalAction === "approved";
 
@@ -147,8 +149,7 @@ function ViewRaffles() {
     const items: ActionItem[] = [];
     const isLive = raffle?.main_active_status === "live";
     const isEnded = raffle?.main_active_status === "ended";
-    const canApprove =
-      raffle?.approval_workflows?.approver?.can_approve === "true";
+    const isPublished = raffle?.status === "published";
     const isPendingUserApproval =
       raffle?.approval_workflows?.approver?.status === "pending";
 
@@ -165,14 +166,14 @@ function ViewRaffles() {
       });
     }
 
-    if (canApprove && isPendingUserApproval) {
+    if (canApproveGame && isPendingUserApproval && isPublished) {
       items.push(
         {
           id: "approve-game",
           label: "Approve Raffle Game",
           description: "Approve this raffle to go live for players",
           onClick: () => initiateApproval("approved"),
-          disabled: !canApprove,
+          disabled: !canApproveGame,
           color: "green",
           divider: true, // Add divider before this action
         },
@@ -181,7 +182,7 @@ function ViewRaffles() {
           label: "Reject Raffle Game",
           description: "Reject this raffle from going live",
           onClick: () => initiateApproval("declined"),
-          disabled: !canApprove,
+          disabled: !canApproveGame,
           color: "red",
           divider: true, // Add divider before this action
         }
@@ -210,6 +211,7 @@ function ViewRaffles() {
     handleStartDraw,
     isInstantGame,
     gameApproved,
+    canApproveGame
   ]);
 
   // Helper function to get status badge info

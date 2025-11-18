@@ -36,6 +36,7 @@ import LoadingState from "../../../components/LoadingState";
 import type { ApprovalStatus } from "../../../utils/models/approval";
 import CommentsModal from "../../../components/CommentsModal";
 import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
+import { usePermissions } from "../../../utils/hooks/usePermissions";
 
 const breadCrumbs: Crumb[] = [
   { label: "Promo Code", to: "/admin/promo-codes" },
@@ -66,6 +67,7 @@ export default function ViewPromoCode() {
     useState(false);
   const [approvalSuccessModalOpen, setApprovalSuccessModalOpen] =
     useState(false);
+  const {canApprovePromoCode} = usePermissions();
 
   const isApprove = approvalAction === "approved";
 
@@ -310,7 +312,7 @@ export default function ViewPromoCode() {
                 >
                   Delete Promo-Code
                 </Menu.Item>
-                {isPendingApproval && (
+                {isPendingApproval && canApprovePromoCode && (
                   <>
                     <Menu.Divider />
                     <Menu.Item
