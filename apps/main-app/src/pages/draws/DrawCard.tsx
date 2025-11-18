@@ -9,81 +9,80 @@ import defaultRaffleImg from "../../utils/helper/defaultImg";
 function formatDate(dateString?: string): string {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", { 
-    month: "long", 
-    day: "numeric", 
-    year: "numeric" 
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
 // Video platform detection and embed URL generation
 interface VideoInfo {
   embedUrl: string | null;
-  platform: 'youtube' | 'vimeo' | 'direct' | 'unknown';
+  platform: "youtube" | "vimeo" | "direct" | "unknown";
   canEmbed: boolean;
 }
 
 function getVideoInfo(url: string): VideoInfo {
-  if (!url) return { embedUrl: null, platform: 'unknown', canEmbed: false };
-  
+  if (!url) return { embedUrl: null, platform: "unknown", canEmbed: false };
+
   try {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.toLowerCase();
-    
+
     // YouTube detection
-    if (hostname.includes('youtube.com') || hostname === 'youtu.be') {
+    if (hostname.includes("youtube.com") || hostname === "youtu.be") {
       let videoId = "";
-      
+
       if (hostname === "youtu.be") {
-        videoId = urlObj.pathname.slice(1).split('?')[0];
+        videoId = urlObj.pathname.slice(1).split("?")[0];
       } else if (hostname.includes("youtube.com")) {
         videoId = urlObj.searchParams.get("v") || "";
         // Handle /embed/ URLs
-        if (!videoId && urlObj.pathname.includes('/embed/')) {
-          videoId = urlObj.pathname.split('/embed/')[1].split('?')[0];
+        if (!videoId && urlObj.pathname.includes("/embed/")) {
+          videoId = urlObj.pathname.split("/embed/")[1].split("?")[0];
         }
       }
-      
+
       if (videoId) {
         return {
           embedUrl: `https://www.youtube.com/embed/${videoId}`,
-          platform: 'youtube',
-          canEmbed: true
+          platform: "youtube",
+          canEmbed: true,
         };
       }
     }
-    
+
     // Vimeo detection
-    if (hostname.includes('vimeo.com')) {
-      const videoId = urlObj.pathname.split('/').filter(Boolean).pop();
+    if (hostname.includes("vimeo.com")) {
+      const videoId = urlObj.pathname.split("/").filter(Boolean).pop();
       if (videoId) {
         return {
           embedUrl: `https://player.vimeo.com/video/${videoId}`,
-          platform: 'vimeo',
-          canEmbed: true
+          platform: "vimeo",
+          canEmbed: true,
         };
       }
     }
-    
+
     // Direct video file detection (mp4, webm, etc.)
-    const extension = urlObj.pathname.split('.').pop()?.toLowerCase();
-    if (['mp4', 'webm', 'ogg', 'mov'].includes(extension || '')) {
+    const extension = urlObj.pathname.split(".").pop()?.toLowerCase();
+    if (["mp4", "webm", "ogg", "mov"].includes(extension || "")) {
       return {
         embedUrl: url,
-        platform: 'direct',
-        canEmbed: true
+        platform: "direct",
+        canEmbed: true,
       };
     }
-    
+
     // Unknown platform - can't embed
     return {
       embedUrl: null,
-      platform: 'unknown',
-      canEmbed: false
+      platform: "unknown",
+      canEmbed: false,
     };
-    
   } catch {
-    return { embedUrl: null, platform: 'unknown', canEmbed: false };
+    return { embedUrl: null, platform: "unknown", canEmbed: false };
   }
 }
 
@@ -96,18 +95,20 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
       setModalOpened(true);
     } else if (draw.video_url) {
       // Open in new tab if we can't embed
-      window.open(draw.video_url, '_blank', 'noopener,noreferrer');
+      window.open(draw.video_url, "_blank", "noopener,noreferrer");
     }
   };
 
   return (
     <>
       <div className="bg-white rounded-xl p-5 text-center shadow-sm">
-        <Image
-          className="!rounded-md h-48 object-cover mb-5"
-          src={draw.game?.card_image ?? defaultRaffleImg}
-          alt={draw.game?.name}
-        />
+        <div className="relative w-full mb-5" style={{ aspectRatio: "16/8" }}>
+          <Image
+            className="!rounded-md !h-full !w-full object-cover"
+            src={draw.game?.card_image ?? defaultRaffleImg}
+            alt={draw.game?.name}
+          />
+        </div>
         <h3 className="text-primary-text font-bold text-2xl mb-2">
           {draw.game?.name}
         </h3>
@@ -118,7 +119,9 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
           <div className="text-center flex-1 gap-1">
             <p className="text-secondary-text">Draw Winner</p>
             <p className="text-base text-wrap break-all text-primary-red font-semibold">
-              {draw.customer ? `${draw.customer?.firstname} ${draw.customer?.lastname}`: 'N/A'}
+              {draw.customer
+                ? `${draw.customer?.firstname} ${draw.customer?.lastname}`
+                : "N/A"}
             </p>
           </div>
 
@@ -143,7 +146,7 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
           <div className="text-center flex-1 gap-1">
             <p className="text-secondary-text">Conducted by</p>
             <p className="text-base text-wrap break-all text-[#2d2d2d]">
-              {draw.conducted_by?.name ?? 'N/A'}
+              {draw.conducted_by?.name ?? "N/A"}
             </p>
           </div>
 
@@ -207,11 +210,14 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
 
             {/* Video Container */}
             <div className="px-5 pb-3">
-              <div className="relative w-full rounded-md overflow-hidden bg-black" style={{ paddingBottom: "56.25%" }}>
-                {videoInfo.platform === 'direct' ? (
+              <div
+                className="relative w-full rounded-md overflow-hidden bg-black"
+                style={{ paddingBottom: "56.25%" }}
+              >
+                {videoInfo.platform === "direct" ? (
                   <video
                     className="absolute top-0 left-0 w-full h-full"
-                    src={videoInfo.embedUrl || ''}
+                    src={videoInfo.embedUrl || ""}
                     controls
                     controlsList="nodownload"
                   >
@@ -220,14 +226,13 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
                 ) : (
                   <iframe
                     className="absolute top-0 left-0 w-full h-full"
-                    src={videoInfo.embedUrl || ''}
+                    src={videoInfo.embedUrl || ""}
                     title={draw.game?.name}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
                 )}
               </div>
-              
             </div>
 
             {/* Content */}
@@ -235,14 +240,18 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
               <h3 className="text-primary-text font-bold text-2xl mb-2">
                 {draw.game?.name}
               </h3>
-              <p className="text-gray-700 mb-6">{draw.game?.short_description}</p>
+              <p className="text-gray-700 mb-6">
+                {draw.game?.short_description}
+              </p>
 
               {/* Raffle Details */}
               <div className="flex flex-wrap items-center justify-between text-sm text-gray-600 pt-4 mb-4">
                 <div className="text-center flex-1 gap-1">
                   <p className="text-secondary-text">Draw Winner</p>
                   <p className="text-base text-wrap break-all text-primary-red font-semibold">
-                    {draw.customer ? `${draw.customer?.firstname} ${draw.customer?.lastname}`: 'N/A'}
+                    {draw.customer
+                      ? `${draw.customer?.firstname} ${draw.customer?.lastname}`
+                      : "N/A"}
                   </p>
                 </div>
 
@@ -267,7 +276,7 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
                 <div className="text-center flex-1 gap-1">
                   <p className="text-secondary-text">Conducted by</p>
                   <p className="text-base text-wrap break-all text-[#2d2d2d]">
-                    {draw.conducted_by?.name ?? 'N/A'}
+                    {draw.conducted_by?.name ?? "N/A"}
                   </p>
                 </div>
 
