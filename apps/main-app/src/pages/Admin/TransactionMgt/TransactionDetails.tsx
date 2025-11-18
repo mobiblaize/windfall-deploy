@@ -17,7 +17,7 @@ import { GoArrowUpRight } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useState, useEffect, useMemo } from "react";
-import { useFetchData } from "../../../utils/hooks/useApis";
+import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { IoInformationCircleOutline, IoWarningOutline } from "react-icons/io5";
 
@@ -72,8 +72,6 @@ interface GameWithTickets {
   tickets: Ticket[];
 }
 
-
-
 export default function TransactionDetails({
   opened,
   onClose,
@@ -81,26 +79,27 @@ export default function TransactionDetails({
 }: TransactionModalProps) {
   const navigate = useNavigate();
   const [ticketsOpen, setTicketsOpen] = useState(false);
-  
+
+  const transactionUrl = transaction?.uuid
+    ? `admin/transaction-management/transaction-with-tickets/${transaction.uuid}`
+    : null;
+
   // Fetch tickets for the transaction
   const {
     data: ticketsResponse,
     isLoading: isLoadingTickets,
     isError: isTicketsError,
     error: ticketsError,
-  } = useFetchData(
-    transaction?.uuid
-      ? `admin/transaction-management/transaction-with-tickets/${transaction.uuid}`
-      : null,
-    undefined,
-    opened && !!transaction?.uuid
+  } = useFetchData(transactionUrl, undefined, opened && !!transaction?.uuid);
+  const downloadReceiptMutation = useGetExportData(
+    `${transactionUrl}?download_receipt=true`
   );
 
   // Merge all tickets from all games with game names
   const allTickets = useMemo(() => {
     if (!ticketsResponse?.data?.games_with_tickets) return [];
     return ticketsResponse.data.games_with_tickets.flatMap(
-      (gameWithTickets: GameWithTickets) => 
+      (gameWithTickets: GameWithTickets) =>
         (gameWithTickets.tickets || []).map((ticket: Ticket) => ({
           ...ticket,
           game_name: gameWithTickets.game.name,
@@ -115,19 +114,11 @@ export default function TransactionDetails({
       return null; // Won status might not need an icon
     } else if (status === "lost" || status === "pending") {
       // Show warning triangle for lost/pending (like items 1-4 in design)
-      return (
-        <IoWarningOutline 
-          className="text-primary-red" 
-          size={20}
-        />
-      );
+      return <IoWarningOutline className="text-primary-red" size={20} />;
     } else {
       // For other statuses or variation (like item 5 in design)
       return (
-        <IoInformationCircleOutline 
-          className="text-[#F59E0B]" 
-          size={20}
-        />
+        <IoInformationCircleOutline className="text-[#F59E0B]" size={20} />
       );
     }
   };
@@ -138,13 +129,42 @@ export default function TransactionDetails({
       notifications.show({
         title: "Failed to fetch tickets",
         message:
-          (ticketsError as { message?: string })?.message || "An error occurred",
+          (ticketsError as { message?: string })?.message ||
+          "An error occurred",
         color: "red",
       });
     }
   }, [isTicketsError, ticketsError, opened]);
 
   if (!transaction) return null;
+
+  const downloadReceipt = () => {
+    downloadReceiptMutation.mutate(undefined, {
+      onSuccess: (data) => {
+        const url = window.URL.createObjectURL(new Blob([data]));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${transaction.uniqueID}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        notifications.show({
+          title: "Download Successful",
+          message: "Your file has been downloaded",
+          color: "green",
+        });
+      },
+      onError: (error) => {
+        notifications.show({
+          title: "Download Failed",
+          message: error?.message || "An error occurred",
+          color: "var(--color-primary-red)",
+        });
+      },
+    });
+  };
 
   const fields = [
     { label: "Transaction ID", value: transaction.uniqueID },
@@ -249,7 +269,9 @@ export default function TransactionDetails({
               <GoArrowUpRight className="!text-secondary-text" />
             </div>
           }
-          onClick={() => navigate(`/admin/customers/${transaction.customer_id}`)}
+          onClick={() =>
+            navigate(`/admin/customers/${transaction.customer_id}`)
+          }
         >
           view profile
         </Button>
@@ -293,12 +315,7 @@ export default function TransactionDetails({
         {ticketsOpen && (
           <>
             {isLoadingTickets ? (
-              <Flex
-                justify="center"
-                align="center"
-                mt="md"
-                py="md"
-              >
+              <Flex justify="center" align="center" mt="md" py="md">
                 <Loader size="md" color="var(--color-primary-red)" />
               </Flex>
             ) : allTickets.length > 0 ? (
@@ -324,12 +341,7 @@ export default function TransactionDetails({
                 ))}
               </Box>
             ) : (
-              <Flex
-                justify="center"
-                align="center"
-                mt="md"
-                py="md"
-              >
+              <Flex justify="center" align="center" mt="md" py="md">
                 <Text tt="capitalize" className="!text-secondary-text">
                   No Tickets Found
                 </Text>
@@ -357,7 +369,9 @@ export default function TransactionDetails({
           fullWidth
           size="lg"
           border={false}
-          onClick={onClose}
+          onClick={downloadReceipt}
+          disabled={downloadReceiptMutation.isPending}
+          loading={downloadReceiptMutation.isPending}
           className="flex-1 !font-medium"
         >
           Download Receipt
