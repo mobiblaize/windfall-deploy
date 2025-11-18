@@ -12,6 +12,7 @@ import {
   Button,
   type ComboboxItem,
   Menu,
+  Skeleton,
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import CustomButton from "../../../components/Buttons/CustomButton";
@@ -37,6 +38,8 @@ import type { ApprovalStatus } from "../../../utils/models/approval";
 import CommentsModal from "../../../components/CommentsModal";
 import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
 import { usePermissions } from "../../../utils/hooks/usePermissions";
+import ApprovalOfficersTooltip from "../../../components/ApprovalOfficersTooltip";
+import CustomBadge, { type StatusType } from "../../../components/CustomBadge";
 
 const breadCrumbs: Crumb[] = [
   { label: "Promo Code", to: "/admin/promo-codes" },
@@ -67,7 +70,7 @@ export default function ViewPromoCode() {
     useState(false);
   const [approvalSuccessModalOpen, setApprovalSuccessModalOpen] =
     useState(false);
-  const {canApprovePromoCode} = usePermissions();
+  const { canApprovePromoCode } = usePermissions();
 
   const isApprove = approvalAction === "approved";
 
@@ -138,7 +141,7 @@ export default function ViewPromoCode() {
 
   const approvePromoCode = async (reason: string) => {
     await approveProcess({
-      process_id: promo?.approval_workflows?.approver?.process_id,
+      process_id: approvalWorkflow?.approver?.process_id,
       reason,
       status: approvalAction,
     });
@@ -158,6 +161,7 @@ export default function ViewPromoCode() {
   const today = useMemo(getToday, []);
 
   const promo = promoResponse?.data?.promoCode;
+  const approvalWorkflow = promoResponse?.data?.approval_workflows;
 
   function closeDeleteModal() {
     setDeleteSuccessModalOpen(false);
@@ -188,7 +192,7 @@ export default function ViewPromoCode() {
           ? null
           : "Code must be alphanumeric with hyphens only",
       description: (value) =>
-        value.length < 10 ? "Description must be at least 10 characters" : null,
+        !value ? "Description is required" : null,
       type: (value) => (!value ? "Please select a promo code type" : null),
       type_value: (value, values) => {
         if (!value || isNaN(Number(value))) {
@@ -269,6 +273,28 @@ export default function ViewPromoCode() {
 
   const promoActive = form.values.is_active === "true";
 
+  const getStatusInfo = (): {
+    status: StatusType;
+    label: string;
+  } => {
+    if (!promo) return { status: "pending" as const, label: "Loading" };
+
+    if (isPendingApproval)
+      return { status: "pending" as const, label: "Pending Approval" };
+
+    return {
+      status:
+        promo.status === "active"
+          ? "successful"
+          : promo.status === "inactive"
+            ? "inactive"
+            : ("failed" as const),
+      label: promo.status,
+    };
+  };
+
+  const statusInfo = getStatusInfo();
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -288,49 +314,64 @@ export default function ViewPromoCode() {
                 View and manage promo-code details
               </Text>
             </div>
-            <Menu position="bottom-end" shadow="md" width={280}>
-              <Menu.Target>
-                <CustomButton rightSection={<FaAngleDown />} border={false}>
-                  Take Action
-                </CustomButton>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Label>Take Action</Menu.Label>
-                <Menu.Item
-                  disabled={isApproved}
-                  onClick={() => setConfirmModalOpen(true)}
+
+            <Flex align="center" wrap="wrap" gap={20} justify="end">
+              {loadingPromo ? (
+                <Skeleton height={32} width={80} />
+              ) : (
+                <ApprovalOfficersTooltip
+                  officers={approvalWorkflow?.approval_processes ?? []}
                 >
-                  Save Changes
-                </Menu.Item>
-                <Menu.Divider />
-                <Menu.Item onClick={() => setDeactivateAlertModalOpen(true)}>
-                  {promoActive ? "Deactivate" : "Reactivate"} Promo-Code
-                </Menu.Item>
-                <Menu.Item
-                  className="!text-red-500"
-                  onClick={() => setDeleteAlertModalOpen(true)}
-                >
-                  Delete Promo-Code
-                </Menu.Item>
-                {isPendingApproval && canApprovePromoCode && (
-                  <>
-                    <Menu.Divider />
-                    <Menu.Item
-                      className="!text-green-500"
-                      onClick={() => initiateApproval("approved")}
-                    >
-                      Approve Promo-Code
-                    </Menu.Item>
-                    <Menu.Item
-                      className="!text-red-500"
-                      onClick={() => initiateApproval("declined")}
-                    >
-                      Reject Promo-Code
-                    </Menu.Item>
-                  </>
-                )}
-              </Menu.Dropdown>
-            </Menu>
+                  <CustomBadge
+                    status={statusInfo.status}
+                    label={statusInfo.label}
+                  />
+                </ApprovalOfficersTooltip>
+              )}
+              <Menu position="bottom-end" shadow="md" width={280}>
+                <Menu.Target>
+                  <CustomButton rightSection={<FaAngleDown />} border={false}>
+                    Take Action
+                  </CustomButton>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Label>Take Action</Menu.Label>
+                  <Menu.Item
+                    disabled={isApproved}
+                    onClick={() => setConfirmModalOpen(true)}
+                  >
+                    Save Changes
+                  </Menu.Item>
+                  <Menu.Divider />
+                  <Menu.Item onClick={() => setDeactivateAlertModalOpen(true)}>
+                    {promoActive ? "Deactivate" : "Reactivate"} Promo-Code
+                  </Menu.Item>
+                  <Menu.Item
+                    className="!text-red-500"
+                    onClick={() => setDeleteAlertModalOpen(true)}
+                  >
+                    Delete Promo-Code
+                  </Menu.Item>
+                  {isPendingApproval && canApprovePromoCode && (
+                    <>
+                      <Menu.Divider />
+                      <Menu.Item
+                        className="!text-green-500"
+                        onClick={() => initiateApproval("approved")}
+                      >
+                        Approve Promo-Code
+                      </Menu.Item>
+                      <Menu.Item
+                        className="!text-red-500"
+                        onClick={() => initiateApproval("declined")}
+                      >
+                        Reject Promo-Code
+                      </Menu.Item>
+                    </>
+                  )}
+                </Menu.Dropdown>
+              </Menu>
+            </Flex>
           </Flex>
         </div>
       </Card>

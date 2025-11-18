@@ -57,6 +57,7 @@ export interface PromoCodeItem {
   is_active: string;
   updated_by: UpdatedBy;
   created_at: string;
+  approvalStatus: string;
   updated_at: string;
   total_discount: string;
   usage_count: number;
@@ -561,6 +562,7 @@ function PromoCode() {
                 { label: "No. of Usage", key: "usage" },
                 { label: "Total Value Discounted", key: "total" },
                 { label: "Status", key: "status" },
+                { label: "Approval Status", key: "approval" },
                 { label: "", key: "action" },
               ]}
               data={promoCodes}
@@ -601,6 +603,16 @@ function PromoCode() {
                     promoCode.is_active === "true" ? "successful" : "failed"
                   }
                   label={promoCode.is_active === "true" ? "Active" : "Inactive"}
+                />,
+                <CustomBadge
+                  status={
+                    promoCode?.approvalStatus === "approved"
+                      ? "successful"
+                      : promoCode?.approvalStatus === "pending"
+                        ? "pending"
+                        : "failed"
+                  }
+                  label={promoCode?.approvalStatus}
                 />,
                 <ActionIcon
                   onClick={() => navigate(promoCode.uuid)}

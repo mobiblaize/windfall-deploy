@@ -342,6 +342,19 @@ function ViewRaffles() {
                   {isLoadingRaffle ? (
                     <Skeleton height={32} width={80} />
                   ) : (
+                    <CustomBadge
+                      status={
+                        raffle?.status === "published"
+                          ? "successful"
+                          : "inactive"
+                      }
+                      label={raffle?.status}
+                    />
+                  )}
+
+                  {isLoadingRaffle ? (
+                    <Skeleton height={32} width={80} />
+                  ) : (
                     <ApprovalOfficersTooltip
                       officers={
                         raffle?.approval_workflows?.approval_processes ?? []

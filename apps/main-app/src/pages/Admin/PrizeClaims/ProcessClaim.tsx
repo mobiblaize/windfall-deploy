@@ -58,7 +58,7 @@ function ProcessClaim() {
   );
   const [approvalAction, setApprovalAction] =
     useState<ApprovalStatus>("approved");
-  const [approvePromoCodeModalOpen, setApprovePromoCodeModalOpen] =
+  const [approvePrizeClaimModalOpen, setApprovePrizeClaimModalOpen] =
     useState(false);
   const [approvalConfirmationModalOpen, setApprovalConfirmationModalOpen] =
     useState(false);
@@ -530,14 +530,15 @@ function ProcessClaim() {
   const { approveProcess, isPending: isApprovingProcess } = useApprovalProcess({
     onSuccess: () => {
       refetchPrizeClaim();
-      setApprovePromoCodeModalOpen(false);
+      setApprovePrizeClaimModalOpen(false);
       setApprovalSuccessModalOpen(true);
     },
   });
 
-  const approvePromoCode = async (reason: string) => {
+  const approvePrizeClaim = async (reason: string) => {
     await approveProcess({
-      process_id: prizeClaimResponse?.data?.approval_workflows?.approver?.process_id,
+      process_id:
+        prizeClaimResponse?.data?.approval_workflows?.approver?.process_id,
       reason,
       status: approvalAction,
     });
@@ -550,7 +551,7 @@ function ProcessClaim() {
     const items: ActionItem[] = [];
 
     const isPendingApproval =
-      prizeClaimResponse?.data?.winner?.approvalStatus === "pending";
+      prizeClaimResponse?.data?.winner?.claim_approval_status === "pending";
 
     if (canApprovePrizeClaim && isPendingApproval && isClaimed) {
       items.push(
@@ -576,7 +577,12 @@ function ProcessClaim() {
     }
 
     return items;
-  }, [canApprovePrizeClaim, id, isClaimed, prizeClaimResponse?.data?.winner?.approvalStatus]);
+  }, [
+    canApprovePrizeClaim,
+    id,
+    isClaimed,
+    prizeClaimResponse?.data?.winner?.claim_approval_status,
+  ]);
 
   const initiateApproval = (status: ApprovalStatus) => {
     setApprovalAction(status);
@@ -621,24 +627,24 @@ function ProcessClaim() {
               </Text>
             </div>
 
-            {active === 1 && (
-              <>
-                {!isClaimed && <CustomButton
-                  border={false}
-                  className="!rounded-lg"
-                  size="md"
-                  buttonType="button"
-                  onClick={handleCompleteClaim}
-                >
-                  Complete Claim
-                </CustomButton>}
+            {active === 1 && !isClaimed && (
+              <CustomButton
+                border={false}
+                className="!rounded-lg"
+                size="md"
+                buttonType="button"
+                onClick={handleCompleteClaim}
+              >
+                Complete Claim
+              </CustomButton>
+            )}
 
-                {isClaimed && <TakeAction
-                  actions={actionItems}
-                  loading={isLoadingPrizeClaim}
-                  disabled={isLoadingPrizeClaim}
-                />}
-              </>
+            {isClaimed && active <= 1 && (
+              <TakeAction
+                actions={actionItems}
+                loading={isLoadingPrizeClaim}
+                disabled={isLoadingPrizeClaim}
+              />
             )}
 
             {active === 3 && (
@@ -882,13 +888,13 @@ function ProcessClaim() {
         opened={approvalConfirmationModalOpen}
         onClose={() => setApprovalConfirmationModalOpen(false)}
         status="error"
-        title={`${isApprove ? "Approve" : "Reject"} New Promo-Code ?`}
-        description={`${isApprove ? "Are you sure you want to approve this new Promo-Code? Kindly note that this Promo-Code would go live now and customer would be able to apply in games accordingly." : "Are you sure you want to reject this new Promo-Code? Kindly note that this Promo-Code would not go live now."}`}
+        title={`${isApprove ? "Approve" : "Reject"} New Prize Claim ?`}
+        description={`${isApprove ? "Are you sure you want to approve this new Prize Claim? Kindly note that this Prize Claim would go live now and customer would be able to apply in games accordingly." : "Are you sure you want to reject this new Prize Claim? Kindly note that this Prize Claim would not go live now."}`}
         primaryButton={{
-          label: `${isApprove ? "Yes, Approve" : "Yes, Reject"} Promo-Code`,
+          label: `${isApprove ? "Yes, Approve" : "Yes, Reject"} Prize Claim`,
           onClick: () => {
             setApprovalConfirmationModalOpen(false);
-            setApprovePromoCodeModalOpen(true);
+            setApprovePrizeClaimModalOpen(true);
           },
         }}
         secondaryButton={{
@@ -898,27 +904,27 @@ function ProcessClaim() {
       />
 
       <CommentsModal
-        modalOpen={approvePromoCodeModalOpen}
-        title={`${isApprove ? "Why Approve Promo-Code?" : "Why Reject Promo-Code? "}`}
-        description={`${isApprove ? "Enter comment on promo-Code here" : "Provide a reason to why this promo-Code is rejected"}`}
-        primaryButtonLabel={`${isApprove ? "Complete Promo-Code Approval" : "Complete Promo-Code Rejection"}`}
+        modalOpen={approvePrizeClaimModalOpen}
+        title={`${isApprove ? "Why Approve Prize Claim?" : "Why Reject Prize Claim? "}`}
+        description={`${isApprove ? "Enter comment on prize Claim here" : "Provide a reason to why this prize Claim is rejected"}`}
+        primaryButtonLabel={`${isApprove ? "Complete Prize Claim Approval" : "Complete Prize Claim Rejection"}`}
         label={`${isApprove ? "Comment here" : "Enter reason"}`}
-        submitComment={approvePromoCode}
+        submitComment={approvePrizeClaim}
         isLoading={isApprovingProcess}
-        closeModal={() => setApprovePromoCodeModalOpen(false)}
+        closeModal={() => setApprovePrizeClaimModalOpen(false)}
       />
 
       <AdminAlertModal
         opened={approvalSuccessModalOpen}
         onClose={() => setApprovalSuccessModalOpen(false)}
         status="success"
-        title={`Promo-Code ${isApprove ? "Approved" : "Rejected"}`}
-        description={`${isApprove ? "Congratulation, you have successfully approved a New Promo-Code and posted it live" : "You have successfully rejected a New Promo-Code"}`}
+        title={`Prize Claim ${isApprove ? "Approved" : "Rejected"}`}
+        description={`${isApprove ? "Congratulation, you have successfully approved a New Prize Claim and posted it live" : "You have successfully rejected a New Prize Claim"}`}
         primaryButton={{
-          label: "Manage Promo-Code",
+          label: "Manage Prize Claim",
           onClick: () => {
             setApprovalSuccessModalOpen(false);
-            navigate(`/admin/promo-codes`, { replace: true });
+            navigate(`/admin/prize claims`, { replace: true });
           },
         }}
         secondaryButton={{

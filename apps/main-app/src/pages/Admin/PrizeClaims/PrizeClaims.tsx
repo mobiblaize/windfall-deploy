@@ -64,6 +64,7 @@ export interface PrizeClaim {
   prize_won: string;
   announce_status: string;
   status: string;
+  claim_approval_status: string;
   claim_date: string;
   won_at: string;
   customer: PrizeClaimCustomer;
@@ -446,6 +447,7 @@ function PrizeClaims() {
                 { label: "Draw Index", key: "draw" },
                 { label: "Claim Date", key: "date" },
                 { label: "Status", key: "status" },
+                { label: "Approval Status", key: "approval" },
                 { label: "", key: "action" },
               ]}
               data={prizeClaims}
@@ -472,10 +474,18 @@ function PrizeClaims() {
                   ? format(new Date(claim.claim_date), "MMMM d, yyyy h:mm a")
                   : "-",
                 <CustomBadge
-                  status={
-                    claim.status === "claimed" ? "successful" : "pending"
-                  }
+                  status={claim.status === "claimed" ? "successful" : "pending"}
                   label={claim.status}
+                />,
+                <CustomBadge
+                  status={
+                    claim?.claim_approval_status === "approved"
+                      ? "successful"
+                      : claim?.claim_approval_status === "pending"
+                        ? "pending"
+                        : "failed"
+                  }
+                  label={claim?.claim_approval_status}
                 />,
 
                 <ActionIcon

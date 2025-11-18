@@ -101,7 +101,7 @@ export default function CreatePromoCode() {
           ? null
           : "Code must be alphanumeric with hyphens only",
       description: (value) =>
-        value.length < 10 ? "Description must be at least 10 characters" : null,
+        !value ? "Description is required" : null,
       type: (value) => (!value ? "Please select a promo code type" : null), //amount | percentage
       type_value: (value, values) => {
         if (!value || isNaN(Number(value))) {
