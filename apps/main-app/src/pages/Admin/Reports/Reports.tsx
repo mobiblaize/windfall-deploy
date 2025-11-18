@@ -120,14 +120,9 @@ export default function Reports() {
         // Set initial values
         initialValues[field.key] = field.default || "";
 
-        console.log(field);
-        
         // Set validation rules
         if (field.type === "date" && field.rules === "after_or_equal:start_date") {
 
-          console.log('date input');
-          
-          
           // Complex validation with cross-field dependency
           validationRules[field.key] = (val: any, values: Record<string, any>) => {
             if (!val && field.required) {
@@ -266,6 +261,13 @@ export default function Reports() {
       }
 
       if (field.type === "select") {
+        const options: Option[] = field.options?.map(x=>{
+          return {
+            label: String(x.label),
+            value: String(x.value)
+          }
+        }) || [];
+        
         return (
           <div key={field.key} className="text-start mb-5">
             <Select
@@ -273,7 +275,7 @@ export default function Reports() {
               rightSection={<FaAngleDown />}
               placeholder={field.placeholder || "Select..."}
               label={field.label}
-              data={field.options || []}
+              data={options}
               searchable={field.searchable}
               clearable={field.clearable}
               multiple={field.multiple}
@@ -341,7 +343,8 @@ export default function Reports() {
       <AdminAlertModal
         opened={reportModalOpen}
         onClose={() => setReportModalOpen(false)}
-        title={`Generate Report`}
+        title={`Generate ${currentReport?.name}`}
+        size="lg"
         description={
           <div className="mb-10">
             <div className="mb-5">
@@ -368,8 +371,8 @@ export default function Reports() {
         opened={reportSuccessModalOpen}
         onClose={() => setReportSuccessModalOpen(false)}
         status="success"
-        title={`Report Generated`}
-        description={`Congratulations, Report has been successfully generated.`}
+        title={`${currentReport?.name} Generated`}
+        description={`Congratulations, ${currentReport?.name} has been successfully generated.`}
         primaryButton={{
           label: "Close",
           onClick: () => setReportSuccessModalOpen(false),
