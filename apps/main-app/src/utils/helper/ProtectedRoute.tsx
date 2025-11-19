@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { useAuth } from "../hooks/useAuth";
-import { Navigate } from "react-router-dom";
+import RedirectWithLoading from "../../components/RedirectWithLoading";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -17,7 +17,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, [isAuthenticated, storeRedirectInfo]);
 
   if (!isAuthenticated()) {
-    return <Navigate to="/login" />;
+    return <RedirectWithLoading to="/login" />;
   }
 
   return <>{children}</>;

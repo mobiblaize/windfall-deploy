@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import RedirectWithLoading from "../../components/RedirectWithLoading";
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
   }, [isAdmin, isAuthenticated, storeRedirectInfo]);
 
   if (!isAuthenticated() || !isAdmin()) {
-    return <Navigate to="/admin/login" />;
+    return <RedirectWithLoading to="/admin/login" />;
   }
 
   return <>{children}</>;
