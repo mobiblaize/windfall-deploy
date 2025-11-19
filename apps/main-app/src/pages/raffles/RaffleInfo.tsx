@@ -89,7 +89,19 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
     discountedPricePerItem: discountedPricePerTicket,
     discountedTotal: discountedPrice,
     totalOriginalPrice,
-  } = evaluateDiscount(raffle.ticket_price, quantity, raffle.discount?.tiers);
+  } = evaluateDiscount(
+    raffle.ticket_price,
+    quantity,
+    raffle.discount_type === "straight_line"
+      ? [
+          {
+            max: raffle.maximum_ticket_number_purchase,
+            min: raffle.minimum_ticket_number_purchase,
+            value: raffle.discount_percentage,
+          },
+        ]
+      : raffle.discount?.tiers
+  );
 
   const pricePerTicket = raffle.ticket_price;
 
