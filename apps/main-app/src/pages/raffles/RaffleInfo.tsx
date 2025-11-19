@@ -93,13 +93,15 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
     raffle.ticket_price,
     quantity,
     raffle.discount_type === "straight_line"
-      ? [
-          {
-            max: raffle.maximum_ticket_number_purchase,
-            min: raffle.minimum_ticket_number_purchase,
-            value: raffle.discount_percentage,
-          },
-        ]
+      ? raffle.discount_percentage === 0
+        ? []
+        : [
+            {
+              max: raffle.maximum_ticket_number_purchase,
+              min: raffle.minimum_ticket_number_purchase,
+              value: raffle.discount_percentage,
+            },
+          ]
       : raffle.discount?.tiers
   );
 

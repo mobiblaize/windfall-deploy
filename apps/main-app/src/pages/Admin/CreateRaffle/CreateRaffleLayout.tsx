@@ -239,6 +239,15 @@ function CreateRaffleLayout() {
           return "End time cannot be before start time";
         return null;
       },
+      discount_percentage: (val, values) => {
+        if (values.discount_type !== 'straight_line') return null;
+        if (!val) return "Discount percentage is required";
+        if (Number(val) < 0)
+          return `Discount percentage cannot be negative`;
+        if (Number(val) > 100)
+          return `Discount percentage cannot exceed 100%`;
+        return null;
+      },
 
       competition_details: (val) =>
         val.trim().length > 0 ? null : "Competition details are required",
@@ -279,6 +288,7 @@ function CreateRaffleLayout() {
       // 🧩 Discount tiers validation
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tiers: (tiers: any[], values) => {
+        if (values.discount_type === 'straight_line') return null;
         if (!tiers || tiers.length === 0) return null;
 
         for (let i = 0; i < tiers.length; i++) {

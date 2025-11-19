@@ -32,6 +32,7 @@ function TicketPriceInner({ form }: Props) {
     (value: string) => {
       setDiscountType(value);
       form.setFieldValue("discount_type", value);
+      form.setFieldValue("tiers", []);
     },
     [form]
   );
@@ -84,6 +85,8 @@ function TicketPriceInner({ form }: Props) {
   const ticketPriceProps = form.getInputProps("ticket_price");
   const minTicketProps = form.getInputProps("minimum_ticket_number_purchase");
   const maxTicketProps = form.getInputProps("maximum_ticket_number_purchase");
+
+  const isStraightLine = discountType === "straight_line";
 
   return (
     <Box>
@@ -143,8 +146,8 @@ function TicketPriceInner({ form }: Props) {
               expected sales (cost and profit markup)
             </Text>
             <Text tt="capitalize" fw={500} fz={"lg"}>
-              {expectedSales ? formatCurrency(expectedSales) : "---"} (
-              {markup}%)
+              {expectedSales ? formatCurrency(expectedSales) : "---"} ({markup}
+              %)
             </Text>
           </Box>
         </Center>
@@ -290,119 +293,152 @@ function TicketPriceInner({ form }: Props) {
             label="Apply to Culmination of Ticket Unit"
             description="Discount is applied after adding up the total cost. For example: 5 Tickets = ₦25,000 ; Discount = 10% ; Total after discount = ₦22,500 "
           />
+          {isStraightLine && <Card withBorder mt="md" radius="md" className="!px-8 !py-5">
+            <TextInput
+              label={`% Discount Applicable`}
+              type="number"
+              placeholder={`Enter Discount %`}
+              classNames={{ input: "placeholder:text-xs" }}
+              {...form.getInputProps("discount_percentage")}
+              error={form.errors.discount_percentage}
+            />
+          </Card>}
         </Box>
       </SimpleGrid>
       <Divider my="md" />
 
       {/* === TIERS SECTION === */}
-      <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
-        <Box>
-          <Text tt="capitalize" fz={"md"} fw={500}>
-            Discount hierarchy
-          </Text>
-          <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-            Create discount structure tiers.
-          </Text>
-        </Box>
+      {!isStraightLine && (
+        <>
+          <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
+            <Box>
+              <Text tt="capitalize" fz={"md"} fw={500}>
+                Discount hierarchy
+              </Text>
+              <Text
+                tt="capitalize"
+                fw={100}
+                fz={"xs"}
+                c={"var(--secondary-text)"}
+              >
+                Create discount structure tiers.
+              </Text>
+            </Box>
 
-        <Box className="space-y-3">
-          {tiers.map((tier: any, index: number) => (
-            <Card key={index} withBorder p={"sm"} radius="md" bg={"#F7F7F9"}>
-              <Accordion chevronIconSize={17}>
-                <Accordion.Item value={`tier-${index}`}>
-                  <Accordion.Control>
-                    {tier.name || `Tier ${index + 1}`}
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={"md"}>
-                      <TextInput
-                        label="Tier name"
-                        placeholder="e.g. Basic Tier"
-                        required
-                        classNames={{ label: "text-xs font-medium capitalize" }}
-                        {...form.getInputProps(`tiers.${index}.name`)}
-                      />
-                      <TextInput
-                        label="% discount applicable"
-                        placeholder="Enter discount %"
-                        required
-                        type="number"
-                        classNames={{ label: "text-xs font-medium capitalize" }}
-                        {...form.getInputProps(
-                          `tiers.${index}.discount_percentage`
-                        )}
-                      />
-                    </SimpleGrid>
+            <Box className="space-y-3">
+              {tiers.map((tier: any, index: number) => (
+                <Card
+                  key={index}
+                  withBorder
+                  p={"sm"}
+                  radius="md"
+                  bg={"#F7F7F9"}
+                >
+                  <Accordion chevronIconSize={17}>
+                    <Accordion.Item value={`tier-${index}`}>
+                      <Accordion.Control>
+                        {tier.name || `Tier ${index + 1}`}
+                      </Accordion.Control>
+                      <Accordion.Panel>
+                        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={"md"}>
+                          <TextInput
+                            label="Tier name"
+                            placeholder="e.g. Basic Tier"
+                            required
+                            classNames={{
+                              label: "text-xs font-medium capitalize",
+                            }}
+                            {...form.getInputProps(`tiers.${index}.name`)}
+                          />
+                          <TextInput
+                            label="% discount applicable"
+                            placeholder="Enter discount %"
+                            required
+                            type="number"
+                            classNames={{
+                              label: "text-xs font-medium capitalize",
+                            }}
+                            {...form.getInputProps(
+                              `tiers.${index}.discount_percentage`
+                            )}
+                          />
+                        </SimpleGrid>
 
-                    <SimpleGrid
-                      cols={{ base: 1, sm: 2 }}
-                      spacing={"md"}
-                      mt="md"
-                    >
-                      <TextInput
-                        label="Minimum ticket range"
-                        placeholder="e.g. 5"
-                        type="number"
-                        required
-                        classNames={{ label: "text-xs font-medium capitalize" }}
-                        {...form.getInputProps(
-                          `tiers.${index}.number_of_entry_start`
-                        )}
-                      />
-                      <TextInput
-                        label="Maximum ticket range"
-                        placeholder="e.g. 10"
-                        type="number"
-                        required
-                        classNames={{ label: "text-xs font-medium capitalize" }}
-                        {...form.getInputProps(
-                          `tiers.${index}.number_of_entry_end`
-                        )}
-                      />
-                    </SimpleGrid>
+                        <SimpleGrid
+                          cols={{ base: 1, sm: 2 }}
+                          spacing={"md"}
+                          mt="md"
+                        >
+                          <TextInput
+                            label="Minimum ticket range"
+                            placeholder="e.g. 5"
+                            type="number"
+                            required
+                            classNames={{
+                              label: "text-xs font-medium capitalize",
+                            }}
+                            {...form.getInputProps(
+                              `tiers.${index}.number_of_entry_start`
+                            )}
+                          />
+                          <TextInput
+                            label="Maximum ticket range"
+                            placeholder="e.g. 10"
+                            type="number"
+                            required
+                            classNames={{
+                              label: "text-xs font-medium capitalize",
+                            }}
+                            {...form.getInputProps(
+                              `tiers.${index}.number_of_entry_end`
+                            )}
+                          />
+                        </SimpleGrid>
 
-                    <Group justify="flex-end" mt="md">
-                      <Button
-                        leftSection={<FaTrash size={12} />}
-                        className="!text-primary-red"
-                        size="xs"
-                        variant="light"
-                        onClick={() => removeTier(index)}
-                      >
-                        Remove Tier
-                      </Button>
-                    </Group>
-                  </Accordion.Panel>
-                </Accordion.Item>
-              </Accordion>
-            </Card>
-          ))}
+                        <Group justify="flex-end" mt="md">
+                          <Button
+                            leftSection={<FaTrash size={12} />}
+                            className="!text-primary-red"
+                            size="xs"
+                            variant="light"
+                            onClick={() => removeTier(index)}
+                          >
+                            Remove Tier
+                          </Button>
+                        </Group>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  </Accordion>
+                </Card>
+              ))}
 
-          <Flex justify={"end"}>
-            <Button
-              rightSection={
-                <div className="!inline-flex !bg-[#ffacad] p-1 w-fit rounded-md">
-                  <BsPlus className="!text-xl !text-primary-red" />
-                </div>
-              }
-              size="md"
-              variant="outline"
-              radius="md"
-              className="!border-[#D0D5DD]"
-              onClick={addTier}
-            >
-              Add New
-            </Button>
-          </Flex>
-          {form.errors.tiers && (
-            <Text c="red" size="sm" mt="xs">
-              {form.errors.tiers}
-            </Text>
-          )}
-        </Box>
-      </SimpleGrid>
+              <Flex justify={"end"}>
+                <Button
+                  rightSection={
+                    <div className="!inline-flex !bg-[#ffacad] p-1 w-fit rounded-md">
+                      <BsPlus className="!text-xl !text-primary-red" />
+                    </div>
+                  }
+                  size="md"
+                  variant="outline"
+                  radius="md"
+                  className="!border-[#D0D5DD]"
+                  onClick={addTier}
+                >
+                  Add New
+                </Button>
+              </Flex>
+              {form.errors.tiers && (
+                <Text c="red" size="sm" mt="xs">
+                  {form.errors.tiers}
+                </Text>
+              )}
+            </Box>
+          </SimpleGrid>
 
-      <Divider my="lg" />
+          <Divider my="lg" />
+        </>
+      )}
     </Box>
   );
 }

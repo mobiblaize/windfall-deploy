@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Card,
@@ -37,10 +37,25 @@ function BasicInformationInner({ form, categories }: Props) {
     setAllowReferral(!!form.values?.allow_referral_balance_usage);
   }, [form.values?.allow_referral_balance_usage]);
 
-  const handleScheduleChange = (value: boolean) => {
-    setIsScheduled(value);
-    form.setFieldValue("is_scheduled", value);
-  };
+  const handleScheduleChange = useCallback(
+    (value: boolean) => {
+      if (value)
+        form.setFieldValue("prizes", [
+          {
+            _uid: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+            name: "",
+            quantity: 1,
+            prize_cost: 0,
+            image: "",
+            description: "",
+          },
+        ]);
+
+      setIsScheduled(value);
+      form.setFieldValue("is_scheduled", value);
+    },
+    [form]
+  );
 
   const handleReferralChange = (checked: boolean) => {
     setAllowReferral(checked);
@@ -58,8 +73,12 @@ function BasicInformationInner({ form, categories }: Props) {
   const promoProps = form.getInputProps("allow_promo_code_usage", {
     type: "checkbox",
   });
-  const minReferralProps = form.getInputProps("minimum_referral_balance_amount");
-  const maxReferralProps = form.getInputProps("maximum_referral_balance_amount");
+  const minReferralProps = form.getInputProps(
+    "minimum_referral_balance_amount"
+  );
+  const maxReferralProps = form.getInputProps(
+    "maximum_referral_balance_amount"
+  );
   const ctaProps = form.getInputProps("cta_text");
 
   return (
@@ -194,7 +213,10 @@ function BasicInformationInner({ form, categories }: Props) {
                 withSeconds
                 withDropdown
                 required
-                classNames={{ input: "placeholder:text-xs", dropdown: "text-primary-text" }}
+                classNames={{
+                  input: "placeholder:text-xs",
+                  dropdown: "text-primary-text",
+                }}
                 {...startTimeProps}
               />
               <TimePicker
@@ -202,7 +224,10 @@ function BasicInformationInner({ form, categories }: Props) {
                 withSeconds
                 withDropdown
                 required
-                classNames={{ input: "placeholder:text-xs", dropdown: "text-primary-text" }}
+                classNames={{
+                  input: "placeholder:text-xs",
+                  dropdown: "text-primary-text",
+                }}
                 {...endTimeProps}
               />
             </SimpleGrid>
@@ -222,10 +247,7 @@ function BasicInformationInner({ form, categories }: Props) {
             Enable use of promo code for discounted tickets.
           </Text>
         </Box>
-        <Checkbox
-          label="Allow promo code for payment"
-          {...promoProps}
-        />
+        <Checkbox label="Allow promo code for payment" {...promoProps} />
       </SimpleGrid>
 
       <Divider my="md" />

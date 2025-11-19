@@ -2,10 +2,7 @@ import type { Raffle } from "../../models/raffles";
 import type { Item } from "../../pages/checkout/Cart";
 import { evaluateDiscount } from "./evaluateDiscount";
 
-export function raffleToCartItem(
-  raffle: Raffle,
-  quantity: number
-): Item {
+export function raffleToCartItem(raffle: Raffle, quantity: number): Item {
   const pricePerItem = raffle.ticket_price;
 
   // Use your discount evaluator
@@ -13,13 +10,15 @@ export function raffleToCartItem(
     pricePerItem,
     quantity,
     raffle.discount_type === "straight_line"
-      ? [
-          {
-            max: raffle.maximum_ticket_number_purchase,
-            min: raffle.minimum_ticket_number_purchase,
-            value: raffle.discount_percentage,
-          },
-        ]
+      ? raffle.discount_percentage === 0
+        ? []
+        : [
+            {
+              max: raffle.maximum_ticket_number_purchase,
+              min: raffle.minimum_ticket_number_purchase,
+              value: raffle.discount_percentage,
+            },
+          ]
       : raffle.discount?.tiers
   );
 
