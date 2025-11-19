@@ -584,13 +584,11 @@ function PromoCode() {
                   )}
                 </span>,
                 <>
-                  <Text>
-                    {format(new Date(promoCode.start_date), "MMM d, yyyy")} -
-                    {format(new Date(promoCode.end_date), "MMM d, yyyy")}
-                  </Text>
+                  {format(new Date(promoCode.start_date), "MMM d, yyyy")} -{" "}
+                  {format(new Date(promoCode.end_date), "MMM d, yyyy")}
                 </>,
                 <>
-                  <Text className="!text-base !text-primary-text">
+                  <Text className="!text-sm !text-primary-text">
                     {promoCode.type === "percentage"
                       ? `${promoCode.type_value}%`
                       : formatCurrency(promoCode.type_value)}
