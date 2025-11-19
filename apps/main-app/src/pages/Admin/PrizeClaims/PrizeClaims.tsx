@@ -474,7 +474,7 @@ function PrizeClaims() {
                   ? format(new Date(claim.claim_date), "MMMM d, yyyy h:mm a")
                   : "-",
                 <CustomBadge
-                  status={claim.status === "claimed" ? "successful" : "pending"}
+                  status={claim.status === "claimed" ? "successful": claim.status === "submitted" ? "inactive" : "pending"}
                   label={claim.status}
                 />,
                 <CustomBadge

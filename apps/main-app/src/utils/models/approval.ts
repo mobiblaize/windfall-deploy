@@ -4,7 +4,7 @@ export interface Approval {
   reason: string
 }
 
-export type ApprovalStatus = 'approved' | 'declined'
+export type ApprovalStatus = 'approved' | 'declined' | 'pending';
 
 export interface ApprovalWorkflows {
   approval_request: ApprovalRequest

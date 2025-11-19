@@ -3,6 +3,7 @@ import {
   Card,
   Container,
   Flex,
+  Skeleton,
   Stepper,
   Text,
   Title,
@@ -30,6 +31,9 @@ import CommentsModal from "../../../components/CommentsModal";
 import { usePermissions } from "../../../utils/hooks/usePermissions";
 import type { ApprovalStatus } from "../../../utils/models/approval";
 import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
+import ApprovalOfficersTooltip from "../../../components/ApprovalOfficersTooltip";
+import CustomBadge from "../../../components/CustomBadge";
+import getApprovalStatusInfo from "../../../utils/helper/getStatusInfo";
 
 const breadCrumbs: Crumb[] = [
   { label: "Prize Claim", to: "/admin/prize-claims" },
@@ -467,7 +471,7 @@ function ProcessClaim() {
     navigate("/admin/prize-claims");
   }, [navigate]);
 
-  const isClaimed = useMemo(() => claimStatus === "claimed", [claimStatus]);
+  const isClaimed = useMemo(() => claimStatus !== "unclaimed", [claimStatus]);
 
   // Prize Claim Steps (0-1)
   const prizeClaimSteps = useMemo(() => {
@@ -544,14 +548,15 @@ function ProcessClaim() {
     });
   };
 
+  const claimApprovalStatus = prizeClaimResponse?.data?.winner?.claim_approval_status;
+
   // Memoize action items based on raffle data
   const actionItems = useMemo<ActionItem[]>(() => {
     if (!id) return [];
 
     const items: ActionItem[] = [];
 
-    const isPendingApproval =
-      prizeClaimResponse?.data?.winner?.claim_approval_status === "pending";
+    const isPendingApproval = claimApprovalStatus === "pending";
 
     if (canApprovePrizeClaim && isPendingApproval && isClaimed) {
       items.push(
@@ -577,12 +582,7 @@ function ProcessClaim() {
     }
 
     return items;
-  }, [
-    canApprovePrizeClaim,
-    id,
-    isClaimed,
-    prizeClaimResponse?.data?.winner?.claim_approval_status,
-  ]);
+  }, [canApprovePrizeClaim, claimApprovalStatus, id, isClaimed]);
 
   const initiateApproval = (status: ApprovalStatus) => {
     setApprovalAction(status);
@@ -603,6 +603,10 @@ function ProcessClaim() {
   const handleNavigateToWinnerStory = useCallback(() => {
     setActive(2);
   }, []);
+
+  const approvalWorkflow = prizeClaimResponse?.data?.approval_workflows;
+  const statusInfo = getApprovalStatusInfo(claimApprovalStatus)
+  
 
   return (
     <div className="pb-5">
@@ -640,11 +644,25 @@ function ProcessClaim() {
             )}
 
             {isClaimed && active <= 1 && (
-              <TakeAction
-                actions={actionItems}
-                loading={isLoadingPrizeClaim}
-                disabled={isLoadingPrizeClaim}
-              />
+              <Flex align="center" wrap="wrap" gap={20} justify="end">
+                {isLoadingPrizeClaim ? (
+                  <Skeleton height={32} width={80} />
+                ) : (
+                  <ApprovalOfficersTooltip
+                    officers={approvalWorkflow?.approval_processes ?? []}
+                  >
+                    <CustomBadge
+                      status={statusInfo.status}
+                      label={statusInfo.label}
+                    />
+                  </ApprovalOfficersTooltip>
+                )}
+                <TakeAction
+                  actions={actionItems}
+                  loading={isLoadingPrizeClaim}
+                  disabled={isLoadingPrizeClaim}
+                />
+              </Flex>
             )}
 
             {active === 3 && (
@@ -924,7 +942,7 @@ function ProcessClaim() {
           label: "Manage Prize Claim",
           onClick: () => {
             setApprovalSuccessModalOpen(false);
-            navigate(`/admin/prize claims`, { replace: true });
+            navigate(`/admin/prize-claims`, { replace: true });
           },
         }}
         secondaryButton={{
