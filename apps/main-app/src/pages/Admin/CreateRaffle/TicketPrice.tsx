@@ -283,26 +283,28 @@ function TicketPriceInner({ form }: Props) {
           <Radio
             checked={discountType === "straight_line"}
             onChange={() => handleDiscountTypeChange("straight_line")}
-            label="Apply to unit price of ticket"
-            description="Discount is applied to each ticket individually For example: Ticket = ₦5,000 ; Discount = 10% ; Buyer gets each ticket for ₦4,500"
+            label="Uniform Discount"
+            description="Apply the same discount percentage to all ticket purchases regardless of quantity. For example: 10% discount means each ticket costs 10% less, whether buying 1 or 100 tickets."
           />
           <Radio
             mt={"md"}
             checked={discountType === "band"}
             onChange={() => handleDiscountTypeChange("band")}
-            label="Apply to Culmination of Ticket Unit"
-            description="Discount is applied after adding up the total cost. For example: 5 Tickets = ₦25,000 ; Discount = 10% ; Total after discount = ₦22,500 "
+            label="Tiered Discount (Volume-based)"
+            description="Apply different discount percentages based on ticket quantity purchased. For example: 5% off for 5-10 tickets, 10% off for 11-20 tickets, 15% off for 21+ tickets."
           />
-          {isStraightLine && <Card withBorder mt="md" radius="md" className="!px-8 !py-5">
-            <TextInput
-              label={`% Discount Applicable`}
-              type="number"
-              placeholder={`Enter Discount %`}
-              classNames={{ input: "placeholder:text-xs" }}
-              {...form.getInputProps("discount_percentage")}
-              error={form.errors.discount_percentage}
-            />
-          </Card>}
+          {isStraightLine && (
+            <Card withBorder mt="md" radius="md" className="!px-8 !py-5">
+              <TextInput
+                label={`% Discount Applicable`}
+                type="number"
+                placeholder={`Enter Discount %`}
+                classNames={{ input: "placeholder:text-xs" }}
+                {...form.getInputProps("discount_percentage")}
+                error={form.errors.discount_percentage}
+              />
+            </Card>
+          )}
         </Box>
       </SimpleGrid>
       <Divider my="md" />
@@ -313,7 +315,7 @@ function TicketPriceInner({ form }: Props) {
           <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
             <Box>
               <Text tt="capitalize" fz={"md"} fw={500}>
-                Discount hierarchy
+                Discount Tiers
               </Text>
               <Text
                 tt="capitalize"
@@ -321,7 +323,7 @@ function TicketPriceInner({ form }: Props) {
                 fz={"xs"}
                 c={"var(--secondary-text)"}
               >
-                Create discount structure tiers.
+                Define discount ranges based on ticket quantity purchased
               </Text>
             </Box>
 
@@ -370,7 +372,7 @@ function TicketPriceInner({ form }: Props) {
                           mt="md"
                         >
                           <TextInput
-                            label="Minimum ticket range"
+                            label="Minimum ticket quantity"
                             placeholder="e.g. 5"
                             type="number"
                             required
@@ -382,7 +384,7 @@ function TicketPriceInner({ form }: Props) {
                             )}
                           />
                           <TextInput
-                            label="Maximum ticket range"
+                            label="Maximum ticket quantity"
                             placeholder="e.g. 10"
                             type="number"
                             required
