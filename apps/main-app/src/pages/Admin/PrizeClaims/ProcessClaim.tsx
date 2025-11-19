@@ -407,7 +407,8 @@ function ProcessClaim() {
         title: "Prize Claim Successful",
         message: response?.message || "Claim has been processed successfully",
         color: "green",
-      });
+      });      
+      refetchPrizeClaim();
       setAlertModalOpen(false);
       setProcessClaimSuccessModalOpen(true);
       setClaimStatus(response?.data?.winner?.status || "unclaimed");
@@ -418,7 +419,7 @@ function ProcessClaim() {
         color: "var(--color-primary-red)",
       });
     }
-  }, [id, form, processClaimMutation]);
+  }, [id, form.values.document_checklist, form.values.short_description, processClaimMutation, refetchPrizeClaim]);
 
   const handleUploadTestimonial = useCallback(async () => {
     if (!id) {

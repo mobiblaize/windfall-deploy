@@ -148,7 +148,7 @@ function BasicInformationInner({ form, categories }: Props) {
             mt="md"
             checked={isScheduled}
             onChange={() => handleScheduleChange(true)}
-            label="Schedule raffle"
+            label="Scheduled raffle"
             description="Raffle will be published but tickets only become available after the scheduled date."
           />
 
