@@ -420,7 +420,7 @@ export default function ViewPromoCode() {
                     {...form.getInputProps("name")}
                     required
                     error={form.errors.name}
-                    disabled={isApproved}
+                    readOnly={isApproved}
                   />
                 </Grid.Col>
               </Grid>
@@ -443,7 +443,7 @@ export default function ViewPromoCode() {
                     {...form.getInputProps("description")}
                     required
                     error={form.errors.description}
-                    disabled={isApproved}
+                    readOnly={isApproved}
                   />
                 </Grid.Col>
               </Grid>
@@ -468,19 +468,20 @@ export default function ViewPromoCode() {
                     required
                     error={form.errors.type}
                     name="type"
+                    readOnly={isApproved}
                   >
                     <Radio
                       value="percentage"
                       label="Percentage Value"
                       description="x percentage value is deducted from the final cost of purchase during checkout. "
-                      disabled={isApproved}
+                      readOnly={isApproved}
                     />
                     <Radio
                       mt={"md"}
                       value="amount"
                       label="Fixed Value"
                       description="A certain ₦xxxx value is deducted from the final cost of purchase during checkout. i.e ₦1,000"
-                      disabled={isApproved}
+                      readOnly={isApproved}
                     />
                   </Radio.Group>
                   <Card withBorder mt="md" radius="md" className="!p-8 !pt-6">
@@ -494,7 +495,7 @@ export default function ViewPromoCode() {
                       classNames={{ input: "placeholder:text-xs" }}
                       {...form.getInputProps("type_value")}
                       error={form.errors.type_value}
-                      disabled={isApproved}
+                      readOnly={isApproved}
                     />
                   </Card>
                 </Grid.Col>
@@ -527,7 +528,7 @@ export default function ViewPromoCode() {
                           dropdown: "!text-primary-text",
                         },
                       }}
-                      disabled={isApproved}
+                      readOnly={isApproved}
                     />
                     <DateInput
                       label="End date"
@@ -541,7 +542,7 @@ export default function ViewPromoCode() {
                           dropdown: "!text-primary-text",
                         },
                       }}
-                      disabled={isApproved}
+                      readOnly={isApproved}
                     />
                   </SimpleGrid>
                 </Grid.Col>
@@ -565,7 +566,7 @@ export default function ViewPromoCode() {
                     rightSection={<FaAngleDown />}
                     placeholder="Game: "
                     data={gamesData}
-                    disabled={isApproved}
+                    readOnly={isApproved}
                     filter={({ options, search }) => {
                       const searchTerms = search
                         .toLowerCase()
@@ -608,7 +609,7 @@ export default function ViewPromoCode() {
                     </Text>
                     <TextInput
                       className="!text-center !font-bold !text-3xl !text-primary-red"
-                      disabled={isApproved}
+                      readOnly={isApproved}
                       styles={{
                         input: {
                           fontSize: "2.25rem",
@@ -660,7 +661,7 @@ export default function ViewPromoCode() {
               >
                 Back
               </Button>
-              <CustomButton
+              {!isApproved && <CustomButton
                 size="lg"
                 border={false}
                 fullWidth={false}
@@ -671,7 +672,7 @@ export default function ViewPromoCode() {
                 disabled={updatePromoMutation.isPending || isApproved}
               >
                 Save Changes
-              </CustomButton>
+              </CustomButton>}
             </Flex>
           </form>
         )}
