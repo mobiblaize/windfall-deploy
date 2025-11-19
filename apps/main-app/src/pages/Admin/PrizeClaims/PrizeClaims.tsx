@@ -116,6 +116,10 @@ const prizeClaimTabs: TabSwitcherTab[] = [
     value: "claimed",
   },
   {
+    label: "Submitted",
+    value: "submitted",
+  },
+  {
     label: "Unclaimed",
     value: "unclaimed",
   },
