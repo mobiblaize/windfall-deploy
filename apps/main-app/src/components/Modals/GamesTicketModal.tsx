@@ -1,6 +1,5 @@
 import { Modal, Button, Flex } from "@mantine/core";
 import { HiDocumentArrowDown } from "react-icons/hi2";
-import { BsTrophyFill } from "react-icons/bs";
 import AlertModal from "./AlertModal";
 import { useState } from "react";
 import GameTicket from "../../pages/Profile/GameTicket";
