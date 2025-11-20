@@ -56,7 +56,7 @@ export default function RaffleCard(raffle: Raffle) {
           !isActive ? "" : isInstant ? "!bg-instant-blue" : "!bg-primary-red"
         }`}
       >
-        {raffle.cta_text
+        {!raffle.available_tickets ? "View Raffle": raffle.cta_text
           ? raffle.cta_text
           : isInstant
             ? `Purchase Ticket For ${formatCurrency(raffle.ticket_price)}`
