@@ -372,7 +372,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
           <div className="flex items-center gap-1">
             <FaReceipt />
             <span>
-              Min Entry: {formatCurrency(raffle.maximum_ticket_amount_purchase)}
+              Min Entry: {formatCurrency(raffle.minimum_ticket_amount_purchase)}
             </span>
           </div>
           <div className="flex items-center gap-1">

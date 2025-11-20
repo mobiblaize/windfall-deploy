@@ -38,7 +38,7 @@ export default function RaffleCard(raffle: Raffle) {
 
       <p className="text-xs mt-3 mb-2 text-gray-500">
         Min Entry Fee:{" "}
-        <span>{formatCurrency(raffle.maximum_ticket_amount_purchase)}</span>
+        <span>{formatCurrency(raffle.minimum_ticket_amount_purchase)}</span>
       </p>
       {/* <div className="border-2 border-dashed border-red-500 rounded-md my-2"> */}
       <Button

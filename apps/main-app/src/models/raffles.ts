@@ -84,6 +84,7 @@ export interface Raffle {
   minimum_ticket_number_purchase: number
   maximum_ticket_number_purchase: number
   maximum_ticket_amount_purchase: number
+  minimum_ticket_amount_purchase: number
   discount_type: string
   discount_percentage: number
   discount: Discount
