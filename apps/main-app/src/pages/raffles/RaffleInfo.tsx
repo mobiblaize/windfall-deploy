@@ -19,7 +19,7 @@ import { raffleToCartItem } from "../../utils/helper/raffleToCartItem";
 import { getTicketsSoldPercentage } from "../../utils/helper/getTicketsSoldPercentage";
 import defaultRaffleImg from "../../utils/helper/defaultImg";
 import GameBadge from "../../components/GameBadge";
-import evaluateMax from "../../utils/helper/evaluateMax";
+// import evaluateMax from "../../utils/helper/evaluateMax";
 
 interface RaffleProps {
   raffle: Raffle;
@@ -37,7 +37,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setMaxTickets(evaluateMax(raffle));
+    setMaxTickets(raffle.maximum_ticket_number_purchase);
     setQuantity(
       Math.max(
         (getItemQuantity(raffle.uuid) || 0,
