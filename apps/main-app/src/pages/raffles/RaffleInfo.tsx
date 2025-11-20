@@ -50,7 +50,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
   }, [raffle]);
 
   function setDiscount(min: number) {
-    setQuantity(Math.max(raffle.minimum_ticket_number_purchase, min));
+    setQuantity(Math.max(raffle.minimum_ticket_number_purchase, Math.min(min, raffle.available_tickets)));
   }
 
   function selectImage(idx: number) {
