@@ -106,6 +106,9 @@ export default function Draws() {
             <h1 className="capitalize font-bold text-2xl md:text-3xl text-nowrap">
               all draw result <span className="text-primary-red">({total})</span>
             </h1>
+            <p className="text-sm text-gray-500">
+              Live in - Rent out - Sell up
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <TextInput
