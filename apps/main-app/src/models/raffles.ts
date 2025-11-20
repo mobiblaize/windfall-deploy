@@ -9,7 +9,7 @@ export const colorMap = {
   ended: {
     bg: "#FF2F31",
     label: "#030303",
-    text: "Draw Closed",
+    text: "Ended",
   },
   inactive: {
     bg: "#FF2F31",

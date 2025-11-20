@@ -211,8 +211,8 @@ export default function ViewPromoCode() {
       start_date: (value) => (!value ? "Start date is required" : null),
       end_date: (value, values) => {
         if (!value) return "End date is required";
-        if (new Date(value) <= new Date(values.start_date))
-          return "End date must be after start date";
+        if (new Date(value) < new Date(values.start_date))
+          return "End date cannot be before start date";
         return null;
       },
       game_ids: (value) =>
