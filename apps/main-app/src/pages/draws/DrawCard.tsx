@@ -119,9 +119,9 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
           <div className="text-center flex-1 gap-1">
             <p className="text-secondary-text">Draw Winner</p>
             <p className="text-base text-wrap break-all text-primary-red font-semibold">
-              {draw.customer
+              {!draw.draw_at ? "Draw Not Started": (draw.customer
                 ? `${draw.customer?.firstname} ${draw.customer?.lastname}`
-                : "N/A"}
+                : "N/A")}
             </p>
           </div>
 
@@ -146,7 +146,7 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
           <div className="text-center flex-1 gap-1">
             <p className="text-secondary-text">Conducted by</p>
             <p className="text-base text-wrap break-all text-[#2d2d2d]">
-              {draw.conducted_by?.name ?? "N/A"}
+              {!draw.draw_at ? "Draw Not Started": (draw.conducted_by?.name ?? "N/A")}
             </p>
           </div>
 
@@ -249,9 +249,9 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
                 <div className="text-center flex-1 gap-1">
                   <p className="text-secondary-text">Draw Winner</p>
                   <p className="text-base text-wrap break-all text-primary-red font-semibold">
-                    {draw.customer
+                    {!draw.draw_at ? "Draw Not Started": (draw.customer
                       ? `${draw.customer?.firstname} ${draw.customer?.lastname}`
-                      : "N/A"}
+                      : "N/A")}
                   </p>
                 </div>
 
@@ -276,7 +276,7 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
                 <div className="text-center flex-1 gap-1">
                   <p className="text-secondary-text">Conducted by</p>
                   <p className="text-base text-wrap break-all text-[#2d2d2d]">
-                    {draw.conducted_by?.name ?? "N/A"}
+                    {!draw.draw_at ? "Draw Not Started": (draw.conducted_by?.name ?? "N/A")}
                   </p>
                 </div>
 
