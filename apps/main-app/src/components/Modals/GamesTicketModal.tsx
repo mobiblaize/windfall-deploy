@@ -81,18 +81,13 @@ export default function GamesTicketModal({
             onClick={downloadTicket}
             disabled={downloadTicketMutation.isPending}
             loading={downloadTicketMutation.isPending}
+            fullWidth
             rightSection={
               <HiDocumentArrowDown className="text-secondary-red/90" />
             }
             className="!w-full !border-2 !border-dashed !border-secondary-red !h-12 !text-lg !tracking-wide"
           >
             Download Ticket
-          </Button>
-          <Button
-            className="!bg-primary-text !w-full !h-12 !text-lg !tracking-wide"
-            rightSection={<BsTrophyFill />}
-          >
-            Claim Prize
           </Button>
         </Flex>
       </Modal>
