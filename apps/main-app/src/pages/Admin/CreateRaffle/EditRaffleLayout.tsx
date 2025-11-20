@@ -422,7 +422,7 @@ function EditRaffleLayout() {
         allow_referral_balance_usage: stringToBoolean(
           raffle.allow_referral_balance_usage
         ),
-        is_scheduled: stringToBoolean(raffle.is_scheduled),
+        is_scheduled: !stringToBoolean(raffle.instant_game),
         is_active: stringToBoolean(raffle.is_active),
         status: raffle.status || "published",
         instant_game: stringToBoolean(raffle.instant_game),

@@ -105,7 +105,7 @@ function PrizesInner({ form }: Props) {
                           {...form.getInputProps(`prizes.${index}.name`)}
                         />
 
-                        <TextInput
+                       {isInstant && <TextInput
                           label={`${prefix}Prize unit`}
                           placeholder="e.g. 5"
                           type="number"
@@ -114,7 +114,7 @@ function PrizesInner({ form }: Props) {
                           classNames={{ label: "text-xs font-medium capitalize" }}
                           error={form.errors?.[`prizes.${index}.quantity`]}
                           {...form.getInputProps(`prizes.${index}.quantity`)}
-                        />
+                        />}
 
                         <TextInput
                           label={`${prefix}Prize cost`}
