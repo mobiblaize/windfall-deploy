@@ -33,7 +33,7 @@ const settings: {
   },
   {
     title: "Notification Setting",
-    description: "Edit your Personal Information like name etc.",
+    description: "Edit your Notifications settings with ease.",
     route: "notification",
   },
 ];
