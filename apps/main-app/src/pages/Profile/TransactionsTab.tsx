@@ -22,7 +22,6 @@ import { useFetchData, useGetExportData } from "../../utils/hooks/useApis";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { useDebounce } from "../../utils/hooks/useDebounce";
-import { format } from "date-fns";
 import { formatCurrency } from "../../utils/helper/formatCurrency";
 import TablePaginator from "../../components/TablePaginator";
 import EmptySection from "../../components/EmptySection";
@@ -30,6 +29,7 @@ import LoadingState from "../../components/LoadingState";
 import { DateInput } from "@mantine/dates";
 import { IoClose } from "react-icons/io5";
 import { CiCalendar } from "react-icons/ci";
+import { formatLocalDate } from "../../utils/helper/formatLocalDate";
 
 export interface Transactions {
   uuid: string;
@@ -147,6 +147,9 @@ function TransactionsTab() {
       },
     });
   };
+
+  console.log(transactions?.[0]?.updated_at);
+  console.log(new Date(transactions?.[0]?.updated_at));
 
   return (
     <div>
@@ -312,16 +315,16 @@ function TransactionsTab() {
                         <Table.Td>
                           <Text className="!text-base !font-medium">
                             {transaction.updated_at
-                              ? format(
-                                  new Date(transaction.updated_at),
+                              ? formatLocalDate(
+                                  transaction.updated_at,
                                   "MMMM d, yyyy"
                                 )
                               : ""}
                           </Text>
                           <Text className="!text-secondary-text !text-sm">
                             {transaction.updated_at
-                              ? format(
-                                  new Date(transaction.updated_at),
+                              ? formatLocalDate(
+                                  transaction.updated_at,
                                   "h:mm a"
                                 )
                               : ""}
@@ -382,14 +385,14 @@ function TransactionsTab() {
                       <p>
                         <strong>Date:</strong>{" "}
                         {transaction.updated_at
-                          ? format(
-                              new Date(transaction.updated_at),
+                          ? formatLocalDate(
+                              transaction.updated_at,
                               "MMMM d, yyyy"
                             )
                           : ""}{" "}
                         —{" "}
                         {transaction.updated_at
-                          ? format(new Date(transaction.updated_at), "h:mm a")
+                          ? formatLocalDate(transaction.updated_at, "h:mm a")
                           : ""}
                       </p>
                       <p>

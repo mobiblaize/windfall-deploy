@@ -164,7 +164,7 @@ function Cart() {
                           </span>
                         </p>
                         <p>
-                          <span className="font-bold">{cart?.cart.summary.total_quantity} Ticket</span>
+                          <span className="font-bold">{cart?.cart.summary.total_quantity} Ticket(s)</span>
                         </p>
                       </div>
                       <div className="flex justify-between items-center gap-6">

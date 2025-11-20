@@ -400,6 +400,7 @@ function Signup({
                   <TextInput
                     label="Your Email Address"
                     placeholder="Enter Your Email Address"
+                    type="email"
                     withAsterisk
                     {...form.getInputProps("email")}
                     classNames={{ label: "!capitalize " }}
@@ -432,6 +433,7 @@ function Signup({
                   withAsterisk
                   {...form.getInputProps("phone_number")}
                   classNames={{ label: "!capitalize " }}
+                  type="number"
                 />
                 <Select
                   data={["Nigeria"]}

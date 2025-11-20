@@ -207,7 +207,7 @@ export default function AdminLoginPage() {
         onClose={closeModal}
         status="success"
         title="Login Successful"
-        description="Congratulation, you have successfully log in to your Windfall Raffle administrative account"
+        description="Congratulation, you have successfully logged in to your Windfall Raffle administrative account"
         primaryButton={{
           label: "Continue",
           onClick: closeModal,

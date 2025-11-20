@@ -1,5 +1,5 @@
-import { format } from "date-fns";
 import { colorMap, type RaffleStatus } from "../models/raffles";
+import { formatLocalDate } from "../utils/helper/formatLocalDate";
 
 interface RaffleBadgeProps {
   date: string;
@@ -36,7 +36,7 @@ export default function RaffleBadge({
         {label || colors?.text  || defaultDisabledState.text}
       </span>
       &nbsp; {description ?? date
-                          ? format(new Date(date), "MMMM d, yyyy | h:mma")
+                          ? formatLocalDate(date, "MMMM d, yyyy | h:mma")
                           : ""}
     </span>
   );
