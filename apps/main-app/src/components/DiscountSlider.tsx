@@ -18,6 +18,9 @@ export default function DiscountSlider({
   activeDiscount
 }: DiscountSliderProps) {
 
+  // Calculate the percentage position accounting for min value
+  const percentage = ((value - min) / (max - min)) * 100;
+
   return (
     <div className="flex items-center gap-6 pt-10">
       {/* Slider with label */}
@@ -25,7 +28,7 @@ export default function DiscountSlider({
         {/* Value label above the thumb */}
         <div
           className="absolute -top-10 left-0 transform -translate-x-1/2"
-          style={{ left: `${(value / max) * 100}%` }}
+          style={{ left: `${percentage}%` }}
         >
           <div className="bg-primary-red text-white text-sm rounded-md px-3 py-1 flex items-center gap-1 shadow">
             {value}
