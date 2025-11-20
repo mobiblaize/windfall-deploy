@@ -169,7 +169,7 @@ function TransactionList() {
     `admin/game-management/game-list/all?paginate=0&limit=10&page=1`
   );
 
-  const baseUrl = `admin/transaction-management/all-transactions?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&game_id=${raffleId}&game_category_id=${categoryId}&platform=${platform || ""}&payment_status=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`;
+  const baseUrl = `admin/transaction-management/all-transactions?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&game_id=${raffleId}&game_category_id=${categoryId}&platform_source=${platform || ""}&payment_status=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`;
 
   const {
     data: response,

@@ -143,7 +143,7 @@ function RaffleTransactionalList({
     if (sortBy) params.append("sort_by", sortBy);
     if (filterBy) params.append("filter_by", "payment_status");
     if (filterBy) params.append("filter_value", filterBy);
-    if (platform) params.append("platform", platform);
+    if (platform) params.append("platform_source", platform);
     if (startDate) params.append("start_date", startDate);
     if (endDate) params.append("end_date", endDate);
     params.append("paginate", "1");
