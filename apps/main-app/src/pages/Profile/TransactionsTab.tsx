@@ -19,17 +19,15 @@ import TableContainer from "../../components/TableContainer";
 import { useNavigate } from "react-router-dom";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import { useFetchData, useGetExportData } from "../../utils/hooks/useApis";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { useDebounce } from "../../utils/hooks/useDebounce";
 import { formatCurrency } from "../../utils/helper/formatCurrency";
 import TablePaginator from "../../components/TablePaginator";
 import EmptySection from "../../components/EmptySection";
 import LoadingState from "../../components/LoadingState";
-import { DateInput } from "@mantine/dates";
-import { IoClose } from "react-icons/io5";
-import { CiCalendar } from "react-icons/ci";
 import { formatLocalDate } from "../../utils/helper/formatLocalDate";
+import { DateRangePicker } from "../../components/DateRangePicker";
 
 export interface Transactions {
   uuid: string;
@@ -148,8 +146,11 @@ function TransactionsTab() {
     });
   };
 
-  console.log(transactions?.[0]?.updated_at);
-  console.log(new Date(transactions?.[0]?.updated_at));
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+    setFilterPage(1);
+  }, []);
 
   return (
     <div>
@@ -157,59 +158,11 @@ function TransactionsTab() {
         title="My Transaction"
         description="Manage your transaction with ease today."
       >
-        <div className="flex flex-wrap gap-3 items-center">
-          <DateInput
-            placeholder="Start Date"
-            withAsterisk
-            valueFormat="DD/MM/YYYY"
-            value={startDate}
-            onChange={(e) => setStartDate(e)}
-            classNames={{
-              label: "!capitalize",
-            }}
-            popoverProps={{
-              classNames: {
-                dropdown: "!text-primary-text",
-              },
-            }}
-            rightSection={
-              startDate ? (
-                <IoClose
-                  className="cursor-pointer text-gray-500 hover:text-red-500"
-                  onClick={() => setStartDate("")}
-                />
-              ) : (
-                <CiCalendar />
-              )
-            }
-          />
-
-          <DateInput
-            placeholder="End Date"
-            withAsterisk
-            rightSection={
-              endDate ? (
-                <IoClose
-                  className="cursor-pointer text-gray-500 hover:text-red-500"
-                  onClick={() => setStartDate("")}
-                />
-              ) : (
-                <CiCalendar />
-              )
-            }
-            valueFormat="DD/MM/YYYY"
-            value={endDate}
-            onChange={(e) => setEndDate(e)}
-            classNames={{
-              label: "!capitalize",
-            }}
-            popoverProps={{
-              classNames: {
-                dropdown: "!text-primary-text",
-              },
-            }}
-          />
-        </div>
+        <DateRangePicker
+          onDateRangeChange={handleDateRangeChange}
+          maxDate={new Date()}
+          placeholder="Select date range"
+        />
       </MyGameHeader>
       <Divider />
 

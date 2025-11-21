@@ -7,6 +7,7 @@ import type { OrderTicket } from "../../pages/Profile/GamesTickets";
 import type { Raffle } from "../../models/raffles";
 import { notifications } from "@mantine/notifications";
 import { useGetExportData } from "../../utils/hooks/useApis";
+import { FaRegCopy } from "react-icons/fa";
 
 type Props = {
   item: OrderTicket;
@@ -25,6 +26,26 @@ export default function GamesTicketModal({
   const downloadTicketMutation = useGetExportData(
     `customer/games/ticket/download-single-ticket-file/${item.uuid}`
   );
+  
+  const handleCopy = async () => {
+    if (!item?.ticket_number) return;
+
+    try {
+      await navigator.clipboard.writeText(item.ticket_number);
+      notifications.show({
+        title: "Copied!",
+        message: "Ticket number copied to clipboard",
+        color: "green",
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      notifications.show({
+        title: "Error",
+        message: "Failed to copy ticket number",
+        color: "red",
+      });
+    }
+  };
 
   const downloadTicket = () => {
     downloadTicketMutation.mutate(undefined, {
@@ -80,13 +101,19 @@ export default function GamesTicketModal({
             onClick={downloadTicket}
             disabled={downloadTicketMutation.isPending}
             loading={downloadTicketMutation.isPending}
-            fullWidth
             rightSection={
               <HiDocumentArrowDown className="text-secondary-red/90" />
             }
             className="!w-full !border-2 !border-dashed !border-secondary-red !h-12 !text-lg !tracking-wide"
           >
             Download Ticket
+          </Button>
+          <Button
+            className="!bg-black !w-full !h-12 !text-lg !tracking-wide"
+            onClick={handleCopy}
+            rightSection={<FaRegCopy />}
+          >
+            Copy Ticket Number
           </Button>
         </Flex>
       </Modal>

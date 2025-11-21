@@ -112,7 +112,6 @@ export default function NotificationSettingsTab() {
       ])
     );
 
-    console.log(payload);
     try {
       const response = await updateMutation.mutateAsync(payload);
       notifications.show({
