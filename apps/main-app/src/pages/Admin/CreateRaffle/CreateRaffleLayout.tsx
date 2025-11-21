@@ -393,6 +393,7 @@ function CreateRaffleLayout() {
         "minimum_ticket_number_purchase",
         "maximum_ticket_number_purchase",
         "tiers",
+        "discount_percentage"
       ],
       2: ["prizes"],
       3: ["competition_details", "sponsorship_details"],
@@ -776,8 +777,8 @@ function CreateRaffleLayout() {
         opened={successModalOpen}
         onClose={manageRaffles}
         status="success"
-        title="Raffle Created"
-        description="Congratulation, you have successfully Created a New Raffle Game / Draw"
+        title={isPublished ? "Raffle Created": "Saved as Draft"}
+        description={isPublished ? "Congratulation, you have successfully Created a New Raffle Game / Draw": "Congratulation, you have successfully saved a New Raffle Game / Draw as draft."}
         secondaryButton={{
           label: "Close",
           onClick: manageRaffles,

@@ -496,6 +496,7 @@ function EditRaffleLayout() {
         "minimum_ticket_number_purchase",
         "maximum_ticket_number_purchase",
         "tiers",
+        "discount_percentage"
       ],
       2: ["prizes"],
       3: ["competition_details", "sponsorship_details"],
@@ -905,8 +906,8 @@ function EditRaffleLayout() {
         opened={successModalOpen}
         onClose={manageRaffles}
         status="success"
-        title="Raffle Updated"
-        description="Congratulations! You have successfully updated the raffle game."
+        title={isPublished ? "Raffle Updated": "Saved as Draft"}
+        description={isPublished ? "Congratulations! You have successfully updated the raffle game.": "Congratulation, you have successfully saved the Raffle Game / Draw as draft."}
         secondaryButton={{
           label: "Close",
           onClick: manageRaffles,

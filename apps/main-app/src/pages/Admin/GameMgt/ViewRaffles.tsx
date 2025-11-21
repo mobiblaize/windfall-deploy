@@ -31,11 +31,11 @@ import { DateRangePicker } from "../../../components/DateRangePicker"; // Import
 function ViewRaffles() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  
+
   // Simplified date state - now just strings
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  
+
   const [raffle, setRaffle] = useState<Raffle>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -127,6 +127,7 @@ function ViewRaffles() {
   const gamePendingApproval = raffle?.approvalStatus === "pending";
   const gameApproved = raffle?.approvalStatus === "approved";
   const gameDeclined = raffle?.approvalStatus === "declined";
+  const isPublished = raffle?.status === "published";
 
   const tablinks = useMemo(() => {
     const links = [
@@ -147,7 +148,6 @@ function ViewRaffles() {
     const items: ActionItem[] = [];
     const isLive = raffle?.main_active_status === "live";
     const isEnded = raffle?.main_active_status === "ended";
-    const isPublished = raffle?.status === "published";
     const isPendingApproval = raffle?.approvalStatus === "pending";
 
     if (isPendingApproval) {
@@ -199,16 +199,7 @@ function ViewRaffles() {
     }
 
     return items;
-  }, [
-    id,
-    raffle,
-    isLoadingRaffle,
-    handleEditRaffle,
-    handleStartDraw,
-    isInstantGame,
-    gameApproved,
-    canApproveGame,
-  ]);
+  }, [id, raffle, canApproveGame, isPublished, isInstantGame, gameApproved, handleEditRaffle, isLoadingRaffle, handleStartDraw]);
 
   const getStatusInfo = () => {
     if (!raffle) return { status: "pending" as const, label: "Loading" };
@@ -346,19 +337,23 @@ function ViewRaffles() {
                     />
                   )}
 
-                  {isLoadingRaffle ? (
-                    <Skeleton height={32} width={80} />
-                  ) : (
-                    <ApprovalOfficersTooltip
-                      officers={
-                        raffle?.approval_workflows?.approval_processes ?? []
-                      }
-                    >
-                      <CustomBadge
-                        status={statusInfo.status}
-                        label={statusInfo.label}
-                      />
-                    </ApprovalOfficersTooltip>
+                  {isPublished && (
+                    <>
+                      {isLoadingRaffle ? (
+                        <Skeleton height={32} width={80} />
+                      ) : (
+                        <ApprovalOfficersTooltip
+                          officers={
+                            raffle?.approval_workflows?.approval_processes ?? []
+                          }
+                        >
+                          <CustomBadge
+                            status={statusInfo.status}
+                            label={statusInfo.label}
+                          />
+                        </ApprovalOfficersTooltip>
+                      )}
+                    </>
                   )}
 
                   {/* Using the new DateRangePicker component */}
@@ -368,7 +363,7 @@ function ViewRaffles() {
                     maxDate={raffle?.end_date}
                     placeholder="Select date range"
                   />
-                  
+
                   <TakeAction
                     actions={actionItems}
                     loading={isLoadingRaffle}
