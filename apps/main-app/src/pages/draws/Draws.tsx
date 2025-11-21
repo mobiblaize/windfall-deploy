@@ -4,15 +4,14 @@ import SectionHeader from "../../components/SectionHeader";
 import houseLeft from "../../assets/draws-img-l.png";
 import houseRight from "../../assets/draws-img-r.png";
 import Paginator from "../../components/Paginator";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useGetData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import EmptyState from "../../components/EmptyState";
 import DrawCard from "./DrawCard";
 import { HiSearch } from "react-icons/hi";
-import { DatePickerInput } from "@mantine/dates";
-import { CiCalendar } from "react-icons/ci";
 import LoadingState from "../../components/LoadingState";
+import { DateRangePicker } from "../../components/DateRangePicker";
 export interface LiveDraw {
   uuid: string;
   status: string;
@@ -53,10 +52,8 @@ export interface Metrics {
 }
 
 export default function Draws() {
-  const [dateRange, setDateRange] = useState<[string | null, string | null]>([
-    null,
-    null,
-  ]);
+  const [startDate, setStartDate] = useState<string | null>("");
+  const [endDate, setEndDate] = useState<string | null>("");
   const [draws, setDraws] = useState<LiveDraw[]>([]);
   const [search, setSearch] = useState<string>("");
   const [total, setTotal] = useState<number>(0);
@@ -64,7 +61,7 @@ export default function Draws() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [filterPage, setFilterPage] = useState<number>(1);
 
-  const url = `guest/all-draw-lines?paginate=1&start_date=${dateRange[0] ?? ""}&end_date=${dateRange[1] ?? ""}&page=${filterPage}&limit=${15}`;
+  const url = `guest/all-draw-lines?paginate=1&start_date=${startDate ?? ""}&end_date=${endDate ?? ""}&page=${filterPage}&limit=${15}`;
 
   const getDrawsMutation = useGetData(url);
 
@@ -86,6 +83,11 @@ export default function Draws() {
       });
     }
   }
+  
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
 
   useEffect(() => {
     getDraws();
@@ -116,26 +118,12 @@ export default function Draws() {
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
-              className="!w-72 !rounded-xl"
+              className="!w-72 !rounded-xl !shadow-sm"
             />
-            <DatePickerInput
-              type="range"
-              value={dateRange}
-              onChange={setDateRange}
-              valueFormat="YYYY-MM-DD"
+            <DateRangePicker
+              onDateRangeChange={handleDateRangeChange}
+              maxDate={new Date()}
               placeholder="Select date range"
-              clearable
-              rightSection={
-                !dateRange[0] && !dateRange[1] ? <CiCalendar /> : undefined
-              }
-              classNames={{
-                label: "!capitalize",
-              }}
-              popoverProps={{
-                classNames: {
-                  dropdown: "!text-primary-text",
-                },
-              }}
             />
             <ActionIcon size={44} onClick={() => getDraws()}>
               <IconZoomFilled />

@@ -15,11 +15,9 @@ import {
 } from "@mantine/core";
 import { BiSolidBell } from "react-icons/bi";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { notifications } from "@mantine/notifications";
-import { DateInput } from "@mantine/dates";
-import { IoClose, IoFilterOutline } from "react-icons/io5";
-import { CiCalendar } from "react-icons/ci";
+import { IoFilterOutline } from "react-icons/io5";
 import "@mantine/dates/styles.css";
 import TablePaginator from "../../../components/TablePaginator";
 import { HiDocumentArrowDown } from "react-icons/hi2";
@@ -38,6 +36,7 @@ import RenderSkeletonText from "../../../components/RenderSkeletonText";
 import type { Raffle } from "../GameMgt/RaffleList";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
 import type { User } from "../UserMgt/UserMgt";
+import { DateRangePicker } from "../../../components/DateRangePicker";
 
 interface DrawStats {
   total_draws: number
@@ -173,30 +172,13 @@ function DrawsOverview() {
 
   const navigate = useNavigate();
 
-  // Format dates for API (YYYY-MM-DD from DD/MM/YYYY)
-  const formatDateForAPI = (dateString: string | null): string => {
-    if (!dateString) return "";
-    // Parse DD/MM/YYYY to Date, then format as YYYY-MM-DD
-    const parts = dateString.split("/");
-    if (parts.length === 3) {
-      const day = parts[0];
-      const month = parts[1];
-      const year = parts[2];
-      return `${year}-${month}-${day}`;
-    }
-    return "";
-  };
-
-  const startDateParam = formatDateForAPI(startDate);
-  const endDateParam = formatDateForAPI(endDate);
-
   // Build stats API URL - only include date params if they have values
   const statsUrl = useMemo(() => {
     const params = new URLSearchParams();
-    if (startDateParam) params.append("start_date", startDateParam);
-    if (endDateParam) params.append("end_date", endDateParam);
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
     return `admin/draw-management/stats${params.toString() ? `?${params.toString()}` : ""}`;
-  }, [startDateParam, endDateParam]);
+  }, [startDate, endDate]);
 
   const {
     data: drawStatsResponse,
@@ -212,8 +194,8 @@ function DrawsOverview() {
     params.append("limit", "10");
     if (sortBy) params.append("sort_by", sortBy);
     if (filterBy) params.append("filter_by", filterBy);
-    if (startDateParam) params.append("start_date", startDateParam);
-    if (endDateParam) params.append("end_date", endDateParam);
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
     params.append("paginate", "1");
     params.append("page", filterPage.toString());
     params.append("export", "0");
@@ -222,8 +204,8 @@ function DrawsOverview() {
     debouncedSearch,
     sortBy,
     filterBy,
-    startDateParam,
-    endDateParam,
+    startDate,
+    endDate,
     filterPage,
   ]);
 
@@ -241,12 +223,12 @@ function DrawsOverview() {
     params.append("limit", "10");
     if (sortBy) params.append("sort_by", sortBy);
     if (filterBy) params.append("filter_by", filterBy);
-    if (startDateParam) params.append("start_date", startDateParam);
-    if (endDateParam) params.append("end_date", endDateParam);
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
     params.append("paginate", "0");
     params.append("export", "1");
     return `admin/draw-management/all-draw-lines?${params.toString()}`;
-  }, [debouncedSearch, sortBy, filterBy, startDateParam, endDateParam]);
+  }, [debouncedSearch, sortBy, filterBy, startDate, endDate]);
 
   const exportDrawsMutation = useGetExportData(exportUrl);
 
@@ -319,6 +301,11 @@ function DrawsOverview() {
   function onPageChange(page: number) {
     setFilterPage(page);
   }
+  
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
 
   const drawStats: DrawStats = drawStatsResponse?.data;
 
@@ -348,56 +335,10 @@ function DrawsOverview() {
               gap={8}
               align="center"
             >
-              <DateInput
-                placeholder="Start Date"
-                withAsterisk
-                valueFormat="DD/MM/YYYY"
-                value={startDate}
-                onChange={(e) => setStartDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
-                rightSection={
-                  startDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setStartDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-              />
-
-              <DateInput
-                placeholder="End Date"
-                withAsterisk
-                rightSection={
-                  endDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setEndDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-                valueFormat="DD/MM/YYYY"
-                value={endDate}
-                onChange={(e) => setEndDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
+              <DateRangePicker
+                onDateRangeChange={handleDateRangeChange}
+                maxDate={new Date()}
+                placeholder="Select date range"
               />
             </Flex>
           </Flex>
@@ -528,7 +469,7 @@ function DrawsOverview() {
                 placeholder="Search"
                 value={search}
                 onChange={(e) => setSearch(e.currentTarget.value)}
-                className="!w-72 !rounded-xl shadow-md"
+                className="!w-72 !rounded-xl shadow-sm"
               />
               <Group>
                 <Select
@@ -540,7 +481,7 @@ function DrawsOverview() {
                     { value: "asc", label: "Oldest to Newest" },
                     { value: "desc", label: "Newest to Oldest" },
                   ]}
-                  className="!shadow-md"
+                  className="!rounded-xl !shadow-sm"
                   classNames={{
                     label: "!capitalize ",
                     options: "text-primary-text",

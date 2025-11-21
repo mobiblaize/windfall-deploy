@@ -8,17 +8,15 @@ import {
   Skeleton,
 } from "@mantine/core";
 import { useFetchData } from "../../../utils/hooks/useApis";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
-import { DateInput } from "@mantine/dates";
-import { IoClose } from "react-icons/io5";
-import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
 import { PiQuestionThin } from "react-icons/pi";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import CustomerDistribution from "./CustomerDistribution";
 import GameCustomers from "./GameCustomers";
 import EmptyState from "../../../components/EmptyState";
+import { DateRangePicker } from "../../../components/DateRangePicker";
 
 interface CustomerStats {
   total_customers: number;
@@ -58,6 +56,11 @@ function CustomerDashboard() {
   }, [statsError, isErrorStats]);
 
   const customerStats: CustomerStats = statsResponse?.data;
+  
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
 
   return (
     <>
@@ -85,56 +88,10 @@ function CustomerDashboard() {
               gap={8}
               align="center"
             >
-              <DateInput
-                placeholder="Start Date"
-                withAsterisk
-                valueFormat="DD/MM/YYYY"
-                value={startDate}
-                onChange={(e) => setStartDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
-                rightSection={
-                  startDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setStartDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-              />
-
-              <DateInput
-                placeholder="End Date"
-                withAsterisk
-                rightSection={
-                  endDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setEndDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-                valueFormat="DD/MM/YYYY"
-                value={endDate}
-                onChange={(e) => setEndDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
+              <DateRangePicker
+                onDateRangeChange={handleDateRangeChange}
+                maxDate={new Date()}
+                placeholder="Select date range"
               />
             </Flex>
           </Flex>

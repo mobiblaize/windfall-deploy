@@ -153,6 +153,7 @@ function CustomerDistribution() {
               placeholder="Select date range"
               clearable
               rightSection={!dateRange[0] && !dateRange[1] ? <CiCalendar /> : undefined}
+              className="!rounded-xl !shadow-sm"
               classNames={{
                 label: "!capitalize",
               }}
@@ -179,6 +180,7 @@ function CustomerDistribution() {
               valueFormat="YYYY-MM"
               placeholder="Select month"
               clearable
+              className="!rounded-xl !shadow-sm"
               popoverProps={{
                 classNames: {
                   dropdown: "!text-primary-text",

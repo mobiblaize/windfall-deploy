@@ -431,7 +431,7 @@ function ReferralModule() {
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.currentTarget.value)}
-                className="!w-72 !rounded-xl shadow-md"
+                className="!w-72 !rounded-xl shadow-sm"
               />
               <Group>
                 <Select
@@ -443,7 +443,7 @@ function ReferralModule() {
                     { value: "asc", label: "Oldest to Newest" },
                     { value: "desc", label: "Newest to Oldest" },
                   ]}
-                  className="!shadow-md"
+                  className="!rounded-xl !shadow-sm"
                   classNames={{
                     label: "!capitalize ",
                     options: "text-primary-text",

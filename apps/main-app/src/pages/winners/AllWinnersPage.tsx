@@ -103,7 +103,7 @@ function AllWinnersPage() {
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
-              className="!w-72 !rounded-xl"
+              className="!w-72 !rounded-xl !shadow-sm"
             />
             <DatePickerInput
               type="range"

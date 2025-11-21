@@ -305,6 +305,7 @@ export default function Notifications() {
                   rightSection={<FaAngleDown />}
                   placeholder="Status: "
                   data={statusOptions}
+                  className="!rounded-xl !shadow-sm"
                   classNames={{
                     label: "!capitalize ",
                     options: "text-primary-text",

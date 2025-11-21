@@ -251,13 +251,13 @@ function TransactionsTab() {
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
-              className="!w-72 !rounded-xl shadow-md"
+              className="!w-72 !rounded-xl shadow-sm"
             />
             <Group>
               {/* <Select
                 rightSection={<IoFilterOutline />}
                 placeholder="sort by: show all"
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
               /> */}
               <Select
                 data={[

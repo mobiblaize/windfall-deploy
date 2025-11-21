@@ -309,7 +309,7 @@ function TransactionList() {
                 rightSection={<FaAngleDown />}
                 placeholder="Game Category: "
                 data={categoriesData}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",
@@ -321,7 +321,7 @@ function TransactionList() {
                 rightSection={<FaAngleDown />}
                 placeholder="Game: "
                 data={rafflesData}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",
@@ -385,7 +385,7 @@ function TransactionList() {
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
-              className="!w-72 !rounded-xl shadow-md"
+              className="!w-72 !rounded-xl shadow-sm"
             />
             <Group>
               <Select
@@ -397,7 +397,7 @@ function TransactionList() {
                   { value: "asc", label: "Oldest to Newest" },
                   { value: "desc", label: "Newest to Oldest" },
                 ]}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",
@@ -409,7 +409,7 @@ function TransactionList() {
                 rightSection={<IoFilterOutline />}
                 placeholder="Filter by: Show all"
                 data={paymentStatus}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",

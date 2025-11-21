@@ -10,14 +10,12 @@ import {
 import { BiSolidBell } from "react-icons/bi";
 import PerformanceMonitor from "./PerformanceMonitor";
 import { useFetchData } from "../../../utils/hooks/useApis";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { notifications } from "@mantine/notifications";
-import { DateInput } from "@mantine/dates";
-import { IoClose } from "react-icons/io5";
-import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
 import SampleRaffles from "./SampleRaffles";
 import { useLocation } from "react-router-dom";
+import { DateRangePicker } from "../../../components/DateRangePicker";
 
 type StatsCard = {
   title: string;
@@ -79,6 +77,11 @@ function RaffleManagement() {
     }
     return baseUrl;
   }, [startDate, endDate, isInstantRaffleRoute]);
+  
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
 
   const {
     data: statsResponse,
@@ -126,56 +129,10 @@ function RaffleManagement() {
               gap={8}
               align="center"
             >
-              <DateInput
-                placeholder="Start Date"
-                withAsterisk
-                valueFormat="DD/MM/YYYY"
-                value={startDate}
-                onChange={(e) => setStartDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
-                rightSection={
-                  startDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setStartDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-              />
-
-              <DateInput
-                placeholder="End Date"
-                withAsterisk
-                rightSection={
-                  endDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setEndDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-                valueFormat="DD/MM/YYYY"
-                value={endDate}
-                onChange={(e) => setEndDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
+              <DateRangePicker
+                onDateRangeChange={handleDateRangeChange}
+                maxDate={new Date()}
+                placeholder="Select date range"
               />
             </Flex>
           </Flex>

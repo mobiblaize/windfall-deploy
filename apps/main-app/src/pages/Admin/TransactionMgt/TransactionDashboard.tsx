@@ -236,7 +236,7 @@ function TransactionDashboard() {
                 rightSection={<FaAngleDown />}
                 placeholder="Game Category: "
                 data={categoriesData}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",
@@ -248,7 +248,7 @@ function TransactionDashboard() {
                 rightSection={<FaAngleDown />}
                 placeholder="Game: "
                 data={rafflesData}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",

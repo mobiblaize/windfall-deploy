@@ -287,7 +287,7 @@ function RaffleList() {
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
-              className="!w-72 !rounded-xl shadow-md"
+              className="!w-72 !rounded-xl shadow-sm"
             />
             <Group>
               <Select
@@ -299,7 +299,7 @@ function RaffleList() {
                   { value: "asc", label: "Oldest to Newest" },
                   { value: "desc", label: "Newest to Oldest" },
                 ]}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",
@@ -317,7 +317,7 @@ function RaffleList() {
                   { value: "instant", label: "Instant Games" },
                   { value: "ended", label: "Ended Games" },
                 ]}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",

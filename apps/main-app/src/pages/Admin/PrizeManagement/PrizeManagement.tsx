@@ -536,7 +536,7 @@ function PrizeManagement() {
                 placeholder="Search"
                 value={search}
                 onChange={(e) => setSearch(e.currentTarget.value)}
-                className="!w-72 !rounded-xl"
+                className="!w-72 !rounded-xl !shadow-sm"
               />
               <Select
                 value={sortBy}
@@ -547,6 +547,7 @@ function PrizeManagement() {
                   { value: "asc", label: "Oldest to Newest" },
                   { value: "desc", label: "Newest to Oldest" },
                 ]}
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",

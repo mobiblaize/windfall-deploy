@@ -57,7 +57,7 @@ export const DateRangePicker = ({
       allowSingleDateInRange
       clearable={clearable}
       disabled={disabled}
-      className={className}
+      className={`!rounded-xl !shadow-sm${` ${className}`}`}
       rightSection={
         !dateRange[0] && !dateRange[1] ? <CiCalendar /> : undefined
       }

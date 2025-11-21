@@ -2,16 +2,14 @@ import { Box, Card, Divider, Flex, Text, Button, Select } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import { FaAngleDown } from "react-icons/fa";
 import Salestabs from "./Salestabs";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import type { Raffle } from "./RaffleList";
 import { useFetchData, useGetData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import RaffleOverviewCard from "./RaffleOverviewCard";
-import { DateInput } from "@mantine/dates";
-import { IoClose } from "react-icons/io5";
-import { CiCalendar } from "react-icons/ci";
 import { useNavigate, useLocation } from "react-router-dom";
 import TicketPerformanceCard from "./TicketPerformanceCard";
+import { DateRangePicker } from "../../../components/DateRangePicker";
 
 export interface TicketSalesStats {
   total_tickets_sold: number;
@@ -283,6 +281,11 @@ function PerformanceMonitor({
     }
   }
 
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setLocalStartDate(start);
+    setLocalEndDate(end);
+  }, []);
+
   useEffect(() => {
     getTicketSalesStats();
     getTicketStats();
@@ -311,14 +314,14 @@ function PerformanceMonitor({
                 <span className="text-primary-text">performance monitor</span>
               </Text>
             </Box>
-            <Flex gap={{ base: "sm", sm: "md" }}>
+            <Flex gap={{ base: "sm", sm: "md" }} wrap={"wrap"}>
               <Select
                 value={categoryId}
                 onChange={setCategoryId}
                 rightSection={<FaAngleDown />}
                 placeholder="Game Category: "
                 data={categoriesData}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",
@@ -330,62 +333,16 @@ function PerformanceMonitor({
                 rightSection={<FaAngleDown />}
                 placeholder="Game: "
                 data={rafflesData}
-                className="!shadow-md"
+                className="!rounded-xl !shadow-sm"
                 classNames={{
                   label: "!capitalize ",
                   options: "text-primary-text",
                 }}
               />
-              <DateInput
-                placeholder="Start Date"
-                withAsterisk
-                valueFormat="DD/MM/YYYY"
-                value={localStartDate}
-                onChange={(e) => setLocalStartDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
-                rightSection={
-                  localStartDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setLocalStartDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-              />
-
-              <DateInput
-                placeholder="End Date"
-                withAsterisk
-                rightSection={
-                  localEndDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setLocalEndDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-                valueFormat="DD/MM/YYYY"
-                value={localEndDate}
-                onChange={(e) => setLocalEndDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
+              <DateRangePicker
+                onDateRangeChange={handleDateRangeChange}
+                maxDate={new Date()}
+                placeholder="Select date range"
               />
             </Flex>
           </Flex>

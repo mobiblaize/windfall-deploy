@@ -608,7 +608,7 @@ export default function CustomerDetails() {
                 placeholder="Search"
                 value={search}
                 onChange={(e) => setSearch(e.currentTarget.value)}
-                className="!w-72 !rounded-xl shadow-md"
+                className="!w-72 !rounded-xl shadow-sm"
               />
               <Group>
                 <Select
@@ -620,7 +620,7 @@ export default function CustomerDetails() {
                     { value: "asc", label: "Oldest to Newest" },
                     { value: "desc", label: "Newest to Oldest" },
                   ]}
-                  className="!shadow-md"
+                  className="!rounded-xl !shadow-sm"
                   classNames={{
                     label: "!capitalize ",
                     options: "text-primary-text",
@@ -636,7 +636,7 @@ export default function CustomerDetails() {
                     { value: "pending", label: "Pending" },
                     { value: "declined", label: "Declined" },
                   ]}
-                  className="!shadow-md"
+                  className="!rounded-xl !shadow-sm"
                   classNames={{
                     label: "!capitalize ",
                     options: "text-primary-text",
