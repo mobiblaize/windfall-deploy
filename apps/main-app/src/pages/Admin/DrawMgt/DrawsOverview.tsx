@@ -123,22 +123,22 @@ export interface Link {
 
 const drawStatsCards: DrawStatsCard[] = [
   {
-    title: "Completed Draws",
+    title: "Closed Draws",
     value: 0,
     slug: "total_completed_draw_lines",
     className:
       "!bg-secondary-green !text-primary-green/50 !border-primary-green/50",
     color: "!text-primary-green",
-    subtitle: "draws completed in the last 7 days",
+    subtitle: "draws closed in the last 7 days",
   },
   {
-    title: "Pending Draws",
+    title: "Open Draws",
     value: 0,
     slug: "total_pending_draw_lines",
     className:
       "!bg-primary-warning/10 !text-primary-warning/50 !border-primary-warning/50 ",
     color: "!text-primary-warning",
-    subtitle: "draws pending in the last 7 days",
+    subtitle: "draws opened in the last 7 days",
   },
 ];
 
