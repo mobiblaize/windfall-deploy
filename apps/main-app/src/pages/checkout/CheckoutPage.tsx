@@ -13,7 +13,7 @@ import {
 import CheckoutItem from "./CheckoutItem";
 import AlertModal from "../../components/Modals/AlertModal";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import CustomButton from "../../components/Buttons/CustomButton";
 import { useCart } from "../../utils/hooks/useCart";
 import { useFetchData, usePostData } from "../../utils/hooks/useApis";
@@ -83,21 +83,20 @@ export interface Checkout {
 }
 
 export interface PaymentConfiguration {
-  registration_configuration: RegistrationConfiguration
-  game_configuration: GameConfiguration
+  registration_configuration: RegistrationConfiguration;
+  game_configuration: GameConfiguration;
 }
 
 export interface RegistrationConfiguration {
-  use_lga: boolean
-  use_lga_area: boolean
-  verify_email_otp: boolean
+  use_lga: boolean;
+  use_lga_area: boolean;
+  verify_email_otp: boolean;
 }
 
 export interface GameConfiguration {
-  use_promo_code: boolean
-  use_referral_amount: boolean
+  use_promo_code: boolean;
+  use_referral_amount: boolean;
 }
-
 
 function CheckoutPage() {
   const navigate = useNavigate();
@@ -119,6 +118,8 @@ function CheckoutPage() {
   const [buyNowItem, setBuyNowItem] = useState<Item>();
   const [user] = useAtom(userAtom);
 
+  // Add ref for payment methods section
+  const paymentMethodsRef = useRef<HTMLDivElement>(null);
 
   const getSummaryMutation = usePostData(`customer/games/checkout/summary`);
   const checkoutMutation = usePostData(`customer/games/checkout`);
@@ -133,16 +134,18 @@ function CheckoutPage() {
     isError: isConfigError,
     error: configError,
   } = useFetchData(`guest/dropdown/get-all-configurations`);
-  
-  useEffect(() => {
-    if (getSummaryMutation.isError) return setErrorMsg(getSummaryMutation.error.message) 
-    if (checkoutMutation.isError) return setErrorMsg(checkoutMutation.error.message) 
-    else setErrorMsg(undefined);
-  }, [getSummaryMutation, checkoutMutation]);  
 
   useEffect(() => {
-    if (data?.buy_now) setBuyNowItem(data?.buy_now) 
-      else setBuyNowItem(undefined);
+    if (getSummaryMutation.isError)
+      return setErrorMsg(getSummaryMutation.error.message);
+    if (checkoutMutation.isError)
+      return setErrorMsg(checkoutMutation.error.message);
+    else setErrorMsg(undefined);
+  }, [getSummaryMutation, checkoutMutation]);
+
+  useEffect(() => {
+    if (data?.buy_now) setBuyNowItem(data?.buy_now);
+    else setBuyNowItem(undefined);
   }, [data]);
 
   useEffect(() => {
@@ -184,8 +187,7 @@ function CheckoutPage() {
       notifications.show({
         title: "Failed to fetch payment configurations",
         message:
-          (configError as { message?: string })?.message ||
-          "An error occurred",
+          (configError as { message?: string })?.message || "An error occurred",
         color: "red",
       });
     }
@@ -218,6 +220,20 @@ function CheckoutPage() {
         message: response?.message || "Summary fetched successfully",
         color: "green",
       });
+
+      // Scroll to payment methods section with offset for header
+      setTimeout(() => {
+        if (paymentMethodsRef.current) {
+          const elementPosition =
+            paymentMethodsRef.current.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - 200;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }, 500);
     } catch (error) {
       notifications.show({
         title: "Failed to fetch summary",
@@ -272,14 +288,21 @@ function CheckoutPage() {
 
   const allowPromoCode = () => {
     if (!buyNowItem) return paymentConfig?.game_configuration.use_promo_code;
-    return buyNowItem.allow_promo_code_usage === 'true' && paymentConfig?.game_configuration.use_promo_code;
-  }
+    return (
+      buyNowItem.allow_promo_code_usage === "true" &&
+      paymentConfig?.game_configuration.use_promo_code
+    );
+  };
 
   const allowReferralBalance = () => {
-    if (!buyNowItem) return paymentConfig?.game_configuration.use_referral_amount;
-    return buyNowItem.allow_referral_balance_usage === 'true' && paymentConfig?.game_configuration.use_referral_amount;
-  }
-  
+    if (!buyNowItem)
+      return paymentConfig?.game_configuration.use_referral_amount;
+    return (
+      buyNowItem.allow_referral_balance_usage === "true" &&
+      paymentConfig?.game_configuration.use_referral_amount
+    );
+  };
+
   const paymentChanels = selectedPaymentMethod?.channels;
   const totalPrice = isValidated
     ? summary?.amount_to_pay
@@ -300,7 +323,8 @@ function CheckoutPage() {
           <span className="text-primary-red">({totalNoOfTickets || 0})</span>
         </Text>
         <Text className="!text-secondary-text !mb-5">
-          Buy Raffle ticket in very simple steps and stand a chance to win big!!!
+          Buy Raffle ticket in very simple steps and stand a chance to win
+          big!!!
         </Text>
 
         {cartLoading && (
@@ -347,7 +371,11 @@ function CheckoutPage() {
                     py="xl"
                   >
                     {errorMsg && (
-                      <Alert color="var(--color-primary-red)" title="Checkout Failed" className="!mb-5">
+                      <Alert
+                        color="var(--color-primary-red)"
+                        title="Checkout Failed"
+                        className="!mb-5"
+                      >
                         <Text>{errorMsg}</Text>
                       </Alert>
                     )}
@@ -374,60 +402,69 @@ function CheckoutPage() {
                           {formatCurrency(totalPrice)}
                         </Text>
                       </Flex>
-                      {allowPromoCode() && <Flex justify="space-between" gap={10} align="center">
-                        <Text className="!text-secondary-text !text-lg !capitalize">
-                          promo code
-                        </Text>
-                        <TextInput
-                          placeholder="Enter promo-code"
-                          description="Enter a promo-code to discounts total cost of purchase"
-                          inputWrapperOrder={[
-                            "label",
-                            "input",
-                            "error",
-                            "description",
-                          ]}
-                          value={promoCode}
-                          onChange={(e) => setPromoCode(e.currentTarget.value)}
-                        />
-                      </Flex>}
-                      {allowReferralBalance() && <Flex justify="space-between" gap={10} align="center">
-                        <div>
+                      {allowPromoCode() && (
+                        <Flex justify="space-between" gap={10} align="center">
                           <Text className="!text-secondary-text !text-lg !capitalize">
-                            Referral balance
+                            promo code
                           </Text>
-                          <Text className="!font-semibold !text-lg">
-                            {formatCurrency(user?.referral_balance)}
-                          </Text>
-                        </div>
-                        <TextInput
-                          placeholder="N 0"
-                          type="number"
-                          max={user?.referral_balance}
-                          description="Enter value to pay with"
-                          inputWrapperOrder={[
-                            "label",
-                            "input",
-                            "error",
-                            "description",
-                          ]}
-                          value={referralAmount}
-                          onChange={(e) => {
-                            const val = e.currentTarget.value;
-                            setReferralAmount(
-                              Number(val) >
-                                (Number(user?.referral_balance) || 0)
-                                ? Number(user?.referral_balance) || 0
-                                : val
-                            );
-                          }}
-                        />
-                      </Flex>}
+                          <TextInput
+                            placeholder="Enter promo-code"
+                            description="Enter a promo-code to discounts total cost of purchase"
+                            inputWrapperOrder={[
+                              "label",
+                              "input",
+                              "error",
+                              "description",
+                            ]}
+                            value={promoCode}
+                            onChange={(e) =>
+                              setPromoCode(e.currentTarget.value)
+                            }
+                          />
+                        </Flex>
+                      )}
+                      {allowReferralBalance() && (
+                        <Flex justify="space-between" gap={10} align="center">
+                          <div>
+                            <Text className="!text-secondary-text !text-lg !capitalize">
+                              Referral balance
+                            </Text>
+                            <Text className="!font-semibold !text-lg">
+                              {formatCurrency(user?.referral_balance)}
+                            </Text>
+                          </div>
+                          <TextInput
+                            placeholder="N 0"
+                            type="number"
+                            max={user?.referral_balance}
+                            description="Enter value to pay with"
+                            inputWrapperOrder={[
+                              "label",
+                              "input",
+                              "error",
+                              "description",
+                            ]}
+                            value={referralAmount}
+                            onChange={(e) => {
+                              const val = e.currentTarget.value;
+                              setReferralAmount(
+                                Number(val) >
+                                  (Number(user?.referral_balance) || 0)
+                                  ? Number(user?.referral_balance) || 0
+                                  : val
+                              );
+                            }}
+                          />
+                        </Flex>
+                      )}
                     </Stack>
                     <Divider my="xl" />
                     <Flex justify="space-between" gap={10} align="center">
                       <Text className="!text-secondary-text !text-lg">
-                        {isValidated ? 'Amount to Pay': 'Total Prices of Ticket'}:
+                        {isValidated
+                          ? "Amount to Pay"
+                          : "Total Prices of Ticket"}
+                        :
                       </Text>
                       <Text className="!font-bold !text-primary-red !text-3xl">
                         {formatCurrency(totalPrice)}
@@ -453,6 +490,7 @@ function CheckoutPage() {
                 {/* Payment Methods */}
                 {isValidated && (
                   <Card
+                    ref={paymentMethodsRef}
                     withBorder
                     className="!rounded-xl h-fit !col-span-5 md:!col-span-2 !space-y-10 !px-5"
                   >
