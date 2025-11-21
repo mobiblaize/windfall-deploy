@@ -16,9 +16,9 @@ import { useEffect, useState } from "react";
 import { useFetchData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import type { Raffle } from "../../models/raffles";
-import { format } from "date-fns";
 import LoadingState from "../../components/LoadingState";
 import Paginator from "../../components/Paginator";
+import { formatLocalDate } from "../../utils/helper/formatLocalDate";
 
 export interface GameResults {
   uuid: string;
@@ -150,8 +150,8 @@ function ResultsTab() {
                           <FaClock className="text-base" />
                           <Text className="!text-sm leading-none">
                             Draw Date:{" "}
-                            {format(
-                              new Date(result.game.start_date),
+                            {formatLocalDate(
+                              (result.game.end_date),
                               "MMMM d, yyyy"
                             )}
                           </Text>

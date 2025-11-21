@@ -129,7 +129,7 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
           <div className="text-center flex-1 gap-1">
             <p className="text-secondary-text">Draw Date</p>
             <p className="text-base text-wrap break-all text-[#2d2d2d]">
-              {formatDate(draw.draw_at)}
+              {formatDate(draw.draw_at ?? draw?.game?.end_date)}
             </p>
           </div>
 
@@ -259,7 +259,7 @@ export default function DrawCard({ draw }: { draw: LiveDraw }) {
                 <div className="text-center flex-1 gap-1">
                   <p className="text-secondary-text">Draw Date</p>
                   <p className="text-base text-wrap break-all text-[#2d2d2d]">
-                    {formatDate(draw.draw_at)}
+                    {formatDate(draw.draw_at ?? draw?.game?.end_date)}
                   </p>
                 </div>
 

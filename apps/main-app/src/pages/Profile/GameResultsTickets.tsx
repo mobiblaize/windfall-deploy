@@ -129,7 +129,10 @@ function GameResultsTickets() {
               {game && (
                 <div className="text-nowrap">
                   <GameBadge
-                    date={game?.start_date}
+                    startDate={game.start_date}
+                    endDate={game.end_date}
+                    startTime={game.start_time}
+                    endTime={game.end_time}
                     status={game?.status}
                     gameType={isInstant ? "instant" : "raffle"}
                   />

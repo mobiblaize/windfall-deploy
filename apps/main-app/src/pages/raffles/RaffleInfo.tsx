@@ -37,13 +37,14 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
   const navigate = useNavigate();
 
   // Check if there are insufficient tickets available
-  const hasInsufficientTickets = raffle.available_tickets < raffle.minimum_ticket_number_purchase;
+  const hasInsufficientTickets =
+    raffle.available_tickets < raffle.minimum_ticket_number_purchase;
   const isSoldOut = raffle.available_tickets <= 0;
   const canPurchase = !hasInsufficientTickets && !isSoldOut;
 
   useEffect(() => {
     setMaxTickets(evaluateMax(raffle));
-    
+
     // Set quantity based on availability
     if (isSoldOut) {
       setQuantity(0);
@@ -57,7 +58,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         )
       );
     }
-    
+
     setActiveSlide(0);
     setActiveThumbnail(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,7 +66,12 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
   function setDiscount(min: number) {
     if (!canPurchase) return;
-    setQuantity(Math.max(raffle.minimum_ticket_number_purchase, Math.min(min, raffle.available_tickets)));
+    setQuantity(
+      Math.max(
+        raffle.minimum_ticket_number_purchase,
+        Math.min(min, raffle.available_tickets)
+      )
+    );
   }
 
   function selectImage(idx: number) {
@@ -77,8 +83,8 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
     if (!canPurchase) {
       notifications.show({
         title: "Cannot Add to Cart",
-        message: isSoldOut 
-          ? "This raffle is sold out" 
+        message: isSoldOut
+          ? "This raffle is sold out"
           : `Minimum ${raffle.minimum_ticket_number_purchase} tickets required, but only ${raffle.available_tickets} available`,
         color: "red",
       });
@@ -142,7 +148,7 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
 
   const handleQuantityChange = (delta: number) => {
     if (!canPurchase) return;
-    
+
     setQuantity((prev) => {
       const newQty = prev + delta;
       if (newQty < raffle.minimum_ticket_number_purchase)
@@ -219,7 +225,10 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         <div className="mt-8">
           {!isInstant && isActive && (
             <GameBadge
-              date={raffle.start_date}
+              startDate={raffle.start_date}
+              endDate={raffle.end_date}
+              startTime={raffle.start_time}
+              endTime={raffle.end_time}
               status={raffle.main_active_status}
               gameType={isInstant ? "instant" : "raffle"}
               active={raffle.is_active}
@@ -264,8 +273,12 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
                     </p>
                   </div>
                   <div>
-                    <p className={`text-lg mt-1 text-right ${isSoldOut ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
-                      {isSoldOut ? 'Sold Out!' : `${raffle.available_tickets} Tickets Left`}
+                    <p
+                      className={`text-lg mt-1 text-right ${isSoldOut ? "text-red-600 font-semibold" : "text-gray-500"}`}
+                    >
+                      {isSoldOut
+                        ? "Sold Out!"
+                        : `${raffle.available_tickets} Tickets Left`}
                     </p>
                   </div>
                 </>
@@ -305,10 +318,12 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         {isActive && hasInsufficientTickets && !isSoldOut && (
           <div className="bg-yellow-50 border-2 border-dashed border-yellow-500 rounded-xl px-4 py-3">
             <p className="text-yellow-800 text-sm font-semibold">
-              ⚠️ Only {raffle.available_tickets} ticket{raffle.available_tickets !== 1 ? 's' : ''} remaining
+              ⚠️ Only {raffle.available_tickets} ticket
+              {raffle.available_tickets !== 1 ? "s" : ""} remaining
             </p>
             <p className="text-yellow-700 text-xs mt-1">
-              Minimum purchase is {raffle.minimum_ticket_number_purchase} tickets
+              Minimum purchase is {raffle.minimum_ticket_number_purchase}{" "}
+              tickets
             </p>
           </div>
         )}
@@ -409,8 +424,8 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
             isDisabled
               ? "!border-gray-200 !bg-gray-50 !opacity-50 !cursor-not-allowed"
               : isActiveDiscount
-              ? "!border-primary-red !bg-secondary-red !cursor-pointer"
-              : "!border-gray-300 hover:!border-primary-red !bg-primary-grey hover:!bg-secondary-red !cursor-pointer"
+                ? "!border-primary-red !bg-secondary-red !cursor-pointer"
+                : "!border-gray-300 hover:!border-primary-red !bg-primary-grey hover:!bg-secondary-red !cursor-pointer"
           }
           !min-w-[100px] !max-w-full !flex-grow`}
                   >
@@ -438,7 +453,10 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
         {!isActive && (
           <div>
             <GameBadge
-              date={isClosed ? raffle.end_date: raffle.start_date}
+              startDate={raffle.start_date}
+              endDate={raffle.end_date}
+              startTime={raffle.start_time}
+              endTime={raffle.end_time}
               status={raffle.main_active_status}
               gameType={isInstant ? "instant" : "raffle"}
               active={raffle.is_active}
@@ -486,7 +504,8 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
             size="xl"
             fullWidth={!isActive || !canPurchase}
             style={{
-              backgroundColor: isActive && canPurchase ? "var(--primary-red)" : "#ef4444",
+              backgroundColor:
+                isActive && canPurchase ? "var(--primary-red)" : "#ef4444",
               color: "#fff",
               opacity: isActive && canPurchase ? 1 : 0.5,
               cursor: isActive && canPurchase ? "pointer" : "not-allowed",

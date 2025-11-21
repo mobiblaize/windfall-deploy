@@ -8,7 +8,7 @@ import { format } from "date-fns";
  */
 export function formatLocalDate(
   date: string | Date | null | undefined,
-  formatString: string
+  formatString = ''
 ): string {
   if (!date) return "";
 

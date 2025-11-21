@@ -23,7 +23,10 @@ export default function RaffleCard(raffle: Raffle) {
           className="w-full rounded-xl h-70 object-cover mb-[-1.25rem]"
         />
         <GameBadge
-          date={raffle.start_date}
+          startDate={raffle.start_date}
+          endDate={raffle.end_date}
+          startTime={raffle.start_time}
+          endTime={raffle.end_time}
           status={raffle.main_active_status}
           gameType={isInstant ? "instant" : "raffle"}
           active={raffle.is_active}
@@ -56,7 +59,7 @@ export default function RaffleCard(raffle: Raffle) {
           !isActive ? "" : isInstant ? "!bg-instant-blue" : "!bg-primary-red"
         }`}
       >
-        {!raffle.available_tickets ? "View Raffle": raffle.cta_text
+        {(isActive && !raffle.available_tickets) ? "View Raffle": raffle.cta_text
           ? raffle.cta_text
           : isInstant
             ? `Purchase Ticket For ${formatCurrency(raffle.ticket_price)}`

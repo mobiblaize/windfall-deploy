@@ -76,6 +76,8 @@ export interface Game {
   start_date: string;
   end_date: string;
   main_active_status: RaffleStatus;
+  start_time: string;
+  end_time: string;
 }
 
 type ContextType = { setCrumbs: React.Dispatch<React.SetStateAction<Crumb[]>> };
@@ -273,7 +275,10 @@ export default function PaymentReceipt() {
                         </Flex>
 
                         <GameBadge
-                          date={item.game?.start_date}
+                          startDate={item.game?.start_date}
+                          endDate={item.game?.end_date}
+                          startTime={item.game?.start_time}
+                          endTime={item.game?.end_time}
                           status={item.game?.main_active_status}
                           gameType={isInstant ? "instant" : "raffle"}
                         />
