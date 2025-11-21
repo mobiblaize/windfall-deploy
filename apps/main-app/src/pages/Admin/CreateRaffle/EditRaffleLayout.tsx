@@ -251,12 +251,10 @@ function EditRaffleLayout() {
         return null;
       },
       discount_percentage: (val, values) => {
-        if (values.discount_type !== 'straight_line') return null;
+        if (values.discount_type !== "straight_line") return null;
         if (!val) return "Discount percentage is required";
-        if (Number(val) < 0)
-          return `Discount percentage cannot be negative`;
-        if (Number(val) > 100)
-          return `Discount percentage cannot exceed 100%`;
+        if (Number(val) < 0) return `Discount percentage cannot be negative`;
+        if (Number(val) > 100) return `Discount percentage cannot exceed 100%`;
         return null;
       },
 
@@ -296,7 +294,7 @@ function EditRaffleLayout() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tiers: (tiers: any[], values) => {
-        if (values.discount_type === 'straight_line') return null;
+        if (values.discount_type === "straight_line") return null;
         if (!tiers || tiers.length === 0) return null;
 
         for (let i = 0; i < tiers.length; i++) {
@@ -573,33 +571,36 @@ function EditRaffleLayout() {
     []
   );
 
-  const handleSubmit = useCallback(async (status: "draft" | "published" = "published") => {
-    const result = form.validate();
-    let hasErrors = result.hasErrors;
-    let nameValid = true;
+  const handleSubmit = useCallback(
+    async (status: "draft" | "published" = "published") => {
+      const result = form.validate();
+      let hasErrors = result.hasErrors;
+      let nameValid = true;
 
-    if (!hasErrors) {
-      setIsCheckingName(true);
-      nameValid = await checkNameExists(form.getValues().name);
-      setIsCheckingName(false);
-      if (!nameValid) {
-        hasErrors = true;
+      if (!hasErrors) {
+        setIsCheckingName(true);
+        nameValid = await checkNameExists(form.getValues().name);
+        setIsCheckingName(false);
+        if (!nameValid) {
+          hasErrors = true;
+        }
       }
-    }
 
-    if (hasErrors) {
-      notifications.show({
-        title: "Form Error",
-        message:
-          "Some fields are invalid or missing. Please check the form for errors.",
-        color: "var(--color-primary-red)",
-      });
-      return;
-    }
+      if (hasErrors) {
+        notifications.show({
+          title: "Form Error",
+          message:
+            "Some fields are invalid or missing. Please check the form for errors.",
+          color: "var(--color-primary-red)",
+        });
+        return;
+      }
 
-    form.setFieldValue("status", status);
-    setAlertModalOpen(true);
-  }, [form, checkNameExists]);
+      form.setFieldValue("status", status);
+      setAlertModalOpen(true);
+    },
+    [form, checkNameExists]
+  );
 
   const manageRaffles = useCallback(() => {
     setSuccessModalOpen(false);
@@ -699,7 +700,7 @@ function EditRaffleLayout() {
     ],
     [isInstantRaffleRoute, baseRoute, raffleData?.data?.name, id]
   );
-  
+
   const isPublished = form.values.status === "published";
 
   if (!id) {
@@ -717,11 +718,16 @@ function EditRaffleLayout() {
     );
   }
 
+  const isDraft = (raffleData?.data as Raffle)?.status === "draft";
+
   return (
-    <form onSubmit={(e) => {
+    <form
+      onSubmit={(e) => {
         e.preventDefault();
         handleSubmit("published");
-      }}   className="pb-5">
+      }}
+      className="pb-5"
+    >
       {/* Breadcrumb */}
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
         <div className="px-6 md:px-10 py-1">
@@ -750,7 +756,7 @@ function EditRaffleLayout() {
                   loading={isCheckingName}
                   disabled={isCheckingName || isInitialLoading}
                 >
-                  Update Raffle
+                  {isDraft ? "Save and Publish" : "Update and Publish"}
                 </CustomButton>
               </Flex>
             )}
@@ -809,6 +815,7 @@ function EditRaffleLayout() {
             {/* Footer Buttons */}
             <Flex
               justify="flex-end"
+              wrap={"wrap"}
               gap={20}
               className="!bg-white !rounded-xl !border !border-gray-200 !p-6 mt-10 !mb-10"
             >
@@ -836,19 +843,32 @@ function EditRaffleLayout() {
                   Continue
                 </CustomButton>
               )}
-              {active === stepsLayout.length - 1 && raffleData?.data?.status === 'draft' && (
-                <CustomButton
-                  size="lg"
-                  border={false}
-                  fullWidth={false}
-                  type="dark"
-                  onClick={() => handleSubmit("draft")}
-                  loading={isCheckingName}
-                  disabled={isCheckingName}
-                >
-                  Save As Draft
-                </CustomButton>
-              )}
+              {active === stepsLayout.length - 1 &&
+                raffleData?.data?.status === "draft" && (
+                  <>
+                    <CustomButton
+                      size="lg"
+                      border={false}
+                      fullWidth={false}
+                      type="dark"
+                      onClick={() => handleSubmit("draft")}
+                      loading={isCheckingName}
+                      disabled={isCheckingName}
+                    >
+                      Save As Draft
+                    </CustomButton>
+                    <CustomButton
+                      size="lg"
+                      border={false}
+                      fullWidth={false}
+                      onClick={() => handleSubmit("published")}
+                      loading={isCheckingName}
+                      disabled={isCheckingName}
+                    >
+                      Publish Raffle
+                    </CustomButton>
+                  </>
+                )}
             </Flex>
           </Container>
         </>
@@ -858,15 +878,18 @@ function EditRaffleLayout() {
         opened={alertModalOpen}
         onClose={() => setAlertModalOpen(false)}
         status="error"
-        title={<span>{isPublished ? "Update Raffle Game?" : "Save as Draft"} ?</span>}
+        title={
+          <span>{isPublished ? "Publish Raffle Game?" : "Save as Draft"} ?</span>
+        }
         description={
           <span>
-            {isPublished ? 'Are you sure you want to update this raffle draw/game? Changes will be reflected immediately and customers will see the updated details.': 
-             "Are you sure, you want to save as draft ? You can update and publish this raffle game later."}
+            {isPublished
+              ? "Are you sure you want to update and publish this raffle draw/game? Changes will be reflected immediately and customers will see the updated details."
+              : "Are you sure, you want to save as draft ? You can update and publish this raffle game later."}
           </span>
         }
         primaryButton={{
-          label: "Yes, Update Raffle",
+          label: isPublished ? "Yes, Publish Raffle Game" : "Yes, Save as Draft",
           onClick: handleUpdateRaffle,
           loading: updateMutation.isPending,
           disabled: updateMutation.isPending,

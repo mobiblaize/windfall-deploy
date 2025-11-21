@@ -96,8 +96,6 @@ function CreateRaffleLayout() {
     );
   }, [categoriesData]);
 
-  
-
   const form = useForm({
     mode: "controlled",
     validateInputOnBlur: false,
@@ -240,12 +238,10 @@ function CreateRaffleLayout() {
         return null;
       },
       discount_percentage: (val, values) => {
-        if (values.discount_type !== 'straight_line') return null;
+        if (values.discount_type !== "straight_line") return null;
         if (!val) return "Discount percentage is required";
-        if (Number(val) < 0)
-          return `Discount percentage cannot be negative`;
-        if (Number(val) > 100)
-          return `Discount percentage cannot exceed 100%`;
+        if (Number(val) < 0) return `Discount percentage cannot be negative`;
+        if (Number(val) > 100) return `Discount percentage cannot exceed 100%`;
         return null;
       },
 
@@ -288,7 +284,7 @@ function CreateRaffleLayout() {
       // 🧩 Discount tiers validation
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tiers: (tiers: any[], values) => {
-        if (values.discount_type === 'straight_line') return null;
+        if (values.discount_type === "straight_line") return null;
         if (!tiers || tiers.length === 0) return null;
 
         for (let i = 0; i < tiers.length; i++) {
@@ -639,7 +635,7 @@ function CreateRaffleLayout() {
                   </div>
                 }
               >
-                Create New Raffle
+                Save and Publish
               </CustomButton>
             </Flex>
           </Flex>
@@ -691,6 +687,7 @@ function CreateRaffleLayout() {
         {/* Footer Buttons */}
         <Flex
           justify="flex-end"
+          wrap={"wrap"}
           gap={20}
           className="!bg-white !rounded-xl !border !border-gray-200 !p-6 mt-10 !mb-10"
         >
@@ -720,17 +717,29 @@ function CreateRaffleLayout() {
           )}
 
           {active === stepsLayout.length - 1 && (
-            <CustomButton
-              size="lg"
-              border={false}
-              fullWidth={false}
-              type="dark"
-              onClick={() => handleSubmit("draft")}
-              loading={isCheckingName}
-              disabled={isCheckingName}
-            >
-              Save As Draft
-            </CustomButton>
+            <>
+              <CustomButton
+                size="lg"
+                border={false}
+                fullWidth={false}
+                type="dark"
+                onClick={() => handleSubmit("draft")}
+                loading={isCheckingName}
+                disabled={isCheckingName}
+              >
+                Save As Draft
+              </CustomButton>
+              <CustomButton
+                size="lg"
+                border={false}
+                fullWidth={false}
+                onClick={() => handleSubmit("published")}
+                loading={isCheckingName}
+                disabled={isCheckingName}
+              >
+                Publish Game
+              </CustomButton>
+            </>
           )}
         </Flex>
       </Container>
@@ -751,7 +760,7 @@ function CreateRaffleLayout() {
           </span>
         }
         primaryButton={{
-          label: "Yes, Create Raffle Game",
+          label: isPublished ? "Yes, Create Raffle Game" : "Yes, Save as Draft",
           onClick: handleCreateRaffle,
           loading: createMutation.isPending,
           disabled: createMutation.isPending,
