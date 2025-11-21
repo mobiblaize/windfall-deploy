@@ -191,6 +191,7 @@ export default function CreateUser() {
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 7 }}>
                 <TextInput
+                  type="email"
                   placeholder="example@mail.com"
                   styles={inputStyles}
                   {...form.getInputProps("email")}

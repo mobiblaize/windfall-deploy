@@ -144,7 +144,7 @@ export default function AdminLoginPage() {
             <Flex justify="space-between" align="center">
               <div className="flex justify-between items-center">
                 <a onClick={()=>navigate("/admin/reset-password")} className="text-red-500 cursor-pointer text-sm hover:underline">
-                  Forget Password?
+                  Forgot Password?
                 </a>
               </div>
 

@@ -321,6 +321,11 @@ export default function CreatePromoCode() {
                     {...form.getInputProps("start_date")}
                     error={form.errors.start_date}
                     minDate={today}
+                    popoverProps={{
+                      classNames: {
+                        dropdown: "!text-primary-text",
+                      },
+                    }}
                   />
                   <DateInput
                     label="End date"
@@ -329,6 +334,11 @@ export default function CreatePromoCode() {
                     {...form.getInputProps("end_date")}
                     error={form.errors.end_date}
                     minDate={today}
+                    popoverProps={{
+                      classNames: {
+                        dropdown: "!text-primary-text",
+                      },
+                    }}
                   />
                 </SimpleGrid>
               </Grid.Col>

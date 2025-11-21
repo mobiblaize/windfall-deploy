@@ -236,6 +236,7 @@ export default function EditUser() {
               <Grid.Col span={{ base: 12, md: 7 }}>
                 <TextInput
                   placeholder="example@mail.com"
+                  type="email"
                   styles={inputStyles}
                   {...form.getInputProps("email")}
                 />

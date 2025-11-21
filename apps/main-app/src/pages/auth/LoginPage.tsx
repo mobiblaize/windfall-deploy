@@ -138,7 +138,7 @@ function LoginPage() {
               />
               <Flex justify="flex-end">
                 <Text>
-                  Forget password ?{" "}
+                  Forgot password ?{" "}
                   <Text
                     component="span"
                     className="!text-primary-red !underline"

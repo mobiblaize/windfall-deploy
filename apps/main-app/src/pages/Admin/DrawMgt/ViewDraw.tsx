@@ -42,6 +42,7 @@ const breadCrumbs: Crumb[] = [
 
 type Winner = {
   uuid: string;
+  uniqueID: string;
   announce_status: string;
   customer_name: string;
   customer_email: string;
@@ -656,13 +657,13 @@ export default function ViewDraw() {
                       bgColor={isWon ? "!bg-secondary-red" : "!bg-white"}
                     >
                       <Grid gutter="sm" justify="center">
-                        <Grid.Col span={{ base: 12, md: 6 }}>
-                          <div className="relative p-0 sm:px-6 py-6">
+                        <Grid.Col span={{ base: 12 }}>
+                          <Flex className="!relative !p-0 sm:!px-6 !py-6" direction={"column"} align={"center"}>
                             <Text className="!text-xl !text-center md:!text-2xl !font-semibold !text-gray-900 !mb-6">
                               Winning Raffle Number
                             </Text>
 
-                            <Box className="border-2 relative border-dashed border-primary-red text-center px-6 py-4 rounded-lg !bg-white !mb-5">
+                            <Box className="border-2 relative min-w-[50%] border-dashed border-primary-red text-center px-6 py-4 rounded-lg !bg-white !mb-5">
                               <Text className="!text-sm !text-gray-600 !mb-1">
                                 Ticket Number
                               </Text>
@@ -685,7 +686,7 @@ export default function ViewDraw() {
                                     Lucky Winner
                                   </Text>
                                   <Text className="!text-lg !font-bold !text-primary-red">
-                                    {winner.customer_name}
+                                    {winner.customer_name}{winner.uniqueID ? ` (ID: ${winner.uniqueID})`: ''}
                                   </Text>
                                 </Box>
                               </Group>
@@ -734,7 +735,7 @@ export default function ViewDraw() {
                                   )}
                               </div>
                             )}
-                          </div>
+                          </Flex>
                         </Grid.Col>
                       </Grid>
                     </CustomTickets>
