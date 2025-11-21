@@ -91,7 +91,7 @@ function GameCustomers() {
         const url = window.URL.createObjectURL(new Blob([data]));
         const a = document.createElement("a");
         a.href = url;
-        a.download = `transactions_export_${new Date()
+        a.download = `customers_export_${new Date()
           .toISOString()
           .slice(0, 10)}.xlsx`; // adjust extension if CSV/PDF
         document.body.appendChild(a);

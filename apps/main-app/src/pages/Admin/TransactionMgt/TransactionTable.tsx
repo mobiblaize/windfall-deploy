@@ -9,11 +9,13 @@ import { formatCurrency } from "../../../utils/helper/formatCurrency";
 type TransactionTableProps = {
   transactions: RaffleTransaction[];
   isLoading: boolean;
+  showProfileButton?: boolean
 };
 
 export default function TransactionTable({
   isLoading,
   transactions,
+  showProfileButton = true
 }: TransactionTableProps) {
   const [selectedTransaction, setSelectedTransaction] =
     useState<RaffleTransaction | null>(null);
@@ -113,6 +115,7 @@ export default function TransactionTable({
       <TransactionDetails
         opened={transactionModalOpen}
         onClose={() => setTransactionModalOpen(false)}
+        showProfileButton={showProfileButton}
         transaction={selectedTransaction}
       />
     </>

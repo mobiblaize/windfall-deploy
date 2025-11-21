@@ -20,11 +20,13 @@ import { useState, useEffect, useMemo } from "react";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { IoInformationCircleOutline, IoWarningOutline } from "react-icons/io5";
+import { formatCurrency } from "../../../utils/helper/formatCurrency";
 
 type TransactionModalProps = {
   opened: boolean;
   onClose: () => void;
   transaction: RaffleTransaction | null;
+  showProfileButton?: boolean
 };
 
 // API Response Types
@@ -76,6 +78,7 @@ export default function TransactionDetails({
   opened,
   onClose,
   transaction,
+  showProfileButton = true,
 }: TransactionModalProps) {
   const navigate = useNavigate();
   const [ticketsOpen, setTicketsOpen] = useState(false);
@@ -205,6 +208,10 @@ export default function TransactionDetails({
         </Badge>
       ),
     },
+    {
+      label: "Amount Paid",
+      value: <span className="capitalize">{formatCurrency(transaction.paid_amount)}</span>,
+    },
   ];
 
   return (
@@ -259,7 +266,7 @@ export default function TransactionDetails({
           </div>
         </Flex>
 
-        <Button
+        {showProfileButton && <Button
           className="!border-[#D0D5DD] !text-secondary-text !capitalize"
           size="md"
           variant="outline"
@@ -274,7 +281,7 @@ export default function TransactionDetails({
           }
         >
           view profile
-        </Button>
+        </Button>}
       </Flex>
 
       <Box

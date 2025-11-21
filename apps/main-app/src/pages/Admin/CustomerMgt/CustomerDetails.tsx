@@ -119,7 +119,6 @@ export default function CustomerDetails() {
   const [transactions, setTransactions] = useState<RaffleTransaction[]>([]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string | null>("");
-  const [filterBy, setFilterBy] = useState<string | null>("");
   const debouncedSearch = useDebounce(search, 500);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [filterPage, setFilterPage] = useState<number>(1);
@@ -137,11 +136,11 @@ export default function CustomerDetails() {
   };
 
   const transactionsQuery = useGetData(
-    `admin/customer-management/all-customer-orders?customer_id=${id}&paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
+    `admin/customer-management/all-customer-orders?customer_id=${id}&paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}`
   );
 
   const exportTransactionsQuery = useGetExportData(
-    `admin/customer-management/all-customer-orders?customer_id=${id}&paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
+    `admin/customer-management/all-customer-orders?customer_id=${id}&paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&export=1`
   );
 
   const {
@@ -155,7 +154,7 @@ export default function CustomerDetails() {
     setFilterPage(1);
     fetchTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, sortBy, filterBy]);
+  }, [debouncedSearch, sortBy]);
 
   function onPageChange(page: number) {
     setFilterPage(page);
@@ -626,26 +625,11 @@ export default function CustomerDetails() {
                     options: "text-primary-text",
                   }}
                 />
-                <Select
-                  value={filterBy}
-                  onChange={setFilterBy}
-                  rightSection={<IoFilterOutline />}
-                  placeholder="Filter by: Show all"
-                  data={[
-                    { value: "approved", label: "Approved" },
-                    { value: "pending", label: "Pending" },
-                    { value: "declined", label: "Declined" },
-                  ]}
-                  className="!rounded-xl !shadow-sm"
-                  classNames={{
-                    label: "!capitalize ",
-                    options: "text-primary-text",
-                  }}
-                />
               </Group>
             </Flex>
 
             <TransactionTable
+              showProfileButton={false}
               isLoading={transactionsQuery.isPending}
               transactions={transactions}
             />

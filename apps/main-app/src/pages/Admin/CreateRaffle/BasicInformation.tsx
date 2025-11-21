@@ -113,7 +113,7 @@ function BasicInformationInner({ form, categories }: Props) {
           </Text>
         </Box>
         <TextInput
-          placeholder="Enter short description"
+          placeholder="80 characters, including spaces & punctuation"
           classNames={{ input: "placeholder:text-xs" }}
           {...descriptionProps}
         />
@@ -178,6 +178,7 @@ function BasicInformationInner({ form, categories }: Props) {
                 placeholder="Pick start date"
                 required
                 minDate={new Date()}
+                valueFormat="YYYY-MM-DD"
                 classNames={{ input: "placeholder:text-xs" }}
                 {...startDateProps}
                 error={form.errors.start_date}
@@ -193,6 +194,7 @@ function BasicInformationInner({ form, categories }: Props) {
                 placeholder="Pick end date"
                 required
                 minDate={new Date()}
+                valueFormat="YYYY-MM-DD"
                 classNames={{ input: "placeholder:text-xs" }}
                 {...endDateProps}
                 error={form.errors.end_date}

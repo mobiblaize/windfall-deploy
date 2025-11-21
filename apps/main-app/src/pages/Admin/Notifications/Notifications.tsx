@@ -277,7 +277,7 @@ export default function Notifications() {
           list: "!gap-y-2 !gap-x-2 before:!hidden",
         }}
       >
-        <div className="bg-white border-b-2 border-[#d0d5dd]">
+        <div className="bg-white border-b-2 border-[#d0d5dd] sticky top-[69px] z-10">
           <div className="px-6 md:px-10 pt-5 pb-2">
             <Flex
               mb="lg"
