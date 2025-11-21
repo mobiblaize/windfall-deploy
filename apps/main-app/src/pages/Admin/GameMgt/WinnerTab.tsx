@@ -147,7 +147,7 @@ function WinnerTab({ raffleId, isInstantGame }: WinnerTabProps) {
             </Grid.Col>
           ))}
         </Grid>
-      ) : winnersData?.prize_groups?.length ? (
+      ) : winnersData?.prize_groups?.some(group => group.tickets.length > 0) ? (
         <>
           {!isInstantGame && (
             <Grid columns={5}>

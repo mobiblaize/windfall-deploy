@@ -85,7 +85,6 @@ export default function UserDetails() {
   const [deleteSuccessModalOpen, setDeleteSuccessModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string | null>("");
-  const [filterBy, setFilterBy] = useState<string | null>("");
   const debouncedSearch = useDebounce(search, 500);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [filterPage, setFilterPage] = useState<number>(1);
@@ -101,11 +100,11 @@ export default function UserDetails() {
   }
 
   const userActivitiesMutation = useGetData(
-    `admin/user-management/users/show/activities/${id}?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
+    `admin/user-management/users/show/activities/${id}?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}`
   );
 
   const exportActivitiesMutation = useGetExportData(
-    `admin/user-management/users/show/activities/${id}?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
+    `admin/user-management/users/show/activities/${id}?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&export=1`
   );
 
   const {
@@ -131,7 +130,7 @@ export default function UserDetails() {
     setFilterPage(1);
     getUserActivities();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, sortBy, filterBy]);
+  }, [debouncedSearch, sortBy]);
 
   function onPageChange(page: number) {
     setFilterPage(page);
@@ -509,22 +508,6 @@ export default function UserDetails() {
                   data={[
                     { value: "asc", label: "Oldest to Newest" },
                     { value: "desc", label: "Newest to Oldest" },
-                  ]}
-                  className="!shadow-md"
-                  classNames={{
-                    label: "!capitalize ",
-                    options: "text-primary-text",
-                  }}
-                />
-                <Select
-                  value={filterBy}
-                  onChange={setFilterBy}
-                  rightSection={<IoFilterOutline />}
-                  placeholder="Filter by: Show all"
-                  data={[
-                    { value: "approved", label: "Approved" },
-                    { value: "pending", label: "Pending" },
-                    { value: "declined", label: "Declined" },
                   ]}
                   className="!shadow-md"
                   classNames={{
