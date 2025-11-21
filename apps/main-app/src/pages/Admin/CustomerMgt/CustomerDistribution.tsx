@@ -151,6 +151,7 @@ function CustomerDistribution() {
               }}
               valueFormat="YYYY-MM-DD"
               placeholder="Select date range"
+              maxDate={new Date()}
               clearable
               rightSection={!dateRange[0] && !dateRange[1] ? <CiCalendar /> : undefined}
               className="!rounded-xl !shadow-sm"
