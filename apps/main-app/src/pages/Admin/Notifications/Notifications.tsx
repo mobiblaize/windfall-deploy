@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import "@mantine/dates/styles.css";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFetchData } from "../../../utils/hooks/useApis";
 import { format } from "date-fns";
 import LoadingState from "../../../components/LoadingState";
@@ -21,12 +21,11 @@ import { notifications as mantineNotifications } from "@mantine/notifications";
 import Paginator from "../../../components/Paginator";
 import type { Permission } from "../RoleMgt/CreateRole";
 import CustomBadge from "../../../components/CustomBadge";
-import { DateInput } from "@mantine/dates";
 import { FaAngleDown } from "react-icons/fa";
-import { CiCalendar } from "react-icons/ci";
 import { useGetNotifications } from "../../../utils/api/Admin/notifications";
-import { IoClose, IoCheckmark } from "react-icons/io5";
+import { IoCheckmark } from "react-icons/io5";
 import { useGetData } from "../../../utils/hooks/useApis";
+import { DateRangePicker } from "../../../components/DateRangePicker";
 
 export interface Role {
   uuid: string;
@@ -87,11 +86,9 @@ const statusOptions = [
 
 function NotificationCard({ notification, onRead }: NotificationCardProps) {
   const isRead = !!notification.read_at;
-  const targetId = (notification as unknown as { uuid?: string }).uuid || notification.id;
-  const {
-    mutateAsync: markAsRead,
-    isPending: isMarking,
-  } = useGetData(
+  const targetId =
+    (notification as unknown as { uuid?: string }).uuid || notification.id;
+  const { mutateAsync: markAsRead, isPending: isMarking } = useGetData(
     `admin/notifications/${targetId}/read`
   );
 
@@ -121,9 +118,7 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
         <div className="!text-secondary-text">
           <Text className="!font-medium !text-lg !text-primary-text">
             {/* {notification.type}{" "} */}
-            <span className="text-wrap break-all">
-              {notification.title}
-            </span>
+            <span className="text-wrap break-all">{notification.title}</span>
           </Text>
           <Text className="!text-base">
             {notification?.created_at
@@ -143,7 +138,13 @@ function NotificationCard({ notification, onRead }: NotificationCardProps) {
           {!isRead && (
             <Menu withinPortal position="bottom-end" shadow="sm">
               <Menu.Target>
-                <Button loading={isMarking} disabled={isMarking} size="xs" variant="subtle" className="!px-2 !py-1">
+                <Button
+                  loading={isMarking}
+                  disabled={isMarking}
+                  size="xs"
+                  variant="subtle"
+                  className="!px-2 !py-1"
+                >
                   •••
                 </Button>
               </Menu.Target>
@@ -189,6 +190,8 @@ export default function Notifications() {
     limit: "10",
     status: status,
     modules: activeTab === "all" ? "" : activeTab,
+    start_date: startDate,
+    end_date: endDate,
   };
 
   const {
@@ -214,9 +217,7 @@ export default function Notifications() {
       });
     }
     if (notificationsResponse) {
-      setCurrentPage(
-        notificationsResponse.data?.current_page || 1
-      );
+      setCurrentPage(notificationsResponse.data?.current_page || 1);
       setTotal(notificationsResponse.data?.total || 0);
       setPageSize(notificationsResponse.data?.per_page || 10);
       // Initialize/refresh local notifications list
@@ -261,6 +262,11 @@ export default function Notifications() {
   const extraModules = modules.slice(VISIBLE_LIMIT);
   const extraCount = extraModules.length;
 
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
+
   return (
     <div>
       <Tabs
@@ -304,56 +310,11 @@ export default function Notifications() {
                     options: "text-primary-text",
                   }}
                 />
-                <DateInput
-                  placeholder="Start Date"
-                  withAsterisk
-                  valueFormat="DD/MM/YYYY"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e)}
-                  classNames={{
-                    label: "!capitalize",
-                  }}
-                  popoverProps={{
-                    classNames: {
-                      dropdown: "!text-primary-text",
-                    },
-                  }}
-                  rightSection={
-                    startDate ? (
-                      <IoClose
-                        className="cursor-pointer text-gray-500 hover:text-red-500"
-                        onClick={() => setStartDate("")}
-                      />
-                    ) : (
-                      <CiCalendar />
-                    )
-                  }
-                />
 
-                <DateInput
-                  placeholder="End Date"
-                  withAsterisk
-                  rightSection={
-                    endDate ? (
-                      <IoClose
-                        className="cursor-pointer text-gray-500 hover:text-red-500"
-                        onClick={() => setEndDate("")}
-                      />
-                    ) : (
-                      <CiCalendar />
-                    )
-                  }
-                  valueFormat="DD/MM/YYYY"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e)}
-                  classNames={{
-                    label: "!capitalize",
-                  }}
-                  popoverProps={{
-                    classNames: {
-                      dropdown: "!text-primary-text",
-                    },
-                  }}
+                <DateRangePicker
+                  onDateRangeChange={handleDateRangeChange}
+                  maxDate={new Date()}
+                  placeholder="Select date range"
                 />
               </Group>
             </Flex>
@@ -446,7 +407,9 @@ export default function Notifications() {
                           onRead={(id) => {
                             setNotifications((prev) =>
                               prev.map((n) => {
-                                const candidateId = (n as unknown as { uuid?: string }).uuid || n.id;
+                                const candidateId =
+                                  (n as unknown as { uuid?: string }).uuid ||
+                                  n.id;
                                 return candidateId === id
                                   ? { ...n, read_at: new Date().toISOString() }
                                   : n;

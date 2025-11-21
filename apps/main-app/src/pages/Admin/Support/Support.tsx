@@ -14,11 +14,9 @@ import {
 } from "@mantine/core";
 import { BiSolidBell } from "react-icons/bi";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
-import { DateInput } from "@mantine/dates";
-import { IoClose, IoFilterOutline } from "react-icons/io5";
-import { CiCalendar } from "react-icons/ci";
+import { IoFilterOutline } from "react-icons/io5";
 import "@mantine/dates/styles.css";
 import TablePaginator from "../../../components/TablePaginator";
 import { HiDocumentArrowDown } from "react-icons/hi2";
@@ -33,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { GoArrowUpRight } from "react-icons/go";
 import CustomBadge from "../../../components/CustomBadge";
 import type { User } from "../UserMgt/UserMgt";
+import { DateRangePicker } from "../../../components/DateRangePicker";
 
 interface SupportStats {
   total: number;
@@ -67,10 +66,10 @@ export interface Complaints {
   platform: string;
   customer: Customer;
   guest: {
-    email: string,
-    fullname: string,
-    phone: string,
-  }
+    email: string;
+    fullname: string;
+    phone: string;
+  };
   customer_id: string;
   customer_complaint: string;
   other_information: string;
@@ -84,17 +83,17 @@ export interface Complaints {
 }
 
 export interface Customer {
-  uuid: string
-  firstname: string
-  lastname: string
-  uniqueID: string
-  avatar: string
-  email: string
-  phone_number: string
-  landmark?: string
-  lga?: string
-  area?: string
-  referral_link: string
+  uuid: string;
+  firstname: string;
+  lastname: string;
+  uniqueID: string;
+  avatar: string;
+  email: string;
+  phone_number: string;
+  landmark?: string;
+  lga?: string;
+  area?: string;
+  referral_link: string;
 }
 
 export interface Link {
@@ -171,11 +170,11 @@ function Support() {
     isError: isErrorComplaints,
     error: complaintsError,
   } = useFetchData(
-    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
+    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`
   );
 
   const exportComplaintsMutation = useGetExportData(
-    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`
+    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}&export=1`
   );
 
   useEffect(() => {
@@ -255,6 +254,11 @@ function Support() {
 
   const supportStats: SupportStats = statsResponse?.data;
 
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
+
   return (
     <>
       <div className="text-primary-text px-6 md:px-10 pb-10">
@@ -281,56 +285,10 @@ function Support() {
               gap={8}
               align="center"
             >
-              <DateInput
-                placeholder="Start Date"
-                withAsterisk
-                valueFormat="DD/MM/YYYY"
-                value={startDate}
-                onChange={(e) => setStartDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
-                rightSection={
-                  startDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setStartDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-              />
-
-              <DateInput
-                placeholder="End Date"
-                withAsterisk
-                rightSection={
-                  endDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setEndDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-                valueFormat="DD/MM/YYYY"
-                value={endDate}
-                onChange={(e) => setEndDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
+              <DateRangePicker
+                onDateRangeChange={handleDateRangeChange}
+                maxDate={new Date()}
+                placeholder="Select date range"
               />
             </Flex>
           </Flex>
@@ -397,7 +355,7 @@ function Support() {
                   Support List
                 </Text>
                 <Text className="!text-secondary-text">
-                  Track and manage case request on  the system
+                  Track and manage case request on the system
                 </Text>
               </div>
               <Button
@@ -472,7 +430,9 @@ function Support() {
               renderItems={(complaint) => [
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
-                    {complaint.customer ? `${complaint.customer?.firstname} ${complaint.customer?.lastname}`: complaint.guest?.fullname}
+                    {complaint.customer
+                      ? `${complaint.customer?.firstname} ${complaint.customer?.lastname}`
+                      : complaint.guest?.fullname}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
                     {complaint.customer?.uniqueID ?? complaint.guest?.phone}
@@ -486,7 +446,9 @@ function Support() {
                 complaint.platform,
 
                 <CustomBadge
-                  status={complaint.status === 'resolved' ? "successful" : "pending"}
+                  status={
+                    complaint.status === "resolved" ? "successful" : "pending"
+                  }
                   label={complaint.status}
                 />,
                 <>

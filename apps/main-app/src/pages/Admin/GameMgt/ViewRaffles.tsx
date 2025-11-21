@@ -17,9 +17,6 @@ import PerformanceMonitor from "./PerformanceMonitor";
 import WinnerTab from "./WinnerTab";
 import GamedrawTab from "./GamedrawTab";
 import CustomBadge from "../../../components/CustomBadge";
-import { DatePickerInput } from "@mantine/dates";
-import { CiCalendar } from "react-icons/ci";
-import "@mantine/dates/styles.css";
 import { useFetchData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import EmptyState from "../../../components/EmptyState";
@@ -29,15 +26,16 @@ import type { ApprovalStatus } from "../../../utils/models/approval";
 import ApprovalOfficersTooltip from "../../../components/ApprovalOfficersTooltip";
 import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
 import { usePermissions } from "../../../utils/hooks/usePermissions";
+import { DateRangePicker } from "../../../components/DateRangePicker"; // Import the new component
 
 function ViewRaffles() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  // Date range state - can be passed to child components in future
-  const [dateRange, setDateRange] = useState<[string | null, string | null]>([
-    null,
-    null,
-  ]);
+  
+  // Simplified date state - now just strings
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  
   const [raffle, setRaffle] = useState<Raffle>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -72,12 +70,17 @@ function ViewRaffles() {
     },
   });
 
+  // Handle date range changes from the DateRangePicker
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
+
   useEffect(() => {
     if (tabFromUrl && tabFromUrl !== tabs) {
       setTabs(tabFromUrl);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tabFromUrl]);
+  }, [tabFromUrl, tabs]);
 
   useEffect(() => {
     if (isErrorRaffle) {
@@ -101,23 +104,19 @@ function ViewRaffles() {
     navigate(`?${params.toString()}`);
   };
 
-  // Determine if this is an instant raffle route or regular raffle route
   const isInstantRaffleRoute = useMemo(() => {
     return location.pathname.includes("/instant-raffles");
   }, [location.pathname]);
 
-  // Determine base route for relative navigation
   const baseRoute = useMemo(() => {
     return isInstantRaffleRoute ? "/admin/instant-raffles" : "/admin/raffles";
   }, [isInstantRaffleRoute]);
 
-  // Handle edit raffle action
   const handleEditRaffle = useCallback(() => {
     if (!id) return;
     navigate(`${baseRoute}/edit/${id}`);
   }, [id, baseRoute, navigate]);
 
-  // Handle start draw action
   const handleStartDraw = useCallback(() => {
     if (!id) return;
     const drawPath = `/admin/draws?game_id=${id}`;
@@ -142,7 +141,6 @@ function ViewRaffles() {
     return links;
   }, [isInstantGame]);
 
-  // Memoize action items based on raffle data
   const actionItems = useMemo<ActionItem[]>(() => {
     if (!id) return [];
 
@@ -174,7 +172,7 @@ function ViewRaffles() {
           onClick: () => initiateApproval("approved"),
           disabled: !canApproveGame,
           color: "green",
-          divider: true, // Add divider before this action
+          divider: true,
         },
         {
           id: "decline-game",
@@ -183,12 +181,11 @@ function ViewRaffles() {
           onClick: () => initiateApproval("declined"),
           disabled: !canApproveGame,
           color: "red",
-          divider: true, // Add divider before this action
+          divider: true,
         }
       );
     }
 
-    // Start a Draw action - only for scheduled raffles (not instant games)
     if (!isInstantGame && gameApproved && isEnded) {
       items.push({
         id: "start-draw",
@@ -197,7 +194,7 @@ function ViewRaffles() {
         onClick: handleStartDraw,
         disabled: isLoadingRaffle || !raffle || !isEnded,
         color: "green",
-        divider: true, // Add divider before this action
+        divider: true,
       });
     }
 
@@ -213,7 +210,6 @@ function ViewRaffles() {
     canApproveGame,
   ]);
 
-  // Helper function to get status badge info
   const getStatusInfo = () => {
     if (!raffle) return { status: "pending" as const, label: "Loading" };
 
@@ -254,7 +250,6 @@ function ViewRaffles() {
     [isInstantRaffleRoute, baseRoute, raffle?.name]
   );
 
-  // If no ID, show error state
   if (!id) {
     return (
       <div className="text-primary-text px-6 md:px-10 py-10">
@@ -266,7 +261,6 @@ function ViewRaffles() {
     );
   }
 
-  // If error occurred and no raffle data
   if (isErrorRaffle && !raffle) {
     return (
       <div className="text-primary-text px-6 md:px-10 py-10">
@@ -367,29 +361,14 @@ function ViewRaffles() {
                     </ApprovalOfficersTooltip>
                   )}
 
-                  <DatePickerInput
-                    type="range"
+                  {/* Using the new DateRangePicker component */}
+                  <DateRangePicker
+                    onDateRangeChange={handleDateRangeChange}
                     minDate={raffle?.start_date}
                     maxDate={raffle?.end_date}
-                    value={dateRange}
-                    onChange={setDateRange}
-                    valueFormat="YYYY-MM-DD"
                     placeholder="Select date range"
-                    clearable
-                    rightSection={
-                      !dateRange[0] && !dateRange[1] ? (
-                        <CiCalendar />
-                      ) : undefined
-                    }
-                    classNames={{
-                      label: "!capitalize",
-                    }}
-                    popoverProps={{
-                      classNames: {
-                        dropdown: "!text-primary-text",
-                      },
-                    }}
                   />
+                  
                   <TakeAction
                     actions={actionItems}
                     loading={isLoadingRaffle}
@@ -431,25 +410,26 @@ function ViewRaffles() {
             </Flex>
           </div>
 
+          {/* Pass the string dates to child components */}
           {tabs === "transactional list" && (
             <RaffleTransactionalList
               raffleId={id}
-              startDate={dateRange[0] || ""}
-              endDate={dateRange[1] || ""}
+              startDate={startDate}
+              endDate={endDate}
             />
           )}
           {tabs === "customer list" && (
             <CustomerList
               raffleId={id}
-              startDate={dateRange[0] || ""}
-              endDate={dateRange[1] || ""}
+              startDate={startDate}
+              endDate={endDate}
             />
           )}
           {tabs === "performance monitor" && (
             <PerformanceMonitor
               raffleId={id}
-              startDate={dateRange[0] || ""}
-              endDate={dateRange[1] || ""}
+              startDate={startDate}
+              endDate={endDate}
               isInstantRaffleRoute={isInstantRaffleRoute}
             />
           )}
@@ -459,8 +439,8 @@ function ViewRaffles() {
           {tabs === "game draw" && !isInstantGame && (
             <GamedrawTab
               raffleId={id}
-              startDate={dateRange[0] || ""}
-              endDate={dateRange[1] || ""}
+              startDate={startDate}
+              endDate={endDate}
             />
           )}
         </div>

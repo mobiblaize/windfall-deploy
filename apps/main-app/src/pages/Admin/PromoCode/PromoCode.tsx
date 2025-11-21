@@ -13,11 +13,9 @@ import {
   Skeleton,
 } from "@mantine/core";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
-import { DateInput } from "@mantine/dates";
-import { IoClose, IoFilterOutline } from "react-icons/io5";
-import { CiCalendar } from "react-icons/ci";
+import { IoFilterOutline } from "react-icons/io5";
 import "@mantine/dates/styles.css";
 import TablePaginator from "../../../components/TablePaginator";
 import { HiDocumentArrowDown } from "react-icons/hi2";
@@ -37,6 +35,7 @@ import CustomButton from "../../../components/Buttons/CustomButton";
 import { BsPlus } from "react-icons/bs";
 import type { Raffle } from "../GameMgt/RaffleList";
 import CustomBadge from "../../../components/CustomBadge";
+import { DateRangePicker } from "../../../components/DateRangePicker";
 
 export interface Period {
   days: number;
@@ -237,6 +236,11 @@ function PromoCode() {
   function handlePageChange(page: number) {
     setFilterPage(page);
   }
+  
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
 
   useEffect(() => {
     if (isErrorStats) {
@@ -291,56 +295,10 @@ function PromoCode() {
                 Create New
               </CustomButton>
               <Group>
-                <DateInput
-                  placeholder="Start Date"
-                  withAsterisk
-                  valueFormat="DD/MM/YYYY"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e)}
-                  classNames={{
-                    label: "!capitalize",
-                  }}
-                  popoverProps={{
-                    classNames: {
-                      dropdown: "!text-primary-text",
-                    },
-                  }}
-                  rightSection={
-                    startDate ? (
-                      <IoClose
-                        className="cursor-pointer text-gray-500 hover:text-red-500"
-                        onClick={() => setStartDate("")}
-                      />
-                    ) : (
-                      <CiCalendar />
-                    )
-                  }
-                />
-
-                <DateInput
-                  placeholder="End Date"
-                  withAsterisk
-                  rightSection={
-                    endDate ? (
-                      <IoClose
-                        className="cursor-pointer text-gray-500 hover:text-red-500"
-                        onClick={() => setEndDate("")}
-                      />
-                    ) : (
-                      <CiCalendar />
-                    )
-                  }
-                  valueFormat="DD/MM/YYYY"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e)}
-                  classNames={{
-                    label: "!capitalize",
-                  }}
-                  popoverProps={{
-                    classNames: {
-                      dropdown: "!text-primary-text",
-                    },
-                  }}
+                <DateRangePicker
+                  onDateRangeChange={handleDateRangeChange}
+                  maxDate={new Date()}
+                  placeholder="Select date range"
                 />
               </Group>
             </Flex>

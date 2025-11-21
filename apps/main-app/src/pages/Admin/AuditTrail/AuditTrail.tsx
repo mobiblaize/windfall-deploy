@@ -209,7 +209,7 @@ export default function AuditTrail() {
                 placeholder="Search"
                 value={search}
                 onChange={(e) => setSearch(e.currentTarget.value)}
-                className="!w-72 !rounded-xl shadow-md"
+                className="!w-72 !rounded-xl"
               />
               <Group>
                 <Select
@@ -221,7 +221,6 @@ export default function AuditTrail() {
                     { value: "asc", label: "Oldest to Newest" },
                     { value: "desc", label: "Newest to Oldest" },
                   ]}
-                  className="!shadow-md"
                   classNames={{
                     label: "!capitalize ",
                     options: "text-primary-text",
@@ -233,7 +232,6 @@ export default function AuditTrail() {
                   rightSection={<IoFilterOutline />}
                   placeholder="Filter by: Show all"
                   data={modules}
-                  className="!shadow-md"
                   classNames={{
                     label: "!capitalize ",
                     options: "text-primary-text",

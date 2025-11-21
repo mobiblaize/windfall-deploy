@@ -21,16 +21,13 @@ import {
   usePostData,
   usePutData,
 } from "../../../utils/hooks/useApis";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
-import { DateInput } from "@mantine/dates";
 import {
-  IoClose,
   IoFilterOutline,
   IoTrashOutline,
   IoTrophySharp,
 } from "react-icons/io5";
-import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
 import TablePaginator from "../../../components/TablePaginator";
 import TabSwitcher, {
@@ -48,20 +45,20 @@ import { useForm } from "@mantine/form";
 import { fileToBase64 } from "../../../utils/helper/fileToBase64";
 import ImageCard from "../CreateRaffle/ImageCard";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
+import { DateRangePicker } from "../../../components/DateRangePicker";
 
 interface PrizeStats {
-  total: number
-  total_active: number
-  total_inactive: number
-  added_last_3_days: number
-  active_last_3_days: number
-  inactive_last_3_days: number
+  total: number;
+  total_active: number;
+  total_inactive: number;
+  added_last_3_days: number;
+  active_last_3_days: number;
+  inactive_last_3_days: number;
 }
 
 function isActive(is_active?: string) {
   return is_active === "true";
 }
-
 
 type StatsCard = {
   title: string;
@@ -168,7 +165,7 @@ function PrizeManagement() {
     error: prizesError,
     refetch: refetchPrizes,
   } = useFetchData(
-    `admin/prize-configuration/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`
+    `admin/prize-configuration/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`
   );
 
   const createPrizeMutation = usePostData("admin/prize-configuration/create");
@@ -232,7 +229,7 @@ function PrizeManagement() {
   function onPageChange(page: number) {
     setFilterPage(page);
   }
-  
+
   const editPrize = (prize: Prize) => {
     setSelectedPrize(prize);
     form.setValues({
@@ -266,7 +263,7 @@ function PrizeManagement() {
       });
 
       setAlertModalOpen(false);
-      setSuccessModalOpen(true)
+      setSuccessModalOpen(true);
       refetchPrizes();
       refetchStats();
       form.reset();
@@ -397,6 +394,11 @@ function PrizeManagement() {
     setAlertModalOpen(false);
     setCreatePrizeModalOpen(true);
   }
+  
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
 
   return (
     <>
@@ -424,56 +426,10 @@ function PrizeManagement() {
               gap={8}
               align="center"
             >
-              <DateInput
-                placeholder="Start Date"
-                withAsterisk
-                valueFormat="DD/MM/YYYY"
-                value={startDate}
-                onChange={(e) => setStartDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
-                rightSection={
-                  startDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setStartDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-              />
-
-              <DateInput
-                placeholder="End Date"
-                withAsterisk
-                rightSection={
-                  endDate ? (
-                    <IoClose
-                      className="cursor-pointer text-gray-500 hover:text-red-500"
-                      onClick={() => setEndDate("")}
-                    />
-                  ) : (
-                    <CiCalendar />
-                  )
-                }
-                valueFormat="DD/MM/YYYY"
-                value={endDate}
-                onChange={(e) => setEndDate(e)}
-                classNames={{
-                  label: "!capitalize",
-                }}
-                popoverProps={{
-                  classNames: {
-                    dropdown: "!text-primary-text",
-                  },
-                }}
+              <DateRangePicker
+                onDateRangeChange={handleDateRangeChange}
+                maxDate={new Date()}
+                placeholder="Select date range"
               />
             </Flex>
           </Flex>
