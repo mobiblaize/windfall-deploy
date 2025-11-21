@@ -1,20 +1,13 @@
-import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import RedirectWithLoading from "../components/RedirectWithLoading";
 
 export default function RedirectOrderDetails() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const orderId = searchParams.get("order_id");
 
-  useEffect(() => {
-    const orderId = searchParams.get("order_id");
+  const redirectTo = orderId
+    ? `/profile/transaction/receipt/${orderId}`
+    : "/profile/transaction";
 
-    if (orderId) {
-      navigate(`/profile/transaction/receipt/${orderId}`, { replace: true });
-    } else {
-      // fallback if order_id missing
-      navigate("/profile/transaction", { replace: true });
-    }
-  }, [searchParams, navigate]);
-
-  return null;
+  return <RedirectWithLoading to={redirectTo} replace={true} />;
 }

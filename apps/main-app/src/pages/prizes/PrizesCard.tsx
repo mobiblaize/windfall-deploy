@@ -5,11 +5,13 @@ function PrizesCard({ item }: { item: Prize }) {
   return (
     <Card className="!rounded-xl">
       <Card.Section className="!m-1">
-        <Image
-          className="!rounded-xl h-[200px]"
-          src={item.image}
-          alt="Norway"
-        />
+        <div className="relative w-full" style={{ aspectRatio: "16/8" }}>
+          <Image
+            className="!rounded-md !h-full !w-full object-cover"
+            src={item.image}
+            alt={item.name}
+          />
+        </div>
       </Card.Section>
       <Card.Section className="!mx-1 !my-4">
         <Text className="!capitalize !text-2xl !font-extrabold">

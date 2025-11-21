@@ -10,11 +10,13 @@ export default function WinnerCard({ winner }: { winner: Winner }) {
 
   return (
     <div className="bg-white rounded-xl p-5 text-center shadow-sm">
-      <Image
-        className="!rounded-md h-48 object-cover mb-5"
-        src={winner.prize_image || placeholderImg}
-        alt={winner.game_name}
-      />
+      <div className="relative w-full mb-5" style={{ aspectRatio: "16/8" }}>
+        <Image
+          className="!rounded-md !h-full !w-full object-cover"
+          src={winner.prize_image || placeholderImg}
+          alt={winner.game_name}
+        />
+      </div>
       <p className="text-sm text-gray-500 mb-1">Prize Won</p>
       <h3 className="text-[var(--primary-red)] font-bold text-2xl mb-2">
         {winner.prize_won}

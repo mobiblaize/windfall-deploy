@@ -427,7 +427,7 @@ function CheckoutPage() {
                     <Divider my="xl" />
                     <Flex justify="space-between" gap={10} align="center">
                       <Text className="!text-secondary-text !text-lg">
-                        Total Prices of Ticket:
+                        {isValidated ? 'Amount to Pay': 'Total Prices of Ticket'}:
                       </Text>
                       <Text className="!font-bold !text-primary-red !text-3xl">
                         {formatCurrency(totalPrice)}
@@ -449,6 +449,8 @@ function CheckoutPage() {
                     )}
                   </Card>
                 </div>
+
+                {/* Payment Methods */}
                 {isValidated && (
                   <Card
                     withBorder
