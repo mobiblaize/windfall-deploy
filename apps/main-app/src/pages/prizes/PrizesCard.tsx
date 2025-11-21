@@ -1,5 +1,6 @@
 import { Card, Image, Text } from "@mantine/core";
 import type { Prize } from "../Admin/PrizeManagement/PrizeManagement";
+import defaultImg from "../../utils/helper/defaultImg";
 
 function PrizesCard({ item }: { item: Prize }) {
   return (
@@ -8,7 +9,7 @@ function PrizesCard({ item }: { item: Prize }) {
         <div className="relative w-full" style={{ aspectRatio: "16/8" }}>
           <Image
             className="!rounded-md !h-full !w-full object-cover"
-            src={item.image}
+            src={item.image ?? defaultImg}
             alt={item.name}
           />
         </div>

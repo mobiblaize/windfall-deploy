@@ -26,18 +26,15 @@ function CustomerTab({
   breakdowns = [],
   loading,
   acquisitionTrend = [],
+  platformCustomers,
   acquisitionTrendLoading,
 }: {
   breakdowns?: ChannelBreakdown[];
   loading?: boolean;
+  platformCustomers?: number;
   acquisitionTrend?: TrendPoint[];
   acquisitionTrendLoading?: boolean;
 }) {
-  const totalRevenue = breakdowns.reduce(
-    (sum, item) => sum + (item.total_revenue || 0),
-    0
-  );
-  
 
   return (
     <>
@@ -48,7 +45,7 @@ function CustomerTab({
           fz="sm"
           className="!text-secondary-text !flex !items-center !gap-x-2"
         >
-          total revenue generated
+          total number of customers
           <span>
             <PiQuestionThin />
           </span>
@@ -57,8 +54,8 @@ function CustomerTab({
         {loading ? (
           <Skeleton height={36} width={180} mt={4} radius="md" />
         ) : (
-          <Text fw={500} fz={28} className="!text-primary-green">
-            {formatCurrency(totalRevenue)}
+          <Text fw={700} fz={28} className="!text-primary-red">
+            {platformCustomers?.toLocaleString()}
           </Text>
         )}
       </Box>

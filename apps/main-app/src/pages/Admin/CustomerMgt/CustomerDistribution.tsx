@@ -19,6 +19,11 @@ interface AcquisitionDayBreakdown {
   platforms: AcquisitionDayPlatform[];
 }
 
+type PlatformCustomers = {
+  web: number;
+  mobile: number;
+};
+
 type TrendPoint = { date: string; registrations: number };
 
 function CustomerDistribution() {
@@ -42,6 +47,7 @@ function CustomerDistribution() {
       percentage_increase?: number;
     }>
   >([]);
+  const [platformCustomers, setPlatformCustomers] = useState<PlatformCustomers>();
 
   const {
     mutate: fetchDistribution,
@@ -74,6 +80,7 @@ function CustomerDistribution() {
     }
     const pb = distributionResponse?.data?.platform_breakdown ?? [];
     setPlatformBreakdown(pb);
+    setPlatformCustomers(distributionResponse?.data?.customers_by_platform);
   }, [distributionResponse, isFetchError, fetchError]);
 
   useEffect(() => {
@@ -230,6 +237,7 @@ function CustomerDistribution() {
             <CustomerTab
               breakdowns={breakdowns}
               loading={isFetching}
+              platformCustomers={platformCustomers?.[tabs as keyof PlatformCustomers]}
               acquisitionTrend={activeTrend}
               acquisitionTrendLoading={isAcqPending}
             />
@@ -237,6 +245,7 @@ function CustomerDistribution() {
           <Tabs.Panel value="mobile">
             <CustomerTab
               breakdowns={breakdowns}
+              platformCustomers={platformCustomers?.[tabs as keyof PlatformCustomers]}
               loading={isFetching}
               acquisitionTrend={activeTrend}
               acquisitionTrendLoading={isAcqPending}
