@@ -4,29 +4,67 @@ import { Image } from "@mantine/core";
 import SectionHeader from "../components/SectionHeader";
 import faql from "../assets/faq-l.png";
 import faqr from "../assets/faq-r.png";
-import faqImage from "../assets/faq-img.png"; // Replace with the image from your design
+import faqImage from "../assets/faq-img.png";
 import HelpSection from "../components/HelpSection";
 
 const faqData = [
-  "How do I enter the Raffle?",
-  "What is my draw number?",
-  "How is the winner chosen?",
-  "How will I know if I have won?",
-  "How long is the competition open for?",
-  "Can anyone enter the competition?",
-  "What if a competition does not sell out?",
-  "What are the prizes?",
-  "Is Windfall Raffle a scam?",
-  "How do you use my personal data?",
-  "Can I try again?",
-  "What are my chances of winning?",
-  "Can I get a refund of my entry fee?",
-  "How do the instant win competitions work?",
-].map((question) => ({
-  question,
-  answer:
-    "Yes, you can try us for 30 days. If you want, we’ll provide you with a free personalized 30-minute onboarding call to get you up and running as soon as possible.",
-}));
+  {
+    question: "How do I enter the raffle?",
+    answer: "Entering is simple. Browse any available raffle or instant game, select the number of entries you want, and complete your checkout. Once payment is confirmed, your entry is automatically added to the competition."
+  },
+  {
+    question: "What is my draw number?",
+    answer: "Your draw number is the unique entry code assigned to you after purchase. You can find it in My Games → Active Tickets, on your email receipt, and on the raffle details page."
+  },
+  {
+    question: "How is the winner chosen?",
+    answer: "For Draw Games, the winner is selected using a transparent, random, computer-generated process. For Instant Games, results are determined immediately the moment you play according to preset winning logic."
+  },
+  {
+    question: "How will I know if I have won?",
+    answer: "Winners are notified instantly via email, in-app notification, and an update in My Games → Results. For Instant Wins, you'll see your result immediately on the game screen."
+  },
+  {
+    question: "How long is the competition open for?",
+    answer: "Each competition has its own closing time. The countdown is always visible on the game page. Once the timer hits zero or all tickets sell out, the draw is closed."
+  },
+  {
+    question: "Can anyone enter the competition?",
+    answer: "Anyone who meets the age requirement and resides in eligible regions can participate. Restricted locations will be shown during account creation or checkout."
+  },
+  {
+    question: "What if a competition does not sell out?",
+    answer: "The draw still proceeds at the scheduled time. All valid entries remain eligible, and the prize is still awarded as advertised."
+  },
+  {
+    question: "What are the prizes?",
+    answer: "Prizes vary by competition and may include cash, gadgets, lifestyle items, or exclusive rewards. Each raffle clearly states its prize on the game page before you join."
+  },
+  {
+    question: "Is Windfall Raffle a scam?",
+    answer: "No. Windfall Raffle operates with full transparency. Winners are selected through verified random processes, results are published publicly, and prizes are delivered promptly. Every ticket purchased is trackable and verifiable."
+  },
+  {
+    question: "How do you use my personal data?",
+    answer: "Your information is used only to manage your account, process payments, and notify you about results. We do not sell or misuse your data. All information is stored securely and handled according to our privacy policy."
+  },
+  {
+    question: "Can I try again?",
+    answer: "Yes. As long as the competition is still open, you can buy more entries, or replay an instant game until you reach the entry limit (if any)."
+  },
+  {
+    question: "What are my chances of winning?",
+    answer: "Your chances depend on the number of entries you purchase compared to the total entries available. For instant games, chances follow the predefined winning structure shown in the game details."
+  },
+  {
+    question: "Can I get a refund of my entry fee?",
+    answer: "Entry fees are generally non-refundable once a ticket has been issued. However, refunds may be considered if a technical issue prevented successful entry. Contact Support if this occurs."
+  },
+  {
+    question: "How do the instant win competitions work?",
+    answer: "Instant Games reveal results immediately after you play. Each game has predefined winning odds and prize placements. If your play hits a winning position, you win instantly — no waiting for a scheduled draw."
+  }
+];
 
 export default function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);

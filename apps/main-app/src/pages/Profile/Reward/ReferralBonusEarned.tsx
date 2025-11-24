@@ -42,7 +42,7 @@ export default function ReferralBonusEarned({
                 <Table.Td>
                   <Text className="!text-base !font-medium">{transaction.referred_user.firstname} {transaction.referred_user.lastname}</Text>
                   <Text className="!text-secondary-text !text-sm">
-                    ID: {transaction.referred_user.uuid}
+                    ID: {transaction.referred_user.uniqueID}
                   </Text>
                 </Table.Td>
                 <Table.Td>{formatCurrency(transaction.amount)}</Table.Td>

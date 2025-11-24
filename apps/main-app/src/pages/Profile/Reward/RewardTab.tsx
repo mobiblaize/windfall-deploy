@@ -82,6 +82,7 @@ export interface Order {
 
 export interface ReferredUser {
   uuid: string;
+  uniqueID: string;
   firstname: string;
   lastname: string;
   avatar: string;
