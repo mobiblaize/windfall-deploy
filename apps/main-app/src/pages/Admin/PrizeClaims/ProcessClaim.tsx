@@ -938,7 +938,7 @@ function ProcessClaim() {
         onClose={() => setApprovalSuccessModalOpen(false)}
         status="success"
         title={`Prize Claim ${isApprove ? "Approved" : "Rejected"}`}
-        description={`${isApprove ? "Congratulation, you have successfully approved a New Prize Claim and posted it live" : "You have successfully rejected a New Prize Claim"}`}
+        description={`${isApprove ? "Congratulations, you have successfully approved a New Prize Claim and posted it live" : "You have successfully rejected a New Prize Claim"}`}
         primaryButton={{
           label: "Manage Prize Claim",
           onClick: () => {

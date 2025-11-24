@@ -778,7 +778,7 @@ function CreateRaffleLayout() {
         onClose={manageRaffles}
         status="success"
         title={isPublished ? "Raffle Created": "Saved as Draft"}
-        description={isPublished ? "Congratulation, you have successfully Created a New Raffle Game / Draw": "Congratulation, you have successfully saved a New Raffle Game / Draw as draft."}
+        description={isPublished ? "Congratulations, you have successfully Created a New Raffle Game / Draw": "Congratulations, you have successfully saved a New Raffle Game / Draw as draft."}
         secondaryButton={{
           label: "Close",
           onClick: manageRaffles,

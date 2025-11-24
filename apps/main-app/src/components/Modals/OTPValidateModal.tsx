@@ -29,7 +29,7 @@ const [opened, { open, close }] = useDisclosure(false);
 								OTP Validated
 							</Text>
 							<Text className="!text-lg !text-secondary-text ">
-								Congratulation, OTP has been successfully validated. You can
+								Congratulations, OTP has been successfully validated. You can
 								know proceed to creating a new password
 							</Text>
 							<Button className="!border !border-dashed !border-secondary-red !h-12 !tracking-wide !rounded-lg">

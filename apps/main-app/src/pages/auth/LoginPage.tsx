@@ -173,7 +173,7 @@ function LoginPage() {
         onClose={closeModal}
         status="success"
         title="Login Successful"
-        description="Congratulation, you have successfully logged in to your WindFall raffle Account. Now start playing"
+        description="Congratulations, you have successfully logged in to your WindFall raffle Account. Now start playing"
         primaryButton={{
           label: "Continue",
           onClick: closeModal,

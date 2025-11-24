@@ -206,7 +206,7 @@ export default function AdminResetPasswordPage() {
         onClose={() => setOtpSuccessModalOpen(false)}
         status="success"
         title="OTP Validated"
-        description="Congratulation, OTP has been successfully validated. You can know proceed to creating a new password"
+        description="Congratulations, OTP has been successfully validated. You can know proceed to creating a new password"
         primaryButton={{
           label: "Continue",
           onClick: () => setOtpSuccessModalOpen(false),
@@ -217,7 +217,7 @@ export default function AdminResetPasswordPage() {
         onClose={closeModal}
         status="success"
         title="New Password Created"
-        description="Congratulation, you have successfully created a new password for your WindFall Administrative Account."
+        description="Congratulations, you have successfully created a new password for your WindFall Administrative Account."
         primaryButton={{
           label: "Login to your Account",
           onClick: closeModal,

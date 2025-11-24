@@ -147,7 +147,7 @@ export default function AdminChangePasswordPage() {
         onClose={closeModal}
         status="success"
         title="Email Verified Successfully"
-        description="Congratulation, you have successfully verified your WindFall Administrative Account. Please proceed to change your default password"
+        description="Congratulations, you have successfully verified your WindFall Administrative Account. Please proceed to change your default password"
         primaryButton={{
           label: "Create Password",
           onClick: closeModal,

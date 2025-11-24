@@ -342,7 +342,7 @@ export default function EditUser() {
         onClose={userDetails}
         status="success"
         title="New Changes Saved"
-        description="Congratulation, new changed saved and updated successfully"
+        description="Congratulations, new changed saved and updated successfully"
         primaryButton={{
           label: "Close",
           onClick: userDetails,

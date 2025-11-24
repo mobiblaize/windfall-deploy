@@ -35,7 +35,7 @@ const [opened, { open, close }] = useDisclosure(false);
 								{title}
 							</Text>
 							<Text className="!text-lg !text-secondary-text !tracking-wide">
-								{/* Congratulation, you have successfully created a new password for
+								{/* Congratulations, you have successfully created a new password for
                             your WindFall raffle Account. Now start playing */}
 								{desc}
 							</Text>

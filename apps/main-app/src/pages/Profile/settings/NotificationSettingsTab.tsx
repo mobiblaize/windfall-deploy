@@ -265,7 +265,7 @@ export default function NotificationSettingsTab() {
         onClose={() => setSuccessModalOpen(false)}
         status="success"
         title="New Changes Saved"
-        description="Congratulation, you have successfully saved and updated new changes"
+        description="Congratulations, you have successfully saved and updated new changes"
         primaryButton={{
           label: "Manage Settings",
           fullWidth: true,

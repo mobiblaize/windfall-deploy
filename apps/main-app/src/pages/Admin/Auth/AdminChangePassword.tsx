@@ -210,7 +210,7 @@ export default function AdminChangePasswordPage() {
         onClose={closeModal}
         status="success"
         title="New Password Created"
-        description="Congratulation, you have successfully created a new password for your WindFall Administrative Account."
+        description="Congratulations, you have successfully created a new password for your WindFall Administrative Account."
         primaryButton={{
           label: "Back to Login",
           onClick: closeModal,

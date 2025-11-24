@@ -568,7 +568,7 @@ function Signup({
         opened={successModalOpen}
         status="success"
         title="Account Opening Successful "
-        description="Congratulation, you have successfully created an account on WindFall raffle. Now start playing"
+        description="Congratulations, you have successfully created an account on WindFall raffle. Now start playing"
         primaryButton={{
           label: "Continue",
           onClick: closeSuccessModal,

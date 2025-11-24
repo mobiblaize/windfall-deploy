@@ -234,7 +234,7 @@ function ResetPassword() {
         onClose={() => setOtpSuccessModalOpen(false)}
         status="success"
         title="OTP Validated"
-        description="Congratulation, OTP has been successfully validated. You can know proceed to creating a new password"
+        description="Congratulations, OTP has been successfully validated. You can know proceed to creating a new password"
         primaryButton={{
           label: "Continue",
           onClick: () => setOtpSuccessModalOpen(false),
@@ -245,7 +245,7 @@ function ResetPassword() {
         onClose={closeSuccessModal}
         status="success"
         title="New Password Created"
-        description="Congratulation, you have successfully created a new password for your WindFall raffle Account. Now start playing"
+        description="Congratulations, you have successfully created a new password for your WindFall raffle Account. Now start playing"
         primaryButton={{
           label: "Login to your Account",
           onClick: closeSuccessModal,

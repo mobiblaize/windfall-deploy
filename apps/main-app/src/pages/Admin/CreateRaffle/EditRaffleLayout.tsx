@@ -907,7 +907,7 @@ function EditRaffleLayout() {
         onClose={manageRaffles}
         status="success"
         title={isPublished ? "Raffle Updated": "Saved as Draft"}
-        description={isPublished ? "Congratulations! You have successfully updated the raffle game.": "Congratulation, you have successfully saved the Raffle Game / Draw as draft."}
+        description={isPublished ? "Congratulations! You have successfully updated the raffle game.": "Congratulations, you have successfully saved the Raffle Game / Draw as draft."}
         secondaryButton={{
           label: "Close",
           onClick: manageRaffles,

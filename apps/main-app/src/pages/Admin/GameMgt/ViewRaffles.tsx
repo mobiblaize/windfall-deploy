@@ -476,7 +476,7 @@ function ViewRaffles() {
         onClose={() => setApprovalSuccessModalOpen(false)}
         status="success"
         title={`Raffle ${isApprove ? "Approved" : "Rejected"}`}
-        description={`${isApprove ? "Congratulation, you have successfully approved a New Raffle Game / Draw and posted it live" : "You have successfully rejected a New Raffle Game / Draw"}`}
+        description={`${isApprove ? "Congratulations, you have successfully approved a New Raffle Game / Draw and posted it live" : "You have successfully rejected a New Raffle Game / Draw"}`}
         primaryButton={{
           label: "Close",
           onClick: () => setApprovalSuccessModalOpen(false),

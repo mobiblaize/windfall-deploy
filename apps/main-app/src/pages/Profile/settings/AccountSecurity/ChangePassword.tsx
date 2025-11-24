@@ -117,7 +117,7 @@ function ChangePassword() {
         onClose={closeModal}
         status="success"
         title="New Password Created"
-        description="Congratulation, you have successfully created a new password for your WindFall raffle Account. Now start playing"
+        description="Congratulations, you have successfully created a new password for your WindFall raffle Account. Now start playing"
         primaryButton={{
           label: "Continue",
           onClick: closeModal,

@@ -621,7 +621,7 @@ function CheckoutPage() {
                   opened={successModalOpen}
                   status="success"
                   title="Raffle Ticket Payment Completed"
-                  description="Congratulation, you have successfully, paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and can see more on your WindFall Raffle Profile."
+                  description="Congratulations, you have successfully, paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and can see more on your WindFall Raffle Profile."
                   primaryButton={{
                     label: "Go to my Profile",
                     onClick: () => {

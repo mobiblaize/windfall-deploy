@@ -808,7 +808,7 @@ function PrizeManagement() {
         }
         description={
           selectedPrize
-            ? "Congratulation, new changed saved and updated successfully"
+            ? "Congratulations, new changed saved and updated successfully"
             : "Congratulations, new prize has been successfully created"
         }
         primaryButton={{

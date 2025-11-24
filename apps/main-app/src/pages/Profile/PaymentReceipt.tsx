@@ -302,7 +302,7 @@ export default function PaymentReceipt() {
         onClose={() => setSuccessModalOpen(false)}
         status="success"
         title="Receipt Downloaded"
-        description="Congratulation, you have successfully downloaded the receipt for this transaction."
+        description="Congratulations, you have successfully downloaded the receipt for this transaction."
       />
       <AlertModal
         opened={paymentSuccessModalOpen}
@@ -316,7 +316,7 @@ export default function PaymentReceipt() {
         }
         description={
           order?.order.status === "order placed"
-            ? "Congratulation, you have successfully paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and you can see more on your WindFall Raffle Profile."
+            ? "Congratulations, you have successfully paid for your raffle ticket(s) for specific games. Copies of the Digital raffles Tickets has been sent to your email address and you can see more on your WindFall Raffle Profile."
             : order?.order.status === "pending"
               ? "Your payment is still being processed. You will be notified once the process is completed."
               : "Unfortunately, your payment was not successful. Please try again or use a different payment method."
