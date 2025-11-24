@@ -122,6 +122,7 @@ export default function CreateUser() {
   }
 
   function closeModal() {
+    form.reset();
     setSuccessModalOpen(false);
   }
 

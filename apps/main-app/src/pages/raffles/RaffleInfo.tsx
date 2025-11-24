@@ -198,7 +198,8 @@ export default function RaffleInfo({ raffle }: RaffleProps) {
           <div className="flex-1">
             <div className="aspect-[1/1]">
               <Carousel
-                withIndicators
+                withIndicators={galleryImages.length > 1}
+                withControls={galleryImages.length > 1}
                 height="100%"
                 className="rounded-xl overflow-hidden w-full h-full"
                 styles={{

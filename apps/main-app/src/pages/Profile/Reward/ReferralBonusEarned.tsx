@@ -23,9 +23,9 @@ export default function ReferralBonusEarned({
         >
           {transactions.map((transaction) => {
             return (
-              <Table.Tr key={transaction.order.uuid}>
+              <Table.Tr key={transaction.order?.uuid}>
                 <Table.Td className="text-secondary-text !text-base">
-                  {transaction.order.uniqueID}
+                  {transaction.order?.uniqueID}
                 </Table.Td>
                 <Table.Td>
                   <Text className="!text-base !font-medium">
@@ -57,11 +57,11 @@ export default function ReferralBonusEarned({
         {transactions.map((transaction) => {
           return (
             <div
-               key={transaction.order.uuid}
+               key={transaction.order?.uuid}
               className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white space-y-2"
             >
               <p>
-                <strong>Transaction ID:</strong> {transaction.order.uniqueID}
+                <strong>Transaction ID:</strong> {transaction.order?.uniqueID}
               </p>
               <p>
                 <strong>Date:</strong> {transaction.date

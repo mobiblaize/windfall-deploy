@@ -106,7 +106,7 @@ function GamesTab() {
 
         {!isLoading && (
           <>
-            {games.length && (
+            {games.length > 0 && (
               <SimpleGrid
                 py="lg"
                 cols={{ base: 1, sm: 2, md: 3 }}
@@ -118,7 +118,7 @@ function GamesTab() {
                 ))}
               </SimpleGrid>
             )}
-            {!games.length && (
+            {games.length <= 0 && (
               <EmptyState description="No games found" title="No Games Found" />
             )}
           </>
