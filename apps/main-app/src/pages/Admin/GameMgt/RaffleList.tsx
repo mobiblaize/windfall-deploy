@@ -16,7 +16,7 @@ import type { Crumb } from "../../../components/DynamicBreadCrumbs";
 import DynamicBreadcrumbs from "../../../components/DynamicBreadCrumbs";
 import CustomButton from "../../../components/Buttons/CustomButton";
 import { BsPlus } from "react-icons/bs";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useDebounce } from "../../../utils/hooks/useDebounce";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
@@ -119,6 +119,7 @@ function RaffleList() {
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const prevFiltersRef = useRef({ filterBy, sortBy, debouncedSearch });
 
   // Detect if we're on instant-raffles route
   const isInstantRaffleRoute = useMemo(() => {
@@ -136,22 +137,45 @@ function RaffleList() {
     { label: "Raffle List" },
   ], [isInstantRaffleRoute, baseRoute]);
 
+  // Compute effective page: use page 1 when filters change, otherwise use filterPage
+  const effectivePage = useMemo(() => {
+    const prevFilters = prevFiltersRef.current;
+    const filtersChanged = 
+      prevFilters.filterBy !== filterBy ||
+      prevFilters.sortBy !== sortBy ||
+      prevFilters.debouncedSearch !== debouncedSearch;
+    
+    if (filtersChanged) {
+      prevFiltersRef.current = { filterBy, sortBy, debouncedSearch };
+      return 1;
+    }
+    
+    return filterPage;
+  }, [filterBy, sortBy, debouncedSearch, filterPage]);
+
+  // Update filterPage state when filters change (sync with effectivePage)
+  useEffect(() => {
+    if (effectivePage === 1 && filterPage !== 1) {
+      setFilterPage(1);
+    }
+  }, [effectivePage, filterPage]);
+
   // Build API URL with instant_game param when needed
   const apiUrl = useMemo(() => {
-    const baseUrl = `admin/game-management/game-list/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`;
+    const baseUrl = `admin/game-management/game-list/all?paginate=1&limit=10&search=${debouncedSearch}&page=${effectivePage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}`;
     if (isInstantRaffleRoute) {
       return `${baseUrl}&instant_game=true`;
     }
     return baseUrl;
-  }, [debouncedSearch, filterPage, sortBy, filterBy, isInstantRaffleRoute]);
+  }, [debouncedSearch, effectivePage, sortBy, filterBy, isInstantRaffleRoute]);
 
   const exportApiUrl = useMemo(() => {
-    const baseUrl = `admin/game-management/game-list/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`;
+    const baseUrl = `admin/game-management/game-list/all?paginate=1&limit=10&search=${debouncedSearch}&page=${effectivePage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&export=1`;
     if (isInstantRaffleRoute) {
       return `${baseUrl}&instant_game=true`;
     }
     return baseUrl;
-  }, [debouncedSearch, filterPage, sortBy, filterBy, isInstantRaffleRoute]);
+  }, [debouncedSearch, effectivePage, sortBy, filterBy, isInstantRaffleRoute]);
 
   const {
     data: response,

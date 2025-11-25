@@ -149,6 +149,9 @@ export default function RoleManagement() {
 
   // Re-fetch when search or page changes
   useEffect(() => {
+    if (filterPage !== 1) {
+      setFilterPage(1);
+    }
     getRoles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, filterPage]);

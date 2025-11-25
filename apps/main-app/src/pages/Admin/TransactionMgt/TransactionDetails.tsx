@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Flex,
-  Avatar,
   Group,
   Loader,
 } from "@mantine/core";
@@ -21,6 +20,7 @@ import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { IoInformationCircleOutline, IoWarningOutline } from "react-icons/io5";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
+import UserAvatar from "../../../components/UserAvatar";
 
 type TransactionModalProps = {
   opened: boolean;
@@ -239,10 +239,10 @@ export default function TransactionDetails({
         rowGap={10}
       >
         <Flex gap={10}>
-          <Avatar
-            alt="Profile"
+          <UserAvatar
+            image={transaction.customer.avatar}
+            subString={`${transaction.customer.firstname} ${transaction.customer.lastname}`}
             radius="md"
-            src={transaction.customer.avatar}
             size={70}
             className="border-3 border-primary-red rounded-lg"
           />

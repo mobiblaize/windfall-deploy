@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { BiSolidBell } from "react-icons/bi";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { notifications } from "@mantine/notifications";
 import { IoFilterOutline } from "react-icons/io5";
 import "@mantine/dates/styles.css";
@@ -136,8 +136,34 @@ function PrizeClaims() {
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const prevFiltersRef = useRef({ statusFilter, sortBy, debouncedSearch, startDate, endDate });
 
   const navigate = useNavigate();
+
+  // Compute effective page: use page 1 when filters change, otherwise use filterPage
+  const effectivePage = useMemo(() => {
+    const prevFilters = prevFiltersRef.current;
+    const filtersChanged = 
+      prevFilters.statusFilter !== statusFilter ||
+      prevFilters.sortBy !== sortBy ||
+      prevFilters.debouncedSearch !== debouncedSearch ||
+      prevFilters.startDate !== startDate ||
+      prevFilters.endDate !== endDate;
+    
+    if (filtersChanged) {
+      prevFiltersRef.current = { statusFilter, sortBy, debouncedSearch, startDate, endDate };
+      return 1;
+    }
+    
+    return filterPage;
+  }, [statusFilter, sortBy, debouncedSearch, startDate, endDate, filterPage]);
+
+  // Update filterPage state when filters change (sync with effectivePage)
+  useEffect(() => {
+    if (effectivePage === 1 && filterPage !== 1) {
+      setFilterPage(1);
+    }
+  }, [effectivePage, filterPage]);
 
   const {
     data: prizeClaimsStatsResponse,
@@ -154,11 +180,11 @@ function PrizeClaims() {
     isError: isErrorPrizeClaims,
     error: prizeClaimsError,
   } = useFetchData(
-    `admin/prize-claim-management/all?search=${debouncedSearch}&limit=${pageSize || 10}&sort_by=${sortBy || "DESC"}&status=${statusFilter || ""}&start_date=${startDate}&end_date=${endDate}&export=0&paginate=1&page=${filterPage}`
+    `admin/prize-claim-management/all?search=${debouncedSearch}&limit=${pageSize || 10}&sort_by=${sortBy || "DESC"}&status=${statusFilter || ""}&start_date=${startDate}&end_date=${endDate}&export=0&paginate=1&page=${effectivePage}`
   );
 
   const exportPrizeClaimsMutation = useGetExportData(
-    `admin/prize-claim-management/all?search=${debouncedSearch}&limit=${pageSize || 10}&sort_by=${sortBy || "DESC"}&status=${statusFilter || ""}&start_date=${startDate}&end_date=${endDate}&export=1&paginate=1&page=${filterPage}`
+    `admin/prize-claim-management/all?search=${debouncedSearch}&limit=${pageSize || 10}&sort_by=${sortBy || "DESC"}&status=${statusFilter || ""}&start_date=${startDate}&end_date=${endDate}&export=1&paginate=1&page=${effectivePage}`
   );
 
   useEffect(() => {

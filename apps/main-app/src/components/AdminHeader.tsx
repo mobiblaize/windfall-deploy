@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Badge,
   ActionIcon,
   Group,
@@ -21,6 +20,7 @@ import { notifications } from "@mantine/notifications";
 import { useAuth } from "../utils/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useAdminMenu } from "../utils/hooks/useAdminMenu";
+import UserAvatar from "./UserAvatar";
 
 export default function AdminHeader() {
   const [user] = useAtom(userAtom);
@@ -60,9 +60,9 @@ export default function AdminHeader() {
       {/* Left: Profile */}
       <Group gap="sm" className="!text-primary-text">
         {isMobile && <Burger opened={opened} onClick={toggle} size="sm" />}
-        <Avatar
-          src={user?.avatar}
-          alt="Profile"
+        <UserAvatar
+          image={user?.avatar}
+          subString={user?.name}
           radius="md"
           size={40}
           className="border-3 border-primary-red rounded-lg"

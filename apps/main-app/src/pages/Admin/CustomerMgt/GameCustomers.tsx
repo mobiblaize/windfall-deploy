@@ -10,7 +10,7 @@ import {
   Select,
 } from "@mantine/core";
 import { FaFileArrowDown } from "react-icons/fa6";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useDebounce } from "../../../utils/hooks/useDebounce";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
@@ -57,8 +57,33 @@ function GameCustomers() {
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const prevFiltersRef = useRef({ filterBy, sortBy, debouncedSearch });
 
-  const baseUrl = `admin/customer-management/all?paginate=1&limit=10&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&payment_status=${filterBy || ""}`;
+  // Compute effective page: use page 1 when filters change, otherwise use filterPage
+  const effectivePage = useMemo(() => {
+    const prevFilters = prevFiltersRef.current;
+    const filtersChanged = 
+      prevFilters.filterBy !== filterBy ||
+      prevFilters.sortBy !== sortBy ||
+      prevFilters.debouncedSearch !== debouncedSearch;
+    
+    if (filtersChanged) {
+      // Update ref immediately so subsequent recomputes see filters as unchanged
+      prevFiltersRef.current = { filterBy, sortBy, debouncedSearch };
+      return 1;
+    }
+    
+    return filterPage;
+  }, [filterBy, sortBy, debouncedSearch, filterPage]);
+
+  // Update filterPage state when filters change (sync with effectivePage)
+  useEffect(() => {
+    if (effectivePage === 1 && filterPage !== 1) {
+      setFilterPage(1);
+    }
+  }, [effectivePage, filterPage]);
+
+  const baseUrl = `admin/customer-management/all?paginate=1&limit=10&search=${debouncedSearch}&page=${effectivePage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&payment_status=${filterBy || ""}`;
 
   const {
     data: response,

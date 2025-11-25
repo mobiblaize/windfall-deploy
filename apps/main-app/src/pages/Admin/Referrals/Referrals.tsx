@@ -16,7 +16,7 @@ import {
   useGetExportData,
   usePutData,
 } from "../../../utils/hooks/useApis";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { IoFilterOutline } from "react-icons/io5";
 import "@mantine/dates/styles.css";
@@ -122,6 +122,7 @@ function ReferralModule() {
   const [configModalOpen, setConfigModalOpen] = useState(false);
   const [confirmConfigModalOpen, setConfirmConfigModalOpen] = useState(false);
   const [successConfigModalOpen, setSuccessConfigModalOpen] = useState(false);
+  const prevFiltersRef = useRef({ sortOrder, debouncedSearchTerm });
 
   // Using useForm for Referral Config fields
   const referralConfigForm = useForm<{
@@ -146,7 +147,28 @@ function ReferralModule() {
     validateInputOnBlur: true,
   });
 
-  // For server errors to show in form
+  
+  const effectivePage = useMemo(() => {
+    const prevFilters = prevFiltersRef.current;
+    const filtersChanged = 
+      prevFilters.sortOrder !== sortOrder ||
+      prevFilters.debouncedSearchTerm !== debouncedSearchTerm;
+    
+    if (filtersChanged) {
+      prevFiltersRef.current = { sortOrder, debouncedSearchTerm };
+      return 1;
+    }
+    
+    return apiPage;
+  }, [sortOrder, debouncedSearchTerm, apiPage]);
+
+  
+  useEffect(() => {
+    if (effectivePage === 1 && apiPage !== 1) {
+      setApiPage(1);
+    }
+  }, [effectivePage, apiPage]);
+
 
   // Fetch referral config
   const {
@@ -164,12 +186,12 @@ function ReferralModule() {
     isError: isErrorReferralTransactions,
     error: referralTransactionsError,
   } = useFetchData(
-    `admin/referral/transactions?paginate=1&search=${debouncedSearchTerm}&page=${apiPage}&sort_by=${sortOrder || ""}&filter_by=${transactionTypeFilter || ""}`
+    `admin/referral/transactions?paginate=1&search=${debouncedSearchTerm}&page=${effectivePage}&sort_by=${sortOrder || ""}&filter_by=${transactionTypeFilter || ""}`
   );
 
   // Export referral transactions
   const exportReferralTransactionsMutation = useGetExportData(
-    `admin/referral/transactions?paginate=1&search=${debouncedSearchTerm}&page=${apiPage}&sort_by=${sortOrder || ""}&filter_by=${transactionTypeFilter || ""}&export=1`
+    `admin/referral/transactions?paginate=1&search=${debouncedSearchTerm}&page=${effectivePage}&sort_by=${sortOrder || ""}&filter_by=${transactionTypeFilter || ""}&export=1`
   );
 
   // Edit referral config

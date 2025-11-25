@@ -219,7 +219,7 @@ function TransactionDashboard() {
                 Overview
               </Text>
               <Text className="!text-secondary-text !text-sm">
-                An overview of transaction on system
+                An overview of transactions on the system.
               </Text>
             </div>
             <Flex

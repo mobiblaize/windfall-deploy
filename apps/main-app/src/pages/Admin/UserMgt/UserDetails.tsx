@@ -5,7 +5,6 @@ import {
   Grid,
   Flex,
   Switch,
-  Avatar,
   Divider,
   ActionIcon,
   Group,
@@ -41,6 +40,7 @@ import TablePaginator from "../../../components/TablePaginator";
 import { format } from "date-fns";
 import DynamicTableSection from "../../../components/DynamicTableSection";
 import EmptyState from "../../../components/EmptyState";
+import UserAvatar from "../../../components/UserAvatar";
 
 const breadCrumbs: Crumb[] = [
   { label: "User Management", to: "/admin/users" },
@@ -327,9 +327,9 @@ export default function UserDetails() {
         >
           {/* Header */}
           <div className="flex items-center space-x-3 mb-6">
-            <Avatar
-              src={user?.avatar}
-              alt="Profile"
+            <UserAvatar
+              image={user?.avatar}
+              subString={user?.name}
               radius="md"
               size={40}
               className="!border-3 border-primary-red rounded-lg"

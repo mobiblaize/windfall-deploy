@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { BiSolidBell } from "react-icons/bi";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { IoFilterOutline } from "react-icons/io5";
 import "@mantine/dates/styles.css";
@@ -152,8 +152,31 @@ function Support() {
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const prevFiltersRef = useRef({ filterBy, sortBy, debouncedSearch });
 
   const navigate = useNavigate();
+
+  const effectivePage = useMemo(() => {
+    const prevFilters = prevFiltersRef.current;
+    const filtersChanged = 
+      prevFilters.filterBy !== filterBy ||
+      prevFilters.sortBy !== sortBy ||
+      prevFilters.debouncedSearch !== debouncedSearch;
+    
+    if (filtersChanged) {
+      prevFiltersRef.current = { filterBy, sortBy, debouncedSearch };
+      return 1;
+    }
+    
+    return filterPage;
+  }, [filterBy, sortBy, debouncedSearch, filterPage]);
+
+  
+  useEffect(() => {
+    if (effectivePage === 1 && filterPage !== 1) {
+      setFilterPage(1);
+    }
+  }, [effectivePage, filterPage]);
 
   const {
     data: statsResponse,
@@ -170,11 +193,11 @@ function Support() {
     isError: isErrorComplaints,
     error: complaintsError,
   } = useFetchData(
-    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`
+    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${effectivePage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`
   );
 
   const exportComplaintsMutation = useGetExportData(
-    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}&export=1`
+    `admin/customer-support-management/all?paginate=1&search=${debouncedSearch}&page=${effectivePage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}&export=1`
   );
 
   useEffect(() => {

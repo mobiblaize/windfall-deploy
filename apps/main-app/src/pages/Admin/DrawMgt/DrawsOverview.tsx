@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { BiSolidBell } from "react-icons/bi";
 import { useFetchData, useGetExportData } from "../../../utils/hooks/useApis";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { notifications } from "@mantine/notifications";
 import { IoFilterOutline } from "react-icons/io5";
 import "@mantine/dates/styles.css";
@@ -169,8 +169,34 @@ function DrawsOverview() {
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const prevFiltersRef = useRef({ filterBy, sortBy, debouncedSearch, startDate, endDate });
 
   const navigate = useNavigate();
+
+  // Compute effective page: use page 1 when filters change, otherwise use filterPage
+  const effectivePage = useMemo(() => {
+    const prevFilters = prevFiltersRef.current;
+    const filtersChanged = 
+      prevFilters.filterBy !== filterBy ||
+      prevFilters.sortBy !== sortBy ||
+      prevFilters.debouncedSearch !== debouncedSearch ||
+      prevFilters.startDate !== startDate ||
+      prevFilters.endDate !== endDate;
+    
+    if (filtersChanged) {
+      prevFiltersRef.current = { filterBy, sortBy, debouncedSearch, startDate, endDate };
+      return 1;
+    }
+    
+    return filterPage;
+  }, [filterBy, sortBy, debouncedSearch, startDate, endDate, filterPage]);
+
+  // Update filterPage state when filters change (sync with effectivePage)
+  useEffect(() => {
+    if (effectivePage === 1 && filterPage !== 1) {
+      setFilterPage(1);
+    }
+  }, [effectivePage, filterPage]);
 
   // Build stats API URL - only include date params if they have values
   const statsUrl = useMemo(() => {
@@ -197,7 +223,7 @@ function DrawsOverview() {
     if (startDate) params.append("start_date", startDate);
     if (endDate) params.append("end_date", endDate);
     params.append("paginate", "1");
-    params.append("page", filterPage.toString());
+    params.append("page", effectivePage.toString());
     params.append("export", "0");
     return `admin/draw-management/all-draw-lines?${params.toString()}`;
   }, [
@@ -206,7 +232,7 @@ function DrawsOverview() {
     filterBy,
     startDate,
     endDate,
-    filterPage,
+    effectivePage,
   ]);
 
   const {

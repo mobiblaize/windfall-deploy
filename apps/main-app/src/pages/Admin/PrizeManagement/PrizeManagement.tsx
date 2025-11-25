@@ -21,7 +21,7 @@ import {
   usePostData,
   usePutData,
 } from "../../../utils/hooks/useApis";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import {
   IoFilterOutline,
@@ -148,6 +148,31 @@ function PrizeManagement() {
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
 
+  const prevFiltersRef = useRef({ startDate, endDate, search, sortBy, filterBy });
+
+  const effectivePage = useMemo(() => {
+    const prevFilters = prevFiltersRef.current;
+    const filtersChanged = 
+      prevFilters.startDate !== startDate ||
+      prevFilters.endDate !== endDate ||
+      prevFilters.search !== search ||
+      prevFilters.sortBy !== sortBy ||
+      prevFilters.filterBy !== filterBy;
+    
+    if (filtersChanged) {
+      prevFiltersRef.current = { startDate, endDate, search, sortBy, filterBy };
+      return 1;
+    }
+    
+    return filterPage;
+  }, [startDate, endDate, search, sortBy, filterBy, filterPage]);
+
+  useEffect(() => {
+    if (effectivePage === 1 && filterPage !== 1) {
+      setFilterPage(1);
+    }
+  }, [effectivePage, filterPage]);
+
   const {
     data: statsResponse,
     isLoading: isLoadingStats,
@@ -165,7 +190,7 @@ function PrizeManagement() {
     error: prizesError,
     refetch: refetchPrizes,
   } = useFetchData(
-    `admin/prize-configuration/all?paginate=1&search=${debouncedSearch}&page=${filterPage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`
+    `admin/prize-configuration/all?paginate=1&search=${debouncedSearch}&page=${effectivePage}&sort_by=${sortBy || ""}&filter_by=${filterBy || ""}&start_date=${startDate}&end_date=${endDate}`
   );
 
   const createPrizeMutation = usePostData("admin/prize-configuration/create");

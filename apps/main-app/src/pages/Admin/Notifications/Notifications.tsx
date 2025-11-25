@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import "@mantine/dates/styles.css";
 import { useParams } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFetchData } from "../../../utils/hooks/useApis";
 import { format } from "date-fns";
 import LoadingState from "../../../components/LoadingState";
@@ -182,11 +182,35 @@ export default function Notifications() {
   const [filterPage, setFilterPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);  
+  const prevFiltersRef = useRef({ status, startDate, endDate, activeTab });
+
+  const effectivePage = useMemo(() => {
+    const prevFilters = prevFiltersRef.current;
+    const filtersChanged = 
+      prevFilters.status !== status ||
+      prevFilters.startDate !== startDate ||
+      prevFilters.endDate !== endDate ||
+      prevFilters.activeTab !== activeTab;
+    
+    if (filtersChanged) {
+      prevFiltersRef.current = { status, startDate, endDate, activeTab };
+      return 1;
+    }
+    
+    return filterPage;
+  }, [status, startDate, endDate, activeTab, filterPage]);
+
+  
+  useEffect(() => {
+    if (effectivePage === 1 && filterPage !== 1) {
+      setFilterPage(1);
+    }
+  }, [effectivePage, filterPage]);
 
   const params = {
     paginate: 1,
-    page: filterPage,
+    page: effectivePage,
     limit: "10",
     status: status,
     modules: activeTab === "all" ? "" : activeTab,
@@ -205,7 +229,7 @@ export default function Notifications() {
   // Fetch notifications on mount and on filter changes
   useEffect(() => {
     notificationsMutate();
-  }, [notificationsMutate, filterPage, activeTab, status, startDate, endDate]);
+  }, [notificationsMutate, effectivePage, activeTab, status, startDate, endDate]);
 
   useEffect(() => {
     if (isError) {

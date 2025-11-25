@@ -4,7 +4,6 @@ import {
   Title,
   Grid,
   Flex,
-  Avatar,
   Divider,
   Group,
   Button,
@@ -36,6 +35,7 @@ import { format } from "date-fns";
 import { PiQuestionThin } from "react-icons/pi";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import EmptyState from "../../../components/EmptyState";
+import UserAvatar from "../../../components/UserAvatar";
 
 const breadCrumbs: Crumb[] = [
   { label: "Customer Management", to: "/admin/customers" },
@@ -268,9 +268,9 @@ export default function CustomerDetails() {
           >
             {/* Header */}
             <div className="flex items-center space-x-3 mb-6">
-              <Avatar
-                src={customerDetails?.user?.avatar}
-                alt="Profile"
+              <UserAvatar
+                image={customerDetails?.user?.avatar}
+                subString={getFullName()}
                 radius="md"
                 size={40}
                 className="!border-3 border-primary-red rounded-lg"

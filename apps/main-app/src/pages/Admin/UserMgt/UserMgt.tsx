@@ -4,7 +4,6 @@ import {
   Title,
   Flex,
   Switch,
-  Avatar,
   Card,
   TextInput,
 } from "@mantine/core";
@@ -21,6 +20,7 @@ import { GoArrowUpRight } from "react-icons/go";
 import { HiSearch } from "react-icons/hi";
 import { useDebounce } from "../../../utils/hooks/useDebounce";
 import LoadingState from "../../../components/LoadingState";
+import UserAvatar from "../../../components/UserAvatar";
 
 export interface User {
   uuid: string;
@@ -78,6 +78,9 @@ export default function UserManagement() {
 
   // Re-fetch when search or page changes
   useEffect(() => {
+    if (filterPage !== 1) {
+      setFilterPage(1);
+    }
     getUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, filterPage]);
@@ -246,9 +249,9 @@ export default function UserManagement() {
                         <Card key={user.uuid} radius="lg" className="p-10">
                           <Flex justify="space-between" align="center" gap={5}>
                             <Flex gap={10}>
-                              <Avatar
-                                src={user.avatar}
-                                alt="Profile"
+                              <UserAvatar
+                                image={user.avatar}
+                                subString={user.name}
                                 radius="md"
                                 size={40}
                                 className="border-3 border-primary-red rounded-lg"
