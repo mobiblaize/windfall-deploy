@@ -831,7 +831,7 @@ function ProcessClaim() {
         description={
           <span className="text-center">
             Are you sure you want to complete and create a prize claim process
-            for this raffle winner vis-à-vis prize won in a raffle ? <br />
+            for this raffle winner and the prize won in a raffle? <br />
             <br /> Kindly note that this implies that the designated raffle
             prize will be issued to the customer / raffle winner after approval
             by the admin has been given.
@@ -908,7 +908,7 @@ function ProcessClaim() {
         onClose={() => setApprovalConfirmationModalOpen(false)}
         status="error"
         title={`${isApprove ? "Approve" : "Reject"} New Prize Claim ?`}
-        description={`${isApprove ? "Are you sure you want to approve this new Prize Claim? Kindly note that this Prize Claim would go live now and customer would be able to apply in games accordingly." : "Are you sure you want to reject this new Prize Claim? Kindly note that this Prize Claim would not go live now."}`}
+        description={`${isApprove ? "Are you sure you want to approve this new Prize Claim? Kindly note that this Prize Claim would go live now and customer would be certified the winner of the prize" : "Are you sure you want to reject this new Prize Claim? Kindly note that this Prize Claim would not go live now."}`}
         primaryButton={{
           label: `${isApprove ? "Yes, Approve" : "Yes, Reject"} Prize Claim`,
           onClick: () => {

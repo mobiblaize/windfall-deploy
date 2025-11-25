@@ -96,10 +96,11 @@ export default function CreatePromoCode() {
     validate: {
       name: (value) =>
         value.length < 2 ? "Name must be at least 2 characters" : null,
-      code: (value) =>
-        !value || /^[A-Za-z0-9-]+$/.test(value)
-          ? null
-          : "Code must be alphanumeric with hyphens only",
+      code: (value) => {
+        if (!value) return "Code is required";
+        if (!/^[A-Za-z0-9-]+$/.test(value)) return "Code must be alphanumeric with hyphens only";
+        return null;
+      },
       description: (value) =>
         !value ? "Description is required" : null,
       type: (value) => (!value ? "Please select a promo code type" : null), //amount | percentage
@@ -294,6 +295,8 @@ export default function CreatePromoCode() {
                     placeholder={`${isPercentageDiscount ? 'Percentage': 'Fixed'} value`}
                     required
                     classNames={{ input: "placeholder:text-xs" }}
+                    leftSection={!isPercentageDiscount ? "₦" : undefined}
+                    rightSection={isPercentageDiscount ? "%" : undefined}
                     {...form.getInputProps("type_value")}
                     error={form.errors.type_value}
                   />

@@ -187,10 +187,11 @@ export default function ViewPromoCode() {
     validate: {
       name: (value) =>
         value.length < 2 ? "Name must be at least 2 characters" : null,
-      code: (value) =>
-        !value || /^[A-Za-z0-9-]+$/.test(value)
-          ? null
-          : "Code must be alphanumeric with hyphens only",
+      code: (value) => {
+        if (!value) return "Code is required";
+        if (!/^[A-Za-z0-9-]+$/.test(value)) return "Code must be alphanumeric with hyphens only";
+        return null;
+      },
       description: (value) =>
         !value ? "Description is required" : null,
       type: (value) => (!value ? "Please select a promo code type" : null),
@@ -491,6 +492,8 @@ export default function ViewPromoCode() {
                     <TextInput
                       label={`${form.values.type === "percentage" ? "Percentage" : "Fixed"} Value`}
                       placeholder={`${form.values.type === "percentage" ? "Percentage" : "Fixed"} value`}
+                      leftSection={form.values.type === "amount" ? "₦" : undefined}
+                      rightSection={form.values.type === "percentage" ? "%" : undefined}
                       required
                       classNames={{ input: "placeholder:text-xs" }}
                       {...form.getInputProps("type_value")}

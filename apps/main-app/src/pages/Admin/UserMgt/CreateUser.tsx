@@ -212,6 +212,7 @@ export default function CreateUser() {
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 7 }}>
                 <TextInput
+                  type="number"
                   placeholder="+234"
                   styles={inputStyles}
                   {...form.getInputProps("phone_number")}
@@ -282,7 +283,7 @@ export default function CreateUser() {
         onClose={closeModal}
         status="success"
         title="User Profile Created"
-        description="A new user profile has been successfully created. Given this, a corresponding email has been shared with this user with steps to setup their account to access WinIT Platform."
+        description="A new user profile has been successfully created. Given this, a corresponding email has been shared with this user with steps to setup their account to access Windfall Raffle Platform."
         primaryButton={{
           label: "Manage Users",
           onClick: manageUsers,

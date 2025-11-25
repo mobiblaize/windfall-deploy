@@ -775,7 +775,7 @@ function PrizeManagement() {
         onClose={() => setDeleteAlertModalOpen(false)}
         status="delete"
         title={<span className="!text-primary-red">Delete Prize ?</span>}
-        description="Are you sure you want to delete this prize? Kindly note that action is irreversible and therefore, this prize would be removed / permanently deleted and it associated data."
+        description="Are you sure you want to delete this prize? Please note that this action is irreversible. The prize and all its associated data will be permanently removed."
         primaryButton={{
           label: "Delete Prize",
           onClick: handleDelete,

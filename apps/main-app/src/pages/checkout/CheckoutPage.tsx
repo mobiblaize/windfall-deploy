@@ -409,7 +409,7 @@ function CheckoutPage() {
                           </Text>
                           <TextInput
                             placeholder="Enter promo-code"
-                            description="Enter a promo-code to discounts total cost of purchase"
+                            description="Enter a promo-code to discount total cost of purchase"
                             inputWrapperOrder={[
                               "label",
                               "input",

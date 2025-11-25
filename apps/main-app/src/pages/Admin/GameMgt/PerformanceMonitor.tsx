@@ -311,7 +311,7 @@ function PerformanceMonitor({
                 className="!text-primary-green"
               >
                 Live games:{" "}
-                <span className="text-primary-text">performance monitor</span>
+                <span className="text-primary-text">performance monitoring</span>
               </Text>
             </Box>
             <Flex gap={{ base: "sm", sm: "md" }} wrap={"wrap"}>

@@ -253,7 +253,7 @@ export default function EditRole() {
         onClose={manageRoles}
         status="success"
         title="New Changes Saved"
-        description="Congratulations, new changed saved and updated successfully"
+        description="Congratulations, changes have been saved and updated successfully"
         secondaryButton={{
           label: "Close",
           onClick: manageRoles,

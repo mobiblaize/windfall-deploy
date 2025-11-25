@@ -35,6 +35,7 @@ export interface User {
   login_count: number;
   updated_by: string;
   last_login: string;
+  last_active_at: string;
   created_at: string;
   roles: Role[];
 }

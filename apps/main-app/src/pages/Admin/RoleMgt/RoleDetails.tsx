@@ -535,7 +535,7 @@ export default function RoleDetails() {
                             : "-"}
                         </Table.Td>
                         <Table.Td>
-                          {user?.created_at
+                          {user?.last_login
                             ? format(
                                 new Date(user.last_login),
                                 "MMMM d, yyyy h:mm a"
@@ -579,7 +579,7 @@ export default function RoleDetails() {
                       </p>
                       <p>
                         <strong>Last Active:</strong>{" "}
-                        {user?.created_at
+                        {user?.last_login
                           ? format(
                               new Date(user.last_login),
                               "MMMM d, yyyy h:mm a"
