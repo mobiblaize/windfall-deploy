@@ -1,4 +1,4 @@
-import { Box, Card, Divider, Flex, Text, Button, Select } from "@mantine/core";
+import { Box, Card, Divider, Flex, Text, Button, Select, type ComboboxData } from "@mantine/core";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import { FaAngleDown } from "react-icons/fa";
 import Salestabs from "./Salestabs";
@@ -185,10 +185,11 @@ function PerformanceMonitor({
   const ticketPerformanceMutation = useGetData(ticketPerformanceApiUrl);
 
   const raffles: Raffle[] = rafflesResponse?.data;
-  const rafflesData = (() => {
-    if (!raffles) return [];
+  const rafflesData: ComboboxData = (() => {
+    if (!raffles) return [{ value: "", label: "Select a game", disabled: true }];
 
     return [
+      { value: "", label: "Select a game", disabled: true },
       ...raffles.map((item) => ({
         value: item.uuid,
         label: item.name,
@@ -199,7 +200,7 @@ function PerformanceMonitor({
   const categories: GameCategory[] | undefined =
     categoriesResponse?.data?.records;
 
-  const categoriesData = (() => {
+  const categoriesData: ComboboxData = (() => {
     if (!categories) return [{ value: "", label: "Game Category: All"  }];
 
     return [

@@ -256,6 +256,7 @@ export default function EditUser() {
               <Grid.Col span={{ base: 12, md: 7 }}>
                 <TextInput
                   placeholder="+234"
+                  type="number"
                   styles={inputStyles}
                   {...form.getInputProps("phone_number")}
                 />
