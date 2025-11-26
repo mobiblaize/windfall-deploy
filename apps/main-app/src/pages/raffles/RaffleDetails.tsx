@@ -107,7 +107,7 @@ export default function RaffleDetails() {
                 className={`mt-10 mx-5${activeTab !== "prizes" ? " md:w-[50vw]" : ""}`}
               >
                 {activeTab === "competition" && (
-                  <CompetitionDetails details={raffle.sponsorship_details} />
+                  <CompetitionDetails details={raffle.competition_details} />
                 )}
                 {activeTab === "sponsorship" && (
                   <SponsorshipDetails details={raffle.sponsorship_details} />

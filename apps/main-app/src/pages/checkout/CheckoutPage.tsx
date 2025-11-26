@@ -20,8 +20,6 @@ import { useFetchData, usePostData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import LoadingState from "../../components/LoadingState";
 import { formatCurrency } from "../../utils/helper/formatCurrency";
-import { useAtom } from "jotai";
-import { userAtom } from "../../utils/hooks/useStorage";
 import EmptyCart from "./EmptyCart";
 import type { Item } from "./Cart";
 
@@ -116,7 +114,7 @@ function CheckoutPage() {
 
   const { cart, cartLoading, cartError, isCartError } = useCart();
   const [buyNowItem, setBuyNowItem] = useState<Item>();
-  const [user] = useAtom(userAtom);
+  const [referralBalance, setReferralBalance] = useState<string>("");
 
   // Add ref for payment methods section
   const paymentMethodsRef = useRef<HTMLDivElement>(null);
@@ -134,6 +132,11 @@ function CheckoutPage() {
     isError: isConfigError,
     error: configError,
   } = useFetchData(`guest/dropdown/get-all-configurations`);
+  const {
+    data: referralBalanceResponse,
+    isError: isReferralBalanceError,
+    error: referralBalanceError,
+  } = useFetchData(`customer/referral/balance`);
 
   useEffect(() => {
     if (getSummaryMutation.isError)
@@ -195,6 +198,27 @@ function CheckoutPage() {
       setPaymentConfig(confgResponse.data);
     }
   }, [configError, isConfigError, confgResponse]);
+
+  useEffect(() => {
+    if (isReferralBalanceError) {
+      notifications.show({
+        title: "Failed to fetch referral balance",
+        message:
+          (referralBalanceError as { message?: string })?.message ||
+          "An error occurred",
+        color: "red",
+      });
+    }
+    if (referralBalanceResponse) {
+      setReferralBalance(
+        referralBalanceResponse.data?.referral_balance || ""
+      );
+    }
+  }, [
+    isReferralBalanceError,
+    referralBalanceError,
+    referralBalanceResponse,
+  ]);
 
   const handleGetSummary = async () => {
     const payload = {
@@ -426,17 +450,17 @@ function CheckoutPage() {
                       {allowReferralBalance() && (
                         <Flex justify="space-between" gap={10} align="center">
                           <div>
-                            <Text className="!text-secondary-text !text-lg !capitalize">
-                              Referral balance
-                            </Text>
-                            <Text className="!font-semibold !text-lg">
-                              {formatCurrency(user?.referral_balance)}
-                            </Text>
+                          <Text className="!text-secondary-text !text-lg !capitalize">
+                            Referral balance
+                          </Text>
+                          <Text className="!font-semibold !text-lg">
+                            {formatCurrency(referralBalance)}
+                          </Text>
                           </div>
                           <TextInput
                             placeholder="N 0"
                             type="number"
-                            max={user?.referral_balance}
+                            max={Number(referralBalance) || 0}
                             description="Enter value to pay with"
                             inputWrapperOrder={[
                               "label",
@@ -447,11 +471,10 @@ function CheckoutPage() {
                             value={referralAmount}
                             onChange={(e) => {
                               const val = e.currentTarget.value;
+                              const balanceCap =
+                                Number(referralBalance) || 0;
                               setReferralAmount(
-                                Number(val) >
-                                  (Number(user?.referral_balance) || 0)
-                                  ? Number(user?.referral_balance) || 0
-                                  : val
+                                Number(val) > balanceCap ? balanceCap : val
                               );
                             }}
                           />

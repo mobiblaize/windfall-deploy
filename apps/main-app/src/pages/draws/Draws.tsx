@@ -61,7 +61,7 @@ export default function Draws() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [filterPage, setFilterPage] = useState<number>(1);
 
-  const url = `guest/all-draw-lines?paginate=1&start_date=${startDate ?? ""}&end_date=${endDate ?? ""}&page=${filterPage}&limit=${15}`;
+  const url = `guest/all-draw-lines?paginate=1&start_date=${startDate ?? ""}&end_date=${endDate ?? ""}&search=${search ?? ""}&page=${filterPage}&limit=${15}`;
 
   const getDrawsMutation = useGetData(url);
 

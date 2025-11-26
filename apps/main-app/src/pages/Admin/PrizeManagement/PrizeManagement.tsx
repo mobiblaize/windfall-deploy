@@ -504,6 +504,7 @@ function PrizeManagement() {
                         period: prizeStats?.added_last_3_days,
                         added: prizeStats?.[item.added],
                       }}
+                      period={3}
                     />
                   ))}
             </SimpleGrid>

@@ -67,6 +67,7 @@ export interface ReferralTransaction {
   type: string;
   order: ReferralOrder;
   referred_user: ReferralUser;
+  referrer: ReferralUser;
 }
 
 export interface ReferralConfig {
@@ -489,11 +490,14 @@ function ReferralModule() {
                 transaction.order?.uniqueID,
                 <>
                   <Text className="!text-base !text-primary-text !font-medium">
-                    {transaction.referred_user?.firstname}{" "}
-                    {transaction.referred_user?.lastname}
+                    {transactionTypeFilter === 'redeemed'
+                      ? transaction.referrer?.firstname + " " + transaction.referrer?.lastname
+                      : transaction.referred_user?.firstname + " " + transaction.referred_user?.lastname}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {transaction.referred_user?.uniqueID}
+                    {transactionTypeFilter === 'redeemed'
+                      ? transaction.referrer?.uniqueID
+                      : transaction.referred_user?.uniqueID}
                   </Text>
                 </>,
                 <>
