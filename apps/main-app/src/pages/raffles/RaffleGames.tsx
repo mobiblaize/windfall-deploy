@@ -1,19 +1,18 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import FilterPill from "../../components/FilterPill";
 import RaffleCard from "../../components/RaffleCard";
-import { ActionIcon } from "@mantine/core";
+import { ActionIcon, Select } from "@mantine/core";
 import { IconZoomFilled } from "@tabler/icons-react";
 import Paginator from "../../components/Paginator";
 import type { Raffle } from "../../models/raffles";
 import { useGetData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
-import { DateInput } from "@mantine/dates";
-import { CiCalendar } from "react-icons/ci";
 import "@mantine/dates/styles.css";
 import LoadingState from "../../components/LoadingState";
 import EmptyState from "../../components/EmptyState";
 import { IoClose } from "react-icons/io5";
 import { useSearchParams } from "react-router-dom";
+import { DateRangePicker } from "../../components/DateRangePicker";
 
 export default function RaffleGames() {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
@@ -72,12 +71,17 @@ export default function RaffleGames() {
     // call the fetch when dependencies change
     getRaffles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, search]);
+  }, [statusFilter, search, startDate, endDate]);
 
   function onPageChange(page: number) {
     setFilterPage(page);
     getRaffles();
   }
+
+  const handleDateRangeChange = useCallback((start: string, end: string) => {
+    setStartDate(start);
+    setEndDate(end);
+  }, []);
 
   function clearSearch() {
     // remove from URL
@@ -125,67 +129,26 @@ export default function RaffleGames() {
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3 items-center">
-            <select
+            <Select
               value={drawTime}
-              onChange={(e) => setDrawTime(e.target.value)}
-              className="border border-[#d0d5dd] rounded px-3 py-2 text-sm text-gray-600"
-            >
-              <option value="">Draw Time</option>
-              <option value="next_24_hours">Next 24 Hours</option>
-              <option value="next_3_days">Next 3 Days</option>
-              <option value="next_7_days">Next 7 Days</option>
-            </select>
-
-            <DateInput
-              placeholder="Start Date"
-              withAsterisk
-              valueFormat="DD/MM/YYYY"
-              value={startDate}
-              onChange={(e) => setStartDate(e)}
+              onChange={(value) => setDrawTime(value || "")}
+              data={[
+                { value: "", label: "Draw Time" },
+                { value: "next_24_hours", label: "Next 24 Hours" },
+                { value: "next_3_days", label: "Next 3 Days" },
+                { value: "next_7_days", label: "Next 7 Days" },
+              ]}
+              placeholder="Draw Time"
+              className="!rounded-xl !shadow-sm"
               classNames={{
-                label: "!capitalize",
+                label: "!capitalize ",
+                options: "text-primary-text",
               }}
-              popoverProps={{
-                classNames: {
-                  dropdown: "!text-primary-text",
-                },
-              }}
-              rightSection={
-                startDate ? (
-                  <IoClose
-                    className="cursor-pointer text-gray-500 hover:text-red-500"
-                    onClick={() => setStartDate("")}
-                  />
-                ) : (
-                  <CiCalendar />
-                )
-              }
             />
 
-            <DateInput
-              placeholder="End Date"
-              withAsterisk
-              rightSection={
-                endDate ? (
-                  <IoClose
-                    className="cursor-pointer text-gray-500 hover:text-red-500"
-                    onClick={() => setEndDate("")}
-                  />
-                ) : (
-                  <CiCalendar />
-                )
-              }
-              valueFormat="DD/MM/YYYY"
-              value={endDate}
-              onChange={(e) => setEndDate(e)}
-              classNames={{
-                label: "!capitalize",
-              }}
-              popoverProps={{
-                classNames: {
-                  dropdown: "!text-primary-text",
-                },
-              }}
+            <DateRangePicker
+              onDateRangeChange={handleDateRangeChange}
+              placeholder="Select date range"
             />
 
             <ActionIcon
