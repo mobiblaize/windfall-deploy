@@ -114,8 +114,7 @@ function TicketPriceInner({ form, readOnly }: Props) {
           classNames={{ input: "placeholder:text-xs" }}
           {...prizeCostProps}
           error={form.errors.prize_cost}
-        readOnly={isReadOnly}
-        disabled={isReadOnly}
+          readOnly={isReadOnly}
         />
       </SimpleGrid>
 
@@ -138,7 +137,6 @@ function TicketPriceInner({ form, readOnly }: Props) {
           {...percentageProps}
           error={form.errors.percentage_markup}
           readOnly={isReadOnly}
-          disabled={isReadOnly}
         />
       </SimpleGrid>
 
@@ -181,8 +179,7 @@ function TicketPriceInner({ form, readOnly }: Props) {
           type="number"
           {...ticketPriceProps}
           error={form.errors.ticket_price}
-        readOnly={isReadOnly}
-        disabled={isReadOnly}
+          readOnly={isReadOnly}
         />
       </SimpleGrid>
 
@@ -201,7 +198,6 @@ function TicketPriceInner({ form, readOnly }: Props) {
         <TextInput
           value={`${totalTickets} Tickets`}
           readOnly
-        disabled={isReadOnly}
           classNames={{
             input:
               "placeholder:text-xs bg-gray-50 text-gray-700 cursor-not-allowed",
@@ -227,8 +223,7 @@ function TicketPriceInner({ form, readOnly }: Props) {
             type="number"
             {...minTicketProps}
             error={form.errors.minimum_ticket_number_purchase}
-          readOnly={isReadOnly}
-          disabled={isReadOnly}
+            readOnly={isReadOnly}
           />
 
           <Text fz="xs" mt={4} c="dimmed">
@@ -256,8 +251,7 @@ function TicketPriceInner({ form, readOnly }: Props) {
             type="number"
             {...maxTicketProps}
             error={form.errors.maximum_ticket_number_purchase}
-          readOnly={isReadOnly}
-          disabled={isReadOnly}
+            readOnly={isReadOnly}
           />
 
           <Text fz="xs" mt={4} c="dimmed">
@@ -300,7 +294,7 @@ function TicketPriceInner({ form, readOnly }: Props) {
             onChange={() => handleDiscountTypeChange("straight_line")}
             label="Uniform Discount"
             description="Apply the same discount percentage to all ticket purchases regardless of quantity. For example: 10% discount means each ticket costs 10% less, whether buying 1 or 100 tickets."
-            disabled={isReadOnly}
+            style={isReadOnly ? { pointerEvents: 'none', opacity: 0.6 } : undefined}
           />
           <Radio
             mt={"md"}
@@ -308,7 +302,7 @@ function TicketPriceInner({ form, readOnly }: Props) {
             onChange={() => handleDiscountTypeChange("band")}
             label="Tiered Discount (Volume-based)"
             description="Apply different discount percentages based on ticket quantity purchased. For example: 5% off for 5-10 tickets, 10% off for 11-20 tickets, 15% off for 21+ tickets."
-            disabled={isReadOnly}
+            style={isReadOnly ? { pointerEvents: 'none', opacity: 0.6 } : undefined}
           />
           {isStraightLine && (
             <Card withBorder mt="md" radius="md" className="!px-8 !py-5">
@@ -319,8 +313,7 @@ function TicketPriceInner({ form, readOnly }: Props) {
                 classNames={{ input: "placeholder:text-xs" }}
                 {...form.getInputProps("discount_percentage")}
                 error={form.errors.discount_percentage}
-              readOnly={isReadOnly}
-              disabled={isReadOnly}
+                readOnly={isReadOnly}
               />
             </Card>
           )}
@@ -371,7 +364,6 @@ function TicketPriceInner({ form, readOnly }: Props) {
                             }}
                             {...form.getInputProps(`tiers.${index}.name`)}
                             readOnly={isReadOnly}
-                            disabled={isReadOnly}
                           />
                           <TextInput
                             label="% discount applicable"
@@ -385,7 +377,6 @@ function TicketPriceInner({ form, readOnly }: Props) {
                               `tiers.${index}.discount_percentage`
                             )}
                             readOnly={isReadOnly}
-                            disabled={isReadOnly}
                           />
                         </SimpleGrid>
 
@@ -406,7 +397,6 @@ function TicketPriceInner({ form, readOnly }: Props) {
                               `tiers.${index}.number_of_entry_start`
                             )}
                             readOnly={isReadOnly}
-                            disabled={isReadOnly}
                           />
                           <TextInput
                             label="Maximum ticket quantity"
@@ -420,7 +410,6 @@ function TicketPriceInner({ form, readOnly }: Props) {
                               `tiers.${index}.number_of_entry_end`
                             )}
                             readOnly={isReadOnly}
-                            disabled={isReadOnly}
                           />
                         </SimpleGrid>
 

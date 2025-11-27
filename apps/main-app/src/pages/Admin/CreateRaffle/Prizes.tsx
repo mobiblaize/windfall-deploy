@@ -105,7 +105,6 @@ function PrizesInner({ form, readOnly }: Props) {
                           error={form.errors?.[`prizes.${index}.name`]}
                           {...form.getInputProps(`prizes.${index}.name`)}
                           readOnly={isReadOnly}
-                          disabled={isReadOnly}
                         />
 
                        {isInstant && <TextInput
@@ -118,7 +117,6 @@ function PrizesInner({ form, readOnly }: Props) {
                           error={form.errors?.[`prizes.${index}.quantity`]}
                           {...form.getInputProps(`prizes.${index}.quantity`)}
                           readOnly={isReadOnly}
-                          disabled={isReadOnly}
                         />}
 
                         <TextInput
@@ -131,7 +129,6 @@ function PrizesInner({ form, readOnly }: Props) {
                           error={form.errors?.[`prizes.${index}.prize_cost`]}
                           {...form.getInputProps(`prizes.${index}.prize_cost`)}
                           readOnly={isReadOnly}
-                          disabled={isReadOnly}
                         />
 
                         <Textarea
@@ -142,7 +139,6 @@ function PrizesInner({ form, readOnly }: Props) {
                           classNames={{ label: "text-xs font-medium capitalize" }}
                           {...form.getInputProps(`prizes.${index}.description`)}
                           readOnly={isReadOnly}
-                          disabled={isReadOnly}
                         />
 
                         {/* Image Upload */}

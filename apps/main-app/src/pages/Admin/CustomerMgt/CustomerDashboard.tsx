@@ -27,6 +27,8 @@ interface CustomerStats {
   returning_ticket_buyers_percentage_change: number;
   returning_ticket_buyers: number;
   average_tickets_per_customer: number;
+  total_customers_last_30_days: number;
+  returning_ticket_buyers_last_7_days: number;
   ticket_revenue: string;
   period: string;
 }
@@ -181,7 +183,7 @@ function CustomerDashboard() {
                   </Text>
                   <Text tt="capitalize" fz="sm">
                     <span className="!text-primary-green">
-                      +{customerStats?.new_customers_percentage_increase}%
+                      +{customerStats?.total_customers_last_30_days}
                     </span>{" "}
                     increase in last {customerStats?.period}
                   </Text>
@@ -208,8 +210,7 @@ function CustomerDashboard() {
                   <Text tt="capitalize" fz="sm">
                     <span className="!text-primary-green">
                       +
-                      {customerStats?.returning_ticket_buyers_percentage_change}
-                      %
+                      {customerStats?.returning_ticket_buyers_last_7_days}
                     </span>{" "}
                     increase in last 7 days
                   </Text>
