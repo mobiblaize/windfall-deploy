@@ -110,7 +110,7 @@ export default function ViewPromoCode() {
   useEffect(() => {
     if (isPromoError) {
       notifications.show({
-        title: "Failed to fetch Promo Code",
+        title: "Failed to fetch Promo-Code",
         message:
           (promoError as { message?: string })?.message || "An error occurred",
         color: "red",
@@ -121,7 +121,7 @@ export default function ViewPromoCode() {
   useEffect(() => {
     if (isRafflesError) {
       notifications.show({
-        title: "Failed to fetch Promo-Codes",
+        title: "Failed to fetch Promo-Code",
         message:
           (rafflesError as { message?: string })?.message ||
           "An error occurred",
@@ -257,15 +257,15 @@ export default function ViewPromoCode() {
     try {
       const response = await updatePromoMutation.mutateAsync(payload);
       notifications.show({
-        title: "Promo Code Updated",
-        message: response?.message || "Promo code updated successfully",
+        title: "Promo-Code Updated",
+        message: response?.message || "Promo-Code updated successfully",
         color: "green",
       });
       setConfirmModalOpen(false);
       setSuccessModalOpen(true);
     } catch (error) {
       notifications.show({
-        title: "Update Failed",
+        title: "Promo-Code Update Failed",
         message: (error as { message: string })?.message || "An error occurred",
         color: "var(--color-primary-red)",
       });
@@ -495,6 +495,7 @@ export default function ViewPromoCode() {
                       leftSection={form.values.type === "amount" ? "₦" : undefined}
                       rightSection={form.values.type === "percentage" ? "%" : undefined}
                       required
+                      type="number"
                       classNames={{ input: "placeholder:text-xs" }}
                       {...form.getInputProps("type_value")}
                       error={form.errors.type_value}
@@ -736,7 +737,7 @@ export default function ViewPromoCode() {
               form.setFieldValue("is_active", response?.data?.is_active);
             } catch (error) {
               notifications.show({
-                title: "Toggle Failed",
+                title: "Promo-Code Toggle Failed",
                 message:
                   (error as { message?: string })?.message ||
                   "An error occurred",
@@ -791,7 +792,7 @@ export default function ViewPromoCode() {
               });
             } catch (error) {
               notifications.show({
-                title: "Delete Failed",
+                title: "Promo-Code Deletion Failed",
                 message:
                   (error as { message?: string })?.message ||
                   "An error occurred",
@@ -814,7 +815,7 @@ export default function ViewPromoCode() {
         onClose={closeDeleteModal}
         status="success"
         title="Promo-Code Deleted"
-        description="Promo-Code profile has been successfully Deleted and their access revoked."
+        description="Promo-Code has been successfully deleted and its effects removed from the system."
         primaryButton={{
           label: "Close",
           onClick: closeDeleteModal,

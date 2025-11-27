@@ -150,15 +150,15 @@ export default function CreatePromoCode() {
     try {
       const response = await createPromoCodeMutation.mutateAsync(payload);
       notifications.show({
-        title: "User Update Successful",
-        message: response?.message || "User updated successfully",
+        title: "Promo-Code Creation Successful",
+        message: response?.message || "Promo-Code created successfully",
         color: "green",
       });
       setConfirmModalOpen(false);
       setSuccessModalOpen(true);
     } catch (error) {
       notifications.show({
-        title: "User Creation Failed",
+        title: "Promo-Code Creation Failed",
         message: (error as { message: string })?.message || "An error occurred",
         color: "var(--color-primary-red)",
       });
@@ -293,6 +293,7 @@ export default function CreatePromoCode() {
                   <TextInput
                     label={`${isPercentageDiscount ? 'Percentage': 'Fixed'} Value`}
                     placeholder={`${isPercentageDiscount ? 'Percentage': 'Fixed'} value`}
+                    type="number"
                     required
                     classNames={{ input: "placeholder:text-xs" }}
                     leftSection={!isPercentageDiscount ? "₦" : undefined}
@@ -479,7 +480,7 @@ export default function CreatePromoCode() {
         onClose={() => setConfirmModalOpen(false)}
         status="error"
         title="Create a Promo-Code ?"
-        description="Are you sure you want to create this new promo-code ? Kindly note that at live promo-code can be used on the system by the customer, to get specific discounted value."
+        description="Are you sure you want to create this new promo-code ? Kindly note that at live promo-code can be used on the system by the customer to get specific discounted value."
         primaryButton={{
           label: "Create Promo-Code",
           onClick: createPromo,
