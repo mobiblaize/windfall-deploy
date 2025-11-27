@@ -6,13 +6,14 @@ import type { UseFormReturnType } from "@mantine/form";
 import ImageCard from "./ImageCard";
 import { fileToBase64 } from "../../../utils/helper/fileToBase64";
 
-type Props = { form: UseFormReturnType<any> };
+type Props = { form: UseFormReturnType<any>; readOnly?: boolean };
 type GalleryItem = { id: string; src: string };
 
 const makeId = (prefix = "") =>
   `${prefix}${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-function MediaContentInner({ form }: Props) {
+function MediaContentInner({ form, readOnly }: Props) {
+  const isReadOnly = !!readOnly;
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [cardImagePreview, setCardImagePreview] = useState<string | null>(null);
 
@@ -172,8 +173,9 @@ function MediaContentInner({ form }: Props) {
           src={cardImagePreview || undefined}
           width={490}
           height={500}
-          onUpload={(file: File) => handleCardImageUpload(file)}
-          onDelete={removeCardImage}
+          readOnly={isReadOnly}
+          onUpload={!isReadOnly ? (file: File) => handleCardImageUpload(file) : undefined}
+          onDelete={!isReadOnly ? removeCardImage : undefined}
         />
       </SimpleGrid>
 
@@ -194,19 +196,21 @@ function MediaContentInner({ form }: Props) {
         )}
       </Box>
 
-      <Box mt="md">
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          id="gallery-upload"
-          style={{ display: "none" }}
-          onChange={handleGalleryUpload}
-        />
-        <Button size="xs" variant="outline" component="label" htmlFor="gallery-upload">
-          Add Gallery Images
-        </Button>
-      </Box>
+      {!isReadOnly && (
+        <Box mt="md">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            id="gallery-upload"
+            style={{ display: "none" }}
+            onChange={handleGalleryUpload}
+          />
+          <Button size="xs" variant="outline" component="label" htmlFor="gallery-upload">
+            Add Gallery Images
+          </Button>
+        </Box>
+      )}
 
       {hasGallery ? (
         <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing="md">
@@ -217,36 +221,49 @@ function MediaContentInner({ form }: Props) {
               width={490}
               height={500}
               index={index}
-              onUpload={async (file: File) => {
-                await handleReplaceGalleryImage(index, file);
-              }}
-              onDelete={() => removeGalleryImage(index)}
+              readOnly={isReadOnly}
+              onUpload={
+                !isReadOnly
+                  ? async (file: File) => {
+                      await handleReplaceGalleryImage(index, file);
+                    }
+                  : undefined
+              }
+              onDelete={!isReadOnly ? () => removeGalleryImage(index) : undefined}
             />
           ))}
         </SimpleGrid>
       ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing="md">
-          <ImageCard
-            width={490}
-            height={500}
-            onUpload={async (file: File) => {
-              try {
-                const base64 = await fileToBase64(file, 1);
-                const newItem = { id: makeId("g-"), src: base64 };
-                setGalleryItems((prev) => {
-                  const updated = [...prev, newItem];
-                  return updated;
-                });
-              } catch (error) {
-                notifications.show({
-                  title: "Upload failed",
-                  message: (error as Error).message,
-                  color: "red",
-                });
-              }
-            }}
-          />
-        </SimpleGrid>
+        <>
+          {!isReadOnly ? (
+            <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing="md">
+              <ImageCard
+                width={490}
+                height={500}
+                onUpload={async (file: File) => {
+                  try {
+                    const base64 = await fileToBase64(file, 1);
+                    const newItem = { id: makeId("g-"), src: base64 };
+                    setGalleryItems((prev) => {
+                      const updated = [...prev, newItem];
+                      return updated;
+                    });
+                  } catch (error) {
+                    notifications.show({
+                      title: "Upload failed",
+                      message: (error as Error).message,
+                      color: "red",
+                    });
+                  }
+                }}
+              />
+            </SimpleGrid>
+          ) : (
+            <Text c="dimmed" mt="md">
+              No gallery images available.
+            </Text>
+          )}
+        </>
       )}
 
       <Divider my="lg" />

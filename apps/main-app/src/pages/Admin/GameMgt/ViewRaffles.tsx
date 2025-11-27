@@ -162,6 +162,16 @@ function ViewRaffles() {
         color: "default",
       });
     }
+    else {
+      items.push({
+        id: "raffle-configurations",
+        label: "Raffle Configurations",
+        description: "View raffle configurations and settings",
+        onClick: handleEditRaffle,
+        disabled: isLoadingRaffle || !raffle,
+        color: "default",
+      });
+    }
 
     if (canApproveGame && isPendingApproval && isPublished) {
       items.push(

@@ -8,7 +8,8 @@ type Props = {
   width?: number; // used only for aspect ratio
   height?: number; // used only for aspect ratio
   index?: number;
-  onUpload: (file: File, index?: number) => void;
+  readOnly?: boolean;
+  onUpload?: (file: File, index?: number) => void;
   onDelete?: (index?: number) => void;
 };
 
@@ -17,14 +18,16 @@ function ImageCard({
   width = 490,
   height = 500,
   index,
+  readOnly = false,
   onUpload,
   onDelete,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (readOnly) return;
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && onUpload) {
       onUpload(file, index);
       e.target.value = ""; // reset input
     }
@@ -56,13 +59,15 @@ function ImageCard({
         }}
       >
         {/* Hidden file input */}
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          style={{ display: "none" }}
-        />
+        {!readOnly && (
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
+        )}
 
         {src ? (
           <>
@@ -80,59 +85,63 @@ function ImageCard({
               }}
             />
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
-              <Text fw={600} c="white">
-                Image Uploaded
-              </Text>
-              <Text fw={100} fz="xs" c="gray.2" mt={4}>
-                Select an Image. Not more than 1MB.
-                <br />
-                Recommended Size: {width}p × {height}p
-              </Text>
-              <Button
-                variant="white"
-                size="xs"
-                mt="md"
-                rightSection={
-                  <IoIosAdd
-                    size={18}
-                    className="bg-[#f8c6c6] text-primary-red rounded-sm"
-                  />
-                }
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Change Image
-              </Button>
-            </div>
+            {!readOnly && (
+              <>
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+                  <Text fw={600} c="white">
+                    Image Uploaded
+                  </Text>
+                  <Text fw={100} fz="xs" c="gray.2" mt={4}>
+                    Select an Image. Not more than 1MB.
+                    <br />
+                    Recommended Size: {width}p × {height}p
+                  </Text>
+                  <Button
+                    variant="white"
+                    size="xs"
+                    mt="md"
+                    rightSection={
+                      <IoIosAdd
+                        size={18}
+                        className="bg-[#f8c6c6] text-primary-red rounded-sm"
+                      />
+                    }
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Change Image
+                  </Button>
+                </div>
 
-            {/* Delete Icon */}
-            <Group
-              pos="absolute"
-              top={8}
-              right={8}
-              bg="rgba(0,0,0,0.6)"
-              p={4}
-              style={{ borderRadius: "8px", cursor: "pointer" }}
-              onClick={() => onDelete?.(index)}
-            >
-              <FaTrash size={12} color="white" />
-            </Group>
+                {/* Delete Icon */}
+                <Group
+                  pos="absolute"
+                  top={8}
+                  right={8}
+                  bg="rgba(0,0,0,0.6)"
+                  p={4}
+                  style={{ borderRadius: "8px", cursor: "pointer" }}
+                  onClick={() => onDelete?.(index)}
+                >
+                  <FaTrash size={12} color="white" />
+                </Group>
+              </>
+            )}
           </>
         ) : (
-          <>
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center text-center p-4"
-              style={{ backgroundColor: "var(--mantine-color-gray-0)" }}
-            >
-              <Text fw={500} c="var(--primary-text)">
-                Upload Image
-              </Text>
-              <Text fw={100} fz="xs" c="var(--secondary-text)" mt={4}>
-                Select an Image. Not more than 1MB.
-                <br />
-                Recommended Size: {width}p × {height}p
-              </Text>
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center text-center p-4"
+            style={{ backgroundColor: "var(--mantine-color-gray-0)" }}
+          >
+            <Text fw={500} c="var(--primary-text)">
+              {readOnly ? "No image available" : "Upload Image"}
+            </Text>
+            <Text fw={100} fz="xs" c="var(--secondary-text)" mt={4}>
+              Select an Image. Not more than 1MB.
+              <br />
+              Recommended Size: {width}p × {height}p
+            </Text>
+            {!readOnly && (
               <Button
                 variant="outline"
                 mt="md"
@@ -146,8 +155,8 @@ function ImageCard({
               >
                 Select Image
               </Button>
-            </div>
-          </>
+            )}
+          </div>
         )}
       </div>
     </Card>

@@ -151,7 +151,7 @@ function ResultsTab() {
                           <Text className="!text-sm leading-none">
                             Draw Date:{" "}
                             {formatLocalDate(
-                              (result.game.end_date),
+                              (result.game.instant_game === "true" ? result.created_at : result.game.end_date),
                               "MMMM d, yyyy"
                             )}
                           </Text>

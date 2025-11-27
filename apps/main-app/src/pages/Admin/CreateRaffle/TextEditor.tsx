@@ -18,6 +18,7 @@ interface RichTextFieldProps {
   label?: string;
   description?: string;
   initialContent?: string;
+  readOnly?: boolean;
 }
 
 export default function TextEditor({
@@ -26,6 +27,7 @@ export default function TextEditor({
   label,
   description,
   initialContent = "",
+  readOnly = false,
 }: RichTextFieldProps) {
   const editor = useEditor({
     extensions: [
@@ -39,6 +41,7 @@ export default function TextEditor({
       // Don't add Link or Underline to avoid tiptap duplicate warnings.
     ],
     content: form.values[name] || initialContent,
+    editable: !readOnly,
     onUpdate: ({ editor }) => {
       form.setFieldValue(name, editor.getHTML());
     },
@@ -48,8 +51,11 @@ export default function TextEditor({
     if (editor && form.values[name] !== editor.getHTML()) {
       editor.commands.setContent(form.values[name] || "");
     }
+    if (editor) {
+      editor.setEditable(!readOnly);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, form.values[name], name]);
+  }, [editor, form.values[name], name, readOnly]);
 
   return (
     <div>
@@ -65,73 +71,75 @@ export default function TextEditor({
       )}
 
       <RichTextEditor editor={editor}>
-        <RichTextEditor.Toolbar sticky>
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Bold />
-            <RichTextEditor.Italic />
-            <RichTextEditor.Underline />
-            <RichTextEditor.Strikethrough />
-            <RichTextEditor.ClearFormatting />
-            <RichTextEditor.Highlight />
-            <RichTextEditor.Code />
-          </RichTextEditor.ControlsGroup>
+        {!readOnly && (
+          <RichTextEditor.Toolbar sticky>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Bold />
+              <RichTextEditor.Italic />
+              <RichTextEditor.Underline />
+              <RichTextEditor.Strikethrough />
+              <RichTextEditor.ClearFormatting />
+              <RichTextEditor.Highlight />
+              <RichTextEditor.Code />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.H1 />
-            <RichTextEditor.H2 />
-            <RichTextEditor.H3 />
-            <RichTextEditor.H4 />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.H1 />
+              <RichTextEditor.H2 />
+              <RichTextEditor.H3 />
+              <RichTextEditor.H4 />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Blockquote />
-            <RichTextEditor.Hr />
-            <RichTextEditor.BulletList />
-            <RichTextEditor.OrderedList />
-            <RichTextEditor.Subscript />
-            <RichTextEditor.Superscript />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Blockquote />
+              <RichTextEditor.Hr />
+              <RichTextEditor.BulletList />
+              <RichTextEditor.OrderedList />
+              <RichTextEditor.Subscript />
+              <RichTextEditor.Superscript />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Link />
-            <RichTextEditor.Unlink />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Link />
+              <RichTextEditor.Unlink />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.AlignLeft />
-            <RichTextEditor.AlignCenter />
-            <RichTextEditor.AlignJustify />
-            <RichTextEditor.AlignRight />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.AlignLeft />
+              <RichTextEditor.AlignCenter />
+              <RichTextEditor.AlignJustify />
+              <RichTextEditor.AlignRight />
+            </RichTextEditor.ControlsGroup>
 
-          {/* ✅ Color controls */}
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.ColorPicker
-              colors={[
-                "#25262b",
-                "#868e96",
-                "#fa5252",
-                "#e64980",
-                "#be4bdb",
-                "#7950f2",
-                "#4c6ef5",
-                "#228be6",
-                "#15aabf",
-                "#12b886",
-                "#40c057",
-                "#82c91e",
-                "#fab005",
-                "#fd7e14",
-              ]}
-            />
-            <RichTextEditor.Color color="#25262b" />
-          </RichTextEditor.ControlsGroup>
+            {/* ✅ Color controls */}
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.ColorPicker
+                colors={[
+                  "#25262b",
+                  "#868e96",
+                  "#fa5252",
+                  "#e64980",
+                  "#be4bdb",
+                  "#7950f2",
+                  "#4c6ef5",
+                  "#228be6",
+                  "#15aabf",
+                  "#12b886",
+                  "#40c057",
+                  "#82c91e",
+                  "#fab005",
+                  "#fd7e14",
+                ]}
+              />
+              <RichTextEditor.Color color="#25262b" />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Undo />
-            <RichTextEditor.Redo />
-          </RichTextEditor.ControlsGroup>
-        </RichTextEditor.Toolbar>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Undo />
+              <RichTextEditor.Redo />
+            </RichTextEditor.ControlsGroup>
+          </RichTextEditor.Toolbar>
+        )}
 
         <RichTextEditor.Content />
       </RichTextEditor>

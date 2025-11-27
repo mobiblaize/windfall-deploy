@@ -4,9 +4,9 @@ import TextEditor from "./TextEditor";
 import type { UseFormReturnType } from "@mantine/form";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Props = { form: UseFormReturnType<any> };
+type Props = { form: UseFormReturnType<any>; readOnly?: boolean };
 
-function ContentMarketing({ form }: Props) {
+function ContentMarketing({ form, readOnly }: Props) {
   return (
     <Box>
       <Box
@@ -23,7 +23,7 @@ function ContentMarketing({ form }: Props) {
         </Text>
       </Box>
 
-      <TextEditor form={form} name="competition_details" />
+      <TextEditor form={form} name="competition_details" readOnly={readOnly} />
 
       <Box
         className="border-y border-dashed border-primary-red bg-secondary-red "
@@ -38,7 +38,7 @@ function ContentMarketing({ form }: Props) {
           Enter the raffle sponsors details below
         </Text>
       </Box>
-      <TextEditor form={form} name="sponsorship_details" />
+      <TextEditor form={form} name="sponsorship_details" readOnly={readOnly} />
     </Box>
   );
 }

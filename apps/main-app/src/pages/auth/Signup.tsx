@@ -11,6 +11,7 @@ import {
   PasswordInput,
   Loader,
   Alert,
+  type ComboboxData,
 } from "@mantine/core";
 import { CiCalendar } from "react-icons/ci";
 import { DateInput } from "@mantine/dates";
@@ -19,7 +20,7 @@ import { useFetchData, usePostData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
 import "@mantine/dates/styles.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import OtpModal from "../Profile/settings/AccountSecurity/OtpModal";
 import AlertModal from "../../components/Modals/AlertModal";
@@ -30,6 +31,11 @@ import type { UserCart } from "../checkout/Cart";
 import { useAuth } from "../../utils/hooks/useAuth";
 
 const otpTime = 300; // 5 minutes in seconds
+
+export interface LgaData {
+  lga: string
+  wards: string[]
+}
 
 export interface NewUser {
   uuid: string;
@@ -160,14 +166,6 @@ function Signup({
   const isLoading = () => isPendingLga || registerMutation.isPending;
 
   // ✅ Map LGAs for select
-  const lgas = (() => {
-    if (!lgaData || !lgaData.data) return [];
-    return lgaData.data.map((item: { lga: string }) => ({
-      value: item.lga.toString(),
-      label: item.lga,
-    }));
-  })();
-
   // ✅ Calculate max date (18 years ago)
   const today = new Date();
   const maxDate = new Date(
@@ -237,6 +235,47 @@ function Signup({
         val ? null : "You must confirm you are at least 18 years old",
     },
   });
+
+  // Track currently selected LGA for derived state
+  const selectedLgaValue = form.values.lga;
+  const { setFieldValue } = form;
+  const previousSelectedLga = useRef(selectedLgaValue);
+
+  // ✅ Map LGAs for select
+  const lgas: ComboboxData = useMemo(() => {
+    if (!lgaData || !lgaData.data) return [];
+    return lgaData.data.map((item: LgaData) => ({
+      value: item.lga.toString(),
+      label: item.lga,
+    }));
+  }, [lgaData]);
+
+  // ✅ Get landmarks from the selected LGA
+  const landmarkOptions: ComboboxData = useMemo(() => {
+    if (!lgaData || !lgaData.data) return [];
+    const selectedLga = lgaData.data.find(
+      (item: LgaData) => item.lga === selectedLgaValue
+    );
+    if (!selectedLga) return [];
+    const { wards } = selectedLga;
+    if (!wards.length) return [];
+    return wards.map((ward: string) => ({
+      value: ward,
+      label: ward,
+    }));
+  }, [selectedLgaValue, lgaData]);
+
+  // Clear landmark when a different LGA is chosen
+  useEffect(() => {
+    if (
+      previousSelectedLga.current &&
+      selectedLgaValue &&
+      previousSelectedLga.current !== selectedLgaValue
+    ) {
+      setFieldValue("area", "");
+    }
+    previousSelectedLga.current = selectedLgaValue;
+  }, [selectedLgaValue, setFieldValue]);
 
   const emailValid = () => {
     const email = form.values.email;
@@ -471,18 +510,13 @@ function Signup({
                   {...form.getInputProps("lga")}
                 />
                 <Select
-                  data={[
-                    {
-                      label: "Select a landmark",
-                      value: "",
-                    },
-                    ...lgas,
-                  ]}
+                  data={landmarkOptions}
                   label="Landmark"
                   placeholder="Select a landmark"
                   withAsterisk
                   searchable
                   rightSection={<FaAngleDown />}
+                  key={`landmark-${selectedLgaValue || "none"}`}
                   classNames={{
                     label: "!capitalize ",
                     options: "text-primary-text",

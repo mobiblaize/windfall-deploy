@@ -110,6 +110,15 @@ function EditRaffleLayout() {
     );
   }, [categoriesData]);
 
+  const isReadOnlyGame = useMemo(() => {
+    const raffle = raffleData?.data;
+    return (
+      !!raffle &&
+      raffle.status === "published" &&
+      raffle.approvalStatus === "approved"
+    );
+  }, [raffleData?.data]);
+
   const form = useForm({
     mode: "controlled",
     validateInputOnBlur: false,
@@ -511,34 +520,34 @@ function EditRaffleLayout() {
         label: "basic information",
         description: "edit raffle basic detail below",
         Component: BasicInformation,
-        props: { categories },
+        props: { categories, readOnly: isReadOnlyGame },
       },
       {
         label: "ticket price & discount",
         description: "edit ticket price and discount",
         Component: TicketPrice,
-        props: {},
+        props: { readOnly: isReadOnlyGame },
       },
       {
         label: "Game Prizes",
         description: "Edit prizes for this game",
         Component: Prizes,
-        props: {},
+        props: { readOnly: isReadOnlyGame },
       },
       {
         label: "content marketing",
         description: "Edit other content ...",
         Component: ContentMarketing,
-        props: {},
+        props: { readOnly: isReadOnlyGame },
       },
       {
         label: "media content",
         description: "Edit game banner ...",
         Component: MediaContent,
-        props: {},
+        props: { readOnly: isReadOnlyGame },
       },
     ];
-  }, [categories]);
+  }, [categories, isReadOnlyGame]);
 
   const validateStep = useCallback(
     async (stepIndex: number) => {
@@ -725,6 +734,7 @@ function EditRaffleLayout() {
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        if (isReadOnlyGame) return;
         handleSubmit("published");
       }}
       className="pb-5"
@@ -747,7 +757,7 @@ function EditRaffleLayout() {
                 Edit raffle game details in simple steps.
               </Text>
             </div>
-            {!(isInitialLoading || isRaffleLoading) && (
+            {!(isInitialLoading || isRaffleLoading || isReadOnlyGame) && (
               <Flex gap={15}>
                 <CustomButton
                   border={false}
@@ -777,7 +787,7 @@ function EditRaffleLayout() {
             mt="lg"
           >
             <Stepper
-              allowNextStepsSelect={false}
+              allowNextStepsSelect={isReadOnlyGame}
               active={active}
               onStepClick={setActive}
               className="capitalize"
@@ -794,7 +804,7 @@ function EditRaffleLayout() {
                 <Stepper.Step
                   key={step.label}
                   label={step.label}
-                  allowStepClick={false}
+                  allowStepClick={isReadOnlyGame}
                 />
               ))}
             </Stepper>
@@ -820,7 +830,7 @@ function EditRaffleLayout() {
               gap={20}
               className="!bg-white !rounded-xl !border !border-gray-200 !p-6 mt-10 !mb-10"
             >
-              {active > 0 && (
+              {!isReadOnlyGame && active > 0 && (
                 <Button
                   size="lg"
                   onClick={prevStep}
@@ -831,7 +841,7 @@ function EditRaffleLayout() {
                 </Button>
               )}
 
-              {active < stepsLayout.length - 1 && (
+              {!isReadOnlyGame && active < stepsLayout.length - 1 && (
                 <CustomButton
                   size="lg"
                   border={false}
@@ -844,7 +854,8 @@ function EditRaffleLayout() {
                   Continue
                 </CustomButton>
               )}
-              {active === stepsLayout.length - 1 &&
+              {!isReadOnlyGame &&
+                active === stepsLayout.length - 1 &&
                 raffleData?.data?.status === "draft" && (
                   <>
                     <CustomButton

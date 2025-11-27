@@ -1,8 +1,8 @@
 import { Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import ResultsBadge from "../../components/ResultsBadge";
 import type { RaffleGame } from "./GamesTab";
 import defaultRaffleImg from "../../utils/helper/defaultImg";
+import GameBadge from "../../components/GameBadge";
 
 function GamesCard({ game }: { game: RaffleGame }) {
   const navigate = useNavigate();
@@ -20,9 +20,14 @@ function GamesCard({ game }: { game: RaffleGame }) {
           alt="raffle"
           className="w-full rounded-xl h-70 object-cover mb-[-1.25rem]"
         />
-        <ResultsBadge 
-		  raffle={game.game}
-              status={game.game.main_active_status} />
+        <GameBadge
+          startDate={game.game.start_date}
+          endDate={game.game.end_date}
+          startTime={game.game.start_time}
+          endTime={game.game.end_time}
+          status={game.game.main_active_status}
+          gameType={game.game.instant_game === "true" ? "instant" : "raffle"}
+        />
       </div>
 
       {/* Info */}

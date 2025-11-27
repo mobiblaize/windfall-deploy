@@ -17,9 +17,9 @@ import { FaAngleDown } from "react-icons/fa";
 import "@mantine/dates/styles.css";
 import { CiCalendar } from "react-icons/ci";
 
-type Props = { form: UseFormReturnType<any>; categories: any[] };
+type Props = { form: UseFormReturnType<any>; categories: any[]; readOnly?: boolean };
 
-function BasicInformationInner({ form, categories }: Props) {
+function BasicInformationInner({ form, categories, readOnly }: Props) {
   // Initialize local state from form values once on mount to avoid reading
   // form.values every render (which can cause extra renders/upstream effects).
   const [isScheduled, setIsScheduled] = useState<boolean>(
@@ -37,8 +37,12 @@ function BasicInformationInner({ form, categories }: Props) {
     setAllowReferral(!!form.values?.allow_referral_balance_usage);
   }, [form.values?.allow_referral_balance_usage]);
 
+  const isReadOnly = !!readOnly;
+
   const handleScheduleChange = useCallback(
     (value: boolean) => {
+      if (isReadOnly) return;
+
       if (value)
         form.setFieldValue("prizes", [
           {
@@ -54,10 +58,11 @@ function BasicInformationInner({ form, categories }: Props) {
       setIsScheduled(value);
       form.setFieldValue("is_scheduled", value);
     },
-    [form]
+    [form, isReadOnly]
   );
 
   const handleReferralChange = (checked: boolean) => {
+    if (isReadOnly) return;
     setAllowReferral(checked);
     form.setFieldValue("allow_referral_balance_usage", checked);
   };
@@ -97,6 +102,8 @@ function BasicInformationInner({ form, categories }: Props) {
           placeholder="Enter raffle name"
           classNames={{ input: "placeholder:text-xs" }}
           {...nameProps}
+          readOnly={isReadOnly}
+          disabled={isReadOnly}
         />
       </SimpleGrid>
 
@@ -116,6 +123,8 @@ function BasicInformationInner({ form, categories }: Props) {
           placeholder="80 characters, including spaces & punctuation"
           classNames={{ input: "placeholder:text-xs" }}
           {...descriptionProps}
+          readOnly={isReadOnly}
+          disabled={isReadOnly}
         />
       </SimpleGrid>
 
@@ -140,6 +149,8 @@ function BasicInformationInner({ form, categories }: Props) {
             options: "text-primary-text",
           }}
           {...categoryProps}
+          readOnly={isReadOnly}
+          disabled={isReadOnly}
         />
       </SimpleGrid>
 
@@ -161,6 +172,7 @@ function BasicInformationInner({ form, categories }: Props) {
             onChange={() => handleScheduleChange(false)}
             label="Instant raffle game"
             description="Raffle goes live immediately upon publishing. Tickets available instantly."
+            disabled={isReadOnly}
           />
 
           <Radio
@@ -169,6 +181,7 @@ function BasicInformationInner({ form, categories }: Props) {
             onChange={() => handleScheduleChange(true)}
             label="Scheduled raffle"
             description="Raffle will be published but tickets only become available after the scheduled date."
+            disabled={isReadOnly}
           />
 
           <Card withBorder mt="md" radius="md" className="p-4">
@@ -188,6 +201,8 @@ function BasicInformationInner({ form, categories }: Props) {
                     dropdown: "!text-primary-text",
                   },
                 }}
+            readOnly={isReadOnly}
+            disabled={isReadOnly}
               />
               <DateInput
                 label="End date"
@@ -204,6 +219,8 @@ function BasicInformationInner({ form, categories }: Props) {
                     dropdown: "!text-primary-text",
                   },
                 }}
+            readOnly={isReadOnly}
+            disabled={isReadOnly}
               />
             </SimpleGrid>
 
@@ -220,6 +237,8 @@ function BasicInformationInner({ form, categories }: Props) {
                   dropdown: "text-primary-text",
                 }}
                 {...startTimeProps}
+                readOnly={isReadOnly}
+                disabled={isReadOnly}
               />
               <TimePicker
                 label="End time"
@@ -231,6 +250,8 @@ function BasicInformationInner({ form, categories }: Props) {
                   dropdown: "text-primary-text",
                 }}
                 {...endTimeProps}
+                readOnly={isReadOnly}
+                disabled={isReadOnly}
               />
             </SimpleGrid>
           </Card>
@@ -249,7 +270,7 @@ function BasicInformationInner({ form, categories }: Props) {
             Enable use of promo code for discounted tickets.
           </Text>
         </Box>
-        <Checkbox label="Allow promo code for payment" {...promoProps} />
+        <Checkbox label="Allow promo code for payment" {...promoProps} disabled={isReadOnly} />
       </SimpleGrid>
 
       <Divider my="md" />
@@ -270,6 +291,7 @@ function BasicInformationInner({ form, categories }: Props) {
             label="Allow referral balance for payment"
             checked={allowReferral}
             onChange={(e) => handleReferralChange(e.currentTarget.checked)}
+            disabled={isReadOnly}
           />
 
           {allowReferral && (
@@ -281,6 +303,8 @@ function BasicInformationInner({ form, categories }: Props) {
                   placeholder="Enter minimum amount"
                   classNames={{ input: "placeholder:text-xs" }}
                   {...minReferralProps}
+                  readOnly={isReadOnly}
+                  disabled={isReadOnly}
                 />
                 <TextInput
                   label="Maximum referral balance amount"
@@ -288,6 +312,8 @@ function BasicInformationInner({ form, categories }: Props) {
                   placeholder="Enter maximum amount"
                   classNames={{ input: "placeholder:text-xs" }}
                   {...maxReferralProps}
+                  readOnly={isReadOnly}
+                  disabled={isReadOnly}
                 />
               </SimpleGrid>
             </Card>
@@ -314,6 +340,8 @@ function BasicInformationInner({ form, categories }: Props) {
             classNames={{ input: "placeholder:text-xs" }}
             {...ctaProps}
             maxLength={15}
+          readOnly={isReadOnly}
+          disabled={isReadOnly}
           />
 
           <Text fz="xs" mt={4} c="dimmed">

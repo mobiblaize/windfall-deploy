@@ -95,7 +95,7 @@ export default function ViewPromoCode() {
     data: rafflesResponse,
     isError: isRafflesError,
     error: rafflesError,
-  } = useFetchData(`admin/game-management/game-list/all?paginate=0`);
+  } = useFetchData(`admin/game-management/game-list/all-dropdown/all`);
 
   const updatePromoMutation = usePutData(
     `admin/promo-code-management/update/${id}`

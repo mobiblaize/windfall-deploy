@@ -11,7 +11,7 @@ import {
   Text,
 } from "@mantine/core";
 import MyGameHeader from "../MyGameHeader";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetchData, usePutData } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { useForm } from "@mantine/form";
@@ -69,6 +69,11 @@ export interface NotificationSetting {
   updated_at: string;
 }
 
+interface LgaData {
+  lga: string;
+  wards: string[];
+}
+
 function PersonalSettingsTab() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile>();
@@ -117,15 +122,6 @@ function PersonalSettingsTab() {
       color: "var(--color-primary-red)",
     });
   }
-
-  // Map LGAs for select
-  const lgas = (() => {
-    if (!lgaData || !lgaData.data) return [];
-    return lgaData.data.map((item: { lga: string }) => ({
-      value: item.lga.toString(),
-      label: item.lga,
-    }));
-  })();
 
   const form = useForm({
     initialValues: {
@@ -194,6 +190,46 @@ function PersonalSettingsTab() {
       });
     }
   };
+
+  const selectedLgaValue = form.values.lga;
+  const { setFieldValue } = form;
+  const previousSelectedLga = useRef(selectedLgaValue);
+
+  // ✅ Map LGAs for select
+  const lgas = useMemo(() => {
+    if (!lgaData || !lgaData.data) return [];
+    return lgaData.data.map((item: LgaData) => ({
+      value: item.lga.toString(),
+      label: item.lga,
+    }));
+  }, [lgaData]);
+
+  // ✅ Get landmarks for the current LGA
+  const landmarkOptions = useMemo(() => {
+    if (!lgaData || !lgaData.data) return [];
+    const selectedLga = lgaData.data.find(
+      (item: LgaData) => item.lga === selectedLgaValue
+    );
+    if (!selectedLga) return [];
+    const { wards = [] } = selectedLga;
+    if (!wards.length) return [];
+    return wards.map((ward: string) => ({
+      value: ward,
+      label: ward,
+    }));
+  }, [selectedLgaValue, lgaData]);
+
+  // Clear landmark when a different LGA is chosen
+  useEffect(() => {
+    if (
+      previousSelectedLga.current &&
+      selectedLgaValue &&
+      previousSelectedLga.current !== selectedLgaValue
+    ) {
+      setFieldValue("landmark", "");
+    }
+    previousSelectedLga.current = selectedLgaValue;
+  }, [selectedLgaValue, setFieldValue]);
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -354,7 +390,8 @@ function PersonalSettingsTab() {
                   </Grid.Col>
                   <Grid.Col span={6}>
                     <Select
-                      data={lgas}
+                      data={landmarkOptions}
+                      key={`landmark-${selectedLgaValue || "none"}`}
                       label="Landmark"
                       placeholder="Select Landmark"
                       withAsterisk

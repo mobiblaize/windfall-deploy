@@ -20,9 +20,10 @@ import { FaTrash } from "react-icons/fa";
 import { fileToBase64 } from "../../../utils/helper/fileToBase64";
 import { notifications } from "@mantine/notifications";
 
-type Props = { form: UseFormReturnType<any> };
+type Props = { form: UseFormReturnType<any>; readOnly?: boolean };
 
-function PrizesInner({ form }: Props) {
+function PrizesInner({ form, readOnly }: Props) {
+  const isReadOnly = !!readOnly;
   // Use memoized derived values so re-computation is cheap and explicit
   const prizes = useMemo(() => form.values?.prizes || [], [form.values?.prizes]);
   const isInstant = useMemo(() => !form.values?.is_scheduled, [form.values?.is_scheduled]);
@@ -103,6 +104,8 @@ function PrizesInner({ form }: Props) {
                           classNames={{ label: "text-xs font-medium capitalize" }}
                           error={form.errors?.[`prizes.${index}.name`]}
                           {...form.getInputProps(`prizes.${index}.name`)}
+                          readOnly={isReadOnly}
+                          disabled={isReadOnly}
                         />
 
                        {isInstant && <TextInput
@@ -114,6 +117,8 @@ function PrizesInner({ form }: Props) {
                           classNames={{ label: "text-xs font-medium capitalize" }}
                           error={form.errors?.[`prizes.${index}.quantity`]}
                           {...form.getInputProps(`prizes.${index}.quantity`)}
+                          readOnly={isReadOnly}
+                          disabled={isReadOnly}
                         />}
 
                         <TextInput
@@ -125,6 +130,8 @@ function PrizesInner({ form }: Props) {
                           classNames={{ label: "text-xs font-medium capitalize" }}
                           error={form.errors?.[`prizes.${index}.prize_cost`]}
                           {...form.getInputProps(`prizes.${index}.prize_cost`)}
+                          readOnly={isReadOnly}
+                          disabled={isReadOnly}
                         />
 
                         <Textarea
@@ -134,6 +141,8 @@ function PrizesInner({ form }: Props) {
                           minRows={2}
                           classNames={{ label: "text-xs font-medium capitalize" }}
                           {...form.getInputProps(`prizes.${index}.description`)}
+                          readOnly={isReadOnly}
+                          disabled={isReadOnly}
                         />
 
                         {/* Image Upload */}
@@ -146,13 +155,15 @@ function PrizesInner({ form }: Props) {
                           </Group>
 
                           <Group justify="space-between" align="center" gap="sm">
-                            <FileButton onChange={(file) => handleFileChange(file, index)} accept="image/*">
-                              {(props) => (
-                                <Button {...props} variant="outline" size="sm" radius="md" className="!border-[#D0D5DD] !text-[#344054]" fullWidth>
-                                  Upload Image
-                                </Button>
-                              )}
-                            </FileButton>
+                            {!isReadOnly && (
+                              <FileButton onChange={(file) => handleFileChange(file, index)} accept="image/*">
+                                {(props) => (
+                                  <Button {...props} variant="outline" size="sm" radius="md" className="!border-[#D0D5DD] !text-[#344054]" fullWidth>
+                                    Upload Image
+                                  </Button>
+                                )}
+                              </FileButton>
+                            )}
 
                             {prize.image && (
                               <Box
@@ -187,7 +198,7 @@ function PrizesInner({ form }: Props) {
                           </Text>
                         </Box>
 
-                        {prizes.length > 1 && (
+                        {!isReadOnly && prizes.length > 1 && (
                           <Group justify="flex-end" mt="md">
                             <Button className="!text-primary-red" leftSection={<FaTrash size={12} />} size="xs" variant="light" onClick={() => removePrize(index)}>
                               Remove Prize
@@ -202,7 +213,7 @@ function PrizesInner({ form }: Props) {
             );
           })}
 
-          {canAddPrize && (
+          {!isReadOnly && canAddPrize && (
             <Flex justify="end">
               <Button
                 rightSection={

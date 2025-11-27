@@ -50,7 +50,7 @@ export default function CreatePromoCode() {
     data: rafflesResponse,
     isError: isRafflesError,
     error: rafflesError,
-  } = useFetchData(`admin/game-management/game-list/all?paginate=0`);
+  } = useFetchData(`admin/game-management/game-list/all-dropdown/all`);
 
   const createPromoCodeMutation = usePostData(
     `admin/promo-code-management/create`

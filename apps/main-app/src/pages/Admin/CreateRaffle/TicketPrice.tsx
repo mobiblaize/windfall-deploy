@@ -19,26 +19,29 @@ import { BsPlus } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
 
-type Props = { form: UseFormReturnType<any> };
+type Props = { form: UseFormReturnType<any>; readOnly?: boolean };
 
-function TicketPriceInner({ form }: Props) {
+function TicketPriceInner({ form, readOnly }: Props) {
   // Local UI state initialized from form once
   const [discountType, setDiscountType] = useState<string>(
     form.values?.discount_type || "straight_line"
   );
+  const isReadOnly = !!readOnly;
 
   // Only update local + form value when user changes discount type
   const handleDiscountTypeChange = useCallback(
     (value: string) => {
+      if (isReadOnly) return;
       setDiscountType(value);
       form.setFieldValue("discount_type", value);
       form.setFieldValue("tiers", []);
     },
-    [form]
+    [form, isReadOnly]
   );
 
   // Add & remove tier handlers (stable via useCallback)
   const addTier = useCallback(() => {
+    if (isReadOnly) return;
     const newTier = {
       name: "",
       number_of_entry_start: 0,
@@ -46,13 +49,14 @@ function TicketPriceInner({ form }: Props) {
       discount_percentage: 0,
     };
     form.insertListItem("tiers", newTier);
-  }, [form]);
+  }, [form, isReadOnly]);
 
   const removeTier = useCallback(
     (index: number) => {
+      if (isReadOnly) return;
       form.removeListItem("tiers", index);
     },
-    [form]
+    [form, isReadOnly]
   );
 
   // Derived values: only depend on the three form fields used
@@ -110,6 +114,8 @@ function TicketPriceInner({ form }: Props) {
           classNames={{ input: "placeholder:text-xs" }}
           {...prizeCostProps}
           error={form.errors.prize_cost}
+        readOnly={isReadOnly}
+        disabled={isReadOnly}
         />
       </SimpleGrid>
 
@@ -131,6 +137,8 @@ function TicketPriceInner({ form }: Props) {
           type="number"
           {...percentageProps}
           error={form.errors.percentage_markup}
+          readOnly={isReadOnly}
+          disabled={isReadOnly}
         />
       </SimpleGrid>
 
@@ -173,6 +181,8 @@ function TicketPriceInner({ form }: Props) {
           type="number"
           {...ticketPriceProps}
           error={form.errors.ticket_price}
+        readOnly={isReadOnly}
+        disabled={isReadOnly}
         />
       </SimpleGrid>
 
@@ -191,6 +201,7 @@ function TicketPriceInner({ form }: Props) {
         <TextInput
           value={`${totalTickets} Tickets`}
           readOnly
+        disabled={isReadOnly}
           classNames={{
             input:
               "placeholder:text-xs bg-gray-50 text-gray-700 cursor-not-allowed",
@@ -216,6 +227,8 @@ function TicketPriceInner({ form }: Props) {
             type="number"
             {...minTicketProps}
             error={form.errors.minimum_ticket_number_purchase}
+          readOnly={isReadOnly}
+          disabled={isReadOnly}
           />
 
           <Text fz="xs" mt={4} c="dimmed">
@@ -243,6 +256,8 @@ function TicketPriceInner({ form }: Props) {
             type="number"
             {...maxTicketProps}
             error={form.errors.maximum_ticket_number_purchase}
+          readOnly={isReadOnly}
+          disabled={isReadOnly}
           />
 
           <Text fz="xs" mt={4} c="dimmed">
@@ -285,6 +300,7 @@ function TicketPriceInner({ form }: Props) {
             onChange={() => handleDiscountTypeChange("straight_line")}
             label="Uniform Discount"
             description="Apply the same discount percentage to all ticket purchases regardless of quantity. For example: 10% discount means each ticket costs 10% less, whether buying 1 or 100 tickets."
+            disabled={isReadOnly}
           />
           <Radio
             mt={"md"}
@@ -292,6 +308,7 @@ function TicketPriceInner({ form }: Props) {
             onChange={() => handleDiscountTypeChange("band")}
             label="Tiered Discount (Volume-based)"
             description="Apply different discount percentages based on ticket quantity purchased. For example: 5% off for 5-10 tickets, 10% off for 11-20 tickets, 15% off for 21+ tickets."
+            disabled={isReadOnly}
           />
           {isStraightLine && (
             <Card withBorder mt="md" radius="md" className="!px-8 !py-5">
@@ -302,6 +319,8 @@ function TicketPriceInner({ form }: Props) {
                 classNames={{ input: "placeholder:text-xs" }}
                 {...form.getInputProps("discount_percentage")}
                 error={form.errors.discount_percentage}
+              readOnly={isReadOnly}
+              disabled={isReadOnly}
               />
             </Card>
           )}
@@ -351,6 +370,8 @@ function TicketPriceInner({ form }: Props) {
                               label: "text-xs font-medium capitalize",
                             }}
                             {...form.getInputProps(`tiers.${index}.name`)}
+                            readOnly={isReadOnly}
+                            disabled={isReadOnly}
                           />
                           <TextInput
                             label="% discount applicable"
@@ -363,6 +384,8 @@ function TicketPriceInner({ form }: Props) {
                             {...form.getInputProps(
                               `tiers.${index}.discount_percentage`
                             )}
+                            readOnly={isReadOnly}
+                            disabled={isReadOnly}
                           />
                         </SimpleGrid>
 
@@ -382,6 +405,8 @@ function TicketPriceInner({ form }: Props) {
                             {...form.getInputProps(
                               `tiers.${index}.number_of_entry_start`
                             )}
+                            readOnly={isReadOnly}
+                            disabled={isReadOnly}
                           />
                           <TextInput
                             label="Maximum ticket quantity"
@@ -394,42 +419,48 @@ function TicketPriceInner({ form }: Props) {
                             {...form.getInputProps(
                               `tiers.${index}.number_of_entry_end`
                             )}
+                            readOnly={isReadOnly}
+                            disabled={isReadOnly}
                           />
                         </SimpleGrid>
 
-                        <Group justify="flex-end" mt="md">
-                          <Button
-                            leftSection={<FaTrash size={12} />}
-                            className="!text-primary-red"
-                            size="xs"
-                            variant="light"
-                            onClick={() => removeTier(index)}
-                          >
-                            Remove Tier
-                          </Button>
-                        </Group>
+                        {!isReadOnly && (
+                          <Group justify="flex-end" mt="md">
+                            <Button
+                              leftSection={<FaTrash size={12} />}
+                              className="!text-primary-red"
+                              size="xs"
+                              variant="light"
+                              onClick={() => removeTier(index)}
+                            >
+                              Remove Tier
+                            </Button>
+                          </Group>
+                        )}
                       </Accordion.Panel>
                     </Accordion.Item>
                   </Accordion>
                 </Card>
               ))}
 
-              <Flex justify={"end"}>
-                <Button
-                  rightSection={
-                    <div className="!inline-flex !bg-[#ffacad] p-1 w-fit rounded-md">
-                      <BsPlus className="!text-xl !text-primary-red" />
-                    </div>
-                  }
-                  size="md"
-                  variant="outline"
-                  radius="md"
-                  className="!border-[#D0D5DD]"
-                  onClick={addTier}
-                >
-                  Add New
-                </Button>
-              </Flex>
+              {!isReadOnly && (
+                <Flex justify={"end"}>
+                  <Button
+                    rightSection={
+                      <div className="!inline-flex !bg-[#ffacad] p-1 w-fit rounded-md">
+                        <BsPlus className="!text-xl !text-primary-red" />
+                      </div>
+                    }
+                    size="md"
+                    variant="outline"
+                    radius="md"
+                    className="!border-[#D0D5DD]"
+                    onClick={addTier}
+                  >
+                    Add New
+                  </Button>
+                </Flex>
+              )}
               {form.errors.tiers && (
                 <Text c="red" size="sm" mt="xs">
                   {form.errors.tiers}
