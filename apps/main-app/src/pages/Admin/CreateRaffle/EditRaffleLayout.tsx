@@ -32,6 +32,7 @@ import Prizes from "./Prizes";
 import type { Raffle } from "../GameMgt/RaffleList";
 import LoadingState from "../../../components/LoadingState";
 import EmptyState from "../../../components/EmptyState";
+import CustomBadge, { type StatusType } from "../../../components/CustomBadge";
 
 function EditRaffleLayout() {
   const { id } = useParams<{ id: string }>();
@@ -75,6 +76,7 @@ function EditRaffleLayout() {
     isError: isRaffleError,
     error: raffleError,
   } = useFetchData(id ? `admin/game-management/info/${id}` : "");
+  const raffle = raffleData?.data;
 
   useEffect(() => {
     if (iscategoriesError) {
@@ -111,13 +113,24 @@ function EditRaffleLayout() {
   }, [categoriesData]);
 
   const isReadOnlyGame = useMemo(() => {
-    const raffle = raffleData?.data;
     return (
       !!raffle &&
       raffle.status === "published" &&
       raffle.approvalStatus === "approved"
     );
-  }, [raffleData?.data]);
+  }, [raffle]);
+
+  const statusBadgeType = useMemo<StatusType | null>(() => {
+    if (!raffle) return null;
+    return raffle.status === "published" ? "successful" : "inactive";
+  }, [raffle]);
+
+  const approvalBadgeType = useMemo<StatusType | null>(() => {
+    if (!raffle) return null;
+    if (raffle.approvalStatus === "approved") return "successful";
+    if (raffle.approvalStatus === "pending") return "pending";
+    return "failed";
+  }, [raffle]);
 
   const form = useForm({
     mode: "controlled",
@@ -505,7 +518,7 @@ function EditRaffleLayout() {
         "minimum_ticket_number_purchase",
         "maximum_ticket_number_purchase",
         "tiers",
-        "discount_percentage"
+        "discount_percentage",
       ],
       2: ["prizes"],
       3: ["competition_details", "sponsorship_details"],
@@ -706,9 +719,15 @@ function EditRaffleLayout() {
         label: `${raffleData?.data?.name ?? "Raffle"} Details`,
         to: `${baseRoute}/${id}`,
       },
-      { label: `Edit Raffle` },
+      { label: isReadOnlyGame ? "Raffle Details" : "Edit Raffle" },
     ],
-    [isInstantRaffleRoute, baseRoute, raffleData?.data?.name, id]
+    [
+      isInstantRaffleRoute,
+      baseRoute,
+      raffleData?.data?.name,
+      id,
+      isReadOnlyGame,
+    ]
   );
 
   const isPublished = form.values.status === "published";
@@ -729,6 +748,12 @@ function EditRaffleLayout() {
   }
 
   const isDraft = (raffleData?.data as Raffle)?.status === "draft";
+  const headerTitle = isReadOnlyGame
+    ? `View ${raffle?.name ?? "Raffle"}`
+    : `Edit ${raffle?.name ?? "Raffle"}`;
+  const headerDescription = isReadOnlyGame
+    ? "View raffle game settings and configurations."
+    : "Edit raffle game details in simple steps.";
 
   return (
     <form
@@ -748,15 +773,26 @@ function EditRaffleLayout() {
 
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
         <div className="px-6 md:px-10 pt-7 pb-2">
-          <Flex mb="lg" justify="space-between">
+          <Flex mb="lg" justify="space-between" wrap="wrap">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
-                Edit {raffleData?.data?.name ?? "Raffle"}
+                {headerTitle}
               </Title>
-              <Text className="!text-secondary-text">
-                Edit raffle game details in simple steps.
-              </Text>
+              <Text className="!text-secondary-text">{headerDescription}</Text>
             </div>
+            {isReadOnlyGame && raffle && (
+              <Flex gap="xs" mt="sm" align="center">
+                {statusBadgeType && (
+                  <CustomBadge status={statusBadgeType} label={raffle.status} />
+                )}
+                {approvalBadgeType && (
+                  <CustomBadge
+                    status={approvalBadgeType}
+                    label={raffle.approvalStatus}
+                  />
+                )}
+              </Flex>
+            )}
             {!(isInitialLoading || isRaffleLoading || isReadOnlyGame) && (
               <Flex gap={15}>
                 <CustomButton
@@ -891,7 +927,9 @@ function EditRaffleLayout() {
         onClose={() => setAlertModalOpen(false)}
         status="error"
         title={
-          <span>{isPublished ? "Publish Raffle Game?" : "Save as Draft"} ?</span>
+          <span>
+            {isPublished ? "Publish Raffle Game?" : "Save as Draft"} ?
+          </span>
         }
         description={
           <span>
@@ -901,7 +939,9 @@ function EditRaffleLayout() {
           </span>
         }
         primaryButton={{
-          label: isPublished ? "Yes, Publish Raffle Game" : "Yes, Save as Draft",
+          label: isPublished
+            ? "Yes, Publish Raffle Game"
+            : "Yes, Save as Draft",
           onClick: handleUpdateRaffle,
           loading: updateMutation.isPending,
           disabled: updateMutation.isPending,
@@ -917,8 +957,12 @@ function EditRaffleLayout() {
         opened={successModalOpen}
         onClose={manageRaffles}
         status="success"
-        title={isPublished ? "Raffle Updated": "Saved as Draft"}
-        description={isPublished ? "Congratulations! You have successfully updated the raffle game.": "Congratulations, you have successfully saved the Raffle Game / Draw as draft."}
+        title={isPublished ? "Raffle Updated" : "Saved as Draft"}
+        description={
+          isPublished
+            ? "Congratulations! You have successfully updated the raffle game."
+            : "Congratulations, you have successfully saved the Raffle Game / Draw as draft."
+        }
         secondaryButton={{
           label: "Close",
           onClick: manageRaffles,
