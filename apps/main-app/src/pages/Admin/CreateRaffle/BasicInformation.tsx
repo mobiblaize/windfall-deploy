@@ -168,7 +168,7 @@ function BasicInformationInner({ form, categories, readOnly }: Props) {
             checked={!isScheduled}
             onChange={() => handleScheduleChange(false)}
             label="Instant raffle game"
-            description="Raffle goes live immediately upon publishing. Tickets available instantly."
+            description="Instant raffles let players buy tickets immediately and award the winner as soon as a ticket is purchased."
             style={isReadOnly ? { pointerEvents: 'none', opacity: 0.6 } : undefined}
           />
 
@@ -177,7 +177,7 @@ function BasicInformationInner({ form, categories, readOnly }: Props) {
             checked={isScheduled}
             onChange={() => handleScheduleChange(true)}
             label="Scheduled raffle"
-            description="Raffle will be published but tickets only become available after the scheduled date."
+            description="Scheduled raffles open ticket sales for a defined duration and hold the draw once that period ends."
             style={isReadOnly ? { pointerEvents: 'none', opacity: 0.6 } : undefined}
           />
 
