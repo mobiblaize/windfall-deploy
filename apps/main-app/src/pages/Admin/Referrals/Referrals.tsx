@@ -493,9 +493,7 @@ function ReferralModule() {
                     {transaction.referrer?.firstname + " " + transaction.referrer?.lastname}
                   </Text>
                   <Text className="!text-secondary-text !text-sm">
-                    {transactionTypeFilter === 'redeemed'
-                      ? transaction.referrer?.uniqueID
-                      : transaction.referred_user?.uniqueID}
+                    {transaction.referrer?.uniqueID}
                   </Text>
                 </>,
                 <>
