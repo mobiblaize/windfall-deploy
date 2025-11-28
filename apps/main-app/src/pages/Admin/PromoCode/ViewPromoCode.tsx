@@ -857,7 +857,7 @@ export default function ViewPromoCode() {
         onClose={() => setApprovalSuccessModalOpen(false)}
         status="success"
         title={`Promo-Code ${isApprove ? "Approved" : "Rejected"}`}
-        description={`${isApprove ? "Congratulations, you have successfully approved a New Promo-Code and posted it live" : "You have successfully rejected a New Promo-Code"}`}
+        description={`${isApprove ? "Congratulations, you have successfully approved this Promo-Code and posted it live" : "Promo-Code approval has been successfully updated."}`}
         primaryButton={{
           label: "Manage Promo-Code",
           onClick: () => {
