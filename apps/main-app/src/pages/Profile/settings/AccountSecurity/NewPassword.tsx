@@ -114,7 +114,7 @@ function NewPassword({ onComplete, isLoading, error, resendEmail }: NewPasswordP
             className="!font-medium"
             onClick={resendEmail}
           >
-            Resend Email
+            Resubmit Email
           </Button>}
           <CustomButton
             disabled={isLoading}

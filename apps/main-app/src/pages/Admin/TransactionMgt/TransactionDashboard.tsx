@@ -216,10 +216,10 @@ function TransactionDashboard() {
           >
             <div>
               <Text tt={"capitalize"} fz={"lg"} fw={600}>
-                Overview
+                Game Transaction Overview
               </Text>
               <Text className="!text-secondary-text !text-sm">
-                An overview of transactions on the system.
+                Manage and track game transactions on the system.
               </Text>
             </div>
             <Flex
