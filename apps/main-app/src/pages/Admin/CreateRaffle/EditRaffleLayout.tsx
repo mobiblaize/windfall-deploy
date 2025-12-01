@@ -116,7 +116,7 @@ function EditRaffleLayout() {
     return (
       !!raffle &&
       raffle.status === "published" &&
-      raffle.approvalStatus === "approved"
+      raffle.approvalStatus !== "pending"
     );
   }, [raffle]);
 
