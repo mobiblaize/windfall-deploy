@@ -97,12 +97,16 @@ const loadUserFromStorage = (): User | null => {
 
 export const userAtom = atom<User | null>(loadUserFromStorage());
 
+// Module-level flag to prevent duplicate timeout notifications
+let timeoutNotificationShown = false;
+
 export const clearUser = () => {
   window.localStorage.removeItem("user");
   window.localStorage.removeItem("access_token");
   window.localStorage.removeItem("refresh_token");
   window.localStorage.removeItem("user_type");
   window.localStorage.removeItem("token_expiry");
+  // Don't reset flag here - it should only reset on new login to prevent race conditions
 };
 
 export const useSessionStorage = () => {
@@ -163,7 +167,12 @@ export const useSessionStorage = () => {
       const now = Date.now();
 
       const isAdminPage = location.pathname.startsWith("/admin");
-      if (now >= expiry) {
+      
+      // Check if user still exists to prevent duplicate notifications
+      const userStillExists = !!localStorage.getItem("user");
+      
+      if (now >= expiry && userStillExists && !timeoutNotificationShown) {
+        timeoutNotificationShown = true;
         clearUser();
         navigate(isAdminPage ? "/admin/login" : "/login");
         notifications.show({
@@ -171,7 +180,7 @@ export const useSessionStorage = () => {
           message: "Please login again",
           color: "red",
         });
-      } else {
+      } else if (now < expiry) {
         const timeout = expiry - now;
 
         // clear any old timer before setting new one
@@ -180,13 +189,18 @@ export const useSessionStorage = () => {
         }
 
         timerRef.current = setTimeout(() => {
-          clearUser();
-          navigate(isAdminPage ? "/admin/login" : "/login");
-          notifications.show({
-            title: "Session Timed Out",
-            message: "Please login again",
-            color: "red",
-          });
+          // Check if user still exists and notification hasn't been shown
+          const userStillExists = !!localStorage.getItem("user");
+          if (userStillExists && !timeoutNotificationShown) {
+            timeoutNotificationShown = true;
+            clearUser();
+            navigate(isAdminPage ? "/admin/login" : "/login");
+            notifications.show({
+              title: "Session Timed Out",
+              message: "Please login again",
+              color: "red",
+            });
+          }
         }, timeout);
       }
     }
@@ -198,7 +212,7 @@ export const useSessionStorage = () => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   return { user, setUser, updateUser, clearUser };
 };
