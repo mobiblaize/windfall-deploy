@@ -49,7 +49,16 @@ const cards: StatsCard[] = [
     period: 3,
   },
   {
-    title: "draw completed",
+    title: "inactive raffles",
+    value: 0,
+    slug: "inactive_games",
+    added: "inactive_games_added_last_period_days",
+    className: "!bg-secondary-red !text-primary-red/50 !border-primary-red/50 ",
+    color: "!text-primary-red",
+    period: 3,
+  },
+  {
+    title: "Ended Raffles",
     value: 0,
     slug: "concluded_games",
     added: "concluded_games_added_last_period_days",
@@ -57,13 +66,22 @@ const cards: StatsCard[] = [
     color: "!text-instant-blue",
     period: 3,
   },
+  {
+    title: "draw completed",
+    value: 0,
+    slug: "concluded_draw_lines_count",
+    added: "last_30_days_concluded_draw_lines_count",
+    className: "!bg-purple-50 !text-purple-500/50 !border-purple-500/50",
+    color: "!text-purple-600",
+    period: 30,
+  },
 ];
 
 function RaffleManagement() {
   const location = useLocation();
   const [startDate, setStartDate] = useState<string | null>("");
   const [endDate, setEndDate] = useState<string | null>("");
-  
+
   // Detect if we're on instant-raffles route
   const isInstantRaffleRoute = useMemo(() => {
     return location.pathname.includes("/instant-raffles");
@@ -77,7 +95,7 @@ function RaffleManagement() {
     }
     return baseUrl;
   }, [startDate, endDate, isInstantRaffleRoute]);
-  
+
   const handleDateRangeChange = useCallback((start: string, end: string) => {
     setStartDate(start);
     setEndDate(end);
@@ -164,7 +182,7 @@ function RaffleManagement() {
               verticalSpacing={{ base: "md", sm: "xl" }}
             >
               {isLoadingStats
-                ? Array.from({ length: 3 }).map((_, i) => (
+                ? Array.from({ length: 5 }).map((_, i) => (
                     <Card key={i} radius="md" withBorder>
                       <Stack gap="xs">
                         <Skeleton height={20} width="60%" radius="sm" />
@@ -223,8 +241,10 @@ function GridCard({
           tt="capitalize"
           className="!text-primary-text !capitalize !text-sm"
         >
-          <span className={` ${color}`}>{Number(added || 0 )>0 ? '+'+added : 0}</span> Added in last{" "}
-          {period ?? 0} days
+          <span className={` ${color}`}>
+            {Number(added || 0) > 0 ? "+" + added : 0}
+          </span>{" "}
+          Added in last {period ?? 0} days
         </Text>
       </Stack>
     </Card>
