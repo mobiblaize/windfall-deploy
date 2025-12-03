@@ -211,7 +211,7 @@ function ViewRaffles() {
     return items;
   }, [id, raffle, canApproveGame, isPublished, isInstantGame, gameApproved, handleEditRaffle, isLoadingRaffle, handleStartDraw]);
 
-  const getStatusInfo = () => {
+  const statusInfo = useMemo(() => {
     if (!raffle) return { status: "pending" as const, label: "Loading" };
 
     if (gamePendingApproval)
@@ -228,9 +228,7 @@ function ViewRaffles() {
       return { status: "inactive" as const, label: "Instant" };
     }
     return { status: "inactive" as const, label: raffle.main_active_status };
-  };
-
-  const statusInfo = getStatusInfo();
+  }, [raffle, gamePendingApproval, gameDeclined]);
 
   const initiateApproval = (status: ApprovalStatus) => {
     setApprovalAction(status);

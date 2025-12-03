@@ -120,7 +120,7 @@ function EditRaffleLayout() {
     );
   }, [raffle]);
 
-  const getStatusInfo = () => {
+  const statusInfo = useMemo(() => {
     if (!raffle) return { status: "pending" as const, label: "Loading" };
 
     if (raffle.main_active_status === "live") {
@@ -133,9 +133,7 @@ function EditRaffleLayout() {
       return { status: "inactive" as const, label: "Instant" };
     }
     return { status: "inactive" as const, label: raffle.main_active_status };
-  };
-
-  const statusInfo = getStatusInfo();
+  }, [raffle]);
 
   const approvalBadgeType = useMemo<StatusType | null>(() => {
     if (!raffle) return null;
