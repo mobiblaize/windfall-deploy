@@ -37,6 +37,7 @@ import type { Raffle } from "../GameMgt/RaffleList";
 import { formatCurrency } from "../../../utils/helper/formatCurrency";
 import type { User } from "../UserMgt/UserMgt";
 import { DateRangePicker } from "../../../components/DateRangePicker";
+import type { Role } from "../RoleMgt/RoleMgt";
 
 interface DrawStats {
   total_draws: number
@@ -83,6 +84,7 @@ export interface DrawRecord {
     name: string;
   };
   initiated_by: User;
+  initiated_by_role: Role[];
   winner: DrawWinner;
   metrics: {
     total_ticket_paid_amount: string;
@@ -595,8 +597,8 @@ function DrawsOverview() {
                       <Text className="!text-base !text-primary-text !font-medium">
                         {draw.initiated_by?.name}
                       </Text>
-                      <Text className="!text-secondary-text !text-sm">
-                        {draw.initiated_by?.uniqueID}
+                      <Text className="!text-secondary-text capitalize !text-sm">
+                        {draw.initiated_by_role?.[0]?.name}
                       </Text>
                     </>
                   ) : (
