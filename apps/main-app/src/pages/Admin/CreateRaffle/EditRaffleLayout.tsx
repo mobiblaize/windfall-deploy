@@ -870,13 +870,13 @@ function EditRaffleLayout() {
             </Card>
 
             {/* Footer Buttons */}
-            <Flex
+            {!isReadOnlyGame &&<Flex
               justify="flex-end"
               wrap={"wrap"}
               gap={20}
               className="!bg-white !rounded-xl !border !border-gray-200 !p-6 mt-10 !mb-10"
             >
-              {!isReadOnlyGame && active > 0 && (
+              {active > 0 && (
                 <Button
                   size="lg"
                   onClick={prevStep}
@@ -887,7 +887,7 @@ function EditRaffleLayout() {
                 </Button>
               )}
 
-              {!isReadOnlyGame && active < stepsLayout.length - 1 && (
+              {active < stepsLayout.length - 1 && (
                 <CustomButton
                   size="lg"
                   border={false}
@@ -900,7 +900,7 @@ function EditRaffleLayout() {
                   Continue
                 </CustomButton>
               )}
-              {!isReadOnlyGame &&
+              {
                 active === stepsLayout.length - 1 &&
                 raffleData?.data?.status === "draft" && (
                   <>
@@ -927,7 +927,7 @@ function EditRaffleLayout() {
                     </CustomButton>
                   </>
                 )}
-            </Flex>
+            </Flex>}
           </Container>
         </>
       )}
