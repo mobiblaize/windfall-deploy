@@ -14,6 +14,7 @@ import {
   TextInput,
   Select,
   Skeleton,
+  Tooltip,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
@@ -266,37 +267,43 @@ export default function RoleDetails() {
             <Flex align="center" wrap="wrap" gap={20} justify="end">
               <Text className="!text-secondary-text !mr-5">Take Action</Text>
 
-              <ActionIcon
-                onClick={() => {
-                  navigate(`/admin/roles/edit/${role?.uuid}`);
-                }}
-                size={35}
-                className="!text-[#4313F7] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#F4F3FF] !h-10 !w-10 !flex !items-center !justify-center"
-              >
-                <FaUserEdit />
-              </ActionIcon>
-
-              <span className="!cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-lg !bg-[#EDFCF2] !h-10 !w-10 !flex !items-center !justify-center">
-                <Switch
-                  size="sm"
+              <Tooltip label="Edit Role" withArrow>
+                <ActionIcon
                   onClick={() => {
-                    setDeactivateAlertModalOpen(true);
+                    navigate(`/admin/roles/edit/${role?.uuid}`);
                   }}
-                  checked={roleActive}
-                  className="!cursor-pointer"
-                  color="#13F7B5"
-                  thumbIcon={<></>}
-                />
-              </span>
-              <ActionIcon
-                onClick={() => {
-                  setDeleteAlertModalOpen(true);
-                }}
-                size={35}
-                className="!text-[#F71355] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#FFF1F3] !h-10 !w-10 !flex !items-center !justify-center"
-              >
-                <RiDeleteBin3Fill />
-              </ActionIcon>
+                  size={35}
+                  className="!text-[#4313F7] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#F4F3FF] !h-10 !w-10 !flex !items-center !justify-center"
+                >
+                  <FaUserEdit />
+                </ActionIcon>
+              </Tooltip>
+
+              <Tooltip label={roleActive ? "Deactivate Role" : "Activate Role"} withArrow>
+                <span className="!cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-lg !bg-[#EDFCF2] !h-10 !w-10 !flex !items-center !justify-center">
+                  <Switch
+                    size="sm"
+                    onClick={() => {
+                      setDeactivateAlertModalOpen(true);
+                    }}
+                    checked={roleActive}
+                    className="!cursor-pointer"
+                    color="#13F7B5"
+                    thumbIcon={<></>}
+                  />
+                </span>
+              </Tooltip>
+              <Tooltip label="Delete Role" withArrow>
+                <ActionIcon
+                  onClick={() => {
+                    setDeleteAlertModalOpen(true);
+                  }}
+                  size={35}
+                  className="!text-[#F71355] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#FFF1F3] !h-10 !w-10 !flex !items-center !justify-center"
+                >
+                  <RiDeleteBin3Fill />
+                </ActionIcon>
+              </Tooltip>
             </Flex>
           </Flex>
         </div>

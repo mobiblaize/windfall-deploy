@@ -332,39 +332,45 @@ export default function UserDetails() {
                 </Tooltip>
               )}
 
-              <ActionIcon
-                onClick={() => {
-                  navigate(`/admin/users/edit/${id}`);
-                }}
-                size={35}
-                className="!text-[#4313F7] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#F4F3FF] !h-10 !w-10 !flex !items-center !justify-center"
-              >
-                <FaUserEdit />
-              </ActionIcon>
+              <Tooltip label="Edit User" withArrow>
+                <ActionIcon
+                  onClick={() => {
+                    navigate(`/admin/users/edit/${id}`);
+                  }}
+                  size={35}
+                  className="!text-[#4313F7] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#F4F3FF] !h-10 !w-10 !flex !items-center !justify-center"
+                >
+                  <FaUserEdit />
+                </ActionIcon>
+              </Tooltip>
 
-              <span
-                onClick={() => {
-                  setDeactivateAlertModalOpen(true);
-                }}
-                className="!cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-lg !bg-[#EDFCF2] !h-10 !w-10 !flex !items-center !justify-center"
-              >
-                <Switch
-                  size="sm"
-                  checked={userActive}
-                  className="!cursor-pointer"
-                  color="#13F7B5"
-                  thumbIcon={<></>}
-                />
-              </span>
-              <ActionIcon
-                onClick={() => {
-                  setDeleteAlertModalOpen(true);
-                }}
-                size={35}
-                className="!text-[#F71355] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#FFF1F3] !h-10 !w-10 !flex !items-center !justify-center"
-              >
-                <RiDeleteBin3Fill />
-              </ActionIcon>
+              <Tooltip label={userActive ? "Deactivate User" : "Activate User"} withArrow>
+                <span
+                  onClick={() => {
+                    setDeactivateAlertModalOpen(true);
+                  }}
+                  className="!cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-lg !bg-[#EDFCF2] !h-10 !w-10 !flex !items-center !justify-center"
+                >
+                  <Switch
+                    size="sm"
+                    checked={userActive}
+                    className="!cursor-pointer"
+                    color="#13F7B5"
+                    thumbIcon={<></>}
+                  />
+                </span>
+              </Tooltip>
+              <Tooltip label="Delete User" withArrow>
+                <ActionIcon
+                  onClick={() => {
+                    setDeleteAlertModalOpen(true);
+                  }}
+                  size={35}
+                  className="!text-[#F71355] !cursor-pointer !border-1 !rounded-lg !border-[#EBE9FE] !text-xl !bg-[#FFF1F3] !h-10 !w-10 !flex !items-center !justify-center"
+                >
+                  <RiDeleteBin3Fill />
+                </ActionIcon>
+              </Tooltip>
             </Flex>
           </Flex>
         </div>
