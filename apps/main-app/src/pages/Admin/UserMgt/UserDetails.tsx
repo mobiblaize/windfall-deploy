@@ -13,6 +13,7 @@ import {
   TextInput,
   Select,
   Skeleton,
+  Tooltip,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import AdminAlertModal from "../../../components/Modals/AdminAlertModal";
@@ -33,6 +34,7 @@ import {
   useFetchData,
   useGetData,
   useGetExportData,
+  usePostData,
 } from "../../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { useDebounce } from "../../../utils/hooks/useDebounce";
@@ -41,6 +43,8 @@ import { format } from "date-fns";
 import DynamicTableSection from "../../../components/DynamicTableSection";
 import EmptyState from "../../../components/EmptyState";
 import UserAvatar from "../../../components/UserAvatar";
+import CustomBadge from "../../../components/CustomBadge";
+import { MdEmail } from "react-icons/md";
 
 const breadCrumbs: Crumb[] = [
   { label: "User Management", to: "/admin/users" },
@@ -72,6 +76,10 @@ export interface Link {
   active: boolean;
 }
 
+function isVerified(isVerified?: "true" | "false") {
+  return isVerified === "true";
+}
+
 export default function UserDetails() {
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<User>();
@@ -83,6 +91,7 @@ export default function UserDetails() {
     useState(false);
   const [deleteAlertModalOpen, setDeleteAlertModalOpen] = useState(false);
   const [deleteSuccessModalOpen, setDeleteSuccessModalOpen] = useState(false);
+  const [verifyEmailSuccessModalOpen, setVerifyEmailSuccessModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<string | null>("");
   const debouncedSearch = useDebounce(search, 500);
@@ -118,6 +127,9 @@ export default function UserDetails() {
   );
   const deleteUserMutation = useDeleteData(
     `admin/user-management/users/delete`
+  );
+  const verifyEmailMutation = usePostData(
+    `admin/user-management/users/resend-verification-code/${user?.uuid}`
   );
 
   function isActive(isActive?: "true" | "false") {
@@ -222,6 +234,24 @@ export default function UserDetails() {
     }
   };
 
+  const verifyEmail = async () => {
+    try {
+      const response = await verifyEmailMutation.mutateAsync({});
+      notifications.show({
+        title: "Action Successful",
+        message: response?.message || "Verification code resent successfully",
+        color: "green",
+      });
+      setVerifyEmailSuccessModalOpen(true);
+    } catch (error) {
+      notifications.show({
+        title: "Action Failed",
+        message: (error as { message: string })?.message || "An error occurred",
+        color: "var(--color-primary-red)",
+      });
+    }
+  };
+
   const handleExport = () => {
     exportActivitiesMutation.mutate(undefined, {
       onSuccess: (data) => {
@@ -267,9 +297,17 @@ export default function UserDetails() {
               {isLoading ? (
                 <Skeleton height={35} width="100%" />
               ) : (
-                <Title className="!text-primary-text text-2xl" order={2}>
-                  {user?.name || "-"}
-                </Title>
+                <Flex align="center" gap={12}>
+                  <Title className="!text-primary-text text-2xl" order={2}>
+                    {user?.name || "-"}
+                  </Title>
+                  {user && (
+                    <CustomBadge
+                      status={isVerified(user.is_verified) ? "successful" : "warning"}
+                      label={isVerified(user.is_verified) ? "Verified" : "Unverified"}
+                    />
+                  )}
+                </Flex>
               )}
 
               <Text className="!text-secondary-text">
@@ -279,6 +317,20 @@ export default function UserDetails() {
 
             <Flex align="center" wrap="wrap" gap={20} justify="end">
               <Text className="!text-secondary-text !mr-5">Take Action</Text>
+
+              {user && !isVerified(user.is_verified) && (
+                <Tooltip label="Resend Verification email" withArrow>
+                  <ActionIcon
+                    onClick={verifyEmail}
+                    size={35}
+                    className="!text-[#0369A1] !cursor-pointer !border-1 !rounded-lg !border-[#E0F2FE] !text-xl !bg-[#E0F2FE] !h-10 !w-10 !flex !items-center !justify-center"
+                    loading={verifyEmailMutation.isPending}
+                    disabled={verifyEmailMutation.isPending}
+                  >
+                    <MdEmail />
+                  </ActionIcon>
+                </Tooltip>
+              )}
 
               <ActionIcon
                 onClick={() => {
@@ -628,6 +680,19 @@ export default function UserDetails() {
         primaryButton={{
           label: "Close",
           onClick: closeDeleteModal,
+        }}
+      />
+
+      {/* Verify Email Success Modal */}
+      <AdminAlertModal
+        opened={verifyEmailSuccessModalOpen}
+        onClose={() => setVerifyEmailSuccessModalOpen(false)}
+        status="success"
+        title="Verification Code Sent"
+        description="A verification code has been successfully sent to the user's email address. The user can use this code to verify their email."
+        primaryButton={{
+          label: "Close",
+          onClick: () => setVerifyEmailSuccessModalOpen(false),
         }}
       />
     </div>

@@ -31,6 +31,7 @@ export interface User {
   username: string;
   phone_number: string;
   is_active: "true" | "false";
+  is_verified: "true" | "false";
   approvalStatus: string;
   login_count: number;
   updated_by: string;
