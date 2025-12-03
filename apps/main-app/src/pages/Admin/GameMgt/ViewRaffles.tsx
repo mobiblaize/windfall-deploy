@@ -223,9 +223,9 @@ function ViewRaffles() {
     } else if (raffle.main_active_status === "upcoming") {
       return { status: "pending" as const, label: "Upcoming" };
     } else if (raffle.main_active_status === "ended") {
-      return { status: "inactive" as const, label: "Ended" };
+      return { status: "active" as const, label: "Ended" };
     } else if (raffle.main_active_status === "instant") {
-      return { status: "active" as const, label: "Instant" };
+      return { status: "inactive" as const, label: "Instant" };
     }
     return { status: "inactive" as const, label: raffle.main_active_status };
   };

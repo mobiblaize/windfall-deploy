@@ -120,10 +120,22 @@ function EditRaffleLayout() {
     );
   }, [raffle]);
 
-  const statusBadgeType = useMemo<StatusType | null>(() => {
-    if (!raffle) return null;
-    return raffle.status === "published" ? "successful" : "inactive";
-  }, [raffle]);
+  const getStatusInfo = () => {
+    if (!raffle) return { status: "pending" as const, label: "Loading" };
+
+    if (raffle.main_active_status === "live") {
+      return { status: "successful" as const, label: "Live" };
+    } else if (raffle.main_active_status === "upcoming") {
+      return { status: "pending" as const, label: "Upcoming" };
+    } else if (raffle.main_active_status === "ended") {
+      return { status: "active" as const, label: "Ended" };
+    } else if (raffle.main_active_status === "instant") {
+      return { status: "inactive" as const, label: "Instant" };
+    }
+    return { status: "inactive" as const, label: raffle.main_active_status };
+  };
+
+  const statusInfo = getStatusInfo();
 
   const approvalBadgeType = useMemo<StatusType | null>(() => {
     if (!raffle) return null;
@@ -782,8 +794,8 @@ function EditRaffleLayout() {
             </div>
             {isReadOnlyGame && raffle && (
               <Flex gap="xs" mt="sm" align="center">
-                {statusBadgeType && (
-                  <CustomBadge status={statusBadgeType} label={raffle.status} />
+                {statusInfo.status && (
+                  <CustomBadge status={statusInfo.status} label={statusInfo.label} />
                 )}
                 {approvalBadgeType && (
                   <CustomBadge

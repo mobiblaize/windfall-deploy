@@ -1,14 +1,14 @@
 import {
-  ActionIcon,
-  Badge
+  ActionIcon
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import type { Raffle } from "./RaffleList";
 import { GoArrowUpRight } from "react-icons/go";
 import DynamicTableSection from "../../../components/DynamicTableSection";
 import { format } from "date-fns";
-import { colorMap } from "../../../models/raffles";
 import CustomBadge from "../../../components/CustomBadge";
+import RaffleStatusBadge from "../../../components/RaffleStatusBadge";
+
 type RaffleTableProps = {
   raffles: Raffle[];
   isLoading: boolean;
@@ -47,14 +47,7 @@ export default function RaffleTable( { isLoading, raffles, baseRoute = "/admin/r
             ? format(new Date(raffle.created_at), "MMMM d, yyyy")
             : "-",
           duration,
-          <Badge
-            color={colorMap[raffle.main_active_status]?.bg}
-            radius="md"
-            className="!capitalize !text-sm !h-[22px]"
-            variant="light"
-          >
-            {raffle.main_active_status}
-          </Badge>,
+          <RaffleStatusBadge status={raffle.main_active_status} />,
 
           <CustomBadge
             status={
