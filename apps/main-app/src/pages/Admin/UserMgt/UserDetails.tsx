@@ -319,7 +319,7 @@ export default function UserDetails() {
               <Text className="!text-secondary-text !mr-5">Take Action</Text>
 
               {user && !isVerified(user.is_verified) && (
-                <Tooltip label="Resend Verification email" withArrow>
+                <Tooltip label="Resend Verification Email" withArrow>
                   <ActionIcon
                     onClick={verifyEmail}
                     size={35}
