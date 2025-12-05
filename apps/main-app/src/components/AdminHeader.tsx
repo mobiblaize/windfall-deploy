@@ -28,6 +28,7 @@ import { useForm } from "@mantine/form";
 import { fileToBase64 } from "../utils/helper/fileToBase64";
 import ImageCard from "../pages/Admin/CreateRaffle/ImageCard";
 import CustomButton from "./Buttons/CustomButton";
+import type { User } from "../pages/Admin/UserMgt/UserMgt";
 
 export default function AdminHeader() {
   const [user, setUser] = useAtom(userAtom);
@@ -91,12 +92,13 @@ export default function AdminHeader() {
       });
 
       // Update user atom with new data
+      const updatedUserResponse = response?.data as User;
       if (user) {
         const updatedUser = {
           ...user,
-          name: payload.name,
-          phone_number: payload.phone_number,
-          avatar: payload.avatar,
+          name: updatedUserResponse.name,
+          phone_number: updatedUserResponse.phone_number,
+          avatar: updatedUserResponse.avatar,
         };
         setUser(updatedUser);
         // Also update localStorage
