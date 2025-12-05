@@ -6,7 +6,9 @@ import {
   Stepper,
   Text,
   Title,
+  useMantineTheme,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { FaCheck } from "react-icons/fa";
 import BasicInformation from "./BasicInformation";
@@ -40,6 +42,8 @@ function EditRaffleLayout() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useMantineTheme();
+  const isSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   // Determine if we're on instant-raffles route
   const isInstantRaffleRoute = useMemo(() => {
@@ -783,7 +787,7 @@ function EditRaffleLayout() {
 
       <Card className="bg-white !border-b !p-0 !border-b-gray-200">
         <div className="px-6 md:px-10 pt-7 pb-2">
-          <Flex mb="lg" justify="space-between" wrap="wrap">
+        <Flex mb="lg" justify="space-between" wrap="wrap" className="!gap-y-2">
             <div>
               <Title className="!text-primary-text text-2xl" order={2}>
                 {headerTitle}
@@ -839,12 +843,80 @@ function EditRaffleLayout() {
               className="capitalize"
               size="xs"
               icon={<FaCheck className="text-secondary-red" />}
-              styles={{
-                stepBody: { display: "none" },
-                step: { padding: 0 },
-                stepIcon: { color: "white" },
-                separator: { marginLeft: -2, marginRight: -2, height: 4 },
-              }}
+              styles={
+                isSmallScreen
+                  ? {
+                      stepBody: { display: "none" },
+                      step: { padding: 0 },
+                      stepIcon: { color: "white" },
+                      separator: { marginLeft: -2, marginRight: -2, height: 4 },
+                    }
+                  : {
+                      steps: {
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        flexWrap: 'wrap',
+                        gap: '24px 16px',
+                        rowGap: '28px',
+                        marginLeft: '-72px',
+                        marginRight: '-72px',
+                        paddingLeft: '72px',
+                        paddingRight: '72px',
+                      },
+                      stepBody: { 
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        marginTop: 0,
+                        maxWidth: '130px',
+                        width: '100%',
+                      },
+                      stepLabel: {
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        textAlign: 'center',
+                        maxWidth: '130px',
+                        width: '100%',
+                        lineHeight: '1.3',
+                        marginTop: '12px',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                        whiteSpace: 'normal',
+                        overflow: 'hidden',
+                        textTransform: 'capitalize',
+                      },
+                      stepDescription: {
+                        display: 'none',
+                      },
+                      step: { 
+                        padding: 0,
+                        minWidth: '140px',
+                        maxWidth: '140px',
+                        flex: '0 0 140px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        paddingBottom: '0px',
+                      },
+                      stepIcon: { 
+                        color: 'white',
+                        borderWidth: 2,
+                        flexShrink: 0,
+                        position: 'relative',
+                        zIndex: 1,
+                      },
+                      separator: { 
+                        marginLeft: '-72px', 
+                        marginRight: '-72px', 
+                        height: 4,
+                        marginTop: '12px',
+                        marginBottom: 'auto',
+                        flexShrink: 0,
+                        position: 'relative',
+                        zIndex: 0,
+                      },
+                    }
+              }
             >
               {stepsLayout.map((step) => (
                 <Stepper.Step
