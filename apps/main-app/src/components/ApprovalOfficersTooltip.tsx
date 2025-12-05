@@ -6,6 +6,7 @@ import {
   IconAlertCircle,
 } from "@tabler/icons-react";
 import type { ApprovalProcess } from "../utils/models/approval";
+import UserAvatar from "./UserAvatar";
 
 // Types
 
@@ -87,10 +88,11 @@ const OfficerCard: React.FC<OfficerCardProps> = ({ officer }) => {
   return (
     <div className="p-3 rounded-lg hover:bg-gray-50 transition-colors">
       <div className="flex gap-3 items-start">
-        <img
-          src={officer.avatar}
-          alt={officer.name}
-          className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+        <UserAvatar
+          image={officer.avatar}
+          subString={officer.name}
+          className="!border-1 border-primary-red rounded-lg"
+          size={40}
         />
 
         <div className="flex-1 min-w-0 space-y-2">
