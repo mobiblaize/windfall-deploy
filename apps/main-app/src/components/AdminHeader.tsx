@@ -268,7 +268,7 @@ export default function AdminHeader() {
           <TextInput
             label="Phone Number"
             placeholder="Enter Phone Number"
-            type="tel"
+            type="number"
             {...form.getInputProps("phone_number")}
           />
 
