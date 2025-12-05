@@ -118,6 +118,9 @@ export const useSessionStorage = () => {
   const updateUser = (value: AuthPayload | null) => {
     if (typeof window !== "undefined") {
       if (value) {
+        // Reset the timeout notification flag when user authenticates
+        timeoutNotificationShown = false;
+        
         const now = Date.now();
         const expiresInMs = value.expires_in
           ? value.expires_in * 1000

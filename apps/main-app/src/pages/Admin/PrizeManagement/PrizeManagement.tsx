@@ -501,10 +501,9 @@ function PrizeManagement() {
                       {...{
                         ...item,
                         value: prizeStats?.[item.slug],
-                        period: prizeStats?.added_last_3_days,
+                        period: prizeStats?.added_last_3_days ?? 3,
                         added: prizeStats?.[item.added],
                       }}
-                      period={3}
                     />
                   ))}
             </SimpleGrid>
