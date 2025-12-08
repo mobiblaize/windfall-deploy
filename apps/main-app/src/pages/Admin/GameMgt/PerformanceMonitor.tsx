@@ -88,8 +88,12 @@ export interface AllTicketsStat {
 }
 
 export interface TicketStats {
-  date: string;
-  total: number;
+  date: string
+  total: number
+  web: number
+  mobile: number
+  pos: number
+  others: number
 }
 
 interface PerformanceMonitorProps {

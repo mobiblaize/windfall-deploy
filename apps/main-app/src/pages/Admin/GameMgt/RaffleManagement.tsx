@@ -87,6 +87,14 @@ function RaffleManagement() {
     return location.pathname.includes("/instant-raffles");
   }, [location.pathname]);
 
+  // Filter cards based on route - hide "draw completed" for instant raffles
+  const filteredCards = useMemo(() => {
+    if (isInstantRaffleRoute) {
+      return cards.filter((card) => card.slug !== "concluded_draw_lines_count");
+    }
+    return cards;
+  }, [isInstantRaffleRoute]);
+
   // Build API URL with instant_game param when on instant-raffles route
   const statsApiUrl = useMemo(() => {
     const baseUrl = `admin/game-management/dashboard/stats?start_date=${startDate}&end_date=${endDate}`;
@@ -182,7 +190,7 @@ function RaffleManagement() {
               verticalSpacing={{ base: "md", sm: "xl" }}
             >
               {isLoadingStats
-                ? Array.from({ length: 5 }).map((_, i) => (
+                ? Array.from({ length: filteredCards.length }).map((_, i) => (
                     <Card key={i} radius="md" withBorder>
                       <Stack gap="xs">
                         <Skeleton height={20} width="60%" radius="sm" />
@@ -191,7 +199,7 @@ function RaffleManagement() {
                       </Stack>
                     </Card>
                   ))
-                : cards.map((item) => (
+                : filteredCards.map((item) => (
                     <GridCard
                       key={item.slug}
                       {...{

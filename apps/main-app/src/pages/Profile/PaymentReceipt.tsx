@@ -14,6 +14,7 @@ import GameBadge from "../../components/GameBadge";
 import type { RaffleStatus } from "../../models/raffles";
 import LoadingState from "../../components/LoadingState";
 import EmptyState from "../../components/EmptyState";
+import { formatDateString } from "../../utils/helper/formatDateString";
 
 export interface OrderData {
   order: Order;
@@ -238,6 +239,19 @@ export default function PaymentReceipt() {
                           justify="space-between"
                           gap={5}
                           className="!mt-4 !mb-3"
+                        >
+                          <Text className="!text-sm !text-secondary-text">
+                            <span>Transaction Date:</span>
+                          </Text>
+                          <Text className="!text-sm !text-primary-text !font-medium">
+                            <span>{formatDateString(item.created_at, "MMMM d, yyyy h:mm a")}</span>
+                          </Text>
+                        </Flex>
+
+                        <Flex
+                          justify="space-between"
+                          gap={5}
+                          className="!mb-3"
                         >
                           <Text className="!text-sm !text-secondary-text">
                             <span>No. of Ticket Unit (s):</span>

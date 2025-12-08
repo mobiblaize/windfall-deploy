@@ -4,6 +4,17 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import TicketDistributionTab from "./TicketDistributionTab";
 import type { TicketSalesStats, TicketStats } from "./PerformanceMonitor";
 
+const tablinks = [
+  {
+    label: "Website",
+    value: "web"
+  },
+  {
+    label: "Mobile App",
+    value: "mobile"
+  }
+];
+
 function Salestabs({ salesStats, loading, ticketStats }: {salesStats?: TicketSalesStats, loading?: boolean, ticketStats?: TicketStats[]}) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -24,20 +35,19 @@ function Salestabs({ salesStats, loading, ticketStats }: {salesStats?: TicketSal
     params.set("sales", newTab);
     navigate(`?${params.toString()}`);
   };
-  const tablinks = [
-    {
-      label: "Website",
-      value: "web"
-    },
-    {
-      label: "Mobile App",
-      value: "mobile"
-    }
-  ];
 
   const breakdowns = (()=> {
     return salesStats?.highest_grossing_platform?.last_30_days_platform_breakdown?.filter(x=>x.platform===tabs) ?? [];
   })();
+
+  const filteredTicketStats = (platform: string) => {
+    if (!ticketStats) return undefined;
+    return ticketStats.map(stat => ({
+      ...stat,
+      total: platform === "web" ? stat.web : stat.mobile
+    }));
+  };
+
   return (
     <Tabs
       value={tabs}
@@ -73,10 +83,10 @@ function Salestabs({ salesStats, loading, ticketStats }: {salesStats?: TicketSal
       </Tabs.List>
 
       <Tabs.Panel value="web">
-        <TicketDistributionTab breakdowns={breakdowns} loading={loading} ticketStats={ticketStats}/>
+        <TicketDistributionTab breakdowns={breakdowns} loading={loading} ticketStats={filteredTicketStats("web")}/>
       </Tabs.Panel>
       <Tabs.Panel value="mobile">
-        <TicketDistributionTab breakdowns={breakdowns} loading={loading} ticketStats={ticketStats}/>
+        <TicketDistributionTab breakdowns={breakdowns} loading={loading} ticketStats={filteredTicketStats("mobile")}/>
       </Tabs.Panel>
     </Tabs>
   );
