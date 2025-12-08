@@ -489,7 +489,7 @@ export default function ViewDraw() {
             {step === 1 && (
               <>
                 <Card className="!bg-white !rounded-xl !border !border-gray-200 !px-6 !pt-9 !pb-4 sm:!mx-5 md:!mx-30 lg:!mx-40 !my-10 space-y-6">
-                  <div className="bg-[#D9D9D9] h-25 w-25 rounded-full mb-10"></div>
+                  {/* <div className="bg-[#D9D9D9] h-25 w-25 rounded-full mb-10"></div> */}
                   <Flex
                     align={"self-start"}
                     gap="md"
