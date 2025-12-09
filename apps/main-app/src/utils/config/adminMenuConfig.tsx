@@ -58,13 +58,6 @@ export const adminMenuConfig: AdminMenuSection[] = [
         requiredPermission: "game-management-view",
       },
       {
-        name: "Draw Management",
-        path: "/admin/draws",
-        icon: IconCalendarStats,
-        requiredModule: "Draw Management",
-        requiredPermission: "draw-management-view",
-      },
-      {
         name: "Customer Management",
         path: "/admin/customers",
         icon: IconUsers,
@@ -77,6 +70,13 @@ export const adminMenuConfig: AdminMenuSection[] = [
         icon: IconReceipt,
         requiredModule: "Transaction Management",
         requiredPermission: "transaction-management-view",
+      },
+      {
+        name: "Draw Management",
+        path: "/admin/draws",
+        icon: IconCalendarStats,
+        requiredModule: "Draw Management",
+        requiredPermission: "draw-management-view",
       },
       {
         name: "Prize Claim",
