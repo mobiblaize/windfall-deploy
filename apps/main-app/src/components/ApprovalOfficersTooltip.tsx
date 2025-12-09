@@ -227,7 +227,7 @@ const ApprovalOfficersTooltip: React.FC<ApprovalOfficersTooltipProps> = ({
                   </div>
                 ) : (
                   officers.map((officer, index) => (
-                    <React.Fragment key={officer.approval_request_id}>
+                    <React.Fragment key={officer.process_id}>
                       <OfficerCard officer={officer} />
                       {index < officers.length - 1 && (
                         <div className="border-b border-gray-100 mx-2"></div>

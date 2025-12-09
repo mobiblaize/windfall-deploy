@@ -102,14 +102,14 @@ function TicketPriceInner({ form, readOnly }: Props) {
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md" spacing={"md"}>
         <Box>
           <Text tt="capitalize" fz={"md"} fw={500}>
-            cost of prize
+            Total cost of raffle game
           </Text>
           <Text tt="capitalize" fw={100} fz={"xs"} c={"var(--secondary-text)"}>
-            Set the cost of prize for this raffle game / draw
+            Set the total cost of this raffle game / draw
           </Text>
         </Box>
         <TextInput
-          placeholder="Enter cost of prize"
+          placeholder="Enter total cost of raffle game"
           type="number"
           classNames={{ input: "placeholder:text-xs" }}
           {...prizeCostProps}

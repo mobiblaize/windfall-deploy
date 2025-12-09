@@ -543,6 +543,7 @@ function CreateRaffleLayout() {
       prizes: values.prizes, // ✅ Include prizes array
       is_scheduled: String(values.is_scheduled),
       start_date: values.start_date,
+      prize_cost: Number(values.prize_cost),
       end_date: values.end_date,
       start_time: values.start_time,
       end_time: values.end_time,
