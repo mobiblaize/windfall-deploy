@@ -26,7 +26,7 @@ export default function GamesTicketModal({
   const downloadTicketMutation = useGetExportData(
     `customer/games/ticket/download-single-ticket-file/${item.uuid}`
   );
-  
+
   const handleCopy = async () => {
     if (!item?.ticket_number) return;
 
@@ -97,24 +97,28 @@ export default function GamesTicketModal({
         </div>
 
         <Flex gap={20} my="lg" mx="xl">
-          <Button
-            onClick={downloadTicket}
-            disabled={downloadTicketMutation.isPending}
-            loading={downloadTicketMutation.isPending}
-            rightSection={
-              <HiDocumentArrowDown className="text-secondary-red/90" />
-            }
-            className="!w-full !border-2 !border-dashed !border-secondary-red !h-12 !text-lg !tracking-wide"
-          >
-            Download Ticket
-          </Button>
-          <Button
-            className="!bg-black !w-full !h-12 !text-lg !tracking-wide"
-            onClick={handleCopy}
-            rightSection={<FaRegCopy />}
-          >
-            Copy Ticket Number
-          </Button>
+          {item.owned_by_user && (
+            <>
+              <Button
+                onClick={downloadTicket}
+                disabled={downloadTicketMutation.isPending}
+                loading={downloadTicketMutation.isPending}
+                rightSection={
+                  <HiDocumentArrowDown className="text-secondary-red/90" />
+                }
+                className="!w-full !border-2 !border-dashed !border-secondary-red !h-12 !text-lg !tracking-wide"
+              >
+                Download Ticket
+              </Button>
+              <Button
+                className="!bg-black !w-full !h-12 !text-lg !tracking-wide"
+                onClick={handleCopy}
+                rightSection={<FaRegCopy />}
+              >
+                Copy Ticket Number
+              </Button>
+            </>
+          )}
         </Flex>
       </Modal>
 
