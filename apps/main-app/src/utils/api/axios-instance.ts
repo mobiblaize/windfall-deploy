@@ -6,7 +6,21 @@ import axios, {
 } from "axios";
 import { clearUser } from "../hooks/useStorage";
 
-export const baseUrl = "https://api.windfall.sbscuk.co.uk/public/api/v1/";
+const viteEnv = typeof import.meta !== "undefined" ? import.meta.env : undefined;
+const nodeEnv = typeof process !== "undefined" ? process.env : undefined;
+
+const runtimeBaseUrl =
+  viteEnv?.VITE_API_BASE_URL ??
+  nodeEnv?.VITE_API_BASE_URL ??
+  nodeEnv?.REACT_APP_API_BASE_URL;
+
+const envMode = viteEnv?.MODE ?? nodeEnv?.NODE_ENV ?? "production";
+
+export const baseUrl =
+  runtimeBaseUrl ||
+  (envMode === "production"
+    ? "https://api.homewindfall.com/"
+    : "https://api.windfall.sbscuk.co.uk/public/api/v1/");
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: baseUrl,
