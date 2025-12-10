@@ -40,6 +40,7 @@ import { useApprovalProcess } from "../../../utils/hooks/useApprovalProcess";
 import { usePermissions } from "../../../utils/hooks/usePermissions";
 import ApprovalOfficersTooltip from "../../../components/ApprovalOfficersTooltip";
 import CustomBadge, { type StatusType } from "../../../components/CustomBadge";
+import "@mantine/dates/styles.css";
 
 const breadCrumbs: Crumb[] = [
   { label: "Promo Code", to: "/admin/promo-codes" },

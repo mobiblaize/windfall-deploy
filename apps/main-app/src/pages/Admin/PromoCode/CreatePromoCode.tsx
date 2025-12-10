@@ -27,6 +27,7 @@ import { FaAngleDown } from "react-icons/fa";
 import type { Raffle } from "../GameMgt/RaffleList";
 import { MultiSelect } from "@mantine/core";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import "@mantine/dates/styles.css";
 
 const breadCrumbs: Crumb[] = [
   { label: "Promo Code", to: "/admin/promo-codes" },
