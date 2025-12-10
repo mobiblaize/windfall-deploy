@@ -35,7 +35,7 @@ function GameResultsTickets() {
     isError,
     error,
   } = useFetchData(
-    `customer/games/order/details/${id}/tickets?page=${filterPage}&limit=${12}&include_unassigned=${includeUnassigned}`
+    `customer/games/order/details/${id}/tickets?page=${filterPage}&limit=${12}&include_unassigned=${includeUnassigned}&include_assigned=${includeUnassigned}`
   );
 
   useEffect(() => {
@@ -81,29 +81,27 @@ function GameResultsTickets() {
         title="game result"
         description="A list of result pertaining to your games"
       >
-        {isInstant && (
-          <Flex gap={10}>
-            <Select
-              data={[
-                { value: "true", label: "Show All" },
-                { value: "false", label: "My tickets" },
-              ]}
-              value={includeUnassigned}
-              onChange={(value) => {
-                setIncludeUnassigned(value as string);
-                setFilterPage(1);
-              }}
-              placeholder="My Games: Show All"
-              rightSection={<FaAngleDown />}
-              className="w-[180px]"
-              classNames={{
-                label: "!capitalize ",
-                options: "text-primary-text",
-              }}
-              clearable
-            />
-          </Flex>
-        )}
+        <Flex gap={10}>
+          <Select
+            data={[
+              { value: "true", label: "Show All" },
+              { value: "false", label: "My tickets" },
+            ]}
+            value={includeUnassigned}
+            onChange={(value) => {
+              setIncludeUnassigned(value as string);
+              setFilterPage(1);
+            }}
+            placeholder="My Games: Show All"
+            rightSection={<FaAngleDown />}
+            className="w-[180px]"
+            classNames={{
+              label: "!capitalize ",
+              options: "text-primary-text",
+            }}
+            clearable
+          />
+        </Flex>
       </MyGameHeader>
       <Container size="xl" fluid className="!px-6 md:!px-16" mt={32}>
         {isLoading && (
@@ -154,7 +152,7 @@ function GameResultsTickets() {
                 </Button>
               </Flex>
             </Box> */}
-            
+
             <SimpleGrid
               py="lg"
               cols={{ base: 1, md: 2 }}

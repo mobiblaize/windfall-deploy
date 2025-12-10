@@ -120,11 +120,11 @@ function PrizesInner({ form, readOnly }: Props) {
                         />}
 
                         <TextInput
-                          label={`${prefix}Prize cost`}
+                          label={`${prefix}Prize Value`}
                           placeholder="e.g. 5000"
                           type="number"
                           required
-                          description="The total cost or value of a single prize unit."
+                          description="The total value of a single prize unit."
                           classNames={{ label: "text-xs font-medium capitalize" }}
                           error={form.errors?.[`prizes.${index}.prize_cost`]}
                           {...form.getInputProps(`prizes.${index}.prize_cost`)}

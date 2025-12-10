@@ -19,7 +19,7 @@ const envMode = viteEnv?.MODE ?? nodeEnv?.NODE_ENV ?? "production";
 export const baseUrl =
   runtimeBaseUrl ||
   (envMode === "production"
-    ? "https://api.homewindfall.com/"
+    ? "https://api.homewindfall.com/api/v1/"
     : "https://api.windfall.sbscuk.co.uk/public/api/v1/");
 
 const axiosInstance: AxiosInstance = axios.create({

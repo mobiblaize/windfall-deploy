@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import AlertModal from "../../components/Modals/AlertModal";
 import MyGameHeader from "./MyGameHeader";
 import type { Crumb } from "../../components/DynamicBreadCrumbs";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { useFetchData, useGetExportData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import { formatCurrency } from "../../utils/helper/formatCurrency";
@@ -90,6 +90,7 @@ const items: Crumb[] = [
 export default function PaymentReceipt() {
   const { id } = useParams<{ id: string }>();
   const { setCrumbs } = useOutletContext<ContextType>();
+  const navigate = useNavigate();
   const [order, setOrder] = useState<OrderData>();
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [paymentSuccessModalOpen, setPaymentSuccessModalOpen] = useState(false);
@@ -206,11 +207,14 @@ export default function PaymentReceipt() {
                     item.game?.instant_game === "true";
                   return (
                     <Grid.Col
+                    onClick={() => {
+                      navigate(`/profile/all-games/${item.uuid}`);
+                    }}
                       key={item.uuid}
                       span={{ base: 12, sm: 6, md: 4 }}
                       className="!justify-start !cursor-pointer !flex !flex-col mb-10 !items-center 
-             !transition-transform !duration-300 !ease-in-out 
-             hover:!translate-y-16 group"
+                      !transition-transform !duration-300 !ease-in-out
+                      group"
                     >
                       <Image
                         src={cardImages(item.game.card_image)}
