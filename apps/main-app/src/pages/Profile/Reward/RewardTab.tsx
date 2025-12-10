@@ -203,17 +203,15 @@ function RewardTab() {
             >
               <Text className="!text-sm !mb-1">My Referral balance</Text>
               {isLoading ? (
-                <Skeleton className="!mb-8" height={40} width="80%" />
+                <Skeleton className="!mb-0" height={40} width="50%" />
               ) : (
-                <>
-                  <Text className="!text-4xl !text-primary-red !font-bold !mb-0">
-                    {formatCurrency(balance)}
-                  </Text>
-                  <Text className="!text-secondary-text !text-start !mb-8">
-                    Your referral balance can only be used to buy a ticket.{" "}
-                  </Text>
-                </>
+                <Text className="!text-4xl !text-primary-red !font-bold !mb-0">
+                  {formatCurrency(balance)}
+                </Text>
               )}
+              <Text className="!text-secondary-text !text-start !mb-8">
+                Your referral balance can only be used to buy a ticket.{" "}
+              </Text>
               {/* <Text className="!text-secondary-text !mb-8">
                 + ₦ 1,030 added in the last 3 days.
               </Text> */}
