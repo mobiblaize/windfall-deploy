@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Box,
   Card,
   Container,
@@ -159,6 +160,26 @@ function RewardTab() {
     }
   };
 
+  const handleCopyLink = async () => {
+    if (!user?.referral_link) return;
+
+    try {
+      await navigator.clipboard.writeText(user.referral_link);
+      notifications.show({
+        title: "Copied!",
+        message: "Referral link copied to clipboard",
+        color: "green",
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      notifications.show({
+        title: "Error",
+        message: "Failed to copy referral link",
+        color: "red",
+      });
+    }
+  };
+
   return (
     <div>
       <MyGameHeader
@@ -184,9 +205,14 @@ function RewardTab() {
               {isLoading ? (
                 <Skeleton className="!mb-8" height={40} width="80%" />
               ) : (
-                <Text className="!text-4xl !text-primary-red !font-bold !mb-8">
-                  {formatCurrency(balance)}
-                </Text>
+                <>
+                  <Text className="!text-4xl !text-primary-red !font-bold !mb-0">
+                    {formatCurrency(balance)}
+                  </Text>
+                  <Text className="!text-secondary-text !text-start !mb-8">
+                    Your referral balance can only be used to buy a ticket.{" "}
+                  </Text>
+                </>
               )}
               {/* <Text className="!text-secondary-text !mb-8">
                 + ₦ 1,030 added in the last 3 days.
@@ -198,9 +224,34 @@ function RewardTab() {
                 <span className="mr-2">{user?.referral_code}</span>
                 <FaRegCopy />
               </CustomButton>
-              <Text className="!text-secondary-text !text-center">
-                Your referral balance can only be used to buy a ticket.{" "}
-              </Text>
+              <Divider my="md" />
+              {/* <Text className="!text-secondary-text !text-center !mb-3">
+                Copy and share your referral link
+              </Text> */}
+              <Box className="!mb-3">
+                <TextInput
+                  value={user?.referral_link || ""}
+                  readOnly
+                  rightSection={
+                    <ActionIcon
+                      onClick={handleCopyLink}
+                      size="lg"
+                      variant="subtle"
+                      className="!bg-[#FFD5D6] !text-primary-red hover:!bg-[#FFD5D6]/80"
+                    >
+                      <FaRegCopy size={16} />
+                    </ActionIcon>
+                  }
+                  classNames={{
+                    input: "!pr-14 !text-sm !break-all",
+                  }}
+                  styles={{
+                    input: {
+                      cursor: "text",
+                    },
+                  }}
+                />
+              </Box>
             </Card>
           </SimpleGrid>
         }
