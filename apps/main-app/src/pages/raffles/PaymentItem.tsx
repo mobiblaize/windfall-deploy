@@ -2,6 +2,7 @@ import { Badge, Card, Flex, Image, Text } from "@mantine/core";
 import { FaCalendarAlt } from "react-icons/fa";
 import { BsFillTicketPerforatedFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import walletImg from "../../assets/Wallet.png";
 
 function PaymentItem({ item }: { item: unknown }) {
 	console.log(item);
@@ -9,7 +10,7 @@ function PaymentItem({ item }: { item: unknown }) {
 		<div className="col-span-1">
 			<Card className="!bg-transparent !w-full">
 				<Flex justify="center" my="lg">
-					<Image src="/src/assets/Wallet.png" h={200} w={200} />
+					<Image src={walletImg} h={200} w={200} />
 				</Flex>
 				<Link to="#">
 					<Card

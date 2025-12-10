@@ -1,5 +1,6 @@
 import { Modal, Button, Center, Image, Text, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import loadingGif from "../../assets/loading.gif";
 type Props = {
     title:string
     desc:string
@@ -22,7 +23,7 @@ const [opened, { open, close }] = useDisclosure(false);
 					<Center className="!grid !text-center">
 						<Image
 							// fit="contain"
-							src="/src/assets/loading.gif"
+							src={loadingGif}
 							className="!mx-auto"
 							h={200}
 							w={100}

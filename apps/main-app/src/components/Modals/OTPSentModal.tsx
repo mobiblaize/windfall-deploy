@@ -8,6 +8,7 @@ import {
 	PinInput,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import emailGif from "../../assets/email.gif";
 type Props = {
 	btnLabel: string;
 	title: string;
@@ -30,7 +31,7 @@ function OTPSentModal({ btnLabel, title, description, description2 }: Props) {
 				<Center className="!grid !text-center">
 					<Image
 						// fit="contain"
-						src="/src/assets/email.gif"
+						src={emailGif}
 						className="!mx-auto"
 						h={100}
 						w={150}

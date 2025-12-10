@@ -1,5 +1,6 @@
 import { Modal, Button, Center, Image, Text, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import successGif from "../../assets/success.gif";
 
 function OTPValidateModal() {
 const [opened, { open, close }] = useDisclosure(false);
@@ -17,7 +18,7 @@ const [opened, { open, close }] = useDisclosure(false);
 					<Center className="!grid !text-center">
 						<Image
 							// fit="contain"
-							src="/src/assets/success.gif"
+							src={successGif}
 							className="!mx-auto"
 							h={150}
 							w={100}

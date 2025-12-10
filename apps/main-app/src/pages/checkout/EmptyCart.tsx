@@ -1,5 +1,6 @@
 import { Card, Text, Image, Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import cardImg from "../../assets/card.png";
 
 function EmptyCart() {
 	const navigate = useNavigate();
@@ -12,7 +13,7 @@ function EmptyCart() {
 		>
 			<Card.Section className="!text-center !w-4/5 !mx-auto">
 				<div className="p-3 rounded-full w-fit bg-secondary-red mx-auto">
-					<Image src="/src/assets/card.png" w={72} h={72} />
+					<Image src={cardImg} w={72} h={72} />
 				</div>
 				<Text className="!font-semibold !text-2xl">No Ticket in Cart</Text>
 				<Text className="!text-secondary-text" my="sm">

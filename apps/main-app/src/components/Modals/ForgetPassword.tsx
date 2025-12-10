@@ -8,6 +8,7 @@ import {
 	TextInput,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import warningGif from "../../assets/warning.gif";
 
 function ForgetPassword() {
 	const [opened, { close }] = useDisclosure(false);
@@ -25,7 +26,7 @@ function ForgetPassword() {
 				<Center className="!grid !text-center">
 					<Image
 						// fit="contain"
-						src="/src/assets/warning.gif"
+						src={warningGif}
 						className="!mx-auto"
 						h={100}
 						w={200}

@@ -1,6 +1,7 @@
 import { Modal, Button, Center, Image, Text, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import CustomButton from "../Buttons/CustomButton";
+import successGif from "../../assets/success.gif";
 type Props = {
 	title?:string
 	desc?:string
@@ -22,7 +23,7 @@ function ResetModal({title, desc, btnLabel }:Props) {
 				<Center className="!grid !text-center">
 					<Image
 						// fit="contain"
-						src="/src/assets/success.gif"
+						src={successGif}
 						className="!mx-auto"
 						h={200}
 						w={100}
