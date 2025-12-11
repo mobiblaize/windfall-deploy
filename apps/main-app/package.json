@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "generate-sitemap": "node scripts/generate-sitemap.js",
-    "build": "npm run generate-sitemap && tsc -b && vite build",
+    "prebuild": "npm run generate-sitemap",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
