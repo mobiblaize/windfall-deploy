@@ -5,6 +5,17 @@ import Footer from "../components/Footer";
 import { useMediaQuery, useViewportSize } from "@mantine/hooks";
 import AdminHeader from "../components/AdminHeader";
 import AdminSidebar from "../components/AdminSideBar";
+import StructuredData from "../components/StructuredData";
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "WindFall Raffle",
+  "url": "https://homewindfall.com",
+  "logo": "https://homewindfall.com/favicon.png",
+  "description": "Participate in exciting raffles and win incredible prizes. Join WindFall Raffle today!",
+  "sameAs": []
+};
 
 export default function MainLayout() {
   const { width } = useViewportSize();
@@ -41,7 +52,9 @@ export default function MainLayout() {
     (!isAdminPage || isAdminAuth || isMobile) ? 0 : 320;
 
   return (
-      <AppShell
+      <>
+        <StructuredData data={organizationSchema} />
+        <AppShell
         padding="md"
         layout="alt" // 👈 makes navbar take full height
         navbar={
@@ -74,5 +87,6 @@ export default function MainLayout() {
           {!isAdminPage && <Footer />}
         </AppShell.Main>
       </AppShell>
+      </>
   );
 }

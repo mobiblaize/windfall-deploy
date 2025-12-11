@@ -12,6 +12,7 @@ import DrawCard from "./DrawCard";
 import { HiSearch } from "react-icons/hi";
 import LoadingState from "../../components/LoadingState";
 import { DateRangePicker } from "../../components/DateRangePicker";
+import SEO from "../../components/SEO";
 export interface LiveDraw {
   uuid: string;
   status: string;
@@ -96,6 +97,12 @@ export default function Draws() {
 
   return (
     <div className="mb-10 flex flex-col h-full">
+      <SEO 
+        title="Raffle Draws"
+        description="View live and upcoming raffle draws. Watch live draws, see results, and discover winners at WindFall Raffle."
+        url="https://homewindfall.com/draws"
+        keywords="raffle draws, live draws, draw results, winners, live raffle"
+      />
       <SectionHeader
         heading="Raffle Draw"
         subHeading="Catch the draw live or watch previous draws"

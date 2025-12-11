@@ -13,6 +13,7 @@ import EmptyState from "../../components/EmptyState";
 import { IoClose } from "react-icons/io5";
 import { useSearchParams } from "react-router-dom";
 import { DateRangePicker } from "../../components/DateRangePicker";
+import SEO from "../../components/SEO";
 
 export default function RaffleGames() {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
@@ -96,6 +97,12 @@ export default function RaffleGames() {
 
   return (
     <section>
+      <SEO 
+        title="Raffle Games"
+        description="Browse and participate in exciting raffle games. Find live, upcoming, and instant win raffles with amazing prizes at WindFall Raffle."
+        url="https://homewindfall.com/raffles"
+        keywords="raffle games, online raffle, instant raffle, live raffles, win prizes"
+      />
       <div className="px-6 md:px-16 py-10 bg-white">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>

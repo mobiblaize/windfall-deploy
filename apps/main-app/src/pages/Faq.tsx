@@ -6,6 +6,7 @@ import faql from "../assets/faq-l.png";
 import faqr from "../assets/faq-r.png";
 import faqImage from "../assets/faq-img.png";
 import HelpSection from "../components/HelpSection";
+import SEO from "../components/SEO";
 
 const faqData = [
   {
@@ -75,6 +76,12 @@ export default function Faq() {
 
   return (
     <div className="mb-5 md:mb-10 flex flex-col h-full">
+      <SEO 
+        title="Frequently Asked Questions"
+        description="Find answers to common questions about WindFall Raffle. Learn how to enter raffles, check results, claim prizes, and more."
+        url="https://homewindfall.com/faq"
+        keywords="FAQ, frequently asked questions, raffle help, how to play, WindFall help"
+      />
       <SectionHeader
         heading={
           <>

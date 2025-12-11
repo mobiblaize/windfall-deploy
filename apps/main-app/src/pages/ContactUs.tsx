@@ -15,6 +15,7 @@ import { notifications } from "@mantine/notifications";
 import { useFetchData, usePostData } from "../utils/hooks/useApis";
 import { useForm } from "@mantine/form";
 import { useEffect } from "react";
+import SEO from "../components/SEO";
 
 const inputStyles = {
   input: {
@@ -103,6 +104,12 @@ export default function ContactUs() {
 
   return (
     <div className="bg-white">
+      <SEO 
+        title="Contact Us"
+        description="Get in touch with WindFall Raffle. Contact our support team for help with your account, prizes, or any questions you may have."
+        url="https://homewindfall.com/contact-us"
+        keywords="contact WindFall, customer support, help, support team"
+      />
       <SectionBanner>
         <Group align="center" gap="lg" className="flex-wrap !gap-10">
           <Title

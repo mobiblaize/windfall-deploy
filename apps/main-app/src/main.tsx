@@ -9,6 +9,7 @@ import App from "./App.tsx";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from "react-helmet-async";
 
 const customColors: [
   string,
@@ -45,19 +46,21 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <MantineProvider
-      theme={{
-        colors: {
-          customColors,
-        },
-        primaryColor: "customColors",
-        primaryShade: 4,
-      }}
-    >
-      <Notifications position="top-right" />
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </MantineProvider>
+    <HelmetProvider>
+      <MantineProvider
+        theme={{
+          colors: {
+            customColors,
+          },
+          primaryColor: "customColors",
+          primaryShade: 4,
+        }}
+      >
+        <Notifications position="top-right" />
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
+      </MantineProvider>
+    </HelmetProvider>
   </StrictMode>
 );

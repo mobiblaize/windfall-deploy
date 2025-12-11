@@ -13,6 +13,7 @@ import team4 from "../assets/team-4.png";
 import team5 from "../assets/team-5.png";
 import team6 from "../assets/team-6.png";
 import RaffleHelpSection from "../components/RaffleHelpSection";
+import SEO from "../components/SEO";
 
 const values = [
   {
@@ -87,6 +88,12 @@ const teamMembers = [
 export default function AboutUs() {
   return (
     <div>
+      <SEO 
+        title="About Us"
+        description="Learn about WindFall Raffle - creating life-changing wins for everyday Nigerians. Discover our mission, vision, values, and team."
+        url="https://homewindfall.com/about"
+        keywords="about WindFall, raffle company, team, mission, vision, values"
+      />
       {/* ...About Us section ... */}
       <div className="relative w-full !px-6 md:!px-16 !pt-15">
         {/* Top red background */}
