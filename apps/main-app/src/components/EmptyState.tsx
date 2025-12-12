@@ -28,7 +28,7 @@ function EmptyState({
       withBorder
       shadow="sm"
       radius="md"
-      className={`!min-w-4/5 sm:!min-w-0 !w-${fullWidth ? 5: width}/5 !mx-auto !mt-10 !py-10 md-!px-10`}
+      className={`!w-${fullWidth ? 5: width}/5 !mx-auto !mt-10 !py-10 md-!px-10`}
     >
       <Card.Section className="!text-center !w-4/5 !mx-auto">
         {format === "primary" && (
