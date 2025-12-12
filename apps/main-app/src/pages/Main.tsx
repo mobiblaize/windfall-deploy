@@ -39,9 +39,9 @@ export default function MainLayout() {
     : isAdminPage
       ? 68.7
       : width <= 639
-        ? 92
+        ? 91
         : width < 1095
-          ? 110
+          ? 107
           : 196;
 
           const mobileBP = 1095;
