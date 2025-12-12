@@ -35,31 +35,21 @@ ${publicPages.map(page => `  <url>
   </url>`).join('\n')}
 </urlset>`;
 
-  // Determine the public directory path
-  // Try script-relative path first, then fallback to process.cwd()
-  let publicDir = path.join(__dirname, '../public');
-  
-  // If that doesn't exist, try from current working directory
-  if (!fs.existsSync(path.dirname(publicDir))) {
-    const cwdPublic = path.join(process.cwd(), 'public');
-    if (fs.existsSync(path.dirname(cwdPublic)) || process.cwd().includes('main-app')) {
-      publicDir = cwdPublic;
-    }
-  }
-
-  // Ensure the public directory exists
+  const publicDir = path.join(__dirname, '../public');
   if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
   }
 
-  const sitemapPath = path.join(publicDir, 'sitemap.xml');
-  fs.writeFileSync(sitemapPath, sitemap, 'utf8');
+  fs.writeFileSync(
+    path.join(publicDir, 'sitemap.xml'),
+    sitemap
+  );
 
-  console.log(`Sitemap generated successfully at: ${sitemapPath}`);
+  console.log('✓ Sitemap generated successfully!');
 } catch (error) {
-  console.error('Error generating sitemap:', error);
-  // Don't fail the build if sitemap generation fails
-  console.warn('Continuing build without sitemap...');
+  console.error('Warning: Failed to generate sitemap:', error.message);
+  console.log('Continuing build without sitemap...');
+  // Don't fail the build - exit with success
   process.exit(0);
 }
 
