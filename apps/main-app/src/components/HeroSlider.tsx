@@ -15,7 +15,7 @@ export default function HeroSlider() {
       />
 
       {/* Overlay */}
-      <div className="absolute top-0 left-0 w-full h-full bg-black/20 backdrop-blur-[2px] z-10" />
+      <div className="absolute top-0 left-0 w-full h-full z-10" />
 
       {/* Content Box */}
       <div className="absolute top-1/2 left-10 md:left-24 -translate-y-1/2 z-20">
