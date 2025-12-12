@@ -1,7 +1,7 @@
 import { Text } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import CartItem from "./CartItem";
-import EmptyCart from "./EmptyCart";
+import EmptyState from "../../components/EmptyState";
 import { useCart } from "../../utils/hooks/useCart";
 import { useEffect } from "react";
 import { notifications } from "@mantine/notifications";
@@ -147,9 +147,17 @@ function Cart() {
 
         {!cartLoading && (
           <>
-            {!items?.length && <EmptyCart />}
+            {!items?.length && (
+              <EmptyState
+                title="No Ticket in Cart"
+                description="You currently have no ticket (s) in your Cart. Explore raffle games to add ticket (s) to your Cart."
+                btnText="Explore All Games"
+                redirectLink="/raffles"
+                format="primary"
+              />
+            )}
 
-            {items.length && (
+            {items?.length > 0 && (
               <>
                 {items.map((item) => (
                   <CartItem setItemQuantity={setItemQuantity} removeItem={removeItem} key={item.uuid} item={item} />

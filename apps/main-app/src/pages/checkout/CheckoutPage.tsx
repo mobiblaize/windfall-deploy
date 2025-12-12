@@ -20,7 +20,7 @@ import { useFetchData, usePostData } from "../../utils/hooks/useApis";
 import { notifications } from "@mantine/notifications";
 import LoadingState from "../../components/LoadingState";
 import { formatCurrency } from "../../utils/helper/formatCurrency";
-import EmptyCart from "./EmptyCart";
+import EmptyState from "../../components/EmptyState";
 import type { Item } from "./Cart";
 
 export interface CheckoutSummary {
@@ -357,7 +357,15 @@ function CheckoutPage() {
 
         {!cartLoading && (
           <>
-            {!cart?.cart.summary.total_quantity && !buyNowItem && <EmptyCart />}
+            {!cart?.cart.summary.total_quantity && !buyNowItem && (
+              <EmptyState
+                title="No Ticket in Cart"
+                description="You currently have no ticket (s) in your Cart. Explore raffle games to add ticket (s) to your Cart."
+                btnText="Explore All Games"
+                redirectLink="/raffles"
+                format="primary"
+              />
+            )}
             {(cart?.cart.summary.total_quantity || buyNowItem) && (
               <div className="grid grid-flow-row lg:grid-cols-5 gap-7">
                 <div className="!col-span-5 md:!col-span-3">

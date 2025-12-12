@@ -10,6 +10,7 @@ type props = {
   btnText?: string;
   format?: "primary" | "secondary";
   fullWidth?: boolean
+  width?: 1 | 2 | 3 | 4 | 5;
 };
 
 function EmptyState({
@@ -18,7 +19,8 @@ function EmptyState({
   btnText,
   redirectLink,
   format = "primary",
-  fullWidth=false
+  fullWidth=false,
+  width=2
 }: props) {
   const navigate = useNavigate();
   return (
@@ -26,7 +28,7 @@ function EmptyState({
       withBorder
       shadow="sm"
       radius="md"
-      className={`!w-${fullWidth ? 5: 2}/5 !mx-auto mt-10 !p-10`}
+      className={`!w-${fullWidth ? 5: width}/5 !min-w-[80%] sm:!min-w-0 !mx-auto mt-10 !py-10 md-!px-10`}
     >
       <Card.Section className="!text-center !w-4/5 !mx-auto">
         {format === "primary" && (
@@ -45,8 +47,10 @@ function EmptyState({
         </Text>
         {redirectLink && btnText && (
           <Button
+            fullWidth={false}
+            style={{ maxWidth: "100%" }}
             onClick={() => navigate(redirectLink)}
-            className="!border !border-dashed !border-secondary-red !px-7 !h-12 !tracking-wide"
+            className="!border !border-dashed !border-secondary-red md-!px-7 !h-12 !tracking-wide"
           >
             {btnText}
           </Button>
