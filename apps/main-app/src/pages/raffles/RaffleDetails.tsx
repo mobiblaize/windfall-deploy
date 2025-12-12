@@ -27,15 +27,15 @@ const baseTabs: TabItem[] = [
 export default function RaffleDetails() {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<string>("competition");
-  const [raffle, setRaffle] = useState<Raffle>();
-  const isInstant =
-    raffle?.main_active_status === "instant" || raffle?.instant_game === "true";
   const {
     data: response,
     isLoading,
     isError,
     error,
   } = useFetchData(`guest/games/${id}`);
+  const raffle = response?.data as Raffle;
+  const isInstant =
+    raffle?.main_active_status === "instant" || raffle?.instant_game === "true";
 
   useEffect(() => {
     if (isError) {
@@ -47,7 +47,6 @@ export default function RaffleDetails() {
       });
     }
     if (response) {
-      setRaffle(response.data);
       setActiveTab("competition");
     }
   }, [error, isError, response]);
