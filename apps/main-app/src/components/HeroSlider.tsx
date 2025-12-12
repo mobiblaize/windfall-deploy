@@ -1,12 +1,12 @@
 // components/HeroSlider.tsx
 import { Button } from '@mantine/core';
-import hero from '../assets/hero.png';
+import hero from '../assets/hero-img.png';
 import { useNavigate } from 'react-router-dom';
 
 export default function HeroSlider() {
   const navigate = useNavigate();
   return (
-    <section className="relative w-full h-[380px] md:h-[420px] overflow-hidden">
+    <section className="relative w-full h-[50vh] min-h-[380px] md:min-h-[420px] overflow-hidden">
       {/* Background Image */}
       <img
         src={hero} // Replace with your actual image path
@@ -19,16 +19,15 @@ export default function HeroSlider() {
 
       {/* Content Box */}
       <div className="absolute top-1/2 left-10 md:left-24 -translate-y-1/2 z-20">
-        <div className="bg-white/20 backdrop-blur-lg text-white p-8 md:w-[30vw] pt-10 rounded-xl max-w-[522px]">
+        <div className="bg-white/20 backdrop-blur-2xl bg-gradient-to-br from-[position:3.26%_6.11%] to-[position:100%_97.22%] text-white p-8 md:w-[30vw] pt-10 pb-12 rounded-xl !max-w-[90%] sm:!max-w-[522px]">
           <h1 className="text-2xl md:text-4xl font-bold leading-tight">
-            Your key to a new <br />
-            <span className="text-white">Home!</span>
+            Play Windfall Raffle and Win an Apartment
           </h1>
-          <p className="text-sm mb-4">Live in , Rent out , Sell up</p>
+          <p className="text-sm mb-4">One ticket. One shot. Your keys could be next.</p>
           <Button onClick={() => navigate("/raffles")}
               size='lg'
               className="!bg-primary-red hover:bg-primary-red text-white font-semibold text-sm px-6 py-2 rounded-md shadow">
-            Enter Game
+            Enter Raffle
           </Button>
         </div>
       </div>
