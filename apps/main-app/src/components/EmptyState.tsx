@@ -26,7 +26,7 @@ function EmptyState({
       withBorder
       shadow="sm"
       radius="md"
-      className={`!w-${fullWidth ? 5: 2}/5 !mx-auto !mt-10 !py-10 md-!px-10`}
+      className={`!min-w-[80%] sm:!min-w-0 ${fullWidth ? '!w-full' : '!w-2/5'} !mx-auto !mt-10 !py-10 md:!px-10`}
     >
       <Card.Section className="!text-center !w-4/5 !mx-auto">
         {format === "primary" && (
@@ -48,7 +48,7 @@ function EmptyState({
             fullWidth={false}
             style={{ maxWidth: "100%" }}
             onClick={() => navigate(redirectLink)}
-            className="!border !border-dashed !border-secondary-red md-!px-7 !h-12 !tracking-wide"
+            className="!border !border-dashed !border-secondary-red md:!px-7 !h-12 !tracking-wide"
           >
             {btnText}
           </Button>
