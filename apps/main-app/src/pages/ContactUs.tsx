@@ -143,10 +143,10 @@ export default function ContactUs() {
                 <div>
                   <Text className="!font-medium">Phone support</Text>
                   <a
-                    href="tel:+2348007543675"
+                    href="tel:+2349039537488"
                     className="!text-primary-red !font-medium hover:underline"
                   >
-                    +234 800 7543 675
+                    +234 903 953 7488
                   </a>
                   <Text className="!text-base !font-medium !text-[#575757]">
                     Mon-Fri, 9am-5pm WAT
@@ -166,10 +166,10 @@ export default function ContactUs() {
                 <div>
                   <Text className="!font-medium">Email support</Text>
                   <a
-                    href="mailto:Support@windfall.ng"
+                    href="mailto:contact@homewindfall.com"
                     className="!text-primary-red !font-medium hover:underline"
                   >
-                    Support@windfall.ng
+                    contact@homewindfall.com
                   </a>
                   <Text className="!text-base !font-medium !text-[#575757]">
                     Response time: 24–48 business hours

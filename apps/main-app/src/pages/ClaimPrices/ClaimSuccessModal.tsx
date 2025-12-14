@@ -71,10 +71,10 @@ export default function ClaimSuccessModal({
         <Text className="!text-base !text-black">
           If you need help, contact us at{" "}
           <a
-            href="mailto:Support@windfall.ng"
+            href="mailto:contact@homewindfall.com"
             className="!text-primary-red !font-medium hover:underline"
           >
-            Support@windfall.ng
+            contact@homewindfall.com
           </a>
         </Text>
 

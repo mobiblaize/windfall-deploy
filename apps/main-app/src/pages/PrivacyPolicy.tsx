@@ -70,10 +70,10 @@ const policies = [
         </span>
         , also via phone:{" "}
         <a
-          href="tel:+2348007543675"
+          href="tel:+2349039537488"
           className="!text-primary-red !font-medium hover:underline"
         >
-          +234 800 7543 675
+          +234 903 953 7488
         </a>{" "}
         and you can also visit us at{" "}
         <span className="!text-primary-red hover:underline">

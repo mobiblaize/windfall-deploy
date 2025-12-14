@@ -57,7 +57,7 @@ export default function ClaimPricesStep1({ onNext }: Props) {
             label={
               <span className="text-[#030303] font-medium">Phone number</span>
             }
-            placeholder="+234 800 7543 675"
+            placeholder="+234 903 953 7488"
             value={phone}
             onChange={(e) => setPhone(e.currentTarget.value)}
             required

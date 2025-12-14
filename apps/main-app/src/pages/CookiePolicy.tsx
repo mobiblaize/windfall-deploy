@@ -103,10 +103,10 @@ const policies = [
           <span>
             Phone:{" "}
             <a
-              href="tel:+2348007543675"
+              href="tel:+2349039537488"
               className="!text-primary-red !font-medium hover:underline"
             >
-              +234 800 7543 675
+              +234 903 953 7488
             </a>
           </span>
         </div>
