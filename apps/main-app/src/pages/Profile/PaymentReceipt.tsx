@@ -212,7 +212,7 @@ export default function PaymentReceipt() {
                     }}
                       key={item.uuid}
                       span={{ base: 12, sm: 6, md: 4 }}
-                      className="!justify-start !cursor-pointer !flex !flex-col mb-10 !items-center 
+                      className="!justify-end !cursor-pointer !flex !flex-col mb-10 !items-center 
                       !transition-transform !duration-300 !ease-in-out
                       group"
                     >
